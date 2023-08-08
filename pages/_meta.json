@@ -1,0 +1,36 @@
+{
+    "index": "Home",
+    "reclaim-protocol": "Reclaim Protocol",
+    "get_started": "Get Started",
+    "install": "Install Reclaim App",
+    "--": {
+        "type": "separator",
+        "title": "SDKs"
+    },
+    "node": {
+        "title": "Node",
+        "href": ""
+    },
+    "react": {
+        "title": "React",
+        "href": ""
+    },
+    "react-native": {
+        "title": "React Native",
+        "href": ""
+    },
+    "--": {
+        "type": "separator",
+        "title": "Behind the scenes"
+    },
+    "whitepaper": {
+        "title": "Whitepaper",
+        "href": ""
+    },
+    "dashboard": {
+        "title": "Dashboard",
+        "href": "https://dev.reclaimprotocol.org",
+        "newWindow": true,
+        "type": "page"
+    }
+}
