@@ -4,7 +4,7 @@ import { DocsThemeConfig } from 'nextra-theme-docs'
 
 const config: DocsThemeConfig = {
     logo: <span className="font-extrabold">
-        <Image src="/assets/logo.png" alt="logo"  width={20} height={20} />
+        {/* <Image src="/assets/logo.png" alt="logo"  width={20} height={20} /> */}
         Reclaim
         </span>,
     project: {
