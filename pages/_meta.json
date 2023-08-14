@@ -1,23 +1,21 @@
 {
-    "index": "Home",
-    "get_started": "Get Started",
+    "index": "Get Started",
     "install": "Install Reclaim App",
+    "anatomy": "Know your Reclaim app",
+    "terminologies": "SDK terminologies",
     "showcase": "Showcase",
     "--1": {
         "type": "separator",
         "title": "SDKs"
     },
     "node": {
-        "title": "Node",
-        "href": "/node"
+        "title": "NodeJs"
     },
     "react": {
-        "title": "React",
-        "href": "/react"
+        "title": "ReactJs"
     },
     "react-native": {
-        "title": "React Native",
-        "href": ""
+        "title": "React Native"
     },
     "--2": {
         "title": "Try Reclaim",

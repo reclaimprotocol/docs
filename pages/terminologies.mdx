@@ -1,0 +1,115 @@
+import {Callout} from 'nextra/components'
+
+## baseCallbackUrl
+The `baseCallbackUrl` is the URL of your backend server. This is used to redirect the user back to your server after they have generated proof and want to submit it to your server.
+
+<Callout type='info'>baseCallbackUrl = The URL of your backend server</Callout>
+
+- If you are running your server locally on port 3000 `baseCallbackUrl = 'http://localhost:3000'`
+
+- If your server is hosted on https://my-backend-server.com `baseCallbackUrl = 'https://my-backend-server.com'`
+
+## callbackId/sessionId
+The `callbackId` is a unique identifier for the proof generation session. This is used to identify the proof generation session when the user submits the proof to your server. 
+
+### Where do you define callbackId?
+`callbackId` is defined while [requesting proofs](/node/quickstart#request-proofs-from-the-user). It's optional, if you don't provide callbackId, not a problem, we generate it for you and append it to your [baseCallbackUrl](#baseCallbackUrl).
+When the proof is submitted through the Reclaim app, it hits the url -
+`https://<baseCallbackUrl>?callbackId=<callbackId>`
+
+<Callout type='default'> You should store this callbackId mapped to your user in your database, so that when your user submits the proof it gets updated in your database correctly for the intended user.</Callout>
+
+## callbackUrl
+`callbackUrl = baseCallbackUrl + callbackId`
+
+Proofs get submitted to this callback url
+
+## contextAddress
+If you want to map a user's submitted proof to their metamask address, you can do so via `contextAddress`.
+This is useful if you want to perform airdrops to wallets defined in contextAddress via smart contract
+
+## contextMessage
+`contextMessage` is used to provide a context for your request of proofs from your user.
+<Callout type='info'> Default value = baseCallbackUrl </Callout>
+   
+## reclaimUrl
+You request proofs from your user using the `reclaimUrl` . When your user clicks on this URL, it redirects them to the Reclaim app where they can generate the proofs that you requested and submit them.
+
+## Custom Provider
+Use a Custom provider if the data doesn't exist as is in any HTML element and requires some additional computing, for example, counting the number of transactions or summing some values on the page - the logic needs to be embedded in a custom provider.
+
+### Custom Provider Example Usage
+```js copy
+app.get("/request-proofs", async(req, res) => {
+    const request = reclaim.requestProofs({
+        title: "My DeFi app", // Name of your application
+        baseCallbackUrl: "http://localhost:3000/callback", 
+        contextMessage: "Airdrop for Reclaim Users!", //optional : Why you are requesting this proof. Displayed on the user's device while creating the proof
+        contextAddress: '0x5d96Cb97F8499d4dEa814cEa2F8448A0AF1A2bC2', //optional: your users' EVM/Solana/Bitcoin wallet address if you are planning to use this proof for NFT or Coin drops
+        requestedProofs: [
+            new reclaim.CustomProvider({
+                provider: 'google-login',
+                payload: {}
+            }),
+        ],
+    });
+
+    const { callbackId } = request;
+    const reclaimUrl = await request.getReclaimUrl({});
+    // Store the callback Id and Reclaim URL in your database
+    // ... 
+
+    res.json({ reclaimUrl }); // display this reclaimUrl as a QR code on laptop or as a link on mobile devices for users to initiate creating proofs
+}
+```
+The example above uses `google-login` as the Custom Provider. Find all other providers here
+
+## Http Provider
+Use this provider, if the data resides as is in some HTML element. It allows you to specify the URL of the website you're interacting with, the regex to match on the website and the cookies that need to be checked. 
+
+### Http Provider Example Usage
+```js copy
+app.get("/request-proofs", async(req, res) => {
+    const request = reclaim.requestProofs({
+        title: "Reclaim Protocol",
+        baseCallbackUrl: "https://yourdomain.com/callback",
+        // callbackId: "<UNIQUE_IDENTIFIER_GOES_HERE>" // optional
+        contextMessage: "Airdrop for Reclaim claimants", //optional: context message for the proof request
+        contextAddress: "0x5d96Cb97F8499d4dEa814cEa2F8448A0AF1A2bC2" //optional: your users' Ethereum wallet 
+        requestedProofs: [
+            new reclaim.HttpsProvider({
+                name: "Y Combinator Membership",
+                logoUrl: "https://i.redd.it/snoovatar/avatars/97178518-5ce1-400b-8185-54dcaef96d9c.png",
+                url: "https://bookface.ycombinator.com/home",
+                loginUrl: "https://account.ycombinator.com/?continue=https%3A%2F%2Fbookface.ycombinator.com%2F",
+                loginCookies: ['_sso.key'],
+                responseSelection: [
+                    {
+                        "xPath": "//*[@id='js-react-on-rails-context']",
+                        "jsonPath": "$.currentUser",
+                        "responseMatch": "\\{\"id\":{{YC_USER_ID}},.*?waas_admin.*?:{.*?}.*?:\\{.*?}.*?(?:full_name|first_name).*?}"
+                    },
+                    {
+                        "xPath": "//script[@data-component-name='BookfaceCsrApp']",
+                        "jsonPath": "$.hasBookface",
+                        "responseMatch": "\"hasBookface\":true"
+                    }
+            ],
+            }),
+        ],
+    });
+
+    const { callbackId, expectedProofsInCallback } = request;
+    const reclaimUrl = await request.getReclaimUrl({});
+    // Save the callbackId, reclaimUrl, and expectedProofsInCallback for future use
+    // ...
+    res.json({ reclaimUrl });
+})
+```
+
+## Provider
+A provider is the website where the data resides. You want your users to prove ownership of data from this website aka Provider
+
+We have two types of Providers:
+- [HTTP Provider](#http-provider): Use this provider, if the data resides as is in some HTML element. It allows you to specify the URL of the website you're interacting with, the regex to match on the website and the cookies that need to be checked. 
+- [Custom Provider](#custom-provider): Use this provider, if the data doesn't exist as is in any HTML element and requires some additional compute, for example counting the number of transactions or summing some values on the page - the logic needs to be embedded in a custom provider.
