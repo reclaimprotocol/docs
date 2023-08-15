@@ -1,0 +1,96 @@
+import { Steps, Callout } from 'nextra/components'
+
+# Quickstart
+
+<Steps>
+### Install the SDK
+
+```bash
+npm i @reclaimprotocol/reclaim-client-sdk
+```
+
+### Import the SDK
+
+```js showLineNumbers filename="app.tsx"
+import ReclaimSDK from '@reclaimprotocol/reclaim-client-sdk'
+```
+
+### Initialize the SDK with your Reclaim application ID:
+
+```js showLineNumbers {2} filename="app.tsx"
+const App = () => {
+    const reclaimSDK = new ReclaimSDK('<RECLAIM-APP-ID>')
+}
+```
+
+### Generate proof submission session for your user
+
+```js showLineNumbers {12} filename="app.tsx"
+import ReclaimSDK from '@reclaimprotocol/reclaim-client-sdk'
+
+const App = () => {
+    
+    const [sessionId, setSessionId] = useState('')
+    const [isProofSubmitted, setIsProofSubmitted] = useState(false)
+
+    const reclaimSDK = new ReclaimSDK('<RECLAIM-APP-ID>')
+
+    const generateSession = async() => {
+		const userId = '<USER_ID>' // Replace with your user's unique identifier
+		const session = await reclaimSDK.generateSession({
+			userId,
+			onProofSubmissionSuccess: () => {
+                setIsProofSubmitted(true)
+				// ... your business logic for successful proof submission goes here
+			},
+			onError: (error) => {
+				// ... Error handling logic for proof submission goes here
+			}
+		})
+
+        if(session) {
+            setSessionId(session.sessionId)
+        }
+	}
+}
+```
+### Retrieve proofs submitted
+
+```js showLineNumbers {27} filename="app.tsx"
+const App = () => {
+    
+    const [sessionId, setSessionId] = useState('')
+    const [isProofSubmitted, setIsProofSubmitted] = useState(false)
+
+    const reclaimSDK = new ReclaimSDK('<RECLAIM-APP-ID>')
+
+    const generateSession = async() => {
+		const userId = '<USER_ID>' // Replace with your user's unique identifier
+		const session = await reclaimSDK.generateSession({
+			userId,
+			onProofSubmissionSuccess: () => {
+                setIsProofSubmitted(true)
+				// ... your business logic for successful proof submission goes here
+			},
+			onError: (error) => {
+				// ... Error handling logic for proof submission goes here
+			}
+		})
+
+        if(session) {
+            setSessionId(session.sessionId)
+        }
+	}
+
+    const getSubmittedProofs = async(sessionId: string) => {
+		const proofs = await reclaimSDK.getProofs(sessionId)
+	}
+
+    useEffect(() => {
+        if(isProofSubmitted) {
+            getSubmittedProofs(sessionId)
+        }
+	}, [isProofSubmitted])
+}
+```
+</Steps>

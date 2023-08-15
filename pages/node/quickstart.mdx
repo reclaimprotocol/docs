@@ -2,7 +2,7 @@ import { Steps, Callout } from 'nextra/components'
 
 # Quickstart
 <Callout type='info'>
-The following tutorial assumes you are running an express backend
+The following tutorial is based on node express backend
 </Callout>
 
 <Steps>
@@ -20,14 +20,12 @@ const reclaim = new reclaimprotocol.Reclaim();
 
 ### Request proofs from the user
 Create an endpoint on your backend server to request proofs from your user
-- `userAddress` is optional. If you are planning to use this proof for NFT or Coin drops, you can pass your users' EVM/Solana/Bitcoin wallet address here
 - `callbackId` is optional. If you want to use your own unique identifier for this request instead of reclaim's generated one, you can pass it here
 - `contextMessage` is optional. You can pass a message here to let your users know why you are requesting this proof
 - `contextAddress` is optional. If you are planning to use this proof for NFT or Coin drops, you can pass your users' EVM/Solana/Bitcoin wallet address here
+
 ```js copy
 app.get("/request-proofs", async(req, res) => {
-const {userAddress} = req.body; // optional
-try {
     const request = reclaim.requestProofs({
         title: "My DeFi app", // Name of your application
         baseCallbackUrl: "http://<YOUR_BACKEND_SERVER_URL>/callback", 
@@ -45,12 +43,12 @@ try {
     const { callbackId } = request;
     const reclaimUrl = await request.getReclaimUrl({});
     // Store the callback Id and Reclaim URL in your database
-    await db.put(callbackId, reclaimUrl)
+    // ...
     res.json({ reclaimUrl }); // display this reclaimUrl as a QR code on laptop or as a link on mobile devices for users to initiate creating proofs
 }
 ```
 
-### Submit Proofs
+### Handle proof submission
 
 ```js copy
 app.use(express.text({ type: "*/*" }));
@@ -68,17 +66,13 @@ app.post("/callback", async (req, res) => {
 
     if (isProofsCorrect) {
       // Proofs are correct, handle them as needed
-      // Retrieve user from db
-      // user = await db.get(req.query.callbackId)
-      // update user object according to your business logic
-      console.log("Proofs submitted:", proofs);
+      // ... business logic goes here
 
       // Respond with a success message
       res.json({ success: true });
     } else {
       // Proofs are not correct or verification failed
       // ... handle the error accordingly
-      console.error("Proofs verification failed");
 
       // Respond with an error message
       res.status(400).json({ error: "Proofs verification failed" });
