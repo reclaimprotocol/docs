@@ -1,3 +1,7 @@
 {
-    "index": "Quickstart"
+    "index": "Quickstart",
+    "start-from-example": {
+        "title": "Start from an example",
+        "display": "hidden"
+    }
 }

@@ -1,5 +1,9 @@
 {
     "index": "Overview",
     "quickstart": "Quickstart",
-    "get-reclaim-app-id": "Get Reclaim Application ID"
+    "get-reclaim-app-id": "Get Reclaim Application ID",
+    "start-from-example": {
+        "title": "Start from an example",
+        "display": "hidden"
+    }
 }
