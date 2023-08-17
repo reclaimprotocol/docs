@@ -12,7 +12,7 @@ npm i @reclaimprotocol/reclaim-sdk
 ```
 
 ### Import the SDK and initialise it
-```js copy
+```js copy showLineNumbers
 import { reclaimprotocol } from '@reclaimprotocol/reclaim-sdk';
 
 const reclaim = new reclaimprotocol.Reclaim();
@@ -24,7 +24,7 @@ Create an endpoint on your backend server to request proofs from your user
 - `contextMessage` is optional. You can pass a message here to let your users know why you are requesting this proof
 - `contextAddress` is optional. If you are planning to use this proof for NFT or Coin drops, you can pass your users' EVM/Solana/Bitcoin wallet address here
 
-```js copy
+```js copy {2} showLineNumbers
 app.get("/request-proofs", async(req, res) => {
     const request = reclaim.requestProofs({
         title: "My DeFi app", // Name of your application
@@ -49,8 +49,13 @@ app.get("/request-proofs", async(req, res) => {
 ```
 
 ### Handle proof submission
+Define callback endpoint to handle proof submission
+- Use `reclaim.verifyCorrectnessOfProofs(callbackId, proofs)` to verify if the proofs submitted were correct.
+- It returns a boolean value depending on if the proofs were correct or not
+- If the proofs were correct, you can use them to perform your business logic
+- If the proofs were not correct, you can handle the error accordingly
 
-```js copy
+```js copy {12} showLineNumbers
 app.use(express.text({ type: "*/*" }));
 
 app.post("/callback", async (req, res) => {

@@ -1,0 +1,118 @@
+import { Steps, Callout } from 'nextra/components'
+
+# Quickstart
+
+<Steps>
+### Install the SDK
+
+```bash
+npm i @reclaimprotocol/reclaim-client-sdk
+```
+
+### Import the SDK
+
+```js showLineNumbers filename="app.tsx"
+import ReclaimSDK from '@reclaimprotocol/reclaim-client-sdk'
+```
+
+### Initialize the SDK with your Reclaim application ID:
+
+```js showLineNumbers {2} filename="app.tsx"
+const App = () => {
+    const reclaimSDK = new ReclaimSDK('<RECLAIM-APP-ID>')
+}
+```
+
+### Generate session for your user
+- Use `reclaimSDK.generateSession()` to generate a session for your user.
+- Pass in your user's unique identifier as `userId` in the `generateSession()` method.
+- Pass in a callback function `onProofSubmissionSuccess` to be called when the user submits a proof.
+- Pass in a callback function `onError` to be called when there is an error in submitting the proof.
+
+It returns a session object with the following properties:
+- `sessionId`: The session ID of the session generated for the user.
+- `link`: The link to the session that you can redirect your user to.
+
+<Callout>
+Display this session link as QR code or as a link in your application. When the user clicks on the link or scans the QR code, they will be redirected to the Reclaim app to submit their proof.
+</Callout>
+
+```js showLineNumbers {12} filename="app.tsx"
+import ReclaimSDK from '@reclaimprotocol/reclaim-client-sdk'
+
+const App = () => {
+    
+    const [sessionId, setSessionId] = useState('')
+	const [sessionLink, setSessionLink] = useState('')
+    const [isProofSubmitted, setIsProofSubmitted] = useState(false)
+
+    const reclaimSDK = new ReclaimSDK('<RECLAIM-APP-ID>')
+
+    const generateSession = async() => {
+		const userId = '<USER_ID>' // Replace with your user's unique identifier
+		const session = await reclaimSDK.generateSession({
+			userId,
+			onProofSubmissionSuccess: () => {
+                setIsProofSubmitted(true)
+				// ... your business logic for successful proof submission goes here
+			},
+			onError: (error) => {
+				// ... Error handling logic for proof submission goes here
+			}
+		})
+
+        if(session) {
+            setSessionId(session.sessionId)
+			setSessionLink(session.link)
+        }
+	}
+}
+```
+### Retrieve proofs submitted
+- Use `reclaimSDK.getProofs()` to retrieve proofs submitted by your user.
+- Pass in the `sessionId` of the session for which you want to retrieve proofs.
+
+It returns an array of proof objects
+
+
+```js showLineNumbers {27} filename="app.tsx"
+const App = () => {
+    
+    const [sessionId, setSessionId] = useState('')
+	const [sessionLink, setSessionLink] = useState('')
+    const [isProofSubmitted, setIsProofSubmitted] = useState(false)
+
+    const reclaimSDK = new ReclaimSDK('<RECLAIM-APP-ID>')
+
+    const generateSession = async() => {
+		const userId = '<USER_ID>' // Replace with your user's unique identifier
+		const session = await reclaimSDK.generateSession({
+			userId,
+			onProofSubmissionSuccess: () => {
+                setIsProofSubmitted(true)
+				// ... your business logic for successful proof submission goes here
+			},
+			onError: (error) => {
+				// ... Error handling logic for proof submission goes here
+			}
+		})
+
+		setSessionLink(session?.link)
+
+        if(session) {
+            setSessionId(session.sessionId)
+        }
+	}
+
+    const getSubmittedProofs = async(sessionId: string) => {
+		const proofs = await reclaimSDK.getProofs(sessionId)
+	}
+
+    useEffect(() => {
+        if(isProofSubmitted) {
+            getSubmittedProofs(sessionId)
+        }
+	}, [isProofSubmitted])
+}
+```
+</Steps>
