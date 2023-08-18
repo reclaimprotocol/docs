@@ -1,16 +1,24 @@
 import { Callout, Cards, Card } from 'nextra/components'
 import React from 'react'
-// import {applications} from './utils'
+import {applications} from '../utils'
+import CustomCard from '../components/CustomCard'
 
 export default function Integrations() {
+    
     return (
         <div className="container mx-auto px-4">
             <Cards>
-                <Card
-                    title="Slack"
-                    href="#"
-                    arrow={true}
-                >vhjv</Card>
+                {
+                    applications.map((application, index) => (
+                        <CustomCard
+                        className="border-2 border-opacity-70 border-yellow-200"
+                            key={index}
+                            title={application.title}
+                            link={application.link}
+                            description={application.description}
+                        />
+                    ))
+                }
             </Cards>
         </div>
     )

@@ -15,7 +15,6 @@ const config: DocsThemeConfig = {
         <meta property="og:description" content="Empower Apps, Empower Users: Reclaim SDK Toolkit Unleashes Data Sovereignty" />
       </>
     ),
-    darkMode: true,
     project: {
       link: 'https://github.com/reclaimprotocol',
     },
