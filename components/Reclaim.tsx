@@ -60,7 +60,7 @@ const Reclaim = () => {
 		switch (sessionState) {
 			case 'IDLE':
 				return (
-					<button onClick={generateSession} className="h-12 bg-blue-700 hover:bg-blue-800 rounded-md font-bold text-white w-1/3">
+					<button onClick={generateSession} className="h-12 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 inline-flex items-center">
 						Generate verification link
 					</button>
 				)
@@ -81,7 +81,7 @@ const Reclaim = () => {
 							<QRCode className='p-2' value={sessionLink} />
 						</div>
 						Scan the QR above or
-						<Link href={sessionLink} className='text-amber-300 underline'>Click on this URL </Link>
+						<Link href={sessionLink} target='_blank' className='text-amber-300 underline'>Click on this URL </Link>
 					</div>
 				)
 			case 'COMPLETED':
