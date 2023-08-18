@@ -17,9 +17,13 @@ import ReclaimSDK from '@reclaimprotocol/reclaim-client-sdk'
 
 ### Initialize the SDK with your Reclaim application ID:
 
+- Create a new Reclaim application on the [Reclaim developer portal](https://dev.reclaimprotocol.org).
+- Copy the Reclaim application ID from the dashboard.
+- Initialize the SDK with the Reclaim application ID.
+
 ```js showLineNumbers {2} filename="app.tsx"
 const App = () => {
-    const reclaimSDK = new ReclaimSDK('<RECLAIM-APP-ID>')
+    const reclaimSDK = new ReclaimSDK('<<YOUR-RECLAIM-APP-ID>>')
 }
 ```
 

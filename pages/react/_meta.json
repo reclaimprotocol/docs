@@ -3,7 +3,6 @@
     "quickstart": "Quickstart",
     "get-reclaim-app-id": "Get Reclaim Application ID",
     "start-from-example": {
-        "title": "Start from an example",
-        "display": "hidden"
+        "title": "Start from an example"
     }
 }
