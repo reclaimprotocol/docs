@@ -26,7 +26,7 @@ const Reclaim = () => {
 	const [sessionState, setSessionState] = useState<'IDLE' | 'GENERATING_VERIFICATION_LINK' | 'GENERATED_VERIFICATION_LINK' | 'COMPLETED' | 'FAILED'>('IDLE')
 	const [proofs, setProofs] = useState<any[]>()
 
-	const reclaimSDK = new ReclaimSDK('ccc46624-2601-44e8-90ac-31d9d2803c20')
+	const reclaimSDK = new ReclaimSDK('3cea403b-b446-4522-a56c-1074d830508a')
 
 	async function generateSession() {
 		const userId = '<USER_ID>' // Replace with the user's ID
