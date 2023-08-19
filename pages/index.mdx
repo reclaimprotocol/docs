@@ -1,21 +1,26 @@
 import { Cards, Card } from 'nextra/components'
 import MakeIcon from '../components/MakeIcon'
+import SdkCard from '../components/SdkCard'
 // import { CardsIcon, OneIcon, WarningIcon } from '../../icons'
+import Image from 'next/image'
 
-# Welcome to Reclaim SDK Tool Kit
-<p className='text-blue-300 italic'>Empower Apps, Empower Users: Reclaim SDK Toolkit Unleashes Data Sovereignty</p>
+# Reclaim Protocol SDKs
+<p className='text-blue-300 italic'>Build apps upon user data from around the internet</p>
 <br></br>
 
-<p className='font-semibold'>Reclaim SDK Toolkit empowers developers to leverage the power of zero-knowledge proofs to securely retrieve self-sovereign user data from any website, eliminating the need for APIs. </p>
+<p className=''>With Reclaim SDKs, you can leverage cryptographic proofs to get user data from other apps. For example, you can get Uber Diver Ratings, Number of Tinder Matches and many more to build powerful applications or impactful marketing campaigns. </p>
 <br></br>
-<p className='font-semibold'>Step into the future of data empowerment with Reclaim SDK Toolkit and create next-generation applications that redefine user experiences.</p>
+<p>Reclaim Protocol uses ZK Proofs and HTTPS Session Keys to securely retrieve user data. This data is stored only on the user’s device, completely invisible to any server, including those owned by Reclaim. [More details of how the protocol works](https://link.reclaimprotocol.org/whitepaper-draft)</p>
+<br/>
+<p className=''>Step into the future of data empowerment with Reclaim SDKs and create next-generation applications that redefine user experiences.</p>
  
-### Get started quickly with Reclaim SDKs
+### Integrate Reclaim Protocol in your products
 <div>
 <br></br>
 <Cards>
-    <Card icon={<MakeIcon iconName='node'/>} arrow={true} className='border-blue-300 border-2 border-opacity-25' title="NodeJs" href="/node"/>
-    <Card icon={<MakeIcon iconName='reactjs'/>} arrow={true} className='border-blue-300 border-2 border-opacity-25' title="ReactJs" href="/react" />
-    <Card icon={<MakeIcon iconName='react_native'/>} arrow={true} className='border-blue-300 border-2 border-opacity-25' title="React Native" href="/react-native" />
+    <SdkCard title='NodeJs' subtitle='Integrate on backend' link='node' iconName='node' tag='Recommended'/>
+    <SdkCard title='React' subtitle='Integrate on your website' link='react' iconName='reactjs' tag='Fastest'/>
+    <SdkCard title='React Native' subtitle='Integrate in your mobile app' link='react-native' iconName='react_native' tag="Doesn't need Reclaim Wallet"/>
+    <SdkCard title='Flutter' subtitle='Integrate in your app' link='flutter' iconName='flutter' tag='Signup for early access'/>
 </Cards>
 </div>
