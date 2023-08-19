@@ -12,7 +12,7 @@ const config: DocsThemeConfig = {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta property="og:title" content="Reclaim Developer Docs" />
         <meta name="keywords" content="reclaim, reclaim protocol, zero-knowledge, zk, identity, decentralised, deco, tls"></meta>
-        <meta property="og:description" content="Empower Apps, Empower Users: Reclaim SDK Toolkit Unleashes Data Sovereignty" />
+        <meta property="og:description" content="Build apps upon user data from around the internet" />
       </>
     ),
     project: {
