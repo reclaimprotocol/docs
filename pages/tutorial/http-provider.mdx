@@ -88,21 +88,21 @@ Paste the XPath in the `xPath` field of the request. In this case, we will paste
 
 ### Create `responseMatch` field
 
-`responseMatch` field accepts a regex expression. Create a regex expression that matches the data you want to request. In this case, we will create a regex expression that matches the karma points.
+`responseMatch` field accepts a regex expression. Create a regex expression that matches the data you want to request. In this case, we will create a regex expression that matches the username and karma points.
 
-We replace the karma points with `{{KARMA_POINTS}}` in the regex expression. The reclaim wallet will take care of replacing the `{{KARMA_POINTS}}` with the actual karma points.
+We replace the karma points with `{{KARMA_POINTS}}` and username with `{{USERNAME}}` in the regex expression. The reclaim wallet will take care of replacing the `{{KARMA_POINTS}}` with the actual karma points.
 
 
-```json copy
+```json copy {9} showLineNumbers
 {
     "name": "",
     "logoUrl": "",
-    "url": "https://www.reddit.com/",
+    "url": "",
     "loginUrl": "",
     "loginCookies": [],
     "responseSelection": [
         {
-            "responseMatch": "<span class=\"_2BMnTatQ5gjKGK5OWROgaG\">{{username}}</span>.*?<span>{{karma}} karma</span>"
+            "responseMatch": "<span class=\"_2BMnTatQ5gjKGK5OWROgaG\">{{USERNAME}}</span>.*?<span>{{KARMA_POINTS}} karma</span>"
         },
     ],
 }
@@ -126,7 +126,7 @@ Copy the url to your clipboard.
 
 Paste the url in the `url` field of the request. In this case, we will paste the url in the `url` field of the request.
 
-```json copy
+```json copy {4} showLineNumbers
 {
     "name": "",
     "logoUrl": "",
@@ -151,7 +151,7 @@ Check the cookies that were sent with the request. In this case, we will check t
 - `reddit_session`
 - `session`
 
-```json copy
+```json copy {6} showLineNumbers
 {
     "name": "",
     "logoUrl": "",
@@ -173,7 +173,7 @@ Set the login url in the `loginUrl` field of the request.
 
 In our case it is `https://www.reddit.com/login/`
 
-```json copy
+```json copy {5} showLineNumbers
 {
     "name": "",
     "logoUrl": "",
@@ -194,7 +194,7 @@ Give a name to your http provider in the `name` field of the request.
 
 In our case it is `Reddit`
 
-```json copy
+```json copy {2} showLineNumbers
 {
     "name": "Reddit",
     "logoUrl": "",
