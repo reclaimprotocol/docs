@@ -1,0 +1,244 @@
+import {Steps, Callout} from 'nextra/components'
+
+Website does not have APIs? Not a problem anymore. Use Http providers.
+
+Here is a step by step guide on how to request proof of credentials using http provider:
+
+<Callout type='info'>
+    Website - [https://www.reddit.com/](https://www.reddit.com/)
+
+    Data to be extracted - Karma points
+</Callout>
+
+A typical request object using http provider looks like this:
+
+```json copy
+{
+    "name": "",
+    "logoUrl": "",
+    "url": "",
+    "loginUrl": "",
+    "loginCookies": [],
+    "responseSelection": [
+        {
+            "xPath": "", // optional
+            "jsonPath": "", //optional
+            "responseMatch": ""
+        }
+    ],
+}
+```
+
+<Callout type='default' emoji='🎉'>
+Developer tool for building this object coming soon - <a href='https://forms.gle/7pKh8TCHfaFKGX2y7' target='_blank'  className='underline'>apply for early access</a>
+</Callout>
+
+Until then, let's build this object manually.
+
+<Steps>
+
+### Open the website in browser
+
+Open the website that has the data you want to request in browser. In this case, we will open [https://www.reddit.com/](https://www.reddit.com/)
+
+Login to the website if not already logged in.
+
+### Open the developer console
+
+Open the developer console by pressing `F12` or `Ctrl + Shift + I` on Windows and `Cmd + Option + I` on Mac.
+
+### Go to Elements tab
+
+Go to Elements tab in the developer console.
+
+### Find the data
+
+Find the data you want to request. In this case, we will find the karma points. 
+
+For quick search, press `Ctrl + F` on Windows and `Cmd + F` on Mac. Enter the data you want to request. In this case, we will enter `1 karma`. Replace `1` with your karma points.
+
+### Find the element
+
+Find the element that contains the data. In this case, we will find the element that contains the karma points.
+
+{/* ### Right click on the element
+
+Right click on the element and select `Copy > Copy XPath`. This will copy the XPath of the element to your clipboard. */}
+
+{/* ### Paste the XPath
+
+Paste the XPath in the `xPath` field of the request. In this case, we will paste the XPath in the `xPath` field of the request.
+
+```json copy
+{
+    "name": "",
+    "logoUrl": "",
+    "url": "https://www.reddit.com/",
+    "loginUrl": "",
+    "loginCookies": [],
+    "responseSelection": [
+        {
+            "xPath": "//*[@id='email-collection-tooltip-id']/span/span[2]/span",
+            "jsonPath": "",
+            "responseMatch": ""
+        },
+    ],
+}
+``` */}
+
+### Create `responseMatch` field
+
+`responseMatch` field accepts a regex expression. Create a regex expression that matches the data you want to request. In this case, we will create a regex expression that matches the karma points.
+
+We replace the karma points with `{{KARMA_POINTS}}` in the regex expression. The reclaim wallet will take care of replacing the `{{KARMA_POINTS}}` with the actual karma points.
+
+
+```json copy
+{
+    "name": "",
+    "logoUrl": "",
+    "url": "https://www.reddit.com/",
+    "loginUrl": "",
+    "loginCookies": [],
+    "responseSelection": [
+        {
+            "responseMatch": "<span class=\"_2BMnTatQ5gjKGK5OWROgaG\">{{username}}</span>.*?<span>{{karma}} karma</span>"
+        },
+    ],
+}
+```
+
+### Find the `url`
+
+#### Open the network tab
+
+- Open the network tab in the developer console.
+- Reload the page you are on
+- Find the network request that contains the data you want to request. In this case, we will find the request that contains the karma points.
+
+In our case it is present in the `https://www.reddit.com/` request.
+
+#### Copy the url
+
+Copy the url to your clipboard.
+
+#### Paste the url
+
+Paste the url in the `url` field of the request. In this case, we will paste the url in the `url` field of the request.
+
+```json copy
+{
+    "name": "",
+    "logoUrl": "",
+    "url": "https://www.reddit.com/",
+    "loginUrl": "",
+    "loginCookies": [],
+    "responseSelection": [
+        {
+            "responseMatch": "<span class=\"_2BMnTatQ5gjKGK5OWROgaG\">{{username}}</span>.*?<span>{{karma}} karma</span>"
+        },
+    ],
+}
+```
+
+### Set login cookies
+
+Check the cookies that were sent with the request. In this case, we will check the cookies that were sent with the `https://www.reddit.com/` request.
+
+- `edgeBucket`
+- `loid`
+- `token_v2`
+- `reddit_session`
+- `session`
+
+```json copy
+{
+    "name": "",
+    "logoUrl": "",
+    "url": "https://www.reddit.com/",
+    "loginUrl": "",
+    "loginCookies": ["edgeBucket", "loid", "token_v2", "session", "reddit_session"],
+    "responseSelection": [
+        {
+            "responseMatch": "<span class=\"_2BMnTatQ5gjKGK5OWROgaG\">{{username}}</span>.*?<span>{{karma}} karma</span>"
+        },
+    ],
+}
+```
+
+
+### Set the login url
+
+Set the login url in the `loginUrl` field of the request.
+
+In our case it is `https://www.reddit.com/login/`
+
+```json copy
+{
+    "name": "",
+    "logoUrl": "",
+    "url": "https://www.reddit.com/",
+    "loginUrl": "https://www.reddit.com/login/",
+    "loginCookies": ["edgeBucket", "loid", "token_v2", "session", "reddit_session"],
+    "responseSelection": [
+        {
+            "responseMatch": "<span class=\"_2BMnTatQ5gjKGK5OWROgaG\">{{username}}</span>.*?<span>{{karma}} karma</span>"
+        },
+    ],
+}
+```
+
+### Give a name to your http provider
+
+Give a name to your http provider in the `name` field of the request.
+
+In our case it is `Reddit`
+
+```json copy
+{
+    "name": "Reddit",
+    "logoUrl": "",
+    "url": "https://www.reddit.com/",
+    "loginUrl": "https://www.reddit.com/login/",
+    "loginCookies": ["edgeBucket", "loid", "token_v2", "session", "reddit_session"],
+    "responseSelection": [
+        {
+            "responseMatch": "<span class=\"_2BMnTatQ5gjKGK5OWROgaG\">{{username}}</span>.*?<span>{{karma}} karma</span>"
+        },
+    ],
+}
+```
+
+### Now you can use the http provider request in your reclaim SDK
+
+```js copy {9-24} showLineNumbers
+import { reclaimprotocol } from '@reclaimprotocol/reclaim-sdk';
+
+const reclaim = new reclaimprotocol.Reclaim();
+
+const request = reclaim.requestedProofs({
+    title: 'My super app',
+    baseCallbackUrl: 'https://my-super-app.com',
+    contextMessage: 'We need to verify your karma points',
+    requestedProofs: [
+        new reclaim.HttpsProvider(
+            {
+                "name": "Reddit",
+                "logoUrl": "",
+                "url": "https://www.reddit.com/",
+                "loginUrl": "https://www.reddit.com/login/",
+                "loginCookies": ["edgeBucket", "loid", "token_v2", "session", "reddit_session"],
+                "responseSelection": [
+                    {
+                        "responseMatch": "<span class=\"_2BMnTatQ5gjKGK5OWROgaG\">{{username}}</span>.*?<span>{{karma}} karma</span>"
+                    },
+                ],
+            },
+        )
+    ]
+})
+```
+
+
+
+</Steps>

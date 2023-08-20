@@ -50,7 +50,7 @@ app.get("/request-proofs", async(req, res) => {
     });
 
     const { callbackId } = request;
-    const reclaimUrl = await request.getReclaimUrl({});
+    const reclaimUrl = await request.getReclaimUrl();
     // Store the callback Id and Reclaim URL in your database
     // ...
     res.json({ reclaimUrl }); // display this reclaimUrl as a QR code on laptop or as a link on mobile devices for users to initiate creating proofs

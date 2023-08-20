@@ -27,6 +27,13 @@
     },
     "--2": {
         "type": "separator",
+        "title": "Tutorials"
+    },
+    "tutorial": {
+        "title": "How to request proofs?"
+    },
+    "--3": {
+        "type": "separator",
         "title": "Resources"
     },
     "reclaim-protocol": {

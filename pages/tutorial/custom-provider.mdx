@@ -1,0 +1,387 @@
+# Custom Providers
+
+```js copy showLineNumbers {5-9}
+const request = reclaim.requestProofs({
+        title: "My DeFi app", // Name of your application
+        baseCallbackUrl: "http://<YOUR_BACKEND_SERVER_URL>/callback", 
+        requestedProofs: [
+            new reclaim.CustomProvider({
+                provider: 'bybit-balance',
+                payload: {}
+            }),
+        ],
+    });
+
+```
+
+A typical request object using custom provider includes the following:
+
+-  `provider`: The name of the provider.
+-  `payload`: The payload to be sent to the provider. This is provider specific. It includes the data that you want your users to create proof of credentials for.
+
+```json copy showLineNumbers
+{
+    "provider": "<NAME_OF_PROVIDER>",
+    "payload": {}
+}
+```
+
+Here is the list of supported providers and their payload:
+
+### Bybit Balance
+#### Get the balance of a user's Bybit account
+
+```json copy showLineNumbers
+{
+    "provider": "bybit-balance",
+    "payload": {}
+}
+```
+
+### ADHAAR
+#### Verify a person's name from their Aadhaar
+
+```json copy showLineNumbers
+{
+    "provider": "uidai-aadhar",
+    "payload": {}
+}
+```
+
+#### Verify a perons's phone number from their Aadhaar
+
+```json copy showLineNumbers
+{
+    "provider": "uidai-phone",
+    "payload": {}
+}
+```
+
+#### Get the State of a person from their Aadhaar
+
+```json copy showLineNumbers
+{
+    "provider": "uidai-state",
+    "payload": {}
+}
+```
+
+#### Verify a person's ADHAAR number
+
+```json copy showLineNumbers
+{
+    "provider": "uidai-uid",
+    "payload": {}
+}
+```
+
+#### Verify a person's Date of Birth from their Aadhaar
+
+```json copy showLineNumbers
+{
+    "provider": "uidai-dob",
+    "payload": {}
+}
+```
+
+#### Verify a person's address from their Aadhaar
+
+```json copy showLineNumbers
+{
+    "provider": "uidai-address",
+    "payload": {}
+}
+```
+
+### IRS
+#### Verify a person's name
+
+```json copy showLineNumbers
+{
+    "provider": "irs-name",
+    "payload": {}
+}
+```
+
+#### Verify a person's address
+
+```json copy showLineNumbers
+{
+    "provider": "irs-address",
+    "payload": {}
+}
+```
+
+### Google
+#### Get the email of a user's Google account
+    
+```json copy showLineNumbers
+{
+    "provider": "google-login",
+    "payload": {}
+}
+```
+
+### Tinder
+#### Number of Tinder matches
+
+```json copy showLineNumbers
+{
+    "provider": "tinder-match-count",
+    "payload": {}
+}
+```
+### YCombinator
+#### Get YC userId
+
+```json copy showLineNumbers
+{
+    "provider": "yc-login",
+    "payload": {}
+}
+```
+### Dunzo
+#### Get the last order details of a user's Dunzo account
+
+```json copy showLineNumbers
+{
+    "provider": "dunzo-last-order",
+    "payload": {}
+}
+```
+
+### Swiggy
+#### Get the total number of orders of a user's Swiggy account
+
+```json copy showLineNumbers
+{
+    "provider": "swiggy-total-count",
+    "payload": {}
+}
+```
+
+### Spotify
+#### Get account type of a user's Spotify account (Premium or Free)
+
+```json copy showLineNumbers
+{
+    "provider": "spotify-account-type",
+    "payload": {}
+}
+```
+
+#### Verify that a person is a Spotify user
+
+```json copy showLineNumbers
+{
+    "provider": "spotify-email",
+    "payload": {}
+}
+```
+
+#### Get the username of a user's Spotify account
+
+```json copy showLineNumbers
+{
+    "provider": "spotify-username",
+    "payload": {}
+}
+```
+
+### GitHub
+#### GitHub commits to a particular repo
+
+Check if a user has made commits to a particular repo. Learn how to search for commits [here](https://docs.github.com/en/search-github/searching-on-github/searching-commits).
+
+```json copy showLineNumbers
+{
+    "provider": "github-commits",
+    "payload": {
+        "type": "github-commits",
+        "repository": "<REPO_NAME>",
+        "searchQuery": {
+            "keywords": [],
+            "qualifiers": {}
+        }
+    }
+}
+```
+
+#### GitHub Issues: Verify that a user has created an issue
+
+Check if a user has created an issue in a particular repo. Learn how to search for issues [here](https://docs.github.com/en/search-github/searching-on-github/searching-issues-and-pull-requests).
+
+```json copy showLineNumbers
+{
+    "provider": "github-issues",
+    "payload": {
+        "type": "github-issues",
+        "repository": "<REPO_NAME>",
+        "searchQuery": {
+            "keywords": [],
+            "qualifiers": {}
+        }
+    }
+}
+```
+
+#### GitHub Pull Requests: Verify that a user has created a pull request
+
+Check if a user has created a pull request in a particular repo. Learn how to search for pull requests [here](https://docs.github.com/en/search-github/searching-on-github/searching-issues-and-pull-requests).
+
+```json copy showLineNumbers
+{
+    "provider": "github-pull-requests",
+    "payload": {
+        "type": "github-pull-requests",
+        "repository": "<REPO_NAME>",
+        "searchQuery": {
+            "keywords": [],
+            "qualifiers": {}
+        }
+    }
+}
+```
+
+### Codeforces
+#### Get a user's rating
+
+```json copy showLineNumbers
+{
+    "provider": "codeforces-rating",
+    "payload": {}
+}
+```
+
+### Facebook
+#### Get number of friends a user has
+
+```json copy showLineNumbers
+{
+    "provider": "facebook-friends-count",
+    "payload": {}
+}
+```
+
+### Devfolio
+#### Get number of hackathons a user has participated in
+
+```json copy showLineNumbers
+{
+    "provider": "devfolio-hackathon-count",
+    "payload": {}
+}
+```
+
+### Tumblr
+#### Verify that you follow a specific account
+
+```json copy showLineNumbers
+{
+    "provider": "tumblr-follower",
+    "payload": {
+        "followingAccount": "<ACCOUNT_NAME>"
+    }
+}
+```
+
+### Wikipedia
+#### Verify that you are user on Wikipedia
+
+```json copy showLineNumbers
+{
+    "provider": "wikipedia-user",
+    "payload": {}
+}
+```
+
+### Notion
+#### Verify that you are a user on Notion
+
+```json copy showLineNumbers
+{
+    "provider": "notion-username",
+    "payload": {}
+}
+```
+
+### Chess
+#### Verify that you are a user on Chess.com
+
+```json copy showLineNumbers
+{
+    "provider": "chess-user",
+    "payload": {}
+}
+```
+
+### Mastodon
+#### Verify that you are a user on Mastodon
+
+```json copy showLineNumbers
+{
+    "provider": "mastodon-user",
+    "payload": {}
+}
+```
+
+### Medium
+#### Get number of followers on Medium
+
+```json copy showLineNumbers
+{
+    "provider": "medium-followers-count",
+    "payload": {}
+}
+```
+
+### Letterboxd
+#### Verify a person's Letterboxd account
+
+```json copy showLineNumbers
+{
+    "provider": "letterboxd-user",
+    "payload": {}
+}
+```
+
+### Outlook
+#### Verify a user's Outlook account
+
+```json copy showLineNumbers
+{
+    "provider": "outlook-login",
+    "payload": {}
+}
+```
+
+### Coinswitch
+
+#### Get a user's portfolio value on Coinswitch
+
+```json copy showLineNumbers
+{
+    "provider": "coinswitch-balance",
+    "payload": {}
+}
+```
+
+### GoDaddy
+#### Verify that a user is a GoDaddy account holder
+
+```json copy showLineNumbers
+{
+    "provider": "godaddy-login",
+    "payload": {}
+}
+```
+
+### Zoho
+#### Verify that a user is a Zoho account holder
+
+```json copy showLineNumbers
+{
+    "provider": "zoho-email",
+    "payload": {}
+}
+```

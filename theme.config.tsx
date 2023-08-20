@@ -7,6 +7,14 @@ const config: DocsThemeConfig = {
         <Image src="/assets/logo.png" alt="logo"  width={50} height={50} />
         <p className="text-xl">Reclaim</p>
         </span>,
+      banner: {
+        key: 'connect-key',
+        text: (
+          <div className="flex flex-col gap-1 p-2">
+            <p>✨Works out of the box Guarantee. If you face any issue at all, hit us up <a href="https://discord.gg/UUSve4S29H" className="underline ">here</a> and we will write the integration for you.</p>
+          </div>
+        )
+      },
     head: (
       <>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
