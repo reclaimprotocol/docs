@@ -1,14 +1,15 @@
 import {Steps, Callout} from 'nextra/components'
 
-Website does not have APIs? Not a problem anymore. Use Http providers.
+# Http Provider
 
-Here is a step by step guide on how to request proof of credentials using http provider:
+The HTTP Provider is employed when the desired data is present within an HTML element on a designated webpage. This type of provider requires the following parameters to be configured:
 
-<Callout type='info'>
-    Website - [https://www.reddit.com/](https://www.reddit.com/)
-
-    Data to be extracted - Karma points
-</Callout>
+- `name` - The name of the provider (e.g., the name of the website the user is logging into)
+- `logoUrl` -  The URL of the logo of the provider
+- `url` - The URL of the webpage where the desired data is present
+- `loginUrl` - The URL of the webpage where the user can log into it
+- `loginCookies` - The cookies that are required to log into the website
+- `responseSelection` - The HTML element that contains the desired data
 
 A typical request object using http provider looks like this:
 
@@ -34,6 +35,13 @@ Developer tool for building this object coming soon - <a href='https://forms.gle
 </Callout>
 
 Until then, let's build this object manually.
+
+Here is a step by step guide on how to request proof of credentials using http provider:
+
+<Callout type='info' className='' emoji='🎯'>
+    <p className='text-amber-400'>Website - [https://www.reddit.com/](https://www.reddit.com/)</p>
+    <p className='text-amber-400'>Data to be extracted - Karma points</p>
+</Callout>
 
 <Steps>
 

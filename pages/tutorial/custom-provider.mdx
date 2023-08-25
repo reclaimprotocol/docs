@@ -1,5 +1,21 @@
 # Custom Providers
 
+The Custom Provider comes into play when the required data is not readily available within an HTML element and requires additional computational steps to derive the desired outcome. This provider type demands the integration of custom logic for operations like calculations, aggregations, or transformations to acquire the desired data.
+
+We have a set of pre-defined providers that you can use to create a request object. A typical request object using custom provider includes the following:
+
+-  `provider`: The name of the provider.
+-  `payload`: The payload to be sent to the provider. This is provider specific. It includes the data that you want your users to create proof of credentials for.
+
+```json copy showLineNumbers
+{
+    "provider": "<NAME_OF_PROVIDER>",
+    "payload": {}
+}
+```
+
+Example:
+
 ```js copy showLineNumbers {5-9}
 const request = reclaim.requestProofs({
         title: "My DeFi app", // Name of your application
@@ -14,17 +30,9 @@ const request = reclaim.requestProofs({
 
 ```
 
-A typical request object using custom provider includes the following:
 
--  `provider`: The name of the provider.
--  `payload`: The payload to be sent to the provider. This is provider specific. It includes the data that you want your users to create proof of credentials for.
 
-```json copy showLineNumbers
-{
-    "provider": "<NAME_OF_PROVIDER>",
-    "payload": {}
-}
-```
+## Predefined Providers
 
 Here is the list of supported providers and their payload:
 
