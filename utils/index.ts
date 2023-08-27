@@ -17,6 +17,16 @@ export const applications: Application[] = [
         description: 'Claim your swags for your contributions to open source projects.'
     },
     {
+        title: 'EduClaim: Your digital Academic Identity',
+        link: 'https://ethglobal.com/showcase/educlaim-your-digital-academic-identity-a0ki5',
+        description: 'Seamlessly unlock student-centric benefits like discounts, loan validations, and exclusive access'
+    },
+    {
+        title: 'Reclaim ZK bot',
+        link: 'https://devfolio.co/projects/reclaim-zk-bot-2438',
+        description: 'Simplifies online data verification, enhancing security, privacy and fostering trust within digital communities.'
+    },
+    {
         title: 'Verified',
         link: 'https://git-verified.vercel.app/',
         description: 'Claim your Github Contributions on Lens'
