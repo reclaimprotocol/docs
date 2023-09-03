@@ -11,7 +11,7 @@ const config: DocsThemeConfig = {
         key: 'connect-key',
         text: (
           <div className="flex flex-col gap-1 p-2">
-            <p>✨Works out of the box Guarantee. If you face any issue at all, hit us up <a href="https://discord.gg/UUSve4S29H" target='_blank' className="underline ">here</a> and we will write the integration for you.</p>
+            <p>✨Works out of the box. If you face any issue at all, hit us up <a href="https://discord.gg/UUSve4S29H" target='_blank' className="underline ">here</a> and we will write the integration for you.</p>
           </div>
         )
       },
