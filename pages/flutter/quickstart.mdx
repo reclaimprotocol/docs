@@ -1,0 +1,148 @@
+import { Steps, Callout } from 'nextra/components'
+
+<Steps>
+
+## Installation <a name="installation"></a>
+
+### Dart Installation 
+
+Run the following command in your terminal:
+
+```bash
+dart pub add reclaim_flutter
+```
+
+### Flutter Installation 
+
+Alternatively, you can use Flutter to install the package:
+
+```bash
+flutter pub add reclaim_flutter
+```
+
+Running these command will update your `pubspec.yaml`:
+
+```yaml
+dependencies:
+  reclaim_flutter: any
+```
+
+After successful installation, you can import the package in your Dart code:
+
+```dart
+import 'package:reclaim_flutter/reclaim_flutter.dart';
+```
+
+## Usage <a name="usage"></a>
+
+Once the package is installed, you can start using `ReclaimHttps` and `ReclaimSwiggy` in your application.
+
+### Https Implementation
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:reclaim_flutter/reclaim_flutter.dart';
+
+void main() {
+  runApp(const MainApp());
+}
+
+class MainApp extends StatelessWidget {
+  const MainApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        body: ListView.builder(
+          itemCount: 1,
+          itemBuilder: (BuildContext context, int index) {
+            return Center(
+              child: ReclaimHttps(
+                requestedProofs: [
+                  RequestedProof(
+                    url: 'https://bookface.ycombinator.com/home',
+                    loginUrl: 'https://bookface.ycombinator.com/home',
+                    loginCookies: ['_sso.key'],
+                    responseSelections: [
+                      ResponseSelection(
+                        responseMatch: '\{\"id\":{{YC_USER_ID}},.*?waas_admin.*?:{.*?}.*?:\\{.*?}.*?(?:full_name|first_name).*?}',
+                      ),
+                    ],
+                  ),
+                ],
+                title: "YC Login",
+                subTitle: "Prove you have a YC Login",
+                cta: "Prove",
+                onSuccess: (proofs) {
+                  print('proofs: $proofs');
+                },
+                onFail: (Exception e) {
+                  print('Error: $e');
+                },
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+```
+
+### Swiggy Implementation
+
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:reclaim_flutter/reclaim_flutter.dart';
+
+void main() {
+  runApp(const MainApp());
+}
+
+class MainApp extends StatelessWidget {
+  const MainApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+  home: Scaffold(
+    body: ListView.builder(
+      itemCount: 1,
+      itemBuilder: (BuildContext context, int index) {
+        return Center(
+          child: ReclaimSwiggy(
+  requestedProofs: [
+    SwiggyRequestedProof(
+      url: 'https://www.swiggy.com/dapi/order/all?order_id=',
+      loginUrl: 'https://www.swiggy.com/auth',
+      loginCookies: ['_session_tid'],
+    ),
+  ],
+  title: "Swiggy",
+  subTitle: "Prove that you are a swiggy user",
+  cta: "Prove",
+  onSuccess: (proofs) {
+    print('proofs: $proofs');
+  },
+  onFail: (Exception e) {
+    print('Error: $e');
+  },
+),
+        );
+      },
+    ),
+  ),
+);
+  }
+}
+```
+
+## Example <a name="example"></a>
+
+We have included an example project in the root directory to implement a https provider. You can find this [here](https://github.com/reclaimprotocol/reclaim_flutter/tree/main/example).
+
+After cloning the repository, navigate to the `example` folder, install the dependencies, and run the project.
+
+</Steps>
