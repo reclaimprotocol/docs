@@ -90,6 +90,45 @@ class MainApp extends StatelessWidget {
 }
 ```
 
+**onSuccess Callback**
+
+```bash
+proofs: 
+{
+  "identifier": "0x77ddebedb5..",
+  "claimData": {
+    "provider": "http",
+    "parameters": {
+      "method": "GET",
+      "responseSelections": [
+        {
+          "responseMatch": "{\"id\":182853,.*?waas_admin.*?:{.*?}.*?:\\{.*?}.*?(?:full_name|first_name).*?}"
+        }
+      ],
+      "url": "https://bookface.ycombinator.com/home"
+    },
+    "owner": "0x322b8f7573..",
+    "timestampS": 1695149749,
+    "context": "YC Alumni",
+    "identifier": "0x77ddebedb50..",
+    "epoch": 2
+  },
+  "signatures": [
+    "0xaf5c8dfdd.."
+  ],
+  "witnessHosts": [
+    "https://reclaim-node.questbook.app"
+  ]
+}
+```
+
+
+**onFail Callback**
+
+```bash
+Error: An Error occured while creating claim
+```
+
 ### Swiggy Implementation
 
 
@@ -125,6 +164,7 @@ class MainApp extends StatelessWidget {
   cta: "Prove",
   onSuccess: (proofs) {
     print('proofs: $proofs');
+    // Show a success modal or bottom sheet
   },
   onFail: (Exception e) {
     print('Error: $e');
@@ -139,9 +179,99 @@ class MainApp extends StatelessWidget {
 }
 ```
 
+**onSuccess Callback**
+
+```bash
+proofs: 
+{
+  "identifier": "0x0085d4c..",
+  "claimData": {
+    "provider": "swiggy-equal",
+    "parameters": {
+      "userData": {
+        "statusCode": "STATUS_CODE",
+        "data": {
+          "total_orders": "TOTAL_ORDERS",
+          "customer_care_number": "CUSTOMER_CARE_NUMBER",
+          "orders": [
+            {
+              "sharedOrder": "SHARED_ORDER",
+              "previousOrderId": "PREVIOUS_ORDER_ID",
+              "tipDetails": {
+                "amount": "AMOUNT",
+                "optIn": "OPT_IN",
+                "type": "TYPE"
+              },
+              "deliveryFeeCouponBreakup": {
+                "thresholdFee": "THRESHOLD_FEE",
+                "distanceFee": "DISTANCE_FEE",
+                "timeFee": "TIME_FEE",
+                "specialFee": "SPECIAL_FEE",
+                "totalDeliveryFeeDiscount": "TOTAL_DELIVERY_FEE_DISCOUNT",
+                "discountShare": {
+                  "swiggyDiscount": "SWIGGY_DISCOUNT",
+                  "restaurantDiscount": "RESTAURANT_DISCOUNT"
+                }
+              },
+              "order_id": "ORDER_ID",
+              "delivery_address": {
+                "id": "ID",
+                "version": "VERSION",
+                "name": "NAME",
+                "address_line1": "ADDRESS_LINE_1",
+                "address_line2": "ADDRESS_LINE_2",
+                "address": "ADDRESS",
+                "landmark": "LANDMARK",
+                "area": "AREA",
+                "mobile": "MOBILE_NUMBER",
+                "alternate_mobile": "ALTERNATE_MOBILE_NUMBER",
+                "annotation": "ANNOTATION",
+                "instructions": "INSTRUCTIONS",
+                "voice_directions_s3_uri": "S3_URI",
+                "email": "EMAIL"
+              },
+              "other_data": ".."
+            }
+          ]
+        }
+      }
+    },
+    "owner": "0x322b8f7573..",
+    "timestampS": 1695149749,
+    "context": "Swiggy User",
+    "identifier": "0x0085d4c..",
+    "epoch": 2
+  },
+  "signatures": [
+    "0xaf5c8dfdd.."
+  ],
+  "witnessHosts": [
+    "https://reclaim-node.questbook.app"
+  ]
+}
+```
+
+
+**onFail Callback**
+
+```bash
+Error: An Error occured while creating claim
+```
+
+### Try out Swiggy Implementation
+
+<iframe
+    id="appetize"
+    src="https://appetize.io/embed/dz4kicmgr65kl4nuz3m7y52ptq?device=pixel7&osVersion=13.0"
+    width="378px" 
+    height="800px" 
+    frameborder="0" 
+    scrolling="no"></iframe>
+
+
 ## Example <a name="example"></a>
 
-We have included an example project in the root directory to implement a https provider. You can find this [here](https://github.com/reclaimprotocol/reclaim_flutter/tree/main/example).
+We have included an example project in the root directory to implement a Swiggy provider to extract user Address. You can find this [here](https://github.com/reclaimprotocol/reclaim_flutter/tree/main/example).
 
 After cloning the repository, navigate to the `example` folder, install the dependencies, and run the project.
 
