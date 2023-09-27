@@ -9,7 +9,7 @@ import { Steps, Callout } from 'nextra/components'
 Start by adding `reclaim-react-native` package and the peer dependencies in your package.json of your React Native project like below:
 
 ```jsx
-    "@reclaimprotocol/reclaim-react-native": "^0.0.8",
+    "@reclaimprotocol/reclaim-react-native": "^0.0.9",
     "@react-native-cookies/cookies": "^6.2.1",
     "react-native-webview": "^11.26.1",
     "react-native-svg": "^13.13.0"
@@ -18,7 +18,6 @@ Start by adding `reclaim-react-native` package and the peer dependencies in your
 Run `npm install` from your command line to install the added dependencies. Do not forget to Delete the `Podfile.lock` and install again using `pod install` in the ios folder.
 
 ## Usage <a name="usage"></a>
-
 
 ### Import ReclaimHttps and use it in your App:
 
@@ -88,4 +87,53 @@ export default App;
 - `onFail`: Function to handle failure scenario.
 - `requestedProofs` : use this tool to generate the object corresponding to the proofs you need from the user
 
+
+### Import ReclaimAadhaar and use it in your App:
+
+```jsx showLineNumbers filename="App.tsx"
+import React from 'react';
+import {SafeAreaView, StyleSheet, useColorScheme} from 'react-native';
+import {Colors} from 'react-native/Libraries/NewAppScreen';
+import {ReclaimAadhaar} from '@reclaimprotocol/reclaim-react-native';
+
+function App(): JSX.Element {
+  const isDarkMode = useColorScheme() === 'dark';
+
+  const backgroundStyle = StyleSheet.create({
+    container: {
+      backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+  });
+
+  return (
+    <SafeAreaView style={backgroundStyle.container}>
+      <ReclaimAadhaar
+        title="Aadhaar UID"
+        subTitle="Prove you have Aadhaar Card"
+        cta="Prove"
+        onSuccess={proofs => {
+          /*do something*/
+          console.log('proofs', proofs);
+        }}
+        onFail={e => {
+          /*do something*/
+          console.log('Error', e);
+        }}
+      />
+    </SafeAreaView>
+  );
+}
+
+export default App;
+```
+**Properties in `ReclaimAadhaar`**:
+- `title`: Name of your application.
+- `subTitle`: Short description about the claim.
+- `cta`: Title of the action button.
+- `onSuccess`: Function to handle success scenario.
+- `onFail`: Function to handle failure scenario.
+- `requestedProofs` : use this tool to generate the object corresponding to the proofs you need from the user
 </Steps>
