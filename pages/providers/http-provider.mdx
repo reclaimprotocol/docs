@@ -10,6 +10,7 @@ The HTTP Provider is employed when the desired data is present within an HTML el
 - `loginUrl` - The URL of the webpage where the user can log into it
 - `loginCookies` - The cookies that are required to log into the website
 - `responseSelection` - The HTML element that contains the desired data
+- `useZk` - Whether to use zero knowledge proof to selectively disclose the data
 
 A typical request object using http provider looks like this:
 
@@ -27,6 +28,7 @@ A typical request object using http provider looks like this:
             "responseMatch": ""
         }
     ],
+    "useZk": true
 }
 ```
 
@@ -113,6 +115,7 @@ We replace the karma points with `{{KARMA_POINTS}}` and username with `{{USERNAM
             "responseMatch": "<span class=\"_2BMnTatQ5gjKGK5OWROgaG\">{{USERNAME}}</span>.*?<span>{{KARMA_POINTS}} karma</span>"
         },
     ],
+    "useZk": true
 }
 ```
 
@@ -146,6 +149,7 @@ Paste the url in the `url` field of the request. In this case, we will paste the
             "responseMatch": "<span class=\"_2BMnTatQ5gjKGK5OWROgaG\">{{username}}</span>.*?<span>{{karma}} karma</span>"
         },
     ],
+    "useZk": true
 }
 ```
 
@@ -171,6 +175,7 @@ Check the cookies that were sent with the request. In this case, we will check t
             "responseMatch": "<span class=\"_2BMnTatQ5gjKGK5OWROgaG\">{{username}}</span>.*?<span>{{karma}} karma</span>"
         },
     ],
+    "useZk": true
 }
 ```
 
@@ -193,6 +198,7 @@ In our case it is `https://www.reddit.com/login/`
             "responseMatch": "<span class=\"_2BMnTatQ5gjKGK5OWROgaG\">{{username}}</span>.*?<span>{{karma}} karma</span>"
         },
     ],
+    "useZk": true
 }
 ```
 
@@ -214,6 +220,7 @@ In our case it is `Reddit`
             "responseMatch": "<span class=\"_2BMnTatQ5gjKGK5OWROgaG\">{{username}}</span>.*?<span>{{karma}} karma</span>"
         },
     ],
+    "useZk": true
 }
 ```
 
@@ -243,7 +250,8 @@ const request = reclaim.requestedProofs({
                 ],
             },
         )
-    ]
+    ],
+    "useZk": true
 })
 ```
 
