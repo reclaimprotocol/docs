@@ -6,15 +6,25 @@ export type Application = {
 }
 
 export const applications: Application[] = [
+    // {
+    //     title: 'Why trust you?',
+    //     link: 'https://whytrustyou.com/',
+    //     description: 'Verify the credentials (name, employment) of the person communicating with you online.Save yourself from scammers!'
+    // },
+    // {
+    //     title: 'Swags for dev',
+    //     link: 'https://dev-swags.reclaimprotocol.org/',
+    //     description: 'Claim your swags for your contributions to open source projects.'
+    // },
     {
-        title: 'Why trust you?',
-        link: 'https://whytrustyou.com/',
-        description: 'Verify the credentials (name, employment) of the person communicating with you online.Save yourself from scammers!'
+        title: 'P2PX',
+        description: '100% decentralised P2P exchange using off chain proofs. Buy & Sell USDT/INR, no KYC required. Powered by Reclaim Protocol',
+        link: 'https://www.p2px.finance/'
     },
     {
-        title: 'Swags for dev',
-        link: 'https://dev-swags.reclaimprotocol.org/',
-        description: 'Claim your swags for your contributions to open source projects.'
+        title: 'Whistleblower',
+        description: 'A platform to anonymously report corruption and crime or use it for fun',
+        link: 'https://t.co/wiEvuCGmIQ'
     },
     {
         title: 'EduClaim: Your digital Academic Identity',
