@@ -1,0 +1,9 @@
+{
+  "index": "Architecture",
+  "quickstart": "Quickstart",
+  "supported-networks": "Supported Networks",
+  "start-from-example": {
+    "title": "Start from an example",
+    "display": "hidden"
+  }
+}
