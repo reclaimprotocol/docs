@@ -85,17 +85,19 @@ contract YourSmartContract {
 - Before your dapp contract can verify a user identity, the user must submit a reclaim proof to Reclaim contract and be added to a merkel tree.
 - you must call `Reclaim.merkelizeUser()` within the onSuccess callback of proof generation on the frontend (after successfully receiving the proof).
 
+`UserMerkelizer.tsx`
+
 ```ts
 import { usePrepareContractWrite } from 'wagmi'
 import RECLAIM from '../../contract-artifacts/Reclaim.json'
 import { useEffect, useState } from 'react'
 import { ethers } from 'ethers'
 
-
 export default function UserMerkelizer({ proofObj, identity }) {
   //... check the proofObj is suceessfully received
   //... check the identity is successfully generated
 
+  const [isMerkelizePrepared, setIsMerkelizePrepared] = useState(false)
   const { config } = usePrepareContractWrite({
     address: process.env.NEXT_PUBLIC_RECLAIM_CONTRACT_ADDRESS!,
     abi: RECLAIM.abi,
@@ -103,27 +105,18 @@ export default function UserMerkelizer({ proofObj, identity }) {
     args: [proofReq, identity?.commitment.toString()],
     chainId: 420,
     onSuccess(data) {
-      const provider = new ethers.providers.JsonRpcProvider('<YOUR_JSON_RPC_URL>');
-      const signer = new ethers.Wallet('_KEY', provider);
-      const contractAddress = '<YOUR_CONTRACT_ADDRESS>';
-      const contractAbi = [<YOUR_CONTRACT_ABI>]; // Replace with your contract's ABI
-      const contract = new ethers.Contract(contractAddress, contractAbi, signer);
-      try {
-         const tx = await contract.airDrop(data);
-         await tx.wait();
-         console.log('Transaction confirmed:', tx.hash);
-       } catch (error) {
-       console.error('Error sending data:', error);
-       }
+      setIsMerkelizePrepared(true)
     },
     onError(error) {
       if (error.message.includes('AlreadyMerkelized')) {
         console.log('This user is already merkelized!!!!')
+        setIsMerkelizePrepared(true)
       }
     }
   })
 
-  //...
+  const { write } = userContractWrite(config)
+  write?.() // calling merkelizeUser() after validating the proofObj...
 
   //... rest of the code
 }
@@ -131,8 +124,43 @@ export default function UserMerkelizer({ proofObj, identity }) {
 
 ### **Completing the Action**
 
-- Dapp Smart Contract calls `airDrop()` or any other relevant action.
-- the user will then submit the merkel proof to your contract. We recommend adding a non trivial time delay between calling merkelizeUser and submitting the proof to your contract. the more the time delay more the degree of anonymization
+- After ensuring that the user is merkelized, you can call your action() (for example airDrop()) which is in you smart contract.
+  We recommend adding a non trivial time delay between calling merkelizeUser and submitting the proof to your contract. the more the time delay more the degree of anonymization
+
+`UserMerkelizer.tsx`
+
+```ts
+const callYourContractAction = async () => {
+    const provider = new ethers.providers.JsonRpcProvider('<YOUR_JSON_RPC_URL>');
+    const signer = new ethers.Wallet('\_KEY', provider);
+    const contractAddress = '<YOUR_CONTRACT_ADDRESS>';
+    const contractAbi = [<YOUR_CONTRACT_ABI>]; // Replace with your contract's ABI
+    const contract = new ethers.Contract(contractAddress, contractAbi, signer);
+    try {
+    const tx = await contract.airDrop(data);
+    await tx.wait();
+    console.log('Transaction confirmed:', tx.hash);
+    } catch (error) {
+    console.error('Error sending data:', error);
+    }
+}
+
+export default function UserMerkelizer({ proofObj, identity }) {
+  //...
+
+  useEffect(() => {
+    if (!isMerkelizePrepared) return
+
+    setTimeout(() => {
+      acallYourContractAction()
+    }, 8000)
+
+  }, [isMerkelizePrepared])
+
+  //... rest of the code
+}
+```
+
 - Dapp Smart Contract verifies the user's identity with the Reclaim Contract using `verifyMerkleIdentity(semaphoreProof, dappId, externalNullifier,...)`.
 - If successful, the Reclaim Contract completes the action and emits a `ProofVerified` event.
 - Dapp Smart Contract completes the airdrop action successfully.
