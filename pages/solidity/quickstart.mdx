@@ -11,7 +11,8 @@ This tutorial will guide you through the process of integrating a Dapp with Recl
 Before you begin, make sure you have the following:
 
 - Dapp ready with client app and smart contract
-- Ether.js library to register dapp in reclaim contract
+- [ethers.js library](https://github.com/ethers-io/ethers.js)
+- [@semaphore-protocol/identity](https://github.com/semaphore-protocol/semaphore/tree/main/packages/identity)
 
 ## Steps
 
@@ -20,13 +21,30 @@ Let’s imagine that you are building a DApp; your DApp will have two parts clie
 <Steps>
 ### **Register your Smart Contract in Reclaim**
 
-- Your smart contract needs to be registered in Reclaim. Run the following script to generate a DappId and Nullifier.
+#### Required Libraries
+
+Before you begin, ensure that you have the necessary libraries and tools installed. You will need:
+
+- [ethers.js library](https://github.com/ethers-io/ethers.js) for Ethereum-related operations.
+- [@semaphore-protocol/identity](https://github.com/semaphore-protocol/semaphore/tree/main/packages/identity) for managing identities with Reclaim.
+
+You can install these libraries using npm. Open your terminal and run the following commands to install them:
+
+```bash
+# Install ethers.js
+npm install ethers
+
+# Install @semaphore-protocol/identity
+npm install @semaphore-protocol/identity
+```
+
+- Run the following script to generate a DappId and Nullifier and register your dapp:
 
   - `npx hardhat register-dapp --dapp-name {dapp-name} --network {NETWORK} ` where the `{dapp-name}` is the name of your dapp and `{NETWORK}` is the chain, for example, "eth-goerli" or "polygon-mainnet"
 
-`register-dapp.ts`
+  - You can find the list of supported networks in the [Solidity documentation](/solidity/supported-networks).
 
-```ts
+```c# showLineNumbers filename="register-dapp.ts"
 import { task } from 'hardhat/config'
 import { getContractAddress } from './utils'
 import { Identity } from '@semaphore-protocol/identity'
@@ -53,15 +71,19 @@ task('register-dapp')
   })
 ```
 
+- The script will register your dapp in Reclaim, and log the dappId and Nullifier to the console so, they can be used in the next step.
+
+```plaintext filename="console output"
+External Nullifier: {value_of_nullifier}
+Dapp Id: {value_of_dappId}
+```
+
 ### Store dappld and nullifier in your contract
 
-- Dapp smart contract will need to store the dappId and the nullifier used to generate the dappId in order to call verifyMerkleIdentity later so, make sure that the contract store them.
 - You should store dappld and nullifier values you received in step 1 in your smart contract.
-- Pass the dappld and nullifierin through your smart contract constructor.
+- Pass the dappld and nullifier through your smart contract constructor.
 
-`YourSmartContract.sol`
-
-```c#
+```c# showLineNumbers filename="YourSmartContract.sol"
 contract YourSmartContract {
     uint256 public externalNullifier;
     bytes32 public dappId;
@@ -85,9 +107,7 @@ contract YourSmartContract {
 - Before your dapp contract can verify a user identity, the user must submit a reclaim proof to Reclaim contract and be added to a merkel tree.
 - you must call `Reclaim.merkelizeUser()` within the onSuccess callback of proof generation on the frontend (after successfully receiving the proof).
 
-`UserMerkelizer.tsx`
-
-```ts
+```ts showLineNumbers filename="UserMerkelizer.tsx"
 import { usePrepareContractWrite } from 'wagmi'
 import RECLAIM from '../../contract-artifacts/Reclaim.json'
 import { useEffect, useState } from 'react'
@@ -127,9 +147,7 @@ export default function UserMerkelizer({ proofObj, identity }) {
 - After ensuring that the user is merkelized, you can call your smart contract action (for example YourSmartContract.airDrop()).
   We recommend adding a non trivial time delay between calling merkelizeUser and submitting the proof to your contract. the more the time delay more the degree of anonymization.
 
-`UserMerkelizer.tsx`
-
-```ts
+```ts showLineNumbers filename="UserMerkelizer.tsx"
 const callYourContractAction = async () => {
     const provider = new ethers.providers.JsonRpcProvider('<YOUR_JSON_RPC_URL>');
     const signer = new ethers.Wallet('\_KEY', provider);
@@ -165,9 +183,7 @@ export default function UserMerkelizer({ proofObj, identity }) {
 - If successful, the Reclaim Contract completes the action and emits a `ProofVerified` event.
 - Dapp Smart Contract completes the airdrop action successfully.
 
-`YourSmartContract.sol`
-
-```c#
+```c# showLineNumbers filename="YourSmartContract.sol"
     contract YourSmartContract{
         uint256 public externalNullifier;
         bytes32 public dappId;
@@ -196,6 +212,7 @@ export default function UserMerkelizer({ proofObj, identity }) {
                 // continue action
             }
     }
+
 ```
 
 - Note: if Reclaim.verifyMerkleIdentity() call never reverted the airDrop will continue and the airDrop will completed successsfully, otherwise, airDrop will be reverted since something went wrong when verifying the identity.
