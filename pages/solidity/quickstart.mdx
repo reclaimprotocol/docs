@@ -20,7 +20,7 @@ Let’s imagine that you are building a DApp; your DApp will have two parts clie
 <Steps>
 ### **Register your Smart Contract in Reclaim**
 
-- Your smart contract needs to be registered in Reclaim. Run the following script to generate a DappId and Nullifier
+- Your smart contract needs to be registered in Reclaim. Run the following script to generate a DappId and Nullifier.
 
   - `npx hardhat register-dapp --dapp-name {dapp-name} --network {NETWORK} ` where the `{dapp-name}` is the name of your dapp and `{NETWORK}` is the chain, for example, "eth-goerli" or "polygon-mainnet"
 
@@ -78,7 +78,7 @@ contract YourSmartContract {
 
 - This step is to ensure that a user's claim or identity is valid and can be trusted.
 - You can integrate claim verification in your dapp using Reclaim Wallet or Reclaim SDK.
-- The user now generated the reclaim proof and can be used in the next step
+- Store the generated proof after the claim is verified in order to be used in the next step.
 
 ### **Merkelize User**
 
@@ -124,8 +124,8 @@ export default function UserMerkelizer({ proofObj, identity }) {
 
 ### **Completing the Action**
 
-- After ensuring that the user is merkelized, you can call your action() (for example airDrop()) which is in you smart contract.
-  We recommend adding a non trivial time delay between calling merkelizeUser and submitting the proof to your contract. the more the time delay more the degree of anonymization
+- After ensuring that the user is merkelized, you can call your smart contract action (for example YourSmartContract.airDrop()).
+  We recommend adding a non trivial time delay between calling merkelizeUser and submitting the proof to your contract. the more the time delay more the degree of anonymization.
 
 `UserMerkelizer.tsx`
 
