@@ -4,7 +4,7 @@ import { Steps, Callout } from 'nextra/components'
 
 ## Introduction
 
-This tutorial will guide you through the process of integrating a Dapp with Reclaim using Solidity and Ether.js. The integration involves verifying user claims and completing actions based on the user's identity.
+Welcome to the comprehensive tutorial on seamlessly integrating your decentralized application (Dapp) with Reclaim using Solidity and Ether.js. This integration will empower your Dapp to verify user claims and execute actions based on their identity, providing a robust and secure user experience.
 
 ## Prerequisites
 
@@ -16,7 +16,7 @@ Before you begin, make sure you have the following:
 
 ## Steps
 
-Let’s imagine that you are building a DApp; your DApp will have two parts client and a smart contract
+We'll walk you through a series of steps to integrate your Dapp with Reclaim for identity verification and action execution.
 
 <Steps>
 ### **Register your Smart Contract in Reclaim**
@@ -96,26 +96,28 @@ contract YourSmartContract {
 }
 ```
 
-### **Verify Claim**
+### Verify Claim
 
-- This step is to ensure that a user's claim or identity is valid and can be trusted.
-- You can integrate claim verification in your dapp using Reclaim SDK. [Quickstart](/react/quickstart)
-- Store the generated proof after the claim is verified in order to be used in the next step.
+- **Purpose:** This step is essential to verify the validity and trustworthiness of a user's claim or identity.
 
-### **Merkelize User**
+- **Integration:** You can seamlessly integrate claim verification into your dapp using the Reclaim SDK. For a quick start, refer to the [Quickstart guide](/react/quickstart).
 
-- Before your dapp contract can verify a user identity, the user must submit a reclaim proof to Reclaim contract and be added to a merkel tree.
-- you must call `Reclaim.merkelizeUser()` within the onSuccess callback of proof generation on the frontend (after successfully receiving the proof).
+- **Data Storage:** Ensure that you store the generated proof after the claim is successfully verified. This proof will be needed for the next step in the process.
 
-```ts showLineNumbers filename="UserMerkelizer.tsx"
+
+### Merkelize User
+
+Before your dapp contract can verify a user's identity, the user must submit a Reclaim proof to the Reclaim contract and be added to a Merkel tree. To achieve this, you need to call `Reclaim.merkelizeUser()` within the `onSuccess` callback of proof generation on the frontend, after successfully receiving the proof.
+
+```tsx
 import { usePrepareContractWrite } from 'wagmi'
 import RECLAIM from '../../contract-artifacts/Reclaim.json'
 import { useEffect, useState } from 'react'
 import { ethers } from 'ethers'
 
 export default function UserMerkelizer({ proofObj, identity }) {
-  //... check the proofObj is suceessfully received
-  //... check the identity is successfully generated
+  //... Check that the proofObj is successfully received.
+  //... Check that the identity is successfully generated.
 
   const [isMerkelizePrepared, setIsMerkelizePrepared] = useState(false)
   const { config } = usePrepareContractWrite({
@@ -136,46 +138,44 @@ export default function UserMerkelizer({ proofObj, identity }) {
   })
 
   const { write } = userContractWrite(config)
-  write?.() // calling merkelizeUser() after validating the proofObj...
+  write?.() // Calling merkelizeUser() after validating the proofObj...
 
-  //... rest of the code
+  //... Rest of the code
 }
 ```
+### Completing the Action
 
-### **Completing the Action**
+After ensuring that the user is merkelized, you can call your smart contract action (for example, `YourSmartContract.airDrop()`). We recommend adding a non-trivial time delay between calling `merkelizeUser` and submitting the proof to your contract. The longer the time delay, the higher the degree of anonymization.
 
-- After ensuring that the user is merkelized, you can call your smart contract action (for example YourSmartContract.airDrop()).
-  We recommend adding a non trivial time delay between calling merkelizeUser and submitting the proof to your contract. the more the time delay more the degree of anonymization.
-
-```ts showLineNumbers filename="UserMerkelizer.tsx"
+```tsx
 const callYourContractAction = async () => {
     const provider = new ethers.providers.JsonRpcProvider('<YOUR_JSON_RPC_URL>');
-    const signer = new ethers.Wallet('\_KEY', provider);
+    const signer = new ethers.Wallet('<YOUR_PRIVATE_KEY>', provider);
     const contractAddress = '<YOUR_CONTRACT_ADDRESS>';
     const contractAbi = [<YOUR_CONTRACT_ABI>]; // Replace with your contract's ABI
     const contract = new ethers.Contract(contractAddress, contractAbi, signer);
     try {
-    const tx = await contract.airDrop(data);
-    await tx.wait();
-    console.log('Transaction confirmed:', tx.hash);
+        const tx = await contract.airDrop(data);
+        await tx.wait();
+        console.log('Transaction confirmed:', tx.hash);
     } catch (error) {
-    console.error('Error sending data:', error);
+        console.error('Error sending data:', error);
     }
 }
 
 export default function UserMerkelizer({ proofObj, identity }) {
-  //...
+    //...
 
-  useEffect(() => {
-    if (!isMerkelizePrepared) return
+    useEffect(() => {
+        if (!isMerkelizePrepared) return
 
-    setTimeout(() => {
-      acallYourContractAction()
-    }, 8000)
+        setTimeout(() => {
+            callYourContractAction()
+        }, 8000)
 
-  }, [isMerkelizePrepared])
+    }, [isMerkelizePrepared])
 
-  //... rest of the code
+    //... Rest of the code
 }
 ```
 
