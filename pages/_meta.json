@@ -1,58 +1,61 @@
 {
-    "index": "Get Started",
-    "install": "Install Reclaim Wallet",
-    "try-reclaim": {
-        "title": "Create your first Reclaim Credential"
-    },
-    "anatomy": {
-        "title": "Know your Reclaim Wallet",
-        "display": "hidden"
-    },
-    "showcase": "Showcase",
-    "--1": {
-        "type": "separator",
-        "title": "SDKs"
-    },
-    "node": {
-        "title": "NodeJs"
-    },
-    "react": {
-        "title": "ReactJs"
-    },
-    "react-native": {
-        "title": "React Native"
-    },
-    "flutter": {
-        "title": "Flutter"
-    },
-    "--2": {
-        "type": "separator",
-        "title": "Providers"
-    },
-    "providers": {
-        "title": "Learn about Providers"
-    },
-    "--3": {
-        "type": "separator",
-        "title": "Resources"
-    },
-    "reclaim-protocol": {
-        "title": "Reclaim Protocol",
-        "display": "hidden"
-    },
-    "whitepaper": {
-        "title": "Whitepaper",
-        "href": ""
-    },
-    "architecture": {
-        "title": "Architecture",
-        "display": "hidden"
-    },
-    "glossary": "Glossary",
-    "dashboard": {
-        "title": "Dashboard",
-        "href": "https://dev.reclaimprotocol.org",
-        "newWindow": true,
-        "type": "page"
-    }
+  "index": "Get Started",
+  "install": "Install Reclaim Wallet",
+  "try-reclaim": {
+    "title": "Create your first Reclaim Credential"
+  },
+  "anatomy": {
+    "title": "Know your Reclaim Wallet",
+    "display": "hidden"
+  },
+  "showcase": "Showcase",
+  "--1": {
+    "type": "separator",
+    "title": "SDKs"
+  },
+  "node": {
+    "title": "NodeJs"
+  },
+  "react": {
+    "title": "ReactJs"
+  },
+  "react-native": {
+    "title": "React Native"
+  },
+  "flutter": {
+    "title": "Flutter"
+  },
+  "solidity": {
+    "title": "Solidity"
+  },
+  "--2": {
+    "type": "separator",
+    "title": "Providers"
+  },
+  "providers": {
+    "title": "Learn about Providers"
+  },
+  "--3": {
+    "type": "separator",
+    "title": "Resources"
+  },
+  "reclaim-protocol": {
+    "title": "Reclaim Protocol",
+    "display": "hidden"
+  },
+  "whitepaper": {
+    "title": "Whitepaper",
+    "href": ""
+  },
+  "architecture": {
+    "title": "Architecture",
+    "display": "hidden"
+  },
+  "glossary": "Glossary",
+  "dashboard": {
+    "title": "Dashboard",
+    "href": "https://dev.reclaimprotocol.org",
+    "newWindow": true,
+    "type": "page"
+  }
 }
