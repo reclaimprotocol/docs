@@ -120,3 +120,35 @@ const App = () => {
 }
 ```
 </Steps>
+
+
+### React Component Alternative (Beta)
+We also ship a powerful alternative to the previous 5-step implementation. It simplifies the process by offering a prebuilt component that abstracts out the implementation, making the usage hassle-free.
+Find below the overview its features, and how to use guide.
+
+<Steps>
+
+### Install
+
+```bash
+	npm i @reclaimprotocol/react-components
+```
+
+### Import
+
+```tsx
+	import { GenerateProof } from '@reclaimprotocol/react-components';
+```
+
+### Render
+
+```tsx
+<GenerateProof
+	appID='6d6c04eb-237b-4599-8797-94d48b0ac612' //  Dummy APP ID is provided
+	userID='dasq2easdase-asdq2e3' //  Dummy User ID is provided
+	onProofSubmission={() => {}} // Callback function, on successful proof submission
+	onProofSubmissionFailed={() => {}} // Callback function, on proof submission fail
+/>
+```
+
+</Steps>
