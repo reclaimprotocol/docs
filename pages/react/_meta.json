@@ -4,5 +4,8 @@
     "get-reclaim-app-id": "Get Reclaim Application ID",
     "start-from-example": {
         "title": "Start from an example"
+    },
+    "explore-reclaim-react-components": {
+        "title": "Explore reclaim react components"
     }
 }

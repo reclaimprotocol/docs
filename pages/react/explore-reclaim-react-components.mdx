@@ -1,0 +1,55 @@
+import { Steps } from 'nextra/components'
+import GenerateProofUsage from './components/GenerateProofUsage.js';
+
+# React components (Reclaim)
+[Reclaim Components](https://www.npmjs.com/package/@reclaimprotocol/react-components?activeTab=readme) is a versatile package designed to simplify the complex implementation of reclaim functionality in your React applications.
+This package provides a set of pre-built, simple configuration based React utility components that offer a hassle-free way to handle various aspects of reclaim sdk allowing developers to commence their projects swiftly.
+These components abstract away Reclaim-specific codes, presenting straightforward, customizable UI interfaces, enabling developers to concentrate on their core business logic.
+It comes with minimal pre-defined styles, developers can effortlessly tailor the components to harmonize with their application's visual identity.
+
+## Components
+
+### GenerateProof
+The GenerateProof component is a utility component provided by the [Reclaim Components](https://www.npmjs.com/package/@reclaimprotocol/react-components?activeTab=readme) package.
+It simplifies the process of working with the ReclaimSDK by abstracting the creation of a session with a specific app ID and user ID. Additionally, it offers a user-friendly interface that displays a QR code generated from the session link, manages messaging from session creation to proof submission, and includes a built-in progress timer to indicate the remaining time.
+
+#### Usage
+To use the GenerateProof component, follow these steps:
+
+<Steps>
+
+#### Import
+
+```tsx
+	import { GenerateProof } from '@reclaimprotocol/react-components';
+```
+
+#### Render
+Include the component in your application's JSX code, providing the necessary props:
+```tsx
+<GenerateProof
+  appID='6d6c04eb-237b-4599-8797-94d48b0ac612'
+  userID='dasq2easdase-asdq2e3'
+  onProofSubmission={() => {
+    // Implement logic for successful proof submission
+  }}
+  onProofSubmissionFailed={() => {
+    // Implement logic for failed proof submission
+  }}
+/>
+```
+
+#### Output
+<br />
+<GenerateProofUsage />
+
+#### Props
+| Prop                 | Type     | Description                                                              |
+|----------------------|----------|--------------------------------------------------------------------------|
+| `appID`              | string   | The unique application ID for creating a Reclaim session.                |
+| `userID`             | string   | The unique user ID for the Reclaim session.                              |
+| `onProofSubmission`  | function | A callback function to execute when the proof is successfully submitted. |
+| `onProofSubmissionFailed` | function | A callback function to execute when proof submission fails.         |
+
+
+</Steps>
