@@ -2,16 +2,16 @@ import { Steps } from 'nextra/components'
 import GenerateProofUsage from './components/GenerateProofUsage.js';
 
 # React components (Reclaim)
-[Reclaim Components](https://www.npmjs.com/package/@reclaimprotocol/react-components?activeTab=readme) is a versatile package designed to simplify the complex implementation of reclaim functionality in your React applications.
-This package provides a set of pre-built, simple configuration based React utility components that offer a hassle-free way to handle various aspects of reclaim sdk allowing developers to commence their projects swiftly.
-These components abstract away Reclaim-specific codes, presenting straightforward, customizable UI interfaces, enabling developers to concentrate on their core business logic.
-It comes with minimal pre-defined styles, developers can effortlessly tailor the components to harmonize with their application's visual identity.
+[Reclaim Components](https://www.npmjs.com/package/@reclaimprotocol/react-components?activeTab=readme) package is a versatile solution for simplifying the integration of Reclaim functionality into React applications.
+It offers pre-built, configurable React utility components, making it easy to work with the Reclaim SDK and quickly start development projects.
+These components abstract the complexities of Reclaim-specific code, providing customizable user interfaces that allow developers to focus on their core business logic.
+Additionally, the package comes with minimal default styles, enabling developers to easily adapt the components to match their application's visual design.
 
 ## Components
 
 ### GenerateProof
 The GenerateProof component is a utility component provided by the [Reclaim Components](https://www.npmjs.com/package/@reclaimprotocol/react-components?activeTab=readme) package.
-It simplifies the process of working with the ReclaimSDK by abstracting the creation of a session with a specific app ID and user ID. Additionally, it offers a user-friendly interface that displays a QR code generated from the session link, manages messaging from session creation to proof submission, and includes a built-in progress timer to indicate the remaining time.
+It enables a seamless integration for proof generation for a particular [provider](https://docs.reclaimprotocol.org/providers) by providing a minimal interface.
 
 #### Usage
 To use the GenerateProof component, follow these steps:
@@ -44,12 +44,13 @@ Include the component in your application's JSX code, providing the necessary pr
 <GenerateProofUsage />
 
 #### Props
-| Prop                 | Type     | Description                                                              |
-|----------------------|----------|--------------------------------------------------------------------------|
-| `appID`              | string   | The unique application ID for creating a Reclaim session.                |
-| `userID`             | string   | The unique user ID for the Reclaim session.                              |
-| `onProofSubmission`  | function | A callback function to execute when the proof is successfully submitted. |
+| Prop                      | Type     | Description                                                              |
+|---------------------------|----------|--------------------------------------------------------------------------|
+| `appID`                   | string   | The unique application ID for creating a Reclaim session.                |
+| `userID`                  | string   | The unique user ID for the Reclaim session.                              |
+| `onProofSubmission`       | function | A callback function to execute when the proof is successfully submitted. |
 | `onProofSubmissionFailed` | function | A callback function to execute when proof submission fails.         |
+| `customize`               | object   | An object to customize the interface text and styles: Find a sample usage below: <br/><br/>   <pre className="nx-overflow-x-auto nx-rounded-xl nx-subpixel-antialiased dark:nx-bg-primary-300/10 nx-text-[.9em] nx-py-4"><code className="nx-px-[.25em] nx-text-[.9em]">customize \{ <br/>  triggerButton: \{ <br/>    text: 'Click here', <br/>    style: \{ // CSS style \(key value pair\)  \} <br/>  \}<br/>  modalHeader: \{ <br/>    text: 'SCAN the QR to submit proof', <br/>    style: \{ // CSS style \(key value pair\)  \} <br/>  \}<br/>  proofSubmissionDetails: \{ <br/>    successText: 'Success', <br/>    failureText: 'Failed', <br/>    style: \{ // CSS style \(key value pair\)  \} <br/>  \} <br/>\} </code></pre><br/>|
 
 
 </Steps>
