@@ -1,49 +1,61 @@
 import { Steps } from 'nextra/components'
 import GenerateProofUsage from './components/GenerateProofUsage.js';
 
-# React components (Reclaim)
-[Reclaim Components](https://www.npmjs.com/package/@reclaimprotocol/react-components?activeTab=readme) package is a versatile solution for simplifying the integration of Reclaim functionality into React applications.
-It offers pre-built, configurable React utility components, making it easy to work with the Reclaim SDK and quickly start development projects.
-These components abstract the complexities of Reclaim-specific code, providing customizable user interfaces that allow developers to focus on their core business logic.
-Additionally, the package comes with minimal default styles, enabling developers to easily adapt the components to match their application's visual design.
+# Reclaim Connect
+Reclaim Connect enables applications to request data from users without writing any complex code themselves.
 
-## Components
 
-### GenerateProof
-The GenerateProof component is a utility component provided by the [Reclaim Components](https://www.npmjs.com/package/@reclaimprotocol/react-components?activeTab=readme) package.
-It enables a seamless integration for proof generation for a particular [provider](https://docs.reclaimprotocol.org/providers) by providing a minimal interface.
+## Integrate Reclaim Connect in Your Front End
+Reclaim Connect exposes a set of React components that can be integrated into your front end application. It is available as an NPM package. To install it, run the following command in your project directory:
 
-#### Usage
+```bash copy showLineNumbers
+npm install @reclaimprotocol/reclaim-connect-react
+```
+
+### GenerateProof Component
+The GenerateProof component enables you to request data from users. It renders a button that, when clicked, opens a modal with a QR code. Users can scan the QR code with the Reclaim mobile app to submit the requested data. The component also provides a callback function that you can use to execute logic when the proof is successfully submitted.
+
 To use the GenerateProof component, follow these steps:
 
 <Steps>
 
-#### Import
+### Import
 
-```tsx
-	import { GenerateProof } from '@reclaimprotocol/react-components';
+```tsx showLineNumbers copy 
+import { GenerateProof } from '@reclaimprotocol/reclaim-connect-react';
 ```
 
-#### Render
-Include the component in your application's JSX code, providing the necessary props:
-```tsx
-<GenerateProof
-  appID='6d6c04eb-237b-4599-8797-94d48b0ac612'
-  userID='dasq2easdase-asdq2e3'
-  onProofSubmission={() => {
-    // Implement logic for successful proof submission
-  }}
-  onProofSubmissionFailed={() => {
-    // Implement logic for failed proof submission
-  }}
-/>
+### Render
+1. Include the component in your application's JSX code, providing the necessary props.
+
+2. Get the `applicationId` from Reclaim [Developer Portal](https://dev.reclaimprotocol.org/applications).
+
+```tsx showLineNumbers copy
+import React, { type ReactNode } from 'react';
+import { GenerateProof } from '@reclaimprotocol/reclaim-connect-react';
+
+function App (): ReactNode {
+  return (
+    <GenerateProof
+      appID='6d6c04eb-237b-4599-8797-94d48b0ac612'
+      userID='dasq2easdase-asdq2e3'
+      onProofSubmission={() => {}}
+      onProofSubmissionFailed={() => {}}
+    />
+  );
+}
+
+export default App;
 ```
 
-#### Output
+### Output
 <br />
 <GenerateProofUsage />
 
-#### Props
+</Steps>
+
+
+## Props
 | Prop                      | Type     | Description                                                              |
 |---------------------------|----------|--------------------------------------------------------------------------|
 | `appID`                   | string   | The unique application ID for creating a Reclaim session.                |
@@ -52,5 +64,3 @@ Include the component in your application's JSX code, providing the necessary pr
 | `onProofSubmissionFailed` | function | A callback function to execute when proof submission fails.         |
 | `customize`               | object   | An object to customize the interface text and styles: Find a sample usage below: <br/><br/>   <pre className="nx-overflow-x-auto nx-rounded-xl nx-subpixel-antialiased dark:nx-bg-primary-300/10 nx-text-[.9em] nx-py-4"><code className="nx-px-[.25em] nx-text-[.9em]">customize = \{\{ <br/>  triggerButton: \{ <br/>    text: 'Click here', <br/>    style: \{ <br />     // CSS style \(key value pair\)  <br />    \} <br/>  \},<br/>  modalHeader: \{ <br/>    text: 'SCAN the QR to submit proof', <br/>    style: \{<br/>     // CSS style \(key value pair\)<br/>    \} <br/>  \},<br/>  proofSubmissionDetails: \{ <br/>    successText: 'Success', <br/>    failureText: 'Failed', <br/>    style: \{<br />    // CSS style \(key value pair\)  <br />    \} <br/>  \} <br/>\}\} </code></pre><br/>|
 
-
-</Steps>
