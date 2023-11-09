@@ -67,6 +67,11 @@ function App(): JSX.Element {
           /*do something*/
           console.log('Error', e);
         }}
+        buttonStyle={{backgroundColor: 'black'}}
+        buttonTextStyle={{color: 'blue'}}
+        onStatusChange={(text: string) => {
+          console.log("Status is: ", text);
+        }}
       />
     </SafeAreaView>
   );
@@ -86,6 +91,15 @@ export default App;
 - `onSuccess`: Function to handle success scenario.
 - `onFail`: Function to handle failure scenario.
 - `requestedProofs` : use this tool to generate the object corresponding to the proofs you need from the user
+
+**Optional properties in `ReclaimHttps`**:
+- `showShell`: A boolean to show the shell of the component, default is true
+- `verifyingCta`: A message to show to the user while verification is in progress
+- `verifiedCta`: A message to show to the user when verification is complete
+- `style`: A style object to style the outer html of the component
+- `buttonStyle`: A style object to style the button
+- `buttonTextStyle`: A style object to style the button text
+- `onStatusChange`: A callback function that enables the component to inform you of changes in the status of claim creation
 
 
 ### Import ReclaimAadhaar and use it in your App:
@@ -122,6 +136,11 @@ function App(): JSX.Element {
           /*do something*/
           console.log('Error', e);
         }}
+        buttonStyle={{backgroundColor: 'black'}}
+        buttonTextStyle={{color: 'blue'}}
+        onStatusChange={(text: string) => {
+          console.log("Status is: ", text);
+        }}
       />
     </SafeAreaView>
   );
@@ -136,6 +155,15 @@ export default App;
 - `onSuccess`: Function to handle success scenario.
 - `onFail`: Function to handle failure scenario.
 - `requestedProofs` : use this tool to generate the object corresponding to the proofs you need from the user
+
+**Optional properties in `ReclaimHttps`**:
+- `showShell`: A boolean to show the shell of the component, default is true
+- `verifyingCta`: A message to show to the user while verification is in progress
+- `verifiedCta`: A message to show to the user when verification is complete
+- `style`: A style object to style the outer html of the component
+- `buttonStyle`: A style object to style the button
+- `buttonTextStyle`: A style object to style the button text
+- `onStatusChange`: A callback function that enables the component to inform you of changes in the status of claim creation
 
 
 ### Import ReclaimKaggle and use it in your App:
