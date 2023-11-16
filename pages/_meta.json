@@ -28,6 +28,9 @@
   "solidity": {
     "title": "Solidity"
   },
+  "proof-verification": {
+    "title": "Proof Verification SDK"
+  },
   "--2": {
     "type": "separator",
     "title": "Providers"
