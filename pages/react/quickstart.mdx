@@ -30,7 +30,7 @@ const App = () => {
 ### Generate session for your user
 - Use `reclaimSDK.generateSession()` to generate a session for your user.
 - Pass in your user's unique identifier as `userId` in the `generateSession()` method.
-- Pass in a callback function `onProofSubmissionSuccess` to be called when the user submits a proof.
+- Pass in a callback function `onProofSubmissionSuccess` to be called when the user submits a proof. It accepts generated proofs and session id in param. 
 - Pass in a callback function `onError` to be called when there is an error in submitting the proof.
 
 It returns a session object with the following properties:
@@ -56,7 +56,7 @@ const App = () => {
 		const userId = '<USER_ID>' // Replace with your user's unique identifier
 		const session = await reclaimSDK.generateSession({
 			userId,
-			onProofSubmissionSuccess: () => {
+			onProofSubmissionSuccess: (proofs, sessionId) => {
                 setIsProofSubmitted(true)
 				// ... your business logic for successful proof submission goes here
 			},
@@ -92,7 +92,7 @@ const App = () => {
 		const userId = '<USER_ID>' // Replace with your user's unique identifier
 		const session = await reclaimSDK.generateSession({
 			userId,
-			onProofSubmissionSuccess: () => {
+			onProofSubmissionSuccess: (proofs, sessionId) => {
                 setIsProofSubmitted(true)
 				// ... your business logic for successful proof submission goes here
 			},
