@@ -39,7 +39,7 @@ function App (): ReactNode {
     <GenerateProof
       appID='6d6c04eb-237b-4599-8797-94d48b0ac612'
       userID='dasq2easdase-asdq2e3'
-      onProofSubmission={() => {}}
+      onProofSubmission={(proofs, sessionId) => {}}
       onProofSubmissionFailed={() => {}}
     />
   );
@@ -58,9 +58,10 @@ export default App;
 ## Props
 | Prop                      | Type     | Description                                                              |
 |---------------------------|----------|--------------------------------------------------------------------------|
-| `appID`                   | string   | The unique application ID for creating a Reclaim session.                |
+| `appID*`                   | string   | The unique application ID for creating a Reclaim session.                |
 | `userID`                  | string   | The unique user ID for the Reclaim session.                              |
-| `onProofSubmission`       | function | A callback function to execute when the proof is successfully submitted. |
-| `onProofSubmissionFailed` | function | A callback function to execute when proof submission fails.         |
+| `onSessionCreation`       | function | A callback function to execute when the session is successfully created. |
+| `onProofSubmission`       | function | A callback function to execute when the proof is successfully submitted. It receives generated proofs and session id in parameter.|
+| `onProofSubmissionFailed` | function | A callback function to execute when proof submission fails.              |
 | `customize`               | object   | An object to customize the interface text and styles: Find a sample usage below: <br/><br/>   <pre className="nx-overflow-x-auto nx-rounded-xl nx-subpixel-antialiased dark:nx-bg-primary-300/10 nx-text-[.9em] nx-py-4"><code className="nx-px-[.25em] nx-text-[.9em]">customize = \{\{ <br/>  triggerButton: \{ <br/>    text: 'Click here', <br/>    style: \{ <br />     // CSS style \(key value pair\)  <br />    \} <br/>  \},<br/>  modalHeader: \{ <br/>    text: 'SCAN the QR to submit proof', <br/>    style: \{<br/>     // CSS style \(key value pair\)<br/>    \} <br/>  \},<br/>  proofSubmissionDetails: \{ <br/>    successText: 'Success', <br/>    failureText: 'Failed', <br/>    style: \{<br />    // CSS style \(key value pair\)  <br />    \} <br/>  \} <br/>\}\} </code></pre><br/>|
 
