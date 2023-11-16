@@ -11,7 +11,7 @@
   "author": "Sweta Shaw",
   "license": "ISC",
   "dependencies": {
-    "@reclaimprotocol/react-components": "^0.0.1-beta.13",
+    "@reclaimprotocol/reclaim-connect-react": "^0.0.1-beta.12",
     "@reclaimprotocol/reclaim-client-sdk": "^0.0.10",
     "next": "13.4.2",
     "nextra": "^2.10.0",

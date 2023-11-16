@@ -1,5 +1,5 @@
 import React from "react";
-import { GenerateProof } from '@reclaimprotocol/react-components';
+import { GenerateProof } from '@reclaimprotocol/reclaim-connect-react';
 
 function GenerateProofUsage () {
   return (
