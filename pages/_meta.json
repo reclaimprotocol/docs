@@ -28,7 +28,7 @@
   "solidity": {
     "title": "Solidity"
   },
-  "proof-verification": {
+  "verify-proofs": {
     "title": "Proof Verification SDK"
   },
   "--2": {
