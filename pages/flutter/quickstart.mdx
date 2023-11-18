@@ -47,6 +47,9 @@ void main() {
   runApp(const MainApp());
 }
 
+// Init a GlobalKey and pass it to ReclaimHttps widget
+final httpEqualKey = GlobalKey<ReclaimHttpsState>();
+
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
 
@@ -59,6 +62,7 @@ class MainApp extends StatelessWidget {
           itemBuilder: (BuildContext context, int index) {
             return Center(
               child: ReclaimHttps(
+                key: httpEqualKey,
                 requestedProofs: [
                   RequestedProof(
                     url: 'https://bookface.ycombinator.com/home',
@@ -66,7 +70,7 @@ class MainApp extends StatelessWidget {
                     loginCookies: ['_sso.key'],
                     responseSelections: [
                       ResponseSelection(
-                        responseMatch: '\{\"id\":{{YC_USER_ID}},.*?waas_admin.*?:{.*?}.*?:\\{.*?}.*?(?:full_name|first_name).*?}',
+                        responseMatch: '{&quot;id&quot;:{{YC_USER_ID}},.*?waas_admin.*?:{.*?}.*?:\\{.*?}.*?(?:full_name|first_name).*?}',
                       ),
                     ],
                   ),
@@ -74,12 +78,18 @@ class MainApp extends StatelessWidget {
                 title: "YC Login",
                 subTitle: "Prove you have a YC Login",
                 cta: "Prove",
+                onStatusChange: (status) =>
+                  print('Status changed to : $status'),
                 onSuccess: (proofs) {
                   print('proofs: $proofs');
                 },
                 onFail: (Exception e) {
                   print('Error: $e');
                 },
+                showShell: true,
+                shellStyles: BoxDecoration(
+                  border: Border.all(color: Colors.red, width: 2.0),
+                ),
               ),
             );
           },
@@ -88,6 +98,12 @@ class MainApp extends StatelessWidget {
     );
   }
 }
+```
+
+In order to trigger the claim creation without showing the shell, run the following:
+
+```
+httpEqualKey.currentState?.triggerOpenWebView();
 ```
 
 **onSuccess Callback**
@@ -102,7 +118,7 @@ proofs:
       "method": "GET",
       "responseSelections": [
         {
-          "responseMatch": "{\"id\":182853,.*?waas_admin.*?:{.*?}.*?:\\{.*?}.*?(?:full_name|first_name).*?}"
+          "responseMatch": "{&quot;id&quot;:182853,.*?waas_admin.*?:{.*?}.*?:\\{.*?}.*?(?:full_name|first_name).*?}"
         }
       ],
       "url": "https://bookface.ycombinator.com/home"
