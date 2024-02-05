@@ -1,0 +1,32 @@
+# Building your own callback URL (WIP)
+We recommend setting up your own callback URL. 
+Reclaim SDK does provide a default callback for your convenience and deletes the users' data after a timeout. However, if your application uses sensitive user information and cannot afford for that data to be seen by any third party - including Reclaim Protocol & its employees - you must host your own callback.
+
+Here is a guide on how to do that.
+
+## Expose a POST endpoint
+The path should contain a session id as a path param.
+```js showLineNumbers
+
+router.post("/path/:session_id", async function(req, res){
+    const sessionId = req.params.session_id;
+    //...
+})
+
+```
+
+## Parse the uploaded blob
+``` js showLineNumbers
+  const proofs = req.body; //use a json middleware
+```
+
+## Verify the proofs
+```js showLineNumbers
+  //TODO@madhavan : 
+  // reclaimClient.verifyProofs(...)
+```
+
+## Verify the metadata
+```js showLineNumbers
+    //TODO@madhavan : extract context & requested proofs
+```

@@ -6,49 +6,45 @@ export type Application = {
 }
 
 export const applications: Application[] = [
-    // {
-    //     title: 'Why trust you?',
-    //     link: 'https://whytrustyou.com/',
-    //     description: 'Verify the credentials (name, employment) of the person communicating with you online.Save yourself from scammers!'
-    // },
-    // {
-    //     title: 'Swags for dev',
-    //     link: 'https://dev-swags.reclaimprotocol.org/',
-    //     description: 'Claim your swags for your contributions to open source projects.'
-    // },
+    //TODO@madhavan: update links
     {
         title: 'P2PX',
-        description: '100% decentralised P2P exchange using off chain proofs. Buy & Sell USDT/INR, no KYC required. Powered by Reclaim Protocol',
+        description: '100% decentralised P2P exchange using off chain proofs. Buy & Sell USDT/INR, automatic KYC.',
         link: 'https://www.p2px.finance/'
     },
     {
-        title: 'Whistleblower',
-        description: 'A platform to anonymously report corruption and crime or use it for fun',
-        link: 'https://t.co/wiEvuCGmIQ'
+        title: 'Showdown',
+        link: 'https://showdown.win',
+        description: 'Bring your gamer ratings to a championship'
     },
     {
-        title: 'EduClaim: Your digital Academic Identity',
-        link: 'https://ethglobal.com/showcase/educlaim-your-digital-academic-identity-a0ki5',
-        description: 'Seamlessly unlock student-centric benefits like discounts, loan validations, and exclusive access'
+        title: 'NivaPay',
+        link: 'https://nivapay.com',
+        description: 'Get loans against pending shipments'
     },
     {
-        title: 'Reclaim ZK bot',
-        link: 'https://devfolio.co/projects/reclaim-zk-bot-2438',
-        description: 'Simplifies online data verification, enhancing security, privacy and fostering trust within digital communities.'
+        title: 'ZKMe',
+        description: 'A tool to do generate and store cryptographic proofs of your identity',
+        link: 'https://zk.me'
     },
     {
-        title: 'Verified',
-        link: 'https://git-verified.vercel.app/',
-        description: 'Claim your Github Contributions on Lens'
+        title: 'CodedEstate',
+        link: 'https://codedestate.com',
+        description: 'Bring your Real Estate onchain to unlock RWAs'
     },
     {
-        title: 'Dealflex',
-        link: 'https://dealflex.vercel.app/claim-deal',
-        description: 'Claim your deal on Dealflex with your verified Reclaim credentials'
+        title: 'Gitcoin Passport',
+        link: 'passport.gitcoin.org',
+        description: 'Prove you are a human using your online activity.'
     },
     {
-        title: 'Reclaim GSoC bounty',
-        link: 'https://github.com/solvedbiscuit71/reclaim-gsoc',
-        description: 'Claim your bounty for contributing to GSoC project using Reclaim credentials'
-    }
+        title: 'Verax',
+        link: 'https://verax.linea.app',
+        description: 'Generate your Onchain attestation using Verax by Consensys & Linea'
+    },
+    {
+        title: 'Ethereum Attestation Service',
+        link: 'https://attest.sh',
+        description: 'Generate your Onchain attestation using EAS'
+    },
 ]

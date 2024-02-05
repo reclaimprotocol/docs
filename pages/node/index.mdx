@@ -2,9 +2,31 @@ import Image from 'next/image'
 
 ## Overview
 
-Use Reclaim SDK in your backend server to get access to self-sovereign user data.
+This is the SDK for using Reclaim Protocol on you backend for your website.
+If you are integrating on an App, we recommend using the Frontend SDK like the [React Native](/react-native) or [Flutter](/flutter).
 
-**Here is a high-level overview of how your backend server can integrate with Reclaim SDK:**
+If you support your website to be used on both Laptops and Mobiles, we recommend you use an if-else condition to render the appropriate flow as described below.
 
-![sequence](/assets/Reclaim_SDK_integration_updated_group.svg)
+### Integrating Reclaim on a Desktop Website
+The flow looks like follows
+1. User logs in into your website
+2. Your website backend creates a new session for this user using the Reclaim Node SDK, requesting data from Acme.com; This returns a URI.
+3. Your website frontend displays a QR code of the URI, for that particular user's session
+4. User scans the QR code using their mobile phone regular camera
+5. User is prompted to login into Acme.com on a webview
+6. Once user has logged in, a proof is generated on the user's device
+7. User hits submit to upload the proof back to your backend
+8. Your website executes business logic basis the proof submitted by the user
+
+### Integrating Reclaim on a Mobile Website
+The flow remains pretty much the same. However, we recommend you detect the users' device as desktop or mobile - and make the required tweaks (Particularly, step 3).
+1. User logs in into your website
+2. Your website backend creates a new session for this user using the Reclaim Node SDK, requesting data from Acme.com; This returns a URI.
+3. Your website frontend displays a button of the URI, for that particular user's session
+4. User taps the button
+5. User is prompted to login into Acme.com on a webview
+6. Once user has logged in, a proof is generated on the user's device
+7. User hits submit to upload the proof back to your backend
+8. Your website executes business logic basis the proof submitted by the user
+
 

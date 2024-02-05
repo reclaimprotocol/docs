@@ -1,154 +1,119 @@
 import { Steps, Callout } from 'nextra/components'
 
-# Quickstart
+## Prerequisites
+
+- Node.js 18.0.0 or later
+
+## Quickstart
 
 <Steps>
-### Install the SDK
+### Create an application on Dev Tool
+Head to https://dev.reclaimprotocol.org and create a new application. You'll be prompted to provide the websites you want to import data from. Once you create the application, you'll be given an `application ID` and an `application secret`. Please take note of these. These will be used in the next steps.
 
-```bash
-npm i @reclaimprotocol/reclaim-client-sdk
+### Install Reclaim SDK
+```bash copy
+npm i @reclaimprotocol/js-sdk
 ```
 
-### Import the SDK
-
-```js showLineNumbers filename="app.tsx"
-import ReclaimSDK from '@reclaimprotocol/reclaim-client-sdk'
+### Import Reclaim Client
+```js copy showLineNumbers
+import { ReclaimClient } from '@reclaimprotocol/js-sdk'
 ```
 
-### Initialize the SDK with your Reclaim application ID:
-
-- Create a new Reclaim application on the [Reclaim developer portal](https://dev.reclaimprotocol.org).
-- Copy the Reclaim application ID from the dashboard.
-- Initialize the SDK with the Reclaim application ID.
-
-```js showLineNumbers {2} filename="app.tsx"
-const App = () => {
-    const reclaimSDK = new ReclaimSDK('<<YOUR-RECLAIM-APP-ID>>')
-}
+### Initialize Reclaim Client
+Boiler plate stuff.
+```js copy showLineNumbers
+    const reclaimClient = new ReclaimClient("YOUR_APPLICATION_ID_HERE"); //TODO: replace with your applicationId
+    const providerIds = ['provider_id']; //TODO: replace with your provider ids you had selected while creating the application
+    const providers = await reclaimClient.buildHttpProviderV2ByID(providerIds);
 ```
 
-### Generate session for your user
-- Use `reclaimSDK.generateSession()` to generate a session for your user.
-- Pass in your user's unique identifier as `userId` in the `generateSession()` method.
-- Pass in a callback function `onProofSubmissionSuccess` to be called when the user submits a proof. It accepts generated proofs and session id in param. 
-- Pass in a callback function `onError` to be called when there is an error in submitting the proof.
+### Add Context to the proof, optional but recommended
+You can add context to your proof. There are two pieces of information that are part of context.
+1. Address - this can be an Ethereum/Solana/Cosmos address. This is typically set when the proof is to be used on a blockchain application. When using on blockchain applications, we recommend setting this context address and using this address in the business logic instead of signer of the transaction (e.g. `msg.sender`). If you don't set the context address and use transaction signer as the user's address, there is a front-running security threat.
+2. Message - this can be used to inform the user why this proof is being requested. If your application needs to be sure that the user generates a fresh cryptographic proof for your application, and not reuse an existing proof they created for some other application, you should set the `context.message` to something that is unique to your application. Upon receiving the proof from the user, ensure that the context.message is exactly what you had set it to earlier to avoid scammers from spoofing your users' proofs.
 
-It returns a session object with the following properties:
-- `sessionId`: The session ID of the session generated for the user.
-- `link`: The link to the session that you can redirect your user to.
-
-<Callout>
-Display this session link as QR code or as a link in your application. When the user clicks on the link or scans the QR code, they will be redirected to the Reclaim app to submit their proof.
-</Callout>
-
-```js showLineNumbers {13} filename="app.tsx"
-import ReclaimSDK from '@reclaimprotocol/reclaim-client-sdk'
-
-const App = () => {
-    
-    const [sessionId, setSessionId] = useState('')
-	const [sessionLink, setSessionLink] = useState('')
-    const [isProofSubmitted, setIsProofSubmitted] = useState(false)
-
-    const reclaimSDK = new ReclaimSDK('<RECLAIM-APP-ID>')
-
-    const generateSession = async() => {
-		const userId = '<USER_ID>' // Replace with your user's unique identifier
-		const session = await reclaimSDK.generateSession({
-			userId,
-			onProofSubmissionSuccess: (proofs, sessionId) => {
-                setIsProofSubmitted(true)
-				// ... your business logic for successful proof submission goes here
-			},
-			onError: (error) => {
-				// ... Error handling logic for proof submission goes here
-			}
-		})
-
-        if(session) {
-            setSessionId(session.sessionId)
-			setSessionLink(session.link)
-        }
-	}
-}
+```js copy showLineNumbers
+    await reclaimClient.addContext(address=`user's address`, message="for acmecorp.com on 1st january")
 ```
-### Retrieve proofs submitted
-- Use `reclaimSDK.getProofs()` to retrieve proofs submitted by your user.
-- Pass in the `sessionId` of the session for which you want to retrieve proofs.
 
-It returns an array of proof objects
+### Build the Proof Request object
+```js copy showLineNumbers
+    const requestProofs = await reclaimClient.buildRequestedProofs(
+      providers,
+      await reclaimClient.getAppCallbackUrl()
+    );
 
+```
 
-```js showLineNumbers {27} filename="app.tsx"
-const App = () => {
-    
-    const [sessionId, setSessionId] = useState('')
-	const [sessionLink, setSessionLink] = useState('')
-    const [isProofSubmitted, setIsProofSubmitted] = useState(false)
+### Set Signature for request
+You must set a signature on the request so that the users don't get tricked on phishing websites, and mistakenly upload all their data to a malicious website.
 
-    const reclaimSDK = new ReclaimSDK('<RECLAIM-APP-ID>')
+For a simple MVP, you can generate the signature on the frontend :
+```js copy showLineNumbers
+    reclaimClient.setSignature(
+        await reclaimClient.getSignature(
+        requestProofs,
+        APP_SECRET //TODO : replace with your APP_SECRET
+      )
+    );
+```
 
-    const generateSession = async() => {
-		const userId = '<USER_ID>' // Replace with your user's unique identifier
-		const session = await reclaimSDK.generateSession({
-			userId,
-			onProofSubmissionSuccess: (proofs, sessionId) => {
-                setIsProofSubmitted(true)
-				// ... your business logic for successful proof submission goes here
-			},
-			onError: (error) => {
-				// ... Error handling logic for proof submission goes here
-			}
-		})
+However, we recommend not generating the signature on the frontend because this leaks the APP_SECRET. You may expose a `/sign` endpoint that authenticates your user and returns a signature.
+```js copy showLineNumbers
+	reclaimClient.setSignature(
+		//TODO: signature response from your backend
+	)
+```
 
-		setSessionLink(session?.link)
+### Get the request URL
 
-        if(session) {
-            setSessionId(session.sessionId)
-        }
-	}
+```js copy showLineNumbers
+  const reclaimReq = await reclaimClient.createVerificationRequest(providerIds);
+  const requestUrl = await reclaimReq.start();
+```
 
-    const getSubmittedProofs = async(sessionId: string) => {
-		const proofs = await reclaimSDK.getProofs(sessionId)
-	}
+### Display the QR code or display a button
+If the user opens your website on a laptop, show the QR code of the `requestUrl`.
+If the user opens your website on a mobile, show a button that has a link to `requestUrl`.
 
-    useEffect(() => {
-        if(isProofSubmitted) {
-            getSubmittedProofs(sessionId)
-        }
-	}, [isProofSubmitted])
-}
+### Set callbacks
+You get a callback when the user uploads the proof
+```js copy showLineNumbers
+    reclaimReq.on('success', function(proofs) {
+		//TODO: your business logic
+	});
+	reclaimReq.on('error', function(errors) {
+		//TODO: your business logic
+	})
 ```
 </Steps>
 
 
-### React Component Alternative (Beta)
-We also ship a powerful alternative to the previous 5-step implementation. It simplifies the process by offering a prebuilt component that abstracts out the implementation, making the usage hassle-free.
-Find below the overview its features, and how to use guide.
-
-<Steps>
-
-### Install
-
-```bash
-	npm i @reclaimprotocol/reclaim-connect-react
+## Summarizing
+If you omit all the optional steps, you'd be left with the following codebase : 
+```js copy showLineNumbers
+    const reclaimClient = new ReclaimClient("APP_ID");
+    const providerIds = ['PROVIDER_ID'];
+    const APP_SECRET ="APP_SECRET";
+    const providers = await reclaimClient.buildHttpProviderV2ByID(
+      providerIds
+    );
+    const requestProofs = await reclaimClient.buildRequestedProofs(
+      providers,
+      await reclaimClient.getAppCallbackUrl()
+    );
+    reclaimClient.setSignature(
+        await reclaimClient.getSignature(
+        requestProofs,
+        APP_SECRET
+      )
+    );
+    const reclaimReq = await reclaimClient.createVerificationRequest(providerIds);
+    const requestUrl = await reclaimReq.start();
+	reclaimReq.on('success', function(proofs) {
+		alert("Success");
+	})
+    // display requestUrl
 ```
 
-### Import
-
-```tsx
-	import { GenerateProof } from '@reclaimprotocol/reclaim-connect-react';
-```
-
-### Render
-
-```tsx
-<GenerateProof
-	appID='6d6c04eb-237b-4599-8797-94d48b0ac612' //  Dummy APP ID is provided
-	userID='dasq2easdase-asdq2e3' //  Dummy User ID is provided
-	onProofSubmission={() => {}} // Callback function, on successful proof submission
-	onProofSubmissionFailed={() => {}} // Callback function, on proof submission fail
-/>
-```
-
-</Steps>
