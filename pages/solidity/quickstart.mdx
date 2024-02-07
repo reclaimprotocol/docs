@@ -2,33 +2,58 @@ import { Steps, Callout } from 'nextra/components'
 
 # Quickstart for Solidity
 ## Pre-requisite
-This tutorial assumes that you have a frontend that requests proofs from the user and processes the response.
+This tutorial assumes that you have a frontend that requests proofs from the user and processes the response, like [React](/react), [React Native](/react-native), or [Node](/node).
 
 ## Solidity 
 <Steps>
-### Serialize the proof
-```
-TODO@madhavan
-reclaimClient.serializeProofs(proofs);
-```
-
 ### Deploy a smart contract
-```
-TODO@madhavan : smart contract code
+Deploy the following smart contract to the chain of your choice
+```js copy showLineNumbers
+// SPDX-License-Identifier: MIT
+pragma solidity 0.8.4;
+
+
+import "@reclaimprotocol/verifier-solidity-sdk/contracts/Reclaim.sol";
+import "@reclaimprotocol/verifier-solidity-sdk/contracts/Addresses.sol";
+
+
+contract Attestor {
+   address public reclaimAddress;
+
+
+   constructor(){
+        
+        // TODO: Replace with network you are deploying on
+       reclaimAddress = Addresses.OPTIMISM_GOERLI_TESTNET; 
+
+   }
+
+
+   function verifyProof(Reclaim.Proof memory proof) public view{
+       Reclaim(reclaimAddress).verifyProof(proof);
+       // TODO: your business logic upon success
+       // verify proof.context is what you expect
+   }
+}
 ```
 
-You can check out the [supported networks here](./supported-networks)
-
-### Extract context address
-This is extremely important. Please do not use `msg.sender` as the user who created the proof. Explicitly extract the address from the context.
-
-```
-TODO@madhavan : extract context and provider ids from proof on solidity
-```
+You can check out the [supported networks here](https://github.com/reclaimprotocol/demo-solidity-sdk/blob/main/contracts/Addresses.sol)
 
 ### Send transaction to smart contract
+
+#### Using Wagmi.js
 ```
-TODO@madhavan : Use ethers.js to send serialized proof to the smart contract
+  const { config } = usePrepareContractWrite({
+    enabled: enabled,
+    address: '0x0', // TODO : Update with contract address after deploying 
+    abi: abi,
+    functionName: 'verifyProof', // TODO: Update with function name
+    chainId: 0, // TODO: Update with deployed chain ID
+    args: [JSON.parse(proof)], // this proof is received via onSuccess callback
+  })
+  const { data, write, isLoading, isSuccess, isError, error } =
+    useContractWrite(config)
+
 ```
 
 
