@@ -22,10 +22,46 @@ import { ReclaimClient } from '@reclaimprotocol/js-sdk'
 
 ### Initialize Reclaim Client
 Boiler plate stuff.
-```js copy showLineNumbers
-    const reclaimClient = new ReclaimClient("YOUR_APPLICATION_ID_HERE"); //TODO: replace with your applicationId
+
+```js copy showLineNumbers {6}
+import './App.css';
+import { ReclaimClient } from '@reclaimprotocol/js-sdk'
+
+function App() {
+
+  const reclaimClient = new ReclaimClient("YOUR_APPLICATION_ID_HERE"); //TODO: replace with your applicationId
+
+  return (
+    <div className="App">
+    </div>
+  );
+}
+
+export default App;
+
+```
+
+### Add a function to request proofs
+```js copy showLineNumbers {8-11}
+import './App.css';
+import { ReclaimClient } from '@reclaimprotocol/js-sdk'
+
+function App() {
+
+  const reclaimClient = new ReclaimClient("YOUR_APPLICATION_ID_HERE"); //TODO: replace with your applicationId
+
+  async function generateVerificationRequest() {
     const providerIds = ['provider_id']; //TODO: replace with your provider ids you had selected while creating the application
     const providers = await reclaimClient.buildHttpProviderV2ByID(providerIds);
+  }
+
+  return (
+    <div className="App">
+    </div>
+  );
+}
+
+export default App;
 ```
 
 ### Add Context to the proof, optional but recommended
@@ -33,30 +69,99 @@ You can add context to your proof. There are two pieces of information that are 
 1. Address - this can be an Ethereum/Solana/Cosmos address. This is typically set when the proof is to be used on a blockchain application. When using on blockchain applications, we recommend setting this context address and using this address in the business logic instead of signer of the transaction (e.g. `msg.sender`). If you don't set the context address and use transaction signer as the user's address, there is a front-running security threat.
 2. Message - this can be used to inform the user why this proof is being requested. If your application needs to be sure that the user generates a fresh cryptographic proof for your application, and not reuse an existing proof they created for some other application, you should set the `context.message` to something that is unique to your application. Upon receiving the proof from the user, ensure that the context.message is exactly what you had set it to earlier to avoid scammers from spoofing your users' proofs.
 
-```js copy showLineNumbers
+```js copy showLineNumbers {12}
+import './App.css';
+import { ReclaimClient } from '@reclaimprotocol/js-sdk'
+
+function App() {
+
+  const reclaimClient = new ReclaimClient("YOUR_APPLICATION_ID_HERE"); //TODO: replace with your applicationId
+
+  async function generateVerificationRequest() {
+    const providerIds = ['provider_id']; //TODO: replace with your provider ids you had selected while creating the application
+    const providers = await reclaimClient.buildHttpProviderV2ByID(providerIds);
+
     await reclaimClient.addContext(address=`user's address`, message="for acmecorp.com on 1st january")
+  }
+
+  return (
+    <div className="App">
+    </div>
+  );
+}
+
+export default App;
 ```
 
 ### Build the Proof Request object
-```js copy showLineNumbers
-    const requestProofs = await reclaimClient.buildRequestedProofs(
-      providers,
-      await reclaimClient.getAppCallbackUrl()
-    );
+```js copy showLineNumbers {14-17}
+import './App.css';
+import { ReclaimClient } from '@reclaimprotocol/js-sdk'
 
+function App() {
+
+  const reclaimClient = new ReclaimClient("YOUR_APPLICATION_ID_HERE"); //TODO: replace with your applicationId
+
+  async function generateVerificationRequest() {
+    const providerIds = ['provider_id']; //TODO: replace with your provider ids you had selected while creating the application
+    const providers = await reclaimClient.buildHttpProviderV2ByID(providerIds);
+
+    await reclaimClient.addContext(address=`user's address`, message="for acmecorp.com on 1st january")
+
+    const requestProofs = reclaimClient.buildRequestedProofs(
+      providers,
+      reclaimClient.getAppCallbackUrl()
+    );
+  }
+
+  return (
+    <div className="App">
+    </div>
+  );
+}
+
+export default App;
 ```
 
 ### Set Signature for request
 You must set a signature on the request so that the users don't get tricked on phishing websites, and mistakenly upload all their data to a malicious website.
 
 For a simple MVP, you can generate the signature on the frontend :
-```js copy showLineNumbers
+```js copy showLineNumbers {20-25}
+
+import './App.css';
+import { ReclaimClient } from '@reclaimprotocol/js-sdk'
+
+function App() {
+
+  const reclaimClient = new ReclaimClient("YOUR_APPLICATION_ID_HERE"); //TODO: replace with your applicationId
+
+  async function generateVerificationRequest() {
+    const providerIds = ['provider_id']; //TODO: replace with your provider ids you had selected while creating the application
+    const providers = await reclaimClient.buildHttpProviderV2ByID(providerIds);
+
+    await reclaimClient.addContext(address=`user's address`, message="for acmecorp.com on 1st january")
+
+    const requestProofs = reclaimClient.buildRequestedProofs(
+      providers,
+      reclaimClient.getAppCallbackUrl()
+    );
+
     reclaimClient.setSignature(
         await reclaimClient.getSignature(
         requestProofs,
         APP_SECRET //TODO : replace with your APP_SECRET
       )
     );
+  }
+
+  return (
+    <div className="App">
+    </div>
+  );
+}
+
+export default App;
 ```
 
 However, we recommend not generating the signature on the frontend because this leaks the APP_SECRET. You may expose a `/sign` endpoint that authenticates your user and returns a signature.
@@ -68,52 +173,200 @@ However, we recommend not generating the signature on the frontend because this 
 
 ### Get the request URL
 
-```js copy showLineNumbers
-  const reclaimReq = await reclaimClient.createVerificationRequest(providerIds);
-  const requestUrl = await reclaimReq.start();
+```js copy showLineNumbers {26-27}
+import './App.css';
+import { ReclaimClient } from '@reclaimprotocol/js-sdk'
+
+function App() {
+
+  const reclaimClient = new ReclaimClient("YOUR_APPLICATION_ID_HERE"); //TODO: replace with your applicationId
+
+  async function generateVerificationRequest() {
+    const providerIds = ['provider_id']; //TODO: replace with your provider ids you had selected while creating the application
+    const providers = await reclaimClient.buildHttpProviderV2ByID(providerIds);
+
+    await reclaimClient.addContext(address=`user's address`, message="for acmecorp.com on 1st january")
+
+    const requestProofs = reclaimClient.buildRequestedProofs(
+      providers,
+      reclaimClient.getAppCallbackUrl()
+    );
+
+    reclaimClient.setSignature(
+        await reclaimClient.getSignature(
+        requestProofs,
+        APP_SECRET //TODO : replace with your APP_SECRET
+      )
+    );
+
+    const reclaimReq = await reclaimClient.createVerificationRequest(providerIds);
+    const requestUrl = await reclaimReq.start();
+  }
+
+  return (
+    <div className="App">
+    </div>
+  );
+}
+
+export default App;
 ```
 
 ### Display the QR code or display a button
 If the user opens your website on a laptop, show the QR code of the `requestUrl`.
 If the user opens your website on a mobile, show a button that has a link to `requestUrl`.
 
+```js copy showLineNumbers {3, 7, 35, 36}
+import './App.css';
+import { ReclaimClient } from '@reclaimprotocol/js-sdk'
+import { useState } from 'react';
+
+function App() {
+
+  const [url, setUrl] = useState('')
+
+  const reclaimClient = new ReclaimClient("YOUR_APPLICATION_ID_HERE"); //TODO: replace with your applicationId
+
+  async function generateVerificationRequest() {
+    const providerIds = ['provider_id']; //TODO: replace with your provider ids you had selected while creating the application
+    const providers = await reclaimClient.buildHttpProviderV2ByID(providerIds);
+
+    await reclaimClient.addContext(address=`user's address`, message="for acmecorp.com on 1st january")
+
+    const requestProofs = reclaimClient.buildRequestedProofs(
+      providers,
+      reclaimClient.getAppCallbackUrl()
+    );
+
+    reclaimClient.setSignature(
+        await reclaimClient.getSignature(
+        requestProofs,
+        APP_SECRET //TODO : replace with your APP_SECRET
+      )
+    );
+
+    const reclaimReq = await reclaimClient.createVerificationRequest(providerIds);
+    const requestUrl = await reclaimReq.start();
+  }
+
+  return (
+    <div className="App">
+      <button onClick={() => generateVerificationRequest()}>Generate Verification Request</button>
+      <button onClick={() => window.open(url, "_blank")}>Open link</button>
+    </div>
+  );
+}
+
+export default App;
+```
+
 ### Set callbacks
 You get a callback when the user uploads the proof
-```js copy showLineNumbers
+```js copy showLineNumbers {32-38}
+import './App.css';
+import { ReclaimClient } from '@reclaimprotocol/js-sdk'
+import { useState } from 'react';
+
+function App() {
+
+  const [url, setUrl] = useState('')
+
+  const reclaimClient = new ReclaimClient("YOUR_APPLICATION_ID_HERE"); //TODO: replace with your applicationId
+
+  async function generateVerificationRequest() {
+    const providerIds = ['provider_id']; //TODO: replace with your provider ids you had selected while creating the application
+    const providers = await reclaimClient.buildHttpProviderV2ByID(providerIds);
+
+    await reclaimClient.addContext(address=`user's address`, message="for acmecorp.com on 1st january")
+
+    const requestProofs = reclaimClient.buildRequestedProofs(
+      providers,
+      reclaimClient.getAppCallbackUrl()
+    );
+
+    reclaimClient.setSignature(
+        await reclaimClient.getSignature(
+        requestProofs,
+        APP_SECRET //TODO : replace with your APP_SECRET
+      )
+    );
+
+    const reclaimReq = await reclaimClient.createVerificationRequest(providerIds);
+    const requestUrl = await reclaimReq.start();
+
     reclaimReq.on('success', function(proofs) {
-		//TODO: your business logic
-	});
+		  //TODO: your business logic
+	  });
+
 	reclaimReq.on('error', function(errors) {
-		//TODO: your business logic
-	})
+		  //TODO: your business logic
+	  })
+  }
+
+  return (
+    <div className="App">
+      <button onClick={() => generateVerificationRequest()}>Generate Verification Request</button>
+      <button onClick={() => window.open(url, "_blank")}>Open link</button>
+    </div>
+  );
+}
+
+export default App;
 ```
 </Steps>
 
 
 ## Summarizing
-If you omit all the optional steps, you'd be left with the following codebase : 
+If you omit all the optional steps, you'd be left with the following codebase. Run your application and click the button to generate a verification request. 
 ```js copy showLineNumbers
-    const reclaimClient = new ReclaimClient("APP_ID");
-    const providerIds = ['PROVIDER_ID'];
-    const APP_SECRET ="APP_SECRET";
-    const providers = await reclaimClient.buildHttpProviderV2ByID(
-      providerIds
-    );
-    const requestProofs = await reclaimClient.buildRequestedProofs(
+import './App.css';
+import { ReclaimClient } from '@reclaimprotocol/js-sdk'
+import { useState } from 'react';
+
+function App() {
+
+  const [url, setUrl] = useState('')
+
+  const reclaimClient = new ReclaimClient("YOUR_APPLICATION_ID_HERE"); //TODO: replace with your applicationId
+
+  async function generateVerificationRequest() {
+    const providerIds = ['provider_id']; //TODO: replace with your provider ids you had selected while creating the application
+    const providers = await reclaimClient.buildHttpProviderV2ByID(providerIds);
+
+    await reclaimClient.addContext(address=`user's address`, message="for acmecorp.com on 1st january")
+
+    const requestProofs = reclaimClient.buildRequestedProofs(
       providers,
-      await reclaimClient.getAppCallbackUrl()
+      reclaimClient.getAppCallbackUrl()
     );
+
     reclaimClient.setSignature(
         await reclaimClient.getSignature(
         requestProofs,
-        APP_SECRET
+        APP_SECRET //TODO : replace with your APP_SECRET
       )
     );
+
     const reclaimReq = await reclaimClient.createVerificationRequest(providerIds);
     const requestUrl = await reclaimReq.start();
-	reclaimReq.on('success', function(proofs) {
-		alert("Success");
-	})
-    // display requestUrl
+
+    reclaimReq.on('success', function(proofs) {
+		  //TODO: your business logic
+	  });
+
+	reclaimReq.on('error', function(errors) {
+		  //TODO: your business logic
+	  })
+  }
+
+  return (
+    <div className="App">
+      <button onClick={() => generateVerificationRequest()}>Generate Verification Request</button>
+      <button onClick={() => window.open(url, "_blank")}>Open link</button>
+    </div>
+  );
+}
+
+export default App;
 ```
 

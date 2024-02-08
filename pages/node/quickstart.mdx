@@ -75,9 +75,9 @@ The callback will be called at the URL `https://your-base-url.com/path/session-i
 
 ### Build the Proof Request object
 ```js copy showLineNumbers
-    const requestProofs = await reclaimClient.buildRequestedProofs(
+    const requestProofs = reclaimClient.buildRequestedProofs(
       providers,
-      await reclaimClient.getAppCallbackUrl()
+      reclaimClient.getAppCallbackUrl()
     );
 
 ```
@@ -127,9 +127,9 @@ If you omit all the optional steps, you'd be left with the following codebase :
     const providers = await reclaimClient.buildHttpProviderV2ByID(
       providerIds
     );
-    const requestProofs = await reclaimClient.buildRequestedProofs(
+    const requestProofs = reclaimClient.buildRequestedProofs(
       providers,
-      await reclaimClient.getAppCallbackUrl()
+      reclaimClient.getAppCallbackUrl()
     );
     reclaimClient.setSignature(
         await reclaimClient.getSignature(
