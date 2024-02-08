@@ -1,27 +1,25 @@
 ## Overview
 
-Use Reclaim React SDK if you don’t want to make any changes to the backend code. This SDK uses a hosted backend provided by Reclaim.
-- Reclaim Client SDK does all the heavy lifting for you -- from proof generation to verification.
-- Reclaim Client SDK is available as an npm package.
+You can use Reclaim SDK directly in your app without needing any backend changes. 
+If you want to implement your own authentication mechanism to keep user's data secure - we recommend using the [backend libraries](/node).
 
-**Here is a high-level overview of how your application integrates with Reclaim Client SDK:**
+However, the React SDK is a great way to get something going quickly. Particularly good for MVPs.
 
-![sequence](/assets/Reclaim_client_SDK_integration_group.svg)
+## Flows
+### Integrating Reclaim on a Desktop Website
+The flow looks like follows
+1. **User Login**: The user logs in into your website
+2. **Session Creation**: Your website creates a new session for this user using the Reclaim SDK, requesting data from the website that you configure in the SDK; This returns a URI.
+3. **QR Code Display**: Your website displays a QR code linked to the URI for the user's session.
+4. **QR Code Scan**: User scans the QR code using their mobile phone regular camera
+5. **Login Prompt**: User is prompted to login into Acme.com on a webview
+6. **Proof Generation**: Once user has logged in, a proof is generated on the user's device
+7. **Proof Submission**: User hits submit to upload the proof
+8. **Business Logic**: Your website executes business logic basis the proof submitted by the user
 
-## Prerequisites
+### Integrating Reclaim on a Mobile Website
+The flow remains pretty much the same. After step 2 (session creation), the flow diverges into the following steps:
 
-- Node.js 18.0.0 or later
-
-## Installation
-
-```bash copy
-npm i @reclaimprotocol/reclaim-client-sdk
-```
-
-## Initialize the SDK
-Get your Reclaim App ID from the [Reclaim Developer Portal](https://dev.reclaimprotocol.org/).
-```js copy
-import ReclaimSDK from '@reclaimprotocol/reclaim-client-sdk' 
-
-const reclaimSDK = new ReclaimSDK('<YOUR-RECLAIM-APP-ID>')
-```
+1. **Device Detection**: Identify the user's device type (desktop or mobile) to tailor the flow, at step 3.
+2. **Button Display**: Instead of a QR code, display a button linked to the session-specific URI.
+3. Steps 4 to 8 are identical to the desktop integration, starting from the user tapping the button, through to the execution of business logic based on the submitted proof.

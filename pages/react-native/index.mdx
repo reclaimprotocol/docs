@@ -1,7 +1,14 @@
 ## Overview
 
-Integrate the Reclaim Native SDK in your mobile application to enable your users achieve data sovereignty
+You can integrate Reclaim into your mobile apps using the React Native SDK or the [Flutter SDK](/flutter).
 
-**Here is a high level overview of the integration process**
-
-![sequence](/assets/nativeSDK.svg)
+## Flows
+### Integrating Reclaim on a mobile app
+The flow looks like follows
+1. User logs in into your app
+2. Your app creates a new session for this user using the Reclaim SDK, requesting data from Acme.com; This returns a URI.
+3. Your app opens this URL using Link.open() or the equivalent
+5. User is prompted to login into Acme.com on a webview
+6. Once user has logged in, a proof is generated on the user's device
+7. User hits submit to send the proof back to your app
+8. Your app executes business logic basis the proof submitted by the user

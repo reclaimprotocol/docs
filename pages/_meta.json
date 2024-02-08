@@ -1,14 +1,14 @@
 {
-  "index": "Get Started",
-  "install": "Install Reclaim Wallet",
+  "index": "Introduction",
+  "install": "Try it out yourself",
   "try-reclaim": {
-    "title": "Create your first Reclaim Credential"
+    "title": "Create your first Reclaim Credential",
+    "display": "hidden"
   },
   "anatomy": {
     "title": "Know your Reclaim Wallet",
     "display": "hidden"
   },
-  "showcase": "Showcase",
   "--1": {
     "type": "separator",
     "title": "SDKs"
@@ -28,16 +28,6 @@
   "solidity": {
     "title": "Solidity"
   },
-  "verify-proofs": {
-    "title": "Proof Verification SDK"
-  },
-  "--2": {
-    "type": "separator",
-    "title": "Providers"
-  },
-  "providers": {
-    "title": "Learn about Providers"
-  },
   "--3": {
     "type": "separator",
     "title": "Resources"
@@ -54,9 +44,8 @@
     "title": "Architecture",
     "display": "hidden"
   },
-  "glossary": "Glossary",
   "dashboard": {
-    "title": "Dashboard",
+    "title": "Dev Tool",
     "href": "https://dev.reclaimprotocol.org",
     "newWindow": true,
     "type": "page"

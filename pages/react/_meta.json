@@ -1,11 +1,4 @@
 {
-    "index": "Architecture",
-    "quickstart": "Quickstart",
-    "get-reclaim-app-id": "Get Reclaim Application ID",
-    "start-from-example": {
-        "title": "Start from an example"
-    },
-    "reclaim-connect": {
-        "title": "Reclaim Connect"
-    }
+    "index": "Overview",
+    "quickstart": "Quickstart"
 }
