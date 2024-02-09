@@ -1,26 +1,26 @@
-# Building your own callback URL (WIP)
-We recommend setting up your own callback URL. 
-Reclaim SDK does provide a default callback for your convenience and deletes the users' data after a timeout. However, if your application uses sensitive user information and cannot afford for that data to be seen by any third party - including Reclaim Protocol & its employees - you must host your own callback.
-
-Here is a guide on how to do that.
+# Building your own callback URL 
+By default, the sdk returns an `AppCallbackUrl` as an endpoint provided by Reclaim Protocol.
+In some situations, you might want the proofs to be uploaded to your backend once the user creates it. 
+Particularly if you want to process the proofs in the backend and take some actions.
 
 ## Expose a POST endpoint
-The path should contain a session id as a path param.
-```js showLineNumbers
-
-router.post("/path/:session_id", async function(req, res){
-    const sessionId = req.params.session_id;
-    //...
+The path should contain a session id as a query param.
+```js copy showLineNumbers {2}
+app.post('/callback/', async (req, res) => {
+  const sessionId = req.query.callbackId;
 })
-
 ```
 
 ## Parse the uploaded blob
-``` js showLineNumbers
-  const proofs = req.body; //use a json middleware
+``` js copy showLineNumbers {3}
+app.post('/callback/', async (req, res) => {
+  const sessionId = req.query.callbackId;
+  const proofs = JSON.parse(decodeURIComponent(req.body));
+})
 ```
 
 ## Verify the proofs
+The proofs must be verified to make sure the requested proof matches the proofs created
 ```js showLineNumbers
   //TODO@madhavan : 
   // reclaimClient.verifyProofs(...)
