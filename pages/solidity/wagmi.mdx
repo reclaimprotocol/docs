@@ -1,0 +1,218 @@
+import { Steps, Callout } from "nextra/components";
+
+# Publish on chain using wagmi
+
+At this stage, we assume the you followed the steps at [ReactJs](/react).
+
+<Steps>
+
+### Setup your React codebase
+
+We will submit the proof on chain once we get the `success` callback.
+
+```js copy showLineNumbers {44-48}
+import "./App.css";
+import { ReclaimClient } from "@reclaimprotocol/js-sdk";
+import { useEffect, useState } from "react";
+import { WagmiProvider } from "wagmi";
+import { config } from "./config";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import VerifyProof from "./VerifyProof";
+
+const queryClient = new QueryClient();
+
+function App() {
+  const [url, setUrl] = useState("");
+  const [ready, setReady] = useState(true);
+  const [proof, setProof] = useState({});
+
+  const reclaimClient = new ReclaimClient("YOUR_APPLICATION_ID_HERE"); //TODO: replace with your applicationId
+
+  async function generateVerificationRequest() {
+    const providerIds = ["provider_id"]; //TODO: replace with your provider ids you had selected while creating the application
+    const providers = await reclaimClient.buildHttpProviderV2ByID(providerIds);
+
+    await reclaimClient.addContext(
+      (address = `user's address`),
+      (message = "for acmecorp.com on 1st january")
+    );
+
+    const requestProofs = reclaimClient.buildRequestedProofs(
+      providers,
+      reclaimClient.getAppCallbackUrl()
+    );
+
+    reclaimClient.setSignature(
+      await reclaimClient.getSignature(
+        requestProofs,
+        APP_SECRET //TODO : replace with your APP_SECRET
+      )
+    );
+
+    const reclaimReq = await reclaimClient.createVerificationRequest(
+      providerIds
+    );
+    const requestUrl = await reclaimReq.start();
+
+    reclaimReq.on("success", function (proofs) {
+      //TODO: your business logic
+      setReady(true);
+      setProof(proofs[0]);
+    });
+
+    reclaimReq.on("error", function (errors) {
+      //TODO: your business logic
+    });
+  }
+
+  return (
+    <div className="App">
+      <button onClick={() => generateVerificationRequest()}>
+        Generate Verification Request
+      </button>
+      <button onClick={() => window.open(url, "_blank")}>Open link</button>
+      {ready && <VerifyProof proof={proof}></VerifyProof>}
+    </div>
+  );
+}
+
+export default App;
+```
+
+### Install packages.
+
+```js copy
+npm install wagmi viem@2.x @tanstack/react-query --legacy-peer-deps
+```
+
+### Create an abi.js file.
+
+```
+src/
+ |- abi.js
+ |- App.js
+```
+
+Copy your ABI to the created file.
+
+### Include your wagmi config.
+
+```
+src/
+ |- abi.js
+ |- App.js
+ |- config.js
+```
+
+### Populate the config with the following.
+
+```js copy showLineNumbers
+import { http, createConfig } from "wagmi";
+import { mainnet, sepolia, optimismGoerli } from "wagmi/chains";
+import { injected } from "wagmi/connectors";
+
+export const config = createConfig({
+  chains: [mainnet, sepolia, optimismGoerli],
+  connectors: [injected()],
+  transports: {
+    [mainnet.id]: http(),
+    [sepolia.id]: http(),
+    [optimismGoerli.id]: http(),
+  },
+});
+```
+
+### Create a VerifyProof component.
+
+```
+src/
+ |- abi.js
+ |- App.js
+ |- config.js
+ |- VerifyProof.jsx
+```
+
+### Import wagmi and ABI to VerifyProof.
+
+```js copy showLineNumbers
+import { useState, useEffect } from "react";
+import { writeContract } from "@wagmi/core";
+import { abi } from "./abi";
+import { config } from "./config";
+```
+
+### Include the VerifyProof() function.
+
+```js copy showLineNumbers
+export default function VerifyProof(props) {
+  const [proof, setProof] = useState({});
+  const [verified, setVerified] = useState(false);
+
+  useEffect(() => {
+    const newProof = transformProof(props.proof);
+    setProof(newProof);
+  }, []);
+
+  const transformProof = (proof) => {
+    const claimInfoBuilder = new Map([
+      ["context", proof["claimData"]["context"]],
+      ["parameters", proof["claimData"]["parameters"]],
+      ["provider", proof["claimData"]["provider"]],
+    ]);
+    const claimInfo = Object.fromEntries(claimInfoBuilder);
+    const claimBuilder = new Map([
+      ["epoch", proof["claimData"]["epoch"]],
+      ["identifier", proof["claimData"]["identifier"]],
+      ["owner", proof["claimData"]["owner"]],
+      ["timestampS", proof["claimData"]["timestampS"]],
+    ]);
+    const signedClaim = {
+      claim: Object.fromEntries(claimBuilder),
+      signatures: proof["signatures"],
+    };
+    return { proof: { claimInfo, signedClaim } };
+  };
+}
+```
+
+### Render a view that prompts the user to submit proofs.
+
+```js copy showLineNumbers
+return (
+  <div>
+    <button
+      className="button"
+      onClick={async () => {
+        const hash = await writeContract(config, {
+          abi: abi,
+          address: "0xacae5e972FBBEC5cc761a5F75705Ba041AC870Be",
+          functionName: "verifyProof",
+          chainId: 420,
+          args: [proof],
+        });
+        if (hash) {
+          setVerified(true);
+        }
+      }}
+    >
+      Verify Proof
+    </button>
+    {verified && <p> Proof verified </p>}
+    <style jsx>{`
+      .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      .button {
+        border: solid 1px #ccc;
+        margin: 0 0 20px;
+        border-radius: 3px;
+      }
+    `}</style>
+  </div>
+);
+```
+
+</Steps>
