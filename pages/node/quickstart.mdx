@@ -7,7 +7,7 @@ import { Steps, Callout } from 'nextra/components'
 ## Quickstart
 
 <Callout type='info'>
-The following tutorial is based on node express backend
+  The following tutorial is based on node express backend
 </Callout>
 
 <Steps>
@@ -15,29 +15,35 @@ The following tutorial is based on node express backend
 Head to https://dev.reclaimprotocol.org and create a new application. You'll be prompted to provide the websites you want to import data from. Once you create the application, you'll be given an `application ID` and an `application secret`. Please take note of these. These will be used in the next steps.
 
 ### Install Reclaim SDK
+
 ```bash copy
 npm i @reclaimprotocol/js-sdk
 ```
 
 ### Import Reclaim Client
+
 ```js copy showLineNumbers
 import { ReclaimClient } from '@reclaimprotocol/js-sdk'
 ```
 
 ### Generate a user session id
+
 This can be as simple as creatig a new `uuid`.
-Be sure to store the session id in your database to map the session id to your website's user id. 
+Be sure to store the session id in your database to map the session id to your website's user id.
 In some cases, it might be ok to set the sessionId to the user's userId
+
 ```js copy showLineNumbers
-  const sessionId = random(); // we recommend using uuid.v4()
-  // or
-  const sessionId = userId;
-  // or
-  const sessionId = null; // reclaim protocol will auto generate a sessionId
+const sessionId = random() // we recommend using uuid.v4()
+// or
+const sessionId = userId
+// or
+const sessionId = null // reclaim protocol will auto generate a sessionId
 ```
 
 ### Initialize Reclaim Client
+
 Boiler plate stuff.
+
 ```js copy showLineNumbers {2-4}
 router.get('/request-proofs', () => {
     const reclaimClient = new ReclaimClient("YOUR_APPLICATION_ID_HERE", sessionId); //TODO: replace with your applicationId
@@ -49,7 +55,9 @@ router.get('/request-proofs', () => {
 ```
 
 ### Add Context to the proof, optional but recommended
+
 You can add context to your proof. There are two pieces of information that are part of context.
+
 1. Address - this can be an Ethereum/Solana/Cosmos address. This is typically set when the proof is to be used on a blockchain application. When using on blockchain applications, we recommend setting this context address and using this address in the business logic instead of signer of the transaction (e.g. `msg.sender`). If you don't set the context address and use transaction signer as the user's address, there is a front-running security threat.
 2. Message - this can be used to inform the user why this proof is being requested. If your application needs to be sure that the user generates a fresh cryptographic proof for your application, and not reuse an existing proof they created for some other application, you should set the `context.message` to something that is unique to your application. Upon receiving the proof from the user, ensure that the context.message is exactly what you had set it to earlier to avoid scammers from spoofing your users' proofs.
 
@@ -83,6 +91,7 @@ router.get('/request-proofs', () => {
 ```
 
 ### Set Signature for request
+
 You must set a signature on the request so that the users don't get tricked on phishing websites, and mistakenly upload all their data to a malicious website.
 
 ```js copy showLineNumbers {10-15}
@@ -134,6 +143,7 @@ router.get('/request-proofs', () => {
 ```
 
 ### Display the QR code or display a button
+
 If the user opens your website on a laptop, show the QR code of the `requestUrl`.
 If the user opens your website on a mobile, show a button that has a link to `requestUrl`.
 
@@ -141,30 +151,36 @@ If the user opens your website on a mobile, show a button that has a link to `re
 //request-proof.jade
 <html>
   <body>
-    <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=#{requestUrl}" />
+    <img
+      src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=#{requestUrl}"
+    />
   </body>
 </html>
 ```
 
 ### Poll statusUrl
+
 You can poll the status URL. When, the proof is uploaded, the status is updated to `Ok`
-```js copy showLineNumbers {5-12}
+
+```js copy showLineNumbers {5-16}
 <html>
   <body>
     <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=#{requestUrl}" />
 
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script>
-      const statusResponse = axios.get("#{statusUrl}");
-        if(statusResponse.data.message == "Ok"){
-        const context = JSON.parse(statusResponse.data.session.proofs[0].claimData.context); //optional
-        alert("Verified")
-      }
+      var intervalId;
+      intervalId = setInterval(function(){
+        const statusResponse = axios.get("#{statusUrl}");
+          if(statusResponse.data.message == "Ok"){
+          const context = JSON.parse(statusResponse.data.session.proofs[0].claimData.context); //optional
+          clearInterval(intervalId);
+          alert("Verified")
+        }
+      }, 3000)
     </script>
   </body>
 </html>
-
 ```
+
 </Steps>
-
-
