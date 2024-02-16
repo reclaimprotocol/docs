@@ -10,7 +10,7 @@ At this stage, we assume the you followed the steps at [ReactJs](/react).
 
 We will submit the proof on chain once we get the `success` callback.
 
-```js copy showLineNumbers {44-48}
+```js copy showLineNumbers {46-50}
 import "./App.css";
 import { ReclaimClient } from "@reclaimprotocol/js-sdk";
 import { useEffect, useState } from "react";
@@ -27,14 +27,15 @@ function App() {
   const [proof, setProof] = useState({});
 
   const reclaimClient = new ReclaimClient("YOUR_APPLICATION_ID_HERE"); //TODO: replace with your applicationId
+  const APP_SECRET = "YOUR_APP_SECRET_HERE" //TODO : replace with your APP_SECRET
 
   async function generateVerificationRequest() {
     const providerIds = ["provider_id"]; //TODO: replace with your provider ids you had selected while creating the application
     const providers = await reclaimClient.buildHttpProviderV2ByID(providerIds);
 
     await reclaimClient.addContext(
-      (address = `user's address`),
-      (message = "for acmecorp.com on 1st january")
+      (`user's address`),
+      ("for acmecorp.com on 1st january")
     );
 
     const requestProofs = reclaimClient.buildRequestedProofs(
@@ -45,7 +46,7 @@ function App() {
     reclaimClient.setSignature(
       await reclaimClient.getSignature(
         requestProofs,
-        APP_SECRET //TODO : replace with your APP_SECRET
+        APP_SECRET 
       )
     );
 
@@ -53,6 +54,7 @@ function App() {
       providerIds
     );
     const requestUrl = await reclaimReq.start();
+    setUrl(requestUrl);
 
     reclaimReq.on("success", function (proofs) {
       //TODO: your business logic
@@ -66,13 +68,15 @@ function App() {
   }
 
   return (
-    <div className="App">
-      <button onClick={() => generateVerificationRequest()}>
-        Generate Verification Request
-      </button>
-      <button onClick={() => window.open(url, "_blank")}>Open link</button>
-      {ready && <VerifyProof proof={proof}></VerifyProof>}
-    </div>
+    <WagmiProvider config={config}>
+      <QueryClientProvider client={queryClient}>
+        <div className="App">
+          <button onClick={() => generateVerificationRequest()}>Generate Verification Request</button>
+          <button onClick={() => window.open(url, "_blank")}>Open link</button>
+          {ready && <VerifyProof proof={proof}></VerifyProof>}
+        </div>
+      </QueryClientProvider>
+    </WagmiProvider>
   );
 }
 
@@ -87,6 +91,7 @@ npm install wagmi viem@2.x @tanstack/react-query --legacy-peer-deps
 
 ### Create an abi.js file.
 
+Here is an example of what the ABI should look like: [ABI.](https://github.com/reclaimprotocol/reclaim-copy-pastable/blob/main/evm/src/contracts-artifacts/abi.ts)
 ```
 src/
  |- abi.js
@@ -198,7 +203,7 @@ return (
       Verify Proof
     </button>
     {verified && <p> Proof verified </p>}
-    <style jsx>{`
+    <style jsx="true">{`
       .container {
         display: flex;
         flex-direction: column;
