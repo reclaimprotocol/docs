@@ -23,7 +23,7 @@ const queryClient = new QueryClient();
 
 function App() {
   const [url, setUrl] = useState("");
-  const [ready, setReady] = useState(true);
+  const [ready, setReady] = useState(false);
   const [proof, setProof] = useState({});
 
   const reclaimClient = new ReclaimClient("YOUR_APPLICATION_ID_HERE"); //TODO: replace with your applicationId
@@ -111,6 +111,7 @@ src/
 
 ### Populate the config with the following.
 
+Note that we will be using Optimism Goerli testnet for provider and example contract.
 ```js copy showLineNumbers
 import { http, createConfig } from "wagmi";
 import { mainnet, sepolia, optimismGoerli } from "wagmi/chains";
