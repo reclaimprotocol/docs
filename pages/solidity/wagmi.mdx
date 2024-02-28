@@ -90,8 +90,10 @@ npm install wagmi viem@2.x @tanstack/react-query --legacy-peer-deps
 ```
 
 ### Create an abi.js file.
+```js copy
+export const abi = YOUR_ABI
+```
 
-Here is an example of what the ABI should look like: [ABI.](https://github.com/reclaimprotocol/reclaim-copy-pastable/blob/main/evm/src/contracts-artifacts/abi.ts)
 ```
 src/
  |- abi.js
@@ -111,19 +113,18 @@ src/
 
 ### Populate the config with the following.
 
-Note that we will be using Optimism Goerli testnet for provider and example contract.
 ```js copy showLineNumbers
 import { http, createConfig } from "wagmi";
-import { mainnet, sepolia, optimismGoerli } from "wagmi/chains";
+import { mainnet, sepolia, polygonMumbai } from "wagmi/chains";
 import { injected } from "wagmi/connectors";
 
 export const config = createConfig({
-  chains: [mainnet, sepolia, optimismGoerli],
+  chains: [mainnet, sepolia, polygonMumbai],
   connectors: [injected()],
   transports: {
     [mainnet.id]: http(),
     [sepolia.id]: http(),
-    [optimismGoerli.id]: http(),
+    [polygonMumbai.id]: http(),
   },
 });
 ```
@@ -176,7 +177,7 @@ export default function VerifyProof(props) {
       claim: Object.fromEntries(claimBuilder),
       signatures: proof["signatures"],
     };
-    return { proof: { claimInfo, signedClaim } };
+    return { claimInfo, signedClaim };
   };
 }
 ```
@@ -191,9 +192,9 @@ return (
       onClick={async () => {
         const hash = await writeContract(config, {
           abi: abi,
-          address: "0xacae5e972FBBEC5cc761a5F75705Ba041AC870Be",
+          address: "0xDEaeD0f03d7598f2D3863e69A3e00918C5d0cF64", //TODO : replace with your contract's address
           functionName: "verifyProof",
-          chainId: 420,
+          chainId: 80001, //TODO : replace with your chain id
           args: [proof],
         });
         if (hash) {
