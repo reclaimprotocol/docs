@@ -7,28 +7,28 @@ This tutorial assumes that you have a frontend that requests proofs from the use
 ## Solidity 
 <Steps>
 ### Deploy a smart contract
-Deploy the following smart contract to the chain of your choice
+Deploy the following smart contract to the chain of your choice, we will be using Polygon's Mumbai for this walkthrough.
 ```js copy showLineNumbers
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.4;
-
-
+pragma solidity 0.8.20;
+ 
+ 
 import "@reclaimprotocol/verifier-solidity-sdk/contracts/Reclaim.sol";
 import "@reclaimprotocol/verifier-solidity-sdk/contracts/Addresses.sol";
-
-
+ 
+ 
 contract Attestor {
    address public reclaimAddress;
-
-
+ 
+ 
    constructor(){
         
         // TODO: Replace with network you are deploying on
-       reclaimAddress = Addresses.OPTIMISM_GOERLI_TESTNET; 
-
+       reclaimAddress = Addresses.PLOYGON_MUMBAI_TESTNET; 
+ 
    }
-
-
+ 
+ 
    function verifyProof(Reclaim.Proof memory proof) public view{
        Reclaim(reclaimAddress).verifyProof(proof);
        // TODO: your business logic upon success
@@ -41,7 +41,7 @@ You can check out the [supported networks here](https://github.com/reclaimprotoc
 
 ### Get the artifacts
 Once deployed, take a note of the following:
-  - ChainId.
+  - ChainId (80001 in our case).
   - Contract address.
   - ABI.
 
