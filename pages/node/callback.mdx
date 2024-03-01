@@ -19,7 +19,7 @@ app.post('/callback/', async (req, res) => {
 ```js copy showLineNumbers {3}
 app.post('/callback/', async (req, res) => {
   const sessionId = req.query.callbackId
-  const proof = JSON.parse(decodeURIComponent(req.body))[0]
+  const proof = JSON.parse(decodeURIComponent(req.body))
 })
 ```
 
@@ -28,16 +28,16 @@ app.post('/callback/', async (req, res) => {
 The proof must be verified to make sure the requested proof matches the proof created.
 
 - Install `@reclaimprotocol/js-sdk`
-- Use `ReclaimClient.verifySignedProof(proof)`
+- Use `Reclaim.verifySignedProof(proof)`
 
 ```js showLineNumbers {7-10}
-import { ReclaimClient } from '@reclaimprotocol/js-sdk'
+import { Reclaim } from '@reclaimprotocol/js-sdk'
 
 app.post('/callback/', async (req, res) => {
   const sessionId = req.query.callbackId
-  const proof = JSON.parse(decodeURIComponent(req.body))[0]
+  const proof = JSON.parse(decodeURIComponent(req.body))
 
-  const isProofVerified = await ReclaimClient.verifySignedProof(proof)
+  const isProofVerified = await Reclaim.verifySignedProof(proof)
   if (!isProofVerified) {
     return res.status(400).send({ message: 'Proof verification failed' })
   }
@@ -47,11 +47,11 @@ app.post('/callback/', async (req, res) => {
 ## Verify the metadata
 
 ```js showLineNumbers
-import { ReclaimClient } from '@reclaimprotocol/js-sdk'
+import { Reclaim } from '@reclaimprotocol/js-sdk'
 
 app.post('/callback/', async (req, res) => {
   const sessionId = req.query.callbackId
-  const proof = JSON.parse(decodeURIComponent(req.body))[0]
+  const proof = JSON.parse(decodeURIComponent(req.body))
 
   const isProofVerified = await ReclaimClient.verifySignedProof(proof)
   if (!isProofVerified) {

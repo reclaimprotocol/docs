@@ -28,12 +28,13 @@ import { ReclaimClient } from '@reclaimprotocol/reactnative-sdk'
 
 Boilerplate stuff.
 
-```js copy showLineNumbers {5}
-import { SafeAreaView, Text, View } from 'react-native'
-import { ReclaimClient } from '@reclaimprotocol/reactnative-sdk'
+```js copy showLineNumbers {6}
+import { Reclaim } from '@reclaimprotocol/reactnative-sdk'
+import { SafeAreaView, Text, View, Pressable } from 'react-native'
 
 function App() {
-  const reclaimClient = new ReclaimClient('YOUR_APPLICATION_ID_HERE') //TODO: replace with your applicationId
+  const APP_ID = 'YOUR_APPLICATION_ID_HERE'
+  const reclaimClient = new Reclaim.ProofRequest(APP_ID)
 
   return (
     <SafeAreaView>
@@ -49,16 +50,16 @@ export default App
 
 ### Add a function to request proofs
 
-```js copy showLineNumbers {7-10}
-import { SafeAreaView, Text, View } from 'react-native'
-import { ReclaimClient } from '@reclaimprotocol/reactnative-sdk'
+```js copy showLineNumbers {8-10}
+import { Reclaim } from '@reclaimprotocol/reactnative-sdk'
+import { SafeAreaView, Text, View, Pressable } from 'react-native'
 
 function App() {
-  const reclaimClient = new ReclaimClient('YOUR_APPLICATION_ID_HERE') //TODO: replace with your applicationId
+  const APP_ID = 'YOUR_APPLICATION_ID_HERE'
+  const reclaimClient = new Reclaim.ProofRequest(APP_ID)
 
   async function startVerificationFlow() {
-    const providerIds = ['provider_id'] //TODO: replace with your provider ids you had selected while creating the application
-    const providers = await reclaimClient.buildHttpProviderV2ByID(providerIds)
+    const providerId = 'provider_id' //TODO: replace with your provider id you had selected while creating the application
   }
 
   return (
@@ -80,15 +81,15 @@ You'll need to add a deep link to your app. This will be used to redirect the us
 - Guide to setup deep link on react-native can be found [here](https://reactnavigation.org/docs/deep-linking/).
 
 ```js copy showLineNumbers {11-12}
-import { SafeAreaView, Text, View } from 'react-native'
-import { ReclaimClient } from '@reclaimprotocol/reactnative-sdk'
+import { Reclaim } from '@reclaimprotocol/reactnative-sdk'
+import { SafeAreaView, Text, View, Pressable } from 'react-native'
 
 function App() {
-  const reclaimClient = new ReclaimClient('YOUR_APPLICATION_ID_HERE') //TODO: replace with your applicationId
+  const APP_ID = 'YOUR_APPLICATION_ID_HERE'
+  const reclaimClient = new Reclaim.ProofRequest(APP_ID)
 
   async function startVerificationFlow() {
-    const providerIds = ['provider_id'] //TODO: replace with your provider ids you had selected while creating the application
-    const providers = await reclaimClient.buildHttpProviderV2ByID(providerIds)
+    const providerId = 'provider_id' //TODO: replace with your provider id you had selected while creating the application
 
     const appDeepLink = 'YOUR_APP_DEEP_LINK_HERE' //TODO: replace with your app deep link
     reclaimClient.setAppCallbackUrl(appDeepLink)
@@ -114,15 +115,15 @@ You can add context to your proof. There are two pieces of information that are 
 2. Message - this can be used to inform the user why this proof is being requested. If your application needs to be sure that the user generates a fresh cryptographic proof for your application, and not reuse an existing proof they created for some other application, you should set the `context.message` to something that is unique to your application. Upon receiving the proof from the user, ensure that the context.message is exactly what you had set it to earlier to avoid scammers from spoofing your users' proofs.
 
 ```js copy showLineNumbers {14-17}
-import { SafeAreaView, Text, View } from 'react-native'
-import { ReclaimClient } from '@reclaimprotocol/reactnative-sdk'
+import { Reclaim } from '@reclaimprotocol/reactnative-sdk'
+import { SafeAreaView, Text, View, Pressable } from 'react-native'
 
 function App() {
-  const reclaimClient = new ReclaimClient('YOUR_APPLICATION_ID_HERE') //TODO: replace with your applicationId
+  const APP_ID = 'YOUR_APPLICATION_ID_HERE'
+  const reclaimClient = new Reclaim.ProofRequest(APP_ID)
 
   async function startVerificationFlow() {
-    const providerIds = ['provider_id'] //TODO: replace with your provider ids you had selected while creating the application
-    const providers = await reclaimClient.buildHttpProviderV2ByID(providerIds)
+    const providerId = 'provider_id' //TODO: replace with your provider id you had selected while creating the application
 
     const appDeepLink = 'YOUR_APP_DEEP_LINK_HERE' //TODO: replace with your app deep link
     reclaimClient.setAppCallbackUrl(appDeepLink)
@@ -147,16 +148,16 @@ export default App
 
 ### Build the Proof Request object
 
-```js copy showLineNumbers {19-22}
-import { SafeAreaView, Text, View } from 'react-native'
-import { ReclaimClient } from '@reclaimprotocol/reactnative-sdk'
+```js copy showLineNumbers {19}
+import { Reclaim } from '@reclaimprotocol/reactnative-sdk'
+import { SafeAreaView, Text, View, Pressable } from 'react-native'
 
 function App() {
-  const reclaimClient = new ReclaimClient('YOUR_APPLICATION_ID_HERE') //TODO: replace with your applicationId
+  const APP_ID = 'YOUR_APPLICATION_ID_HERE'
+  const reclaimClient = new Reclaim.ProofRequest(APP_ID)
 
   async function startVerificationFlow() {
-    const providerIds = ['provider_id'] //TODO: replace with your provider ids you had selected while creating the application
-    const providers = await reclaimClient.buildHttpProviderV2ByID(providerIds)
+    const providerId = 'provider_id' //TODO: replace with your provider id you had selected while creating the application
 
     const appDeepLink = 'YOUR_APP_DEEP_LINK_HERE' //TODO: replace with your app deep link
     reclaimClient.setAppCallbackUrl(appDeepLink)
@@ -166,10 +167,7 @@ function App() {
       (message = 'for acmecorp.com on 1st january')
     )
 
-    const requestedProofs = reclaimClient.buildRequestedProofs(
-      providers,
-      await reclaimClient.getAppCallbackUrl()
-    )
+    await reclaimClient.buildRequestedProofs(providerId)
   }
 
   return (
@@ -190,16 +188,16 @@ You must set a signature on the request so that the users don't get tricked on p
 
 For a simple MVP, you can generate the signature on the frontend :
 
-```js copy showLineNumbers {24-29}
-import { SafeAreaView, Text, View } from 'react-native'
-import { ReclaimClient } from '@reclaimprotocol/reactnative-sdk'
+```js copy showLineNumbers {21-25}
+import { Reclaim } from '@reclaimprotocol/reactnative-sdk'
+import { SafeAreaView, Text, View, Pressable } from 'react-native'
 
 function App() {
-  const reclaimClient = new ReclaimClient('YOUR_APPLICATION_ID_HERE') //TODO: replace with your applicationId
+  const APP_ID = 'YOUR_APPLICATION_ID_HERE'
+  const reclaimClient = new Reclaim.ProofRequest(APP_ID)
 
   async function startVerificationFlow() {
-    const providerIds = ['provider_id'] //TODO: replace with your provider ids you had selected while creating the application
-    const providers = await reclaimClient.buildHttpProviderV2ByID(providerIds)
+    const providerId = 'provider_id' //TODO: replace with your provider id you had selected while creating the application
 
     const appDeepLink = 'YOUR_APP_DEEP_LINK_HERE' //TODO: replace with your app deep link
     reclaimClient.setAppCallbackUrl(appDeepLink)
@@ -209,14 +207,10 @@ function App() {
       (message = 'for acmecorp.com on 1st january')
     )
 
-    const requestedProofs = reclaimClient.buildRequestedProofs(
-      providers,
-      await reclaimClient.getAppCallbackUrl()
-    )
+    await reclaimClient.buildRequestedProofs(providerId)
 
     reclaimClient.setSignature(
-      await reclaimClient.getSignature(
-        requestProofs,
+      await reclaimClient.generateSignature(
         APP_SECRET //TODO : replace with your APP_SECRET
       )
     )
@@ -243,18 +237,18 @@ reclaimClient
   ()
 ```
 
-### Start the Verification Flow
+### Create the Verification Request
 
-```js copy showLineNumbers {31-34}
-import { SafeAreaView, Text, View } from 'react-native'
-import { ReclaimClient } from '@reclaimprotocol/reactnative-sdk'
+```js copy showLineNumbers {27-28}
+import { Reclaim } from '@reclaimprotocol/reactnative-sdk'
+import { SafeAreaView, Text, View, Pressable } from 'react-native'
 
 function App() {
-  const reclaimClient = new ReclaimClient('YOUR_APPLICATION_ID_HERE') //TODO: replace with your applicationId
+  const APP_ID = 'YOUR_APPLICATION_ID_HERE'
+  const reclaimClient = new Reclaim.ProofRequest(APP_ID)
 
   async function startVerificationFlow() {
-    const providerIds = ['provider_id'] //TODO: replace with your provider ids you had selected while creating the application
-    const providers = await reclaimClient.buildHttpProviderV2ByID(providerIds)
+    const providerId = 'provider_id' //TODO: replace with your provider id you had selected while creating the application
 
     const appDeepLink = 'YOUR_APP_DEEP_LINK_HERE' //TODO: replace with your app deep link
     reclaimClient.setAppCallbackUrl(appDeepLink)
@@ -264,22 +258,16 @@ function App() {
       (message = 'for acmecorp.com on 1st january')
     )
 
-    const requestedProofs = reclaimClient.buildRequestedProofs(
-      providers,
-      await reclaimClient.getAppCallbackUrl()
-    )
+    await reclaimClient.buildRequestedProofs(providerId)
 
     reclaimClient.setSignature(
-      await reclaimClient.getSignature(
-        requestedProofs,
+      await reclaimClient.generateSignature(
         APP_SECRET //TODO : replace with your APP_SECRET
       )
     )
 
-    const reclaimReq = await reclaimClient.createVerificationRequest(
-      providerIds
-    )
-    await reclaimReq.start()
+    const { requestUrl, statusUrl } =
+      await reclaimClient.createVerificationRequest(providerIds)
   }
 
   return (
@@ -298,16 +286,16 @@ export default App
 
 Show a button that fires the verification flow.
 
-```js copy showLineNumbers {1, 40-42}
+```js copy showLineNumbers {2, 34-36}
+import { Reclaim } from '@reclaimprotocol/reactnative-sdk'
 import { SafeAreaView, Text, View, Pressable } from 'react-native'
-import { ReclaimClient } from '@reclaimprotocol/reactnative-sdk'
 
 function App() {
-  const reclaimClient = new ReclaimClient('YOUR_APPLICATION_ID_HERE') //TODO: replace with your applicationId
+  const APP_ID = 'YOUR_APPLICATION_ID_HERE'
+  const reclaimClient = new Reclaim.ProofRequest(APP_ID)
 
   async function startVerificationFlow() {
-    const providerIds = ['provider_id'] //TODO: replace with your provider ids you had selected while creating the application
-    const providers = await reclaimClient.buildHttpProviderV2ByID(providerIds)
+    const providerId = 'provider_id' //TODO: replace with your provider id you had selected while creating the application
 
     const appDeepLink = 'YOUR_APP_DEEP_LINK_HERE' //TODO: replace with your app deep link
     reclaimClient.setAppCallbackUrl(appDeepLink)
@@ -317,22 +305,16 @@ function App() {
       (message = 'for acmecorp.com on 1st january')
     )
 
-    const requestedProofs = reclaimClient.buildRequestedProofs(
-      providers,
-      await reclaimClient.getAppCallbackUrl()
-    )
+    await reclaimClient.buildRequestedProofs(providerId)
 
     reclaimClient.setSignature(
-      await reclaimClient.getSignature(
-        requestedProofs,
+      await reclaimClient.generateSignature(
         APP_SECRET //TODO : replace with your APP_SECRET
       )
     )
 
-    const reclaimReq = await reclaimClient.createVerificationRequest(
-      providerIds
-    )
-    await reclaimReq.start()
+    const { requestUrl, statusUrl } =
+      await reclaimClient.createVerificationRequest(providerIds)
   }
 
   return (
@@ -349,20 +331,20 @@ function App() {
 export default App
 ```
 
-### Set callbacks
+### Set callbacks & Start Session
 
 You get a callback when the user uploads the proof
 
-```js copy showLineNumbers {36-42}
+```js copy showLineNumbers {30-39}
+import { Reclaim } from '@reclaimprotocol/reactnative-sdk'
 import { SafeAreaView, Text, View, Pressable } from 'react-native'
-import { ReclaimClient } from '@reclaimprotocol/reactnative-sdk'
 
 function App() {
-  const reclaimClient = new ReclaimClient('YOUR_APPLICATION_ID_HERE') //TODO: replace with your applicationId
+  const APP_ID = 'YOUR_APPLICATION_ID_HERE'
+  const reclaimClient = new Reclaim.ProofRequest(APP_ID)
 
   async function startVerificationFlow() {
-    const providerIds = ['provider_id'] //TODO: replace with your provider ids you had selected while creating the application
-    const providers = await reclaimClient.buildHttpProviderV2ByID(providerIds)
+    const providerId = 'provider_id' //TODO: replace with your provider id you had selected while creating the application
 
     const appDeepLink = 'YOUR_APP_DEEP_LINK_HERE' //TODO: replace with your app deep link
     reclaimClient.setAppCallbackUrl(appDeepLink)
@@ -372,29 +354,26 @@ function App() {
       (message = 'for acmecorp.com on 1st january')
     )
 
-    const requestedProofs = reclaimClient.buildRequestedProofs(
-      providers,
-      await reclaimClient.getAppCallbackUrl()
-    )
+    await reclaimClient.buildRequestedProofs(providerId)
 
     reclaimClient.setSignature(
-      await reclaimClient.getSignature(
-        requestedProofs,
+      await reclaimClient.generateSignature(
         APP_SECRET //TODO : replace with your APP_SECRET
       )
     )
 
-    const reclaimReq = await reclaimClient.createVerificationRequest(
-      providerIds
-    )
-    await reclaimReq.start()
+    const { requestUrl, statusUrl } =
+      await reclaimClient.createVerificationRequest(providerIds)
 
-    reclaimReq.on('success', function (proofs) {
-      //TODO: your business logic
-    })
-
-    reclaimReq.on('error', function (errors) {
-      //TODO: your business logic
+    await reclaimClient.startSession({
+      onSuccessCallback: proof => {
+        console.log('Verification success', proof)
+        // Your business logic here
+      },
+      onFailureCallback: error => {
+        console.error('Verification failed', error)
+        // Your business logic here to handle the error
+      }
     })
   }
 
@@ -419,15 +398,15 @@ export default App
 If you omit all the optional steps, you'd be left with the following codebase. Run your application and click the button to start a verification request.
 
 ```js copy showLineNumbers
+import { Reclaim } from '@reclaimprotocol/reactnative-sdk'
 import { SafeAreaView, Text, View, Pressable } from 'react-native'
-import { ReclaimClient } from '@reclaimprotocol/reactnative-sdk'
 
 function App() {
-  const reclaimClient = new ReclaimClient('YOUR_APPLICATION_ID_HERE') //TODO: replace with your applicationId
+  const APP_ID = 'YOUR_APPLICATION_ID_HERE'
+  const reclaimClient = new Reclaim.ProofRequest(APP_ID)
 
   async function startVerificationFlow() {
-    const providerIds = ['provider_id'] //TODO: replace with your provider ids you had selected while creating the application
-    const providers = await reclaimClient.buildHttpProviderV2ByID(providerIds)
+    const providerId = 'provider_id' //TODO: replace with your provider id you had selected while creating the application
 
     const appDeepLink = 'YOUR_APP_DEEP_LINK_HERE' //TODO: replace with your app deep link
     reclaimClient.setAppCallbackUrl(appDeepLink)
@@ -437,29 +416,26 @@ function App() {
       (message = 'for acmecorp.com on 1st january')
     )
 
-    const requestedProofs = reclaimClient.buildRequestedProofs(
-      providers,
-      await reclaimClient.getAppCallbackUrl()
-    )
+    await reclaimClient.buildRequestedProofs(providerId)
 
     reclaimClient.setSignature(
-      await reclaimClient.getSignature(
-        requestedProofs,
+      await reclaimClient.generateSignature(
         APP_SECRET //TODO : replace with your APP_SECRET
       )
     )
 
-    const reclaimReq = await reclaimClient.createVerificationRequest(
-      providerIds
-    )
-    await reclaimReq.start()
+    const { requestUrl, statusUrl } =
+      await reclaimClient.createVerificationRequest(providerIds)
 
-    reclaimReq.on('success', function (proofs) {
-      //TODO: your business logic
-    })
-
-    reclaimReq.on('error', function (errors) {
-      //TODO: your business logic
+    await reclaimClient.startSession({
+      onSuccessCallback: proof => {
+        console.log('Verification success', proof)
+        // Your business logic here
+      },
+      onFailureCallback: error => {
+        console.error('Verification failed', error)
+        // Your business logic here to handle the error
+      }
     })
   }
 

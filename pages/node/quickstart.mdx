@@ -23,7 +23,7 @@ npm i @reclaimprotocol/js-sdk
 ### Import Reclaim Client
 
 ```js copy showLineNumbers
-import { ReclaimClient } from '@reclaimprotocol/js-sdk'
+import { Reclaim } from '@reclaimprotocol/js-sdk'
 ```
 
 ### Generate a user session id
@@ -44,14 +44,13 @@ const sessionId = null // reclaim protocol will auto generate a sessionId
 
 Boiler plate stuff.
 
-```js copy showLineNumbers {2-4}
-router.get('/request-proofs', () => {
-    const reclaimClient = new ReclaimClient("YOUR_APPLICATION_ID_HERE", sessionId); //TODO: replace with your applicationId
-    const providerIds = ['provider_id']; //TODO: replace with your provider ids you had selected while creating the application
-    const providers = await reclaimClient.buildHttpProviderV2ByID(providerIds);
-
-
-});
+```js copy showLineNumbers {2-5}
+router.get('/request-proofs', async () => {
+  const reclaimClient = new Reclaim.ProofRequest(
+    'YOUR_APPLICATION_ID_HERE',
+    sessionId
+  ) //TODO: replace with your applicationId
+})
 ```
 
 ### Add Context to the proof, optional but recommended
@@ -61,83 +60,88 @@ You can add context to your proof. There are two pieces of information that are 
 1. Address - this can be an Ethereum/Solana/Cosmos address. This is typically set when the proof is to be used on a blockchain application. When using on blockchain applications, we recommend setting this context address and using this address in the business logic instead of signer of the transaction (e.g. `msg.sender`). If you don't set the context address and use transaction signer as the user's address, there is a front-running security threat.
 2. Message - this can be used to inform the user why this proof is being requested. If your application needs to be sure that the user generates a fresh cryptographic proof for your application, and not reuse an existing proof they created for some other application, you should set the `context.message` to something that is unique to your application. Upon receiving the proof from the user, ensure that the context.message is exactly what you had set it to earlier to avoid scammers from spoofing your users' proofs.
 
-```js copy showLineNumbers {5}
-router.get('/request-proofs', () => {
-    const reclaimClient = new ReclaimClient("YOUR_APPLICATION_ID_HERE", sessionId); //TODO: replace with your applicationId
-    const providerIds = ['provider_id']; //TODO: replace with your provider ids you had selected while creating the application
-    const providers = await reclaimClient.buildHttpProviderV2ByID(providerIds);
-    await reclaimClient.addContext(address=`user's address`, message="for acmecorp.com on 1st january")
+```js copy showLineNumbers {7-10}
+router.get('/request-proofs', async () => {
+  const reclaimClient = new Reclaim.ProofRequest(
+    'YOUR_APPLICATION_ID_HERE',
+    sessionId
+  ) //TODO: replace with your applicationId
 
-});
-
+  await reclaimClient.addContext(
+    (address = `user's address`),
+    (message = 'for acmecorp.com on 1st january')
+  )
+})
 ```
 
-### Build the Proof Request object
+### Build the Proof Request
 
-```js copy showLineNumbers {6-9}
-router.get('/request-proofs', () => {
-    const reclaimClient = new ReclaimClient("YOUR_APPLICATION_ID_HERE", sessionId); //TODO: replace with your applicationId
-    const providerIds = ['provider_id']; //TODO: replace with your provider ids you had selected while creating the application
-    const providers = await reclaimClient.buildHttpProviderV2ByID(providerIds);
-    await reclaimClient.addContext(address=`user's address`, message="for acmecorp.com on 1st january")
-    const requestProofs = reclaimClient.buildRequestedProofs(
-      providers,
-      reclaimClient.getAppCallbackUrl()
-    );
+```js copy showLineNumbers {11-12}
+router.get('/request-proofs', async () => {
+  const reclaimClient = new Reclaim.ProofRequest(
+    'YOUR_APPLICATION_ID_HERE',
+    sessionId
+  ) //TODO: replace with your applicationId
+  await reclaimClient.addContext(
+    (address = `user's address`),
+    (message = 'for acmecorp.com on 1st january')
+  )
 
-});
-
-
+  // id of the provider you want to generate the proof for
+  await reclaimProofRequest.buildProofRequest('PROVIDER_ID')
+})
 ```
 
 ### Set Signature for request
 
 You must set a signature on the request so that the users don't get tricked on phishing websites, and mistakenly upload all their data to a malicious website.
 
-```js copy showLineNumbers {10-15}
-router.get('/request-proofs', () => {
-    const reclaimClient = new ReclaimClient("YOUR_APPLICATION_ID_HERE", sessionId); //TODO: replace with your applicationId
-    const providerIds = ['provider_id']; //TODO: replace with your provider ids you had selected while creating the application
-    const providers = await reclaimClient.buildHttpProviderV2ByID(providerIds);
-    await reclaimClient.addContext(address=`user's address`, message="for acmecorp.com on 1st january")
-    const requestProofs = reclaimClient.buildRequestedProofs(
-      providers,
-      reclaimClient.getAppCallbackUrl()
-    );
-    reclaimClient.setSignature(
-        await reclaimClient.getSignature(
-        requestProofs,
-        APP_SECRET //TODO : replace with your APP_SECRET
-      )
-    );
+```js copy showLineNumbers {14-18}
+router.get('/request-proofs', async () => {
+  const reclaimClient = new Reclaim.ProofRequest(
+    'YOUR_APPLICATION_ID_HERE',
+    sessionId
+  ) //TODO: replace with your applicationId
+  await reclaimClient.addContext(
+    (address = `user's address`),
+    (message = 'for acmecorp.com on 1st january')
+  )
 
-});
+  // id of the provider you want to generate the proof for
+  await reclaimProofRequest.buildProofRequest('PROVIDER_ID')
 
+  reclaimClient.setSignature(
+    await reclaimClient.generateSignature(
+      APP_SECRET //TODO : replace with your APP_SECRET
+    )
+  )
+})
 ```
 
 ### Get the status URL & request URL
 
-```js copy showLineNumbers {16-18}
+```js copy showLineNumbers {20-21}
 router.get('/request-proofs', () => {
-    const reclaimClient = new ReclaimClient("YOUR_APPLICATION_ID_HERE", sessionId); //TODO: replace with your applicationId
-    const providerIds = ['provider_id']; //TODO: replace with your provider ids you had selected while creating the application
-    const providers = await reclaimClient.buildHttpProviderV2ByID(providerIds);
-    await reclaimClient.addContext(address=`user's address`, message="for acmecorp.com on 1st january")
-    const requestProofs = reclaimClient.buildRequestedProofs(
-      providers,
-      reclaimClient.getAppCallbackUrl()
-    );
-    reclaimClient.setSignature(
-        await reclaimClient.getSignature(
-        requestProofs,
-        APP_SECRET //TODO : replace with your APP_SECRET
-      )
-    );
-    const statusUrl = reclaimClient.getStatusUrl();
-    const reclaimReq = await reclaimClient.createVerificationRequest(providerIds);
-    const requestUrl = await reclaimReq.start();
-    res.send('request-proof', {requestUrl, statusUrl})
+  const reclaimClient = new Reclaim.ProofRequest(
+    'YOUR_APPLICATION_ID_HERE',
+    sessionId
+  ) //TODO: replace with your applicationId
+  await reclaimClient.addContext(
+    (address = `user's address`),
+    (message = 'for acmecorp.com on 1st january')
+  )
 
+  // id of the provider you want to generate the proof for
+  await reclaimProofRequest.buildProofRequest('PROVIDER_ID')
+
+  reclaimClient.setSignature(
+    await reclaimClient.generateSignature(
+      APP_SECRET //TODO : replace with your APP_SECRET
+    )
+  )
+
+  const {requestUrl, statusUrl} = await reclaimClient.createVerificationRequest();
+  res.send('request-proof', {requestUrl, statusUrl})
 });
 
 ```
@@ -148,7 +152,6 @@ If the user opens your website on a laptop, show the QR code of the `requestUrl`
 If the user opens your website on a mobile, show a button that has a link to `requestUrl`.
 
 ```html copy showLineNumbers {4}
-//request-proof.jade
 <html>
   <body>
     <img
@@ -173,9 +176,9 @@ You can poll the status URL. When, the proof is uploaded, the status is updated 
       intervalId = setInterval(function(){
         const statusResponse = axios.get("#{statusUrl}");
           if(statusResponse.data.message == "Ok"){
-          const context = JSON.parse(statusResponse.data.session.proofs[0].claimData.context); //optional
-          clearInterval(intervalId);
-          alert("Verified")
+            const context = JSON.parse(statusResponse.data.session.proofs[0].claimData.context); //optional
+            clearInterval(intervalId);
+            alert("Verified")
         }
       }, 3000)
     </script>
