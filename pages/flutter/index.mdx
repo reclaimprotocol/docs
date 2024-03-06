@@ -1,0 +1,18 @@
+## Overview
+
+You can integrate Reclaim into your mobile apps using the Flutter SDK or the [React Native SDK](/react-native).
+
+## Flows
+
+### Integrating Reclaim on a mobile app
+
+The flow looks like follows
+
+1. User logs in into your app
+2. Your app creates a new session for this user using the Reclaim SDK, requesting data from Acme.com; This returns a URI.
+3. Your app opens this URL using launchUrl() or the equivalent
+4. User will be redirected to AppInstant/AppClip
+5. User is prompted to login into Acme.com on a webview
+6. Once user has logged in, a proof is generated on the user's device
+7. User hits submit to send the proof back to your app
+8. Your app executes business logic basis the proof submitted by the user

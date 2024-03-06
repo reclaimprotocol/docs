@@ -1,3 +1,630 @@
 import { Steps, Callout } from 'nextra/components'
 
-Coming soon...
+## Prerequisites
+
+- Flutter
+- [Deep Link Setup](https://docs.flutter.dev/ui/navigation/deep-linking)
+
+## Quickstart
+
+<Steps>
+### Create an application on Dev Tool
+Head to https://dev.reclaimprotocol.org and create a new application. You'll be prompted to provide the websites you want to import data from. Once you create the application, you'll be given an `application ID` and an `application secret`. Please take note of these. These will be used in the next steps.
+
+### Install Reclaim SDK
+
+```bash copy
+flutter pub add reclaim_sdk
+```
+
+### Import Reclaim Client
+
+```dart copy showLineNumbers
+import 'package:reclaim_sdk/flutter_reclaim.dart';
+import 'package:reclaim_sdk/types.dart';
+```
+
+### Initialize Reclaim Client
+
+Boilerplate stuff.
+
+```dart copy showLineNumbers {14}
+import 'package:reclaim_sdk/flutter_reclaim.dart';
+import 'package:reclaim_sdk/types.dart';
+
+class ReclaimScreen extends StatefulWidget {
+    const ReclaimScreen({super.key, required this.title});
+    final String title;
+
+    @override
+    State<ReclaimScreen> createState() => _ReclaimScreenState();
+}
+
+class _ReclaimScreenState extends State<ReclaimScreen> {
+    String data = "";
+    ProofRequest proofRequest = ProofRequest(applicationId: 'YOUR_APPLICATION_ID_HERE');
+
+    Widget build(BuildContext context) {
+        return Scaffold(
+            appBar: AppBar(
+                backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+                title: Text(widget.title),
+            ),
+        );
+    }
+}
+```
+
+### Add a function to request proofs
+
+```dart copy showLineNumbers {16-18}
+import 'package:reclaim_sdk/flutter_reclaim.dart';
+import 'package:reclaim_sdk/types.dart';
+
+class ReclaimScreen extends StatefulWidget {
+    const ReclaimScreen({super.key, required this.title});
+    final String title;
+
+    @override
+    State<ReclaimScreen> createState() => _ReclaimScreenState();
+}
+
+class _ReclaimScreenState extends State<ReclaimScreen> {
+    String data = "";
+    ProofRequest proofRequest = ProofRequest(applicationId: 'YOUR_APPLICATION_ID_HERE');
+
+    void startVerificationFlow() async {
+        final providerId = 'YOUR_PROVIDER_ID_HERE';
+    }
+
+    Widget build(BuildContext context) {
+        return Scaffold(
+            appBar: AppBar(
+                backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+                title: Text(widget.title),
+            ),
+        );
+    }
+}
+
+```
+
+### Add your app deep link
+
+You'll need to add a deep link to your app. This will be used to redirect the user back to your app after they have completed the verification process.
+
+- Guide to setup deep link on flutter can be found [here](https://docs.flutter.dev/ui/navigation/deep-linking).
+
+```dart copy showLineNumbers {20-21}
+import 'package:reclaim_sdk/flutter_reclaim.dart';
+import 'package:reclaim_sdk/types.dart';
+
+class ReclaimScreen extends StatefulWidget {
+    const ReclaimScreen({super.key, required this.title});
+    final String title;
+
+    @override
+    State<ReclaimScreen> createState() => _ReclaimScreenState();
+
+}
+
+class _ReclaimScreenState extends State<ReclaimScreen> {
+    String data = "";
+    ProofRequest proofRequest = ProofRequest(applicationId: 'YOUR_APPLICATION_ID_HERE');
+
+    void startVerificationFlow() async {
+        final providerId = 'YOUR_PROVIDER_ID_HERE';
+
+        final appDeepLink = 'YOUR_APP_DEEP_LINK_HERE' //TODO: replace with your app deep link
+        proofRequest.setAppCallbackUrl(appDeepLink)
+    }
+
+    Widget build(BuildContext context) {
+        return Scaffold(
+            appBar: AppBar(
+                backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+                title: Text(widget.title),
+            ),
+        );
+    }
+}
+```
+
+### Add Context to the proof, optional but recommended
+
+You can add context to your proof. There are two pieces of information that are part of context.
+
+1. Address - this can be an Ethereum/Solana/Cosmos address. This is typically set when the proof is to be used on a blockchain application. When using on blockchain applications, we recommend setting this context address and using this address in the business logic instead of signer of the transaction (e.g. `msg.sender`). If you don't set the context address and use transaction signer as the user's address, there is a front-running security threat.
+2. Message - this can be used to inform the user why this proof is being requested. If your application needs to be sure that the user generates a fresh cryptographic proof for your application, and not reuse an existing proof they created for some other application, you should set the `context.message` to something that is unique to your application. Upon receiving the proof from the user, ensure that the context.message is exactly what you had set it to earlier to avoid scammers from spoofing your users' proofs.
+
+```dart copy showLineNumbers {23}
+import 'package:reclaim_sdk/flutter_reclaim.dart';
+import 'package:reclaim_sdk/types.dart';
+
+class ReclaimScreen extends StatefulWidget {
+    const ReclaimScreen({super.key, required this.title});
+    final String title;
+
+    @override
+    State<ReclaimScreen> createState() => _ReclaimScreenState();
+
+}
+
+class _ReclaimScreenState extends State<ReclaimScreen> {
+    String data = "";
+    ProofRequest proofRequest = ProofRequest(applicationId: 'YOUR_APPLICATION_ID_HERE');
+
+    void startVerificationFlow() async {
+        final providerId = 'YOUR_PROVIDER_ID_HERE';
+
+        final appDeepLink = 'YOUR_APP_DEEP_LINK_HERE'; //TODO: replace with your app deep link
+        proofRequest.setAppCallbackUrl(appDeepLink);
+
+        proofRequest.addContext('YOUR_CONTEXT_ADDRESS', 'YOUR_CONTEXT_MESSAGE');
+    }
+
+    Widget build(BuildContext context) {
+        return Scaffold(
+            appBar: AppBar(
+                backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+                title: Text(widget.title),
+            ),
+        );
+    }
+}
+```
+
+### Build the Proof Request object
+
+```dart copy showLineNumbers {25}
+import 'package:reclaim_sdk/flutter_reclaim.dart';
+import 'package:reclaim_sdk/types.dart';
+
+class ReclaimScreen extends StatefulWidget {
+    const ReclaimScreen({super.key, required this.title});
+    final String title;
+
+    @override
+    State<ReclaimScreen> createState() => _ReclaimScreenState();
+
+}
+
+class _ReclaimScreenState extends State<ReclaimScreen> {
+    String data = "";
+    ProofRequest proofRequest = ProofRequest(applicationId: 'YOUR_APPLICATION_ID_HERE');
+
+    void startVerificationFlow() async {
+        final providerId = 'YOUR_PROVIDER_ID_HERE';
+
+        final appDeepLink = 'YOUR_APP_DEEP_LINK_HERE'; //TODO: replace with your app deep link
+        proofRequest.setAppCallbackUrl(appDeepLink);
+
+        proofRequest.addContext('YOUR_CONTEXT_ADDRESS', 'YOUR_CONTEXT_MESSAGE');
+
+        await proofRequest.buildProofRequest(providerId);
+    }
+
+    Widget build(BuildContext context) {
+        return Scaffold(
+            appBar: AppBar(
+                backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+                title: Text(widget.title),
+            ),
+        );
+    }
+
+}
+```
+
+### Set Signature for request
+
+You must set a signature on the request so that the users don't get tricked on phishing websites, and mistakenly upload all their data to a malicious website.
+
+For a simple MVP, you can generate the signature on the frontend :
+
+```dart copy showLineNumbers {26-30}
+import 'package:reclaim_sdk/flutter_reclaim.dart';
+import 'package:reclaim_sdk/types.dart';
+
+class ReclaimScreen extends StatefulWidget {
+    const ReclaimScreen({super.key, required this.title});
+    final String title;
+
+    @override
+    State<ReclaimScreen> createState() => _ReclaimScreenState();
+}
+
+class _ReclaimScreenState extends State<ReclaimScreen> {
+    String data = "";
+    ProofRequest proofRequest = ProofRequest(applicationId: 'YOUR_APPLICATION_ID_HERE');
+
+    void startVerificationFlow() async {
+        final providerId = 'YOUR_PROVIDER_ID_HERE';
+
+        final appDeepLink = 'YOUR_APP_DEEP_LINK_HERE'; //TODO: replace with your app deep link
+        proofRequest.setAppCallbackUrl(appDeepLink);
+
+        proofRequest.addContext('YOUR_CONTEXT_ADDRESS', 'YOUR_CONTEXT_MESSAGE');
+
+        await proofRequest.buildProofRequest(providerId);
+
+        proofRequest.setSignature(
+            proofRequest.generateSignature(
+                'YOUR_APP_SECRET_HERE'
+            )
+        );
+
+    }
+
+    Widget build(BuildContext context) {
+        return Scaffold(
+            appBar: AppBar(
+                backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+                title: Text(widget.title),
+            ),
+        );
+    }
+}
+```
+
+However, we recommend not generating the signature on the frontend because this leaks the APP_SECRET. You may expose a `/sign` endpoint that authenticates your user and returns a signature.
+
+```dart copy showLineNumbers
+proofRequest
+  .setSignature
+  //TODO: signature response from your backend
+  ()
+```
+
+### Create the Verification Request
+
+```dart copy showLineNumbers {33}
+import 'package:reclaim_sdk/flutter_reclaim.dart';
+import 'package:reclaim_sdk/types.dart';
+
+class ReclaimScreen extends StatefulWidget {
+    const ReclaimScreen({super.key, required this.title});
+    final String title;
+
+    @override
+    State<ReclaimScreen> createState() => _ReclaimScreenState();
+
+}
+
+class _ReclaimScreenState extends State<ReclaimScreen> {
+    String data = "";
+    ProofRequest proofRequest = ProofRequest(applicationId: 'YOUR_APPLICATION_ID_HERE');
+
+    void startVerificationFlow() async {
+        final providerId = 'YOUR_PROVIDER_ID_HERE';
+
+        final appDeepLink = 'YOUR_APP_DEEP_LINK_HERE'; //TODO: replace with your app deep link
+        proofRequest.setAppCallbackUrl(appDeepLink);
+
+        proofRequest.addContext('YOUR_CONTEXT_ADDRESS', 'YOUR_CONTEXT_MESSAGE');
+
+        await proofRequest.buildProofRequest(providerId);
+
+        proofRequest.setSignature(
+            proofRequest.generateSignature(
+                'YOUR_APP_SECRET_HERE'
+            )
+        );
+
+        final verificationRequest = await proofRequest.createVerificationRequest();
+
+    }
+
+    Widget build(BuildContext context) {
+        return Scaffold(
+            appBar: AppBar(
+                backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+                title: Text(widget.title),
+            ),
+        );
+    }
+}
+```
+
+### Display a button
+
+Show a button that fires the verification flow.
+
+```dart copy showLineNumbers {43-47}
+import 'package:reclaim_sdk/flutter_reclaim.dart';
+import 'package:reclaim_sdk/types.dart';
+
+class ReclaimScreen extends StatefulWidget {
+    const ReclaimScreen({super.key, required this.title});
+    final String title;
+
+    @override
+    State<ReclaimScreen> createState() => _ReclaimScreenState();
+
+}
+
+class _ReclaimScreenState extends State<ReclaimScreen> {
+    String data = "";
+    ProofRequest proofRequest = ProofRequest(applicationId: 'YOUR_APPLICATION_ID_HERE');
+
+    void startVerificationFlow() async {
+        final providerId = 'YOUR_PROVIDER_ID_HERE';
+
+        final appDeepLink = 'YOUR_APP_DEEP_LINK_HERE'; //TODO: replace with your app deep link
+        proofRequest.setAppCallbackUrl(appDeepLink);
+
+        proofRequest.addContext('YOUR_CONTEXT_ADDRESS', 'YOUR_CONTEXT_MESSAGE');
+
+        await proofRequest.buildProofRequest(providerId);
+
+        proofRequest.setSignature(
+            proofRequest.generateSignature(
+                'YOUR_APP_SECRET_HERE'
+            )
+        );
+
+        final verificationRequest = await proofRequest.createVerificationRequest();
+
+    }
+
+    Widget build(BuildContext context) {
+        return Scaffold(
+            appBar: AppBar(
+                backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+                title: Text(widget.title),
+            ),
+            floatingActionButton: FloatingActionButton(
+                onPressed: startVerificationFlow,
+                tooltip: 'Verify ',
+                child: const Text('Verify'),
+            ),
+        );
+    }
+
+}
+```
+
+### Set callbacks & Start Session
+
+You get a callback when the user uploads the proof
+
+```dart copy showLineNumbers {36-49}
+import 'package:reclaim_sdk/flutter_reclaim.dart';
+import 'package:reclaim_sdk/types.dart';
+import 'dart:convert'; // to use jsonEncode()
+
+class ReclaimScreen extends StatefulWidget {
+    const ReclaimScreen({super.key, required this.title});
+    final String title;
+
+    @override
+    State<ReclaimScreen> createState() => _ReclaimScreenState();
+
+}
+
+class _ReclaimScreenState extends State<ReclaimScreen> {
+    String data = "";
+    ProofRequest proofRequest = ProofRequest(applicationId: 'YOUR_APPLICATION_ID_HERE');
+
+    void startVerificationFlow() async {
+        final providerId = 'YOUR_PROVIDER_ID_HERE';
+
+        final appDeepLink = 'YOUR_APP_DEEP_LINK_HERE'; //TODO: replace with your app deep link
+        proofRequest.setAppCallbackUrl(appDeepLink);
+
+        proofRequest.addContext('YOUR_CONTEXT_ADDRESS', 'YOUR_CONTEXT_MESSAGE');
+
+        await proofRequest.buildProofRequest(providerId);
+
+        proofRequest.setSignature(
+            proofRequest.generateSignature(
+                'YOUR_APP_SECRET_HERE'
+            )
+        );
+
+        final verificationRequest = await proofRequest.createVerificationRequest();
+
+        final startSessionParam = StartSessionParams(
+            onSuccessCallback: (proof) => {
+                setState(() {
+                    data = jsonEncode(proof.extractedParameterValues);
+                });
+            },
+            onFailureCallback: (error) => {
+                setState(() {
+                    data = 'Error: $error';
+                });
+            },
+        );
+
+        await proofRequest.startSession(startSessionParam);
+    }
+
+    Widget build(BuildContext context) {
+        return Scaffold(
+            appBar: AppBar(
+                backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+                title: Text(widget.title),
+            ),
+            floatingActionButton: FloatingActionButton(
+                onPressed: startVerificationFlow,
+                tooltip: 'Verify ',
+                child: const Text('Verify'),
+            ),
+        );
+    }
+}
+```
+
+### Show data on screen
+
+Show the data/error received on the screen.
+
+```dart copy showLineNumbers {58-71}
+import 'package:reclaim_sdk/flutter_reclaim.dart';
+import 'package:reclaim_sdk/types.dart';
+import 'dart:convert'; // to use jsonEncode()
+
+class ReclaimScreen extends StatefulWidget {
+    const ReclaimScreen({super.key, required this.title});
+    final String title;
+
+    @override
+    State<ReclaimScreen> createState() => _ReclaimScreenState();
+
+}
+
+class _ReclaimScreenState extends State<ReclaimScreen> {
+    String data = "";
+    ProofRequest proofRequest = ProofRequest(applicationId: 'YOUR_APPLICATION_ID_HERE');
+
+    void startVerificationFlow() async {
+        final providerId = 'YOUR_PROVIDER_ID_HERE';
+
+        final appDeepLink = 'YOUR_APP_DEEP_LINK_HERE'; //TODO: replace with your app deep link
+        proofRequest.setAppCallbackUrl(appDeepLink);
+
+        proofRequest.addContext('YOUR_CONTEXT_ADDRESS', 'YOUR_CONTEXT_MESSAGE');
+
+        await proofRequest.buildProofRequest(providerId);
+
+        proofRequest.setSignature(
+            proofRequest.generateSignature(
+                'YOUR_APP_SECRET_HERE'
+            )
+        );
+
+        final verificationRequest = await proofRequest.createVerificationRequest();
+
+        final startSessionParam = StartSessionParams(
+            onSuccessCallback: (proof) => {
+                setState(() {
+                    data = jsonEncode(proof.extractedParameterValues);
+                });
+            },
+            onFailureCallback: (error) => {
+                setState(() {
+                    data = 'Error: $error';
+                });
+            },
+        );
+
+        await proofRequest.startSession(startSessionParam);
+    }
+
+    Widget build(BuildContext context) {
+        return Scaffold(
+            appBar: AppBar(
+                backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+                title: Text(widget.title),
+            ),
+            body: Center(
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                        const Text(
+                            'Prove that you have Steam ID By clicking on Verify button:',
+                        ),
+                        Text(
+                            data,
+                            style: Theme.of(context).textTheme.headlineMedium,
+                        ),
+                    ],
+                ),
+            ),
+            floatingActionButton: FloatingActionButton(
+                onPressed: startVerificationFlow,
+                tooltip: 'Verify ',
+                child: const Text('Verify'),
+            ),
+        );
+    }
+}
+```
+
+</Steps>
+
+## Summarizing
+
+If you omit all the optional steps, you'd be left with the following codebase. Run your application and click the button to start a verification request.
+
+```dart copy showLineNumbers
+import 'package:reclaim_sdk/flutter_reclaim.dart';
+import 'package:reclaim_sdk/types.dart';
+import 'dart:convert'; // to use jsonEncode()
+
+class ReclaimScreen extends StatefulWidget {
+    const ReclaimScreen({super.key, required this.title});
+    final String title;
+
+    @override
+    State<ReclaimScreen> createState() => _ReclaimScreenState();
+
+}
+
+class _ReclaimScreenState extends State<ReclaimScreen> {
+    String data = "";
+    ProofRequest proofRequest = ProofRequest(applicationId: 'YOUR_APPLICATION_ID_HERE');
+
+    void startVerificationFlow() async {
+        final providerId = 'YOUR_PROVIDER_ID_HERE';
+
+        final appDeepLink = 'YOUR_APP_DEEP_LINK_HERE'; //TODO: replace with your app deep link
+        proofRequest.setAppCallbackUrl(appDeepLink);
+
+
+        await proofRequest.buildProofRequest(providerId);
+
+        proofRequest.setSignature(
+            proofRequest.generateSignature(
+                'YOUR_APP_SECRET_HERE'
+            )
+        );
+
+        final verificationRequest = await proofRequest.createVerificationRequest();
+
+        final startSessionParam = StartSessionParams(
+            onSuccessCallback: (proof) => {
+                setState(() {
+                    data = jsonEncode(proof.extractedParameterValues);
+                });
+            },
+            onFailureCallback: (error) => {
+                setState(() {
+                    data = 'Error: $error';
+                });
+            },
+        );
+
+        await proofRequest.startSession(startSessionParam);
+    }
+
+    Widget build(BuildContext context) {
+        return Scaffold(
+            appBar: AppBar(
+                backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+                title: Text(widget.title),
+            ),
+            body: Center(
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                        const Text(
+                            'Prove that you have Steam ID By clicking on Verify button:',
+                        ),
+                        Text(
+                            data,
+                            style: Theme.of(context).textTheme.headlineMedium,
+                        ),
+                    ],
+                ),
+            ),
+            floatingActionButton: FloatingActionButton(
+                onPressed: startVerificationFlow,
+                tooltip: 'Verify ',
+                child: const Text('Verify'),
+            ),
+        );
+    }
+}
+```
