@@ -28,6 +28,9 @@
   "solidity": {
     "title": "Solidity"
   },
+  "solana": {
+    "title": "Solana"
+  },
   "--3": {
     "type": "separator",
     "title": "Resources"
