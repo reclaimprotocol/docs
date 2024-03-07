@@ -20,7 +20,7 @@ import QRCode from "react-qr-code";
 
 import { Program, AnchorProvider } from "@coral-xyz/anchor";
 import { PublicKey, SystemProgram } from "@solana/web3.js";
-import { getEpochPda, getGroupPda } from "sdk";
+import { getEpochPda, getGroupPda } from "@reclaimprotocol/solana-sdk";
 import { IDL } from "../idl";
 import { sendTransactionAnchor } from "../utils";
 
@@ -30,7 +30,7 @@ const EPOCH_CONFIG_ADDRESS = new PublicKey("EPOCH CONFIG ADDRESS");
 // Reclaim program ID
 const RECLAIM_PROGRAM_ID = new PublicKey("rEcLDWaVLaymz82eGr6cutosPxE6SEzw6q4pbtLuyqf");
 
-// Airdrop program ID
+// Your program ID
 const YOUR_PROGRAM_ID = new PublicKey("your program id");
 
 const contextMessage = "Application related context";
@@ -116,7 +116,7 @@ function App() {
 
         const [groupPda] = getGroupPda({ provider });
 
-        let verifyTx = await airdropProgram.methods
+        let verifyTx = await program.methods
           .verify({
             claimInfo: {
               provider,
