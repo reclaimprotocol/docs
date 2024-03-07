@@ -78,17 +78,17 @@ router.get('/request-proofs', async () => {
 
 ```js copy showLineNumbers {11-12}
 router.get('/request-proofs', async () => {
-  const reclaimProofRequest = new Reclaim.ProofRequest(
+  const reclaimClient = new Reclaim.ProofRequest(
     'YOUR_APPLICATION_ID_HERE',
     sessionId
   ) //TODO: replace with your applicationId
-  await reclaimProofRequest.addContext(
+  await reclaimClient.addContext(
     (address = `user's address`),
     (message = 'for acmecorp.com on 1st january')
   )
 
   // id of the provider you want to generate the proof for
-  await reclaimProofRequest.buildProofRequest(providerIds[0])
+  await reclaimProofRequest.buildProofRequest('PROVIDER_ID')
 })
 ```
 
@@ -98,11 +98,11 @@ You must set a signature on the request so that the users don't get tricked on p
 
 ```js copy showLineNumbers {14-18}
 router.get('/request-proofs', async () => {
-  const reclaimProofRequest = new Reclaim.ProofRequest(
+  const reclaimClient = new Reclaim.ProofRequest(
     'YOUR_APPLICATION_ID_HERE',
     sessionId
   ) //TODO: replace with your applicationId
-  await reclaimProofRequest.addContext(
+  await reclaimClient.addContext(
     (address = `user's address`),
     (message = 'for acmecorp.com on 1st january')
   )
@@ -110,8 +110,8 @@ router.get('/request-proofs', async () => {
   // id of the provider you want to generate the proof for
   await reclaimProofRequest.buildProofRequest('PROVIDER_ID')
 
-  reclaimProofRequest.setSignature(
-    await reclaimProofRequest.generateSignature(
+  reclaimClient.setSignature(
+    await reclaimClient.generateSignature(
       APP_SECRET //TODO : replace with your APP_SECRET
     )
   )
@@ -122,11 +122,11 @@ router.get('/request-proofs', async () => {
 
 ```js copy showLineNumbers {20-21}
 router.get('/request-proofs', () => {
-  const reclaimProofRequest = new Reclaim.ProofRequest(
+  const reclaimClient = new Reclaim.ProofRequest(
     'YOUR_APPLICATION_ID_HERE',
     sessionId
   ) //TODO: replace with your applicationId
-  await reclaimProofRequest.addContext(
+  await reclaimClient.addContext(
     (address = `user's address`),
     (message = 'for acmecorp.com on 1st january')
   )
@@ -134,13 +134,13 @@ router.get('/request-proofs', () => {
   // id of the provider you want to generate the proof for
   await reclaimProofRequest.buildProofRequest('PROVIDER_ID')
 
-  reclaimProofRequest.setSignature(
-    await reclaimProofRequest.generateSignature(
+  reclaimClient.setSignature(
+    await reclaimClient.generateSignature(
       APP_SECRET //TODO : replace with your APP_SECRET
     )
   )
 
-  const {requestUrl, statusUrl} = await reclaimProofRequest.createVerificationRequest();
+  const {requestUrl, statusUrl} = await reclaimClient.createVerificationRequest();
   res.send('request-proof', {requestUrl, statusUrl})
 });
 
@@ -163,7 +163,7 @@ If the user opens your website on a mobile, show a button that has a link to `re
 
 ### Poll statusUrl
 
-You can poll the `statusUrl`. When, the proof is uploaded, the `response.session.status` is updated to `MOBILE_SUBMITTED`
+You can poll the status URL. When, the proof is uploaded, the status is updated to `Ok`
 
 ```js copy showLineNumbers {5-16}
 <html>
