@@ -1,15 +1,11 @@
 {
   "index": "Introduction",
   "install": "Try it out yourself",
-  "try-reclaim": {
-    "title": "Create your first Reclaim Credential",
-    "display": "hidden"
-  },
-  "anatomy": {
-    "title": "Know your Reclaim Wallet",
-    "display": "hidden"
-  },
   "--1": {
+    "type": "separator",
+    "title": "Data Providers"
+  },
+  "--2": {
     "type": "separator",
     "title": "SDKs"
   },

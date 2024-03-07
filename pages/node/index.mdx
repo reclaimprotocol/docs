@@ -3,16 +3,15 @@ import Image from 'next/image'
 ## Overview
 
 This SDK is designed for integrating the Reclaim Protocol into the backend of your website. 
-If you are integrating it into an app, we recommend using a Frontend SDK, such as [React Native](/react-native) or [Flutter](/flutter).
 
 If you want your website to be compatible with both laptops and mobile devices, we recommend using an if-else condition to render the appropriate flow, as described below.
 
 ### Integrating Reclaim on a Desktop Website
 The flow looks like follows
 1. **User Login**: The user signs into your website.
-2. **Session Creation**: Your backend uses the Reclaim Node SDK to initiate a session for the user, requesting data from Acme.com. This returns a URI.
+2. **Session Creation**: Your backend uses the Reclaim Node SDK to initiate a session for the user. In this session, the user is expected to generate a proof of their identity/reputation from a certain website - say, acme.com. This session is identified by a URI.
 3. **Display QR Code**: Your website frontend shows a QR code linked to the session-specific URI returned in the previous step.
-4. **QR Code Scan**: The user scans the QR code with their mobile phone regular camera.
+4. **QR Code Scan**: The user scans the QR code with their mobile phone's regular camera.
 5. **Login to Acme.com**: The user is prompted to log into Acme.com via a webview.
 6. **Proof Generation**: Once user has logged in, a proof is generated on the user's device.
 7. **Proof Submission**: User hits submit to upload the proof back to your backend.
