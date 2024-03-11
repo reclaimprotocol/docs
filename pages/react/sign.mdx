@@ -17,7 +17,7 @@ router.post('/sign', async function (req, res) {
   const { providerId } = req.body
   const reclaimClient = new Reclaim.ProofRequest(APP_ID) //TODO: Update APP_ID with your app id
 
-  await reclaimClient.buildRequestedProofs(providerId)
+  await reclaimClient.buildProofRequest(providerId)
 
   reclaimClient.setSignature(
     await reclaimClient.generateSignature(
