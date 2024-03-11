@@ -129,8 +129,8 @@ function App() {
     reclaimClient.setAppCallbackUrl(appDeepLink)
 
     await reclaimClient.addContext(
-      (address = `user's address`),
-      (message = 'for acmecorp.com on 1st january')
+      (`user's address`),
+      ('for acmecorp.com on 1st january')
     )
   }
 
@@ -163,11 +163,11 @@ function App() {
     reclaimClient.setAppCallbackUrl(appDeepLink)
 
     await reclaimClient.addContext(
-      (address = `user's address`),
-      (message = 'for acmecorp.com on 1st january')
+      (`user's address`),
+      ('for acmecorp.com on 1st january')
     )
 
-    await reclaimClient.buildRequestedProofs(providerId)
+    await reclaimClient.buildProofRequest(providerId)
   }
 
   return (
@@ -203,11 +203,11 @@ function App() {
     reclaimClient.setAppCallbackUrl(appDeepLink)
 
     await reclaimClient.addContext(
-      (address = `user's address`),
-      (message = 'for acmecorp.com on 1st january')
+      (`user's address`),
+      ('for acmecorp.com on 1st january')
     )
 
-    await reclaimClient.buildRequestedProofs(providerId)
+    await reclaimClient.buildProofRequest(providerId)
 
     reclaimClient.setSignature(
       await reclaimClient.generateSignature(
@@ -254,11 +254,11 @@ function App() {
     reclaimClient.setAppCallbackUrl(appDeepLink)
 
     await reclaimClient.addContext(
-      (address = `user's address`),
-      (message = 'for acmecorp.com on 1st january')
+      (`user's address`),
+      ('for acmecorp.com on 1st january')
     )
 
-    await reclaimClient.buildRequestedProofs(providerId)
+    await reclaimClient.buildProofRequest(providerId)
 
     reclaimClient.setSignature(
       await reclaimClient.generateSignature(
@@ -301,11 +301,11 @@ function App() {
     reclaimClient.setAppCallbackUrl(appDeepLink)
 
     await reclaimClient.addContext(
-      (address = `user's address`),
-      (message = 'for acmecorp.com on 1st january')
+      (`user's address`),
+      ('for acmecorp.com on 1st january')
     )
 
-    await reclaimClient.buildRequestedProofs(providerId)
+    await reclaimClient.buildProofRequest(providerId)
 
     reclaimClient.setSignature(
       await reclaimClient.generateSignature(
@@ -350,11 +350,11 @@ function App() {
     reclaimClient.setAppCallbackUrl(appDeepLink)
 
     await reclaimClient.addContext(
-      (address = `user's address`),
-      (message = 'for acmecorp.com on 1st january')
+      (`user's address`),
+      ('for acmecorp.com on 1st january')
     )
 
-    await reclaimClient.buildRequestedProofs(providerId)
+    await reclaimClient.buildProofRequest(providerId)
 
     reclaimClient.setSignature(
       await reclaimClient.generateSignature(
@@ -412,11 +412,11 @@ function App() {
     reclaimClient.setAppCallbackUrl(appDeepLink)
 
     await reclaimClient.addContext(
-      (address = `user's address`),
-      (message = 'for acmecorp.com on 1st january')
+      (`user's address`),
+      ('for acmecorp.com on 1st january')
     )
 
-    await reclaimClient.buildRequestedProofs(providerId)
+    await reclaimClient.buildProofRequest(providerId)
 
     reclaimClient.setSignature(
       await reclaimClient.generateSignature(
