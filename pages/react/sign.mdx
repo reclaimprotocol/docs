@@ -1,3 +1,5 @@
+import { Callout } from 'nextra/components'
+
 # Sign Proof Requests
 
 The user should know that the proof is being requested by you and not a phishing website.
@@ -30,3 +32,9 @@ router.post('/sign', async function (req, res) {
   res.send(signedUrl)
 })
 ```
+<Callout type='info'>
+  Note that in case you don't pass a ```sessionId``` to the constructor, the SDK will generate a random one for you, but you can also pass it:
+  ``` js copy
+    const reclaimClient = new Reclaim.ProofRequest(APP_ID, req.body.sessionId)
+    ```
+</Callout>
