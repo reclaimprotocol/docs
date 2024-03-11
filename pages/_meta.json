@@ -31,6 +31,9 @@
   "solana": {
     "title": "Solana"
   },
+  "secret": {
+    "title": "Secret"
+  },
   "--3": {
     "type": "separator",
     "title": "Resources"
