@@ -31,8 +31,8 @@
   "solana": {
     "title": "Solana"
   },
-  "secret": {
-    "title": "Secret"
+  "cosmos": {
+    "title": "Cosmos"
   },
   "--3": {
     "type": "separator",
