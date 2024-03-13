@@ -69,12 +69,14 @@ app.post('/callback/', async (req, res) => {
 })
 ```
 <Callout type='info'>
-  If you're building your own callback, you need to set your callback URL:
-  ```js 
-  const reclaimClient = new Reclaim.ProofRequest(
-    'YOUR_APPLICATION_ID_HERE'
-  )
+  If you're building your own callback, you need to set your callback URL before calling ```reclaimClient.createVerificationRequest```
+  ```js {4}
+  const reclaimClient = new Reclaim.ProofRequest('YOUR_APPLICATION_ID_HERE')
+    //... other code
   reclaimClient.setAppCallbackUrl('YOUR_CALLBACK_URL_HERE')
+  
+  const {requestUrl, statusUrl} = await reclaimClient.createVerificationRequest();
+  res.send('request-proof', {requestUrl, statusUrl})
   ```
 </Callout>
 
