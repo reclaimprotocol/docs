@@ -1,3 +1,5 @@
+import { Steps, Callout } from 'nextra/components'
+
 # Building your own callback URL
 
 By default, the sdk returns an `AppCallbackUrl` as an endpoint provided by Reclaim Protocol.
@@ -66,3 +68,15 @@ app.post('/callback/', async (req, res) => {
   return res.status(200).send({ message: 'Proof verified' })
 })
 ```
+<Callout type='info'>
+  If you're building your own callback, you need to set your callback URL before calling ```reclaimClient.createVerificationRequest```
+  ```js {3}
+  const reclaimClient = new Reclaim.ProofRequest('YOUR_APPLICATION_ID_HERE')
+    //... other code
+  reclaimClient.setAppCallbackUrl('YOUR_CALLBACK_URL_HERE')
+  
+  const {requestUrl, statusUrl} = await reclaimClient.createVerificationRequest();
+  res.send('request-proof', {requestUrl, statusUrl})
+  ```
+</Callout>
+

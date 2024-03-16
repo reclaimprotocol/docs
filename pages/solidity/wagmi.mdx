@@ -6,13 +6,19 @@ At this stage, we assume the you followed the steps at [ReactJs](/react).
 
 <Steps>
 
+### Install packages.
+
+```bash copy
+npm install wagmi viem@2.x @tanstack/react-query --legacy-peer-deps
+```
+
 ### Setup your React codebase
 
 We will submit the proof on chain once we get the `success` callback.
 
-```js copy showLineNumbers {46-50}
+```js copy showLineNumbers {43-44,54,55,59,61,62}
 import "./App.css";
-import { ReclaimClient } from "@reclaimprotocol/js-sdk";
+import { Reclaim } from "@reclaimprotocol/js-sdk";
 import { useEffect, useState } from "react";
 import { WagmiProvider } from "wagmi";
 import { config } from "./config";
@@ -26,45 +32,41 @@ function App() {
   const [ready, setReady] = useState(false);
   const [proof, setProof] = useState({});
 
-  const reclaimClient = new ReclaimClient("YOUR_APPLICATION_ID_HERE"); //TODO: replace with your applicationId
-  const APP_SECRET = "YOUR_APP_SECRET_HERE" //TODO : replace with your APP_SECRET
+  const reclaimClient = new Reclaim.ProofRequest('YOUR_APPLICATION_ID_HERE') //TODO: replace with your applicationId
 
-  async function generateVerificationRequest() {
-    const providerIds = ["provider_id"]; //TODO: replace with your provider ids you had selected while creating the application
-    const providers = await reclaimClient.buildHttpProviderV2ByID(providerIds);
-
+ async function generateVerificationRequest() {
+    const providerId = 'PROVIDER_ID' //TODO: replace with your provider ids you had selected while creating the application
+ 
     await reclaimClient.addContext(
       (`user's address`),
-      ("for acmecorp.com on 1st january")
-    );
-
-    const requestProofs = reclaimClient.buildRequestedProofs(
-      providers,
-      reclaimClient.getAppCallbackUrl()
-    );
-
+      ('for acmecorp.com on 1st january')
+    )
+ 
+    await reclaimClient.buildProofRequest(providerId)
+ 
     reclaimClient.setSignature(
-      await reclaimClient.getSignature(
-        requestProofs,
-        APP_SECRET 
+      await reclaimClient.generateSignature(
+        APP_SECRET //TODO : replace with your APP_SECRET
       )
-    );
-
-    const reclaimReq = await reclaimClient.createVerificationRequest(
-      providerIds
-    );
-    const requestUrl = await reclaimReq.start();
-    setUrl(requestUrl);
-
-    reclaimReq.on("success", function (proofs) {
-      //TODO: your business logic
-      setReady(true);
-      setProof(proofs[0]);
-    });
-
-    reclaimReq.on("error", function (errors) {
-      //TODO: your business logic
-    });
+    )
+ 
+    const { requestUrl, statusUrl } =
+      await reclaimClient.createVerificationRequest()
+ 
+    setUrl(requestUrl)
+ 
+    await reclaimClient.startSession({
+      onSuccessCallback: proofs => {
+        console.log('Verification success', proofs)
+        // Your business logic here
+        setReady(true)
+        setProof(proofs[0])
+      },
+      onFailureCallback: error => {
+        console.error('Verification failed', error)
+        // Your business logic here to handle the error
+      }
+    })
   }
 
   return (
@@ -83,11 +85,7 @@ function App() {
 export default App;
 ```
 
-### Install packages.
 
-```js copy
-npm install wagmi viem@2.x @tanstack/react-query --legacy-peer-deps
-```
 
 ### Create an abi.js file.
 ```js copy
@@ -139,16 +137,17 @@ src/
  |- VerifyProof.jsx
 ```
 
-### Import wagmi and ABI to VerifyProof.
+### Import wagmi, ABI, and Reclaim class to VerifyProof.
 
 ```js copy showLineNumbers
 import { useState, useEffect } from "react";
 import { writeContract } from "@wagmi/core";
 import { abi } from "./abi";
 import { config } from "./config";
+import { Reclaim } from "@reclaimprotocol/js-sdk";
 ```
 
-### Include the VerifyProof() function.
+### Add the following code to VerifyProof.
 
 ```js copy showLineNumbers
 export default function VerifyProof(props) {
@@ -156,29 +155,9 @@ export default function VerifyProof(props) {
   const [verified, setVerified] = useState(false);
 
   useEffect(() => {
-    const newProof = transformProof(props.proof);
+    const newProof = Reclaim.transformForOnchain(props.proof);
     setProof(newProof);
   }, []);
-
-  const transformProof = (proof) => {
-    const claimInfoBuilder = new Map([
-      ["context", proof["claimData"]["context"]],
-      ["parameters", proof["claimData"]["parameters"]],
-      ["provider", proof["claimData"]["provider"]],
-    ]);
-    const claimInfo = Object.fromEntries(claimInfoBuilder);
-    const claimBuilder = new Map([
-      ["epoch", proof["claimData"]["epoch"]],
-      ["identifier", proof["claimData"]["identifier"]],
-      ["owner", proof["claimData"]["owner"]],
-      ["timestampS", proof["claimData"]["timestampS"]],
-    ]);
-    const signedClaim = {
-      claim: Object.fromEntries(claimBuilder),
-      signatures: proof["signatures"],
-    };
-    return { claimInfo, signedClaim };
-  };
 }
 ```
 

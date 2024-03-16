@@ -343,8 +343,8 @@ function App() {
     setUrl(requestUrl)
 
     await reclaimClient.startSession({
-      onSuccessCallback: proof => {
-        console.log('Verification success', proof)
+      onSuccessCallback: proofs => {
+        console.log('Verification success', proofs)
         // Your business logic here
       },
       onFailureCallback: error => {
