@@ -5,6 +5,12 @@ import { Steps, Callout } from 'nextra/components'
 By default, the sdk returns an `AppCallbackUrl` as an endpoint provided by Reclaim Protocol.
 In some situations, you might want the proofs to be uploaded to your backend once the user creates it.
 Particularly if you want to process the proofs in the backend and take some actions.
+<Callout type='info'>
+  Note that you can parse all incoming requests to your callback as plain text, this will make parsing easier for you, if you're using Express.js or NestJS, you can use the following middleware:
+  ```js copy
+    app.use(express.text({ type: "*/*" }));
+  ```
+</Callout>
 
 ## Expose a POST endpoint
 
