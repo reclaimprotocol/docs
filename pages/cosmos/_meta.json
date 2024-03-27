@@ -2,7 +2,7 @@
   "index": "Overview",
   "secret": "Secret",
   "neutron": "Neutron (Coming Soon)",
-  "nibiru": "Nibiru (Coming Soon)",
+  "nibiru": "Nibiru",
   "start-from-example": {
     "title": "Start from an example",
     "display": "hidden"
