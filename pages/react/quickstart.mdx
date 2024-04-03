@@ -75,7 +75,7 @@ function App() {
   async function generateVerificationRequest() {
     const providerId = 'PROVIDER_ID' //TODO: replace with your provider ids you had selected while creating the application
 
-    await reclaimClient.addContext(
+    reclaimClient.addContext(
       (`user's address`),
       ('for acmecorp.com on 1st january')
     )
@@ -99,7 +99,7 @@ function App() {
   async function generateVerificationRequest() {
     const providerId = 'PROVIDER_ID' //TODO: replace with your provider ids you had selected while creating the application
 
-    await reclaimClient.addContext(
+    reclaimClient.addContext(
       (`user's address`),
       ('for acmecorp.com on 1st january')
     )
@@ -129,7 +129,7 @@ function App() {
   async function generateVerificationRequest() {
     const providerId = 'PROVIDER_ID' //TODO: replace with your provider ids you had selected while creating the application
 
-    await reclaimClient.addContext(
+    reclaimClient.addContext(
       (`user's address`),
       ('for acmecorp.com on 1st january')
     )
@@ -152,10 +152,7 @@ export default App
 However, we recommend not generating the signature on the frontend because this leaks the APP_SECRET. You may expose a `/sign` endpoint that authenticates your user and returns a signature.
 
 ```js copy showLineNumbers
-reclaimClient
-  .setSignature
-  //TODO: signature response from your backend
-  ()
+reclaimClient.setSignature() //TODO: signature response from your backend
 ```
 
 ### Get the request URL
@@ -170,7 +167,7 @@ function App() {
   async function generateVerificationRequest() {
     const providerId = 'PROVIDER_ID' //TODO: replace with your provider ids you had selected while creating the application
 
-    await reclaimClient.addContext(
+    reclaimClient.addContext(
       (`user's address`),
       ('for acmecorp.com on 1st january')
     )
@@ -195,15 +192,14 @@ function App() {
 export default App
 ```
 
-### Display the QR code or display a button
-
-If the user opens your website on a laptop, show the QR code of the `requestUrl`.
+### Display the QR code
 If the user opens your website on a mobile, show a button that has a link to `requestUrl`.
 
-```js copy showLineNumbers {3, 6, 34-37}
+```js copy showLineNumbers {3-4, 7, 34-43}
 import './App.css'
 import { Reclaim } from '@reclaimprotocol/js-sdk'
 import { useState } from 'react'
+import QRCode from "react-qr-code";
 
 function App() {
   const [url, setUrl] = useState('')
@@ -213,7 +209,7 @@ function App() {
   async function generateVerificationRequest() {
     const providerId = 'PROVIDER_ID' //TODO: replace with your provider ids you had selected while creating the application
 
-    await reclaimClient.addContext(
+    reclaimClient.addContext(
       (`user's address`),
       ('for acmecorp.com on 1st january')
     )
@@ -233,26 +229,33 @@ function App() {
   }
 
   return (
-    <div className='App'>
-      <button onClick={() => generateVerificationRequest()}>
-        Generate Verification Request
-      </button>
-      <button onClick={() => window.open(url, '_blank')}>Open link</button>
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "50vh" }}>
+      {!url && (
+        <button onClick={generateVerificationRequest}>
+          Create Claim QrCode
+        </button>
+      )}
+      {url && (
+        <QRCode value={url} />
+      )}
     </div>
   )
 }
 
 export default App
 ```
-
+<Callout type='info'>
+  Note that you can use any QR code library you want. Here in the sample we are using [react-qr-code](https://www.npmjs.com/package/react-qr-code)
+</Callout>
 ### Start Session & Set callbacks
 
 You get a callback when the user uploads the proof
 
-```js copy showLineNumbers {31-40}
+```js copy showLineNumbers {32-41}
 import './App.css'
 import { Reclaim } from '@reclaimprotocol/js-sdk'
 import { useState } from 'react'
+import QRCode from "react-qr-code";
 
 function App() {
   const [url, setUrl] = useState('')
@@ -262,7 +265,7 @@ function App() {
   async function generateVerificationRequest() {
     const providerId = 'PROVIDER_ID' //TODO: replace with your provider ids you had selected while creating the application
 
-    await reclaimClient.addContext(
+    reclaimClient.addContext(
       (`user's address`),
       ('for acmecorp.com on 1st january')
     )
@@ -290,14 +293,19 @@ function App() {
         // Your business logic here to handle the error
       }
     })
+    
   }
 
   return (
-    <div className='App'>
-      <button onClick={() => generateVerificationRequest()}>
-        Generate Verification Request
-      </button>
-      <button onClick={() => window.open(url, '_blank')}>Open link</button>
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "50vh" }}>
+      {!url && (
+        <button onClick={generateVerificationRequest}>
+          Create Claim QrCode
+        </button>
+      )}
+      {url && (
+        <QRCode value={url} />
+      )}
     </div>
   )
 }
@@ -315,6 +323,7 @@ If you omit all the optional steps, you'd be left with the following codebase. R
 import './App.css'
 import { Reclaim } from '@reclaimprotocol/js-sdk'
 import { useState } from 'react'
+import QRCode from "react-qr-code";
 
 function App() {
   const [url, setUrl] = useState('')
@@ -324,7 +333,7 @@ function App() {
   async function generateVerificationRequest() {
     const providerId = 'PROVIDER_ID' //TODO: replace with your provider ids you had selected while creating the application
 
-    await reclaimClient.addContext(
+    reclaimClient.addContext(
       (`user's address`),
       ('for acmecorp.com on 1st january')
     )
@@ -355,11 +364,15 @@ function App() {
   }
 
   return (
-    <div className='App'>
-      <button onClick={() => generateVerificationRequest()}>
-        Generate Verification Request
-      </button>
-      <button onClick={() => window.open(url, '_blank')}>Open link</button>
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "50vh" }}>
+      {!url && (
+        <button onClick={generateVerificationRequest}>
+          Create Claim QrCode
+        </button>
+      )}
+      {url && (
+        <QRCode value={url} />
+      )}
     </div>
   )
 }
