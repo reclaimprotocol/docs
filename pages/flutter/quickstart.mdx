@@ -388,7 +388,7 @@ class _ReclaimScreenState extends State<ReclaimScreen> {
 
 You get a callback when the user uploads the proof
 
-```dart copy showLineNumbers {36-49}
+```dart copy showLineNumbers {36-51}
 import 'package:reclaim_sdk/flutter_reclaim.dart';
 import 'package:reclaim_sdk/types.dart';
 import 'dart:convert'; // to use jsonEncode()
@@ -428,6 +428,8 @@ class _ReclaimScreenState extends State<ReclaimScreen> {
             onSuccessCallback: (proof) => {
                 setState(() {
                     data = jsonEncode(proof.extractedParameterValues);
+                    final jsonContext = jsonDecode(proof.claimData.context) as Map<String, dynamic>;
+                    data = jsonContext["extractedParameters"];
                 });
             },
             onFailureCallback: (error) => {
@@ -460,7 +462,7 @@ class _ReclaimScreenState extends State<ReclaimScreen> {
 
 Show the data/error received on the screen.
 
-```dart copy showLineNumbers {58-71}
+```dart copy showLineNumbers {60-73}
 import 'package:reclaim_sdk/flutter_reclaim.dart';
 import 'package:reclaim_sdk/types.dart';
 import 'dart:convert'; // to use jsonEncode()
@@ -500,6 +502,8 @@ class _ReclaimScreenState extends State<ReclaimScreen> {
             onSuccessCallback: (proof) => {
                 setState(() {
                     data = jsonEncode(proof.extractedParameterValues);
+                    final jsonContext = jsonDecode(proof.claimData.context) as Map<String, dynamic>;
+                    data = jsonContext["extractedParameters"];
                 });
             },
             onFailureCallback: (error) => {
@@ -587,6 +591,8 @@ class _ReclaimScreenState extends State<ReclaimScreen> {
             onSuccessCallback: (proof) => {
                 setState(() {
                     data = jsonEncode(proof.extractedParameterValues);
+                    final jsonContext = jsonDecode(proof.claimData.context) as Map<String, dynamic>;
+                    data = jsonContext["extractedParameters"];
                 });
             },
             onFailureCallback: (error) => {
