@@ -1,6 +1,8 @@
 {
   "index": "Overview",
-  "quickstart": "Quickstart",
+  "secret": "Secret",
+  "neutron": "Neutron (Coming Soon)",
+  "nibiru": "Nibiru",
   "start-from-example": {
     "title": "Start from an example",
     "display": "hidden"

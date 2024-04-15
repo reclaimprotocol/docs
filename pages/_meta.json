@@ -28,6 +28,12 @@
   "solidity": {
     "title": "Solidity"
   },
+  "solana": {
+    "title": "Solana"
+  },
+  "cosmos": {
+    "title": "Cosmos"
+  },
   "--3": {
     "type": "separator",
     "title": "Resources"

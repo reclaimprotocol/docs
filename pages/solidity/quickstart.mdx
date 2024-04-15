@@ -7,30 +7,30 @@ This tutorial assumes that you have a frontend that requests proofs from the use
 ## Solidity 
 <Steps>
 ### Deploy a smart contract
-Deploy the following smart contract to the chain of your choice
+Deploy the following smart contract to the chain of your choice, we will be using Polygon's Mumbai for this walkthrough.
 ```js copy showLineNumbers
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.4;
-
-
+pragma solidity 0.8.20;
+ 
+ 
 import "@reclaimprotocol/verifier-solidity-sdk/contracts/Reclaim.sol";
 import "@reclaimprotocol/verifier-solidity-sdk/contracts/Addresses.sol";
-
-
+ 
+ 
 contract Attestor {
    address public reclaimAddress;
+   // add providersHashes for your permitted providers
+   string[] public providersHashes;
 
-
-   constructor(){
-        
+   constructor(string[] memory _providersHashes){
+      providersHashes = _providersHashes;
         // TODO: Replace with network you are deploying on
-       reclaimAddress = Addresses.OPTIMISM_GOERLI_TESTNET; 
-
-   }
-
-
+      reclaimAddress = Addresses.PLOYGON_MUMBAI_TESTNET; 
+ 
+   }  
+ 
    function verifyProof(Reclaim.Proof memory proof) public view{
-       Reclaim(reclaimAddress).verifyProof(proof);
+       Reclaim(reclaimAddress).verifyProof(proof, providersHashes);
        // TODO: your business logic upon success
        // verify proof.context is what you expect
    }
@@ -39,22 +39,15 @@ contract Attestor {
 
 You can check out the [supported networks here](https://github.com/reclaimprotocol/demo-solidity-sdk/blob/main/contracts/Addresses.sol)
 
-### Send transaction to smart contract
+### Get the artifacts
+Once deployed, take a note of the following:
+  - ChainId (80001 in our case).
+  - Contract address.
+  - ABI.
 
-#### Using Wagmi.js
-```
-  const { config } = usePrepareContractWrite({
-    enabled: enabled,
-    address: '0x0', // TODO : Update with contract address after deploying 
-    abi: abi,
-    functionName: 'verifyProof', // TODO: Update with function name
-    chainId: 0, // TODO: Update with deployed chain ID
-    args: [JSON.parse(proof)], // this proof is received via onSuccess callback
-  })
-  const { data, write, isLoading, isSuccess, isError, error } =
-    useContractWrite(config)
-
-```
+### Publish on chain
+  - [wagmi.js](./wagmi).
+  - [ethers.js]().
 
 
 </Steps>

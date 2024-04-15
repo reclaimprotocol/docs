@@ -1,0 +1,149 @@
+import { Steps, Callout } from "nextra/components";
+
+# Quickstart for Solana
+
+## Pre-requisite
+
+This tutorial assumes that you have a frontend that requests proofs from the user and processes the response, like [React](/react), [React Native](/react-native), or [Node](/node).
+
+## Solana
+
+<Steps>
+### Install reclaim create
+```toml copy showLineNumbers
+reclaim = { version = "0.1.0", features = ["cpi"] }
+```
+
+### Deploy a smart contract
+
+Deploy the following smart contract to the cluster of your choice.
+
+```rust copy showLineNumbers
+use anchor_lang::prelude::*;
+
+use reclaim::cpi::accounts::VerifyProof;
+use reclaim::cpi::verify_proof;
+use reclaim::instructions::VerifyProofArgs;
+use reclaim::program::Reclaim;
+use reclaim::state::ClaimData as ReclaimClaimData;
+use reclaim::state::ClaimInfo as ReclaimClaimInfo;
+use reclaim::state::SignedClaim as ReclaimSignedClaim;
+use reclaim::state::{Epoch, EpochConfig};
+
+declare_id!("your program id here");
+
+#[derive(AnchorSerialize, AnchorDeserialize)]
+pub struct VerifyArgs {
+    pub claim_info: ClaimInfo,
+    pub signed_claim: SignedClaim,
+}
+
+#[derive(AnchorSerialize, AnchorDeserialize, Clone)]
+pub struct SignedClaim {
+    pub claim_data: ClaimData,
+    pub signatures: Vec<[u8; 65]>,
+}
+
+#[derive(AnchorSerialize, AnchorDeserialize, Clone)]
+pub struct ClaimInfo {
+    pub provider: String,
+    pub parameters: String,
+    pub context_address: Pubkey,
+    pub context_message: String,
+}
+
+#[derive(AnchorSerialize, AnchorDeserialize, Clone)]
+pub struct ClaimData {
+    pub identifier: [u8; 32],
+    pub owner: String,
+    pub timestamp: u32,
+    pub epoch_index: u32,
+}
+
+#[program]
+pub mod base {
+    use super::*;
+
+    pub fn verify<'info>(
+        ctx: Context<'_, '_, '_, 'info, Verify<'info>>,
+        args: VerifyArgs,
+    ) -> Result<()> {
+        let VerifyArgs {
+            claim_info,
+            signed_claim,
+        } = args;
+
+        let signer_account_info = ctx.accounts.signer.to_account_info();
+        let reclaim_program_info = ctx.accounts.reclaim_program.to_account_info();
+
+        let epoch_config_account_info = ctx.accounts.epoch_config.to_account_info();
+        let epoch_account_info = ctx.accounts.epoch.to_account_info();
+
+        verify_proof(
+            CpiContext::new(
+                reclaim_program_info,
+                VerifyProof {
+                    epoch_config: epoch_config_account_info,
+                    epoch: epoch_account_info,
+                    signer: signer_account_info,
+                },
+            ),
+            VerifyProofArgs {
+                claim_info: ReclaimClaimInfo {
+                    parameters: claim_info.parameters,
+                    context_message: claim_info.context_message,
+                    provider: claim_info.provider,
+                    context_address: claim_info.context_address,
+                },
+                signed_claim: ReclaimSignedClaim {
+                    claim_data: ReclaimClaimData {
+                        epoch_index: signed_claim.claim_data.epoch_index,
+                        timestamp: signed_claim.claim_data.timestamp,
+                        identifier: signed_claim.claim_data.identifier,
+                        owner: signed_claim.claim_data.owner,
+                    },
+                    signatures: signed_claim.signatures,
+                },
+            },
+        )?;
+
+        Ok(())
+    }
+}
+
+#[derive(Accounts)]
+pub struct Verify<'info> {
+    #[account(mut)]
+    pub signer: Signer<'info>,
+    pub epoch_config: Account<'info, EpochConfig>,
+    pub epoch: Account<'info, Epoch>,
+    pub reclaim_program: Program<'info, Reclaim>,
+    pub system_program: Program<'info, System>,
+}
+
+```
+
+The program ids for reclaim protocol are the same for all clusters
+
+### Build the program
+
+Build the program using
+
+```sh copy
+anchor build
+```
+
+Once built, take a note of the following:
+
+- IDL.
+- Program ID.
+
+### Publish on chain
+
+Deploy to devnet/testnet/mainnet by configuring your `Anchor.toml` file and deploy using
+
+```sh copy
+anchor deploy
+```
+
+</Steps>

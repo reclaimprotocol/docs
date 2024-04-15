@@ -1,32 +1,88 @@
-# Building your own callback URL (WIP)
-We recommend setting up your own callback URL. 
-Reclaim SDK does provide a default callback for your convenience and deletes the users' data after a timeout. However, if your application uses sensitive user information and cannot afford for that data to be seen by any third party - including Reclaim Protocol & its employees - you must host your own callback.
+import { Steps, Callout } from 'nextra/components'
 
-Here is a guide on how to do that.
+# Building your own callback URL
+
+By default, the sdk returns an `AppCallbackUrl` as an endpoint provided by Reclaim Protocol.
+In some situations, you might want the proofs to be uploaded to your backend once the user creates it.
+Particularly if you want to process the proofs in the backend and take some actions.
+<Callout type='info'>
+  Note that you can parse all incoming requests to your callback as plain text, this will make parsing easier for you, if you're using Express.js or NestJS, you can use the following middleware:
+  ```js copy
+    app.use(express.text({ type: "*/*" }));
+  ```
+</Callout>
 
 ## Expose a POST endpoint
-The path should contain a session id as a path param.
-```js showLineNumbers
 
-router.post("/path/:session_id", async function(req, res){
-    const sessionId = req.params.session_id;
-    //...
+The path should contain a session id as a query param.
+
+```js copy showLineNumbers {2}
+app.post('/callback/', async (req, res) => {
+  const sessionId = req.query.callbackId
 })
-
 ```
 
 ## Parse the uploaded blob
-``` js showLineNumbers
-  const proofs = req.body; //use a json middleware
+
+```js copy showLineNumbers {3}
+app.post('/callback/', async (req, res) => {
+  const sessionId = req.query.callbackId
+  const proof = JSON.parse(decodeURIComponent(req.body))
+})
 ```
 
 ## Verify the proofs
-```js showLineNumbers
-  //TODO@madhavan : 
-  // reclaimClient.verifyProofs(...)
+
+The proof must be verified to make sure the requested proof matches the proof created.
+
+- Install `@reclaimprotocol/js-sdk`
+- Use `Reclaim.verifySignedProof(proof)`
+
+```js showLineNumbers {7-10}
+import { Reclaim } from '@reclaimprotocol/js-sdk'
+
+app.post('/callback/', async (req, res) => {
+  const sessionId = req.query.callbackId
+  const proof = JSON.parse(decodeURIComponent(req.body))
+
+  const isProofVerified = await Reclaim.verifySignedProof(proof)
+  if (!isProofVerified) {
+    return res.status(400).send({ message: 'Proof verification failed' })
+  }
+})
 ```
 
 ## Verify the metadata
+
 ```js showLineNumbers
-    //TODO@madhavan : extract context & requested proofs
+import { Reclaim } from '@reclaimprotocol/js-sdk'
+
+app.post('/callback/', async (req, res) => {
+  const sessionId = req.query.callbackId
+  const proof = JSON.parse(decodeURIComponent(req.body))
+
+  const isProofVerified = await ReclaimClient.verifySignedProof(proof)
+  if (!isProofVerified) {
+    return res.status(400).send({ message: 'Proof verification failed' })
+  }
+
+  const context = proof.claimData.context
+  const extractedParameterValues = proof.extractedParameterValues
+  // TODO: Verify with the context depending on your business logic
+  // TODO: Save the proof to your backend
+
+  return res.status(200).send({ message: 'Proof verified' })
+})
 ```
+<Callout type='info'>
+  If you're building your own callback, you need to set your callback URL before calling ```reclaimClient.createVerificationRequest```
+  ```js {3}
+  const reclaimClient = new Reclaim.ProofRequest('YOUR_APPLICATION_ID_HERE')
+    //... other code
+  reclaimClient.setAppCallbackUrl('YOUR_CALLBACK_URL_HERE')
+  
+  const {requestUrl, statusUrl} = await reclaimClient.createVerificationRequest();
+  res.send('request-proof', {requestUrl, statusUrl})
+  ```
+</Callout>
+
