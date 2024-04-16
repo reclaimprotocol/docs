@@ -1,37 +1,36 @@
 import { Cards, Card } from 'nextra/components'
 import MakeIcon from '../components/MakeIcon'
 import SdkCard from '../components/SdkCard'
-// import { CardsIcon, OneIcon, WarningIcon } from '../../icons'
 import Image from 'next/image'
 
 # Reclaim Protocol SDKs
-<p className='text-blue-300 italic'>Bring users' activity, reputation and identity from other websites into yours, using the easy to use Reclaim SDKs.</p>
+<p className='text-blue-300 italic'>Reclaim SDKs make it simple to bring user activity, reputation, and identity from external websites into your own platform.</p>
 <br></br>
 
 <p className=''>
-    Reclaim Protocol has SDKs for frontend, backend and on-chain applications. You can leverage these SDKs to build applications that have access to users' activity, reputation, and identity from websites across the internet. 
+    Reclaim Protocol has SDKs for web, mobile and on-chain platform. You can use these SDKs to build applications that have access to users' activity, reputation, and identity from websites across the internet. 
 
     For example,
     - Import the number of rides the user has taken on Uber to build a competing ride sharing platform 
-    - Import the users' purchasing preferences using Amazon to provide discounts to the right users 
-    - Enable economics on a blockchain using users' offchain activity data
+    - Import the users purchasing preferences using Amazon to provide discounts to the right users 
+    - Enable economics on a blockchain using users offchain activity data
     - Use national IDs to perform KYC 
     - And many more...
 
-    We currently support importing data from over 200 websites. If the website you want to import data from isn't on the list, you can build your own data provider using a simple to use [developer tool](https://dev.reclaimprotocol.org).
+    We have data provider from the most of the popular websites. If the website you want to import data from isn't on the list, you can build your own data provider using our [developer tool](https://dev.reclaimprotocol.org).
 
-    The best thing is, we don't need your users to install an app or a chrome extension, unlike many other solutions out there. [Check out our demo!](https://demo.reclaimprotocol.org)
+    The best thing is, your users don't need to install an app or browser extension, unlike most other solutions out there. [Check out our demo!](https://demo.reclaimprotocol.org)
 </p>
 <br></br>
 ## How does it work?
-Reclaim Protocol generates cryptographic proofs on HTTPS traffic. This cryptographic proof, is called a zero knowledge proof. It lets the user generate the proof but leaking zero knowledge of anything other than what the user wants to share with your website. This Protocol builds on open standards such as HTTPS and TLS. The users' data is secured by the strong encryption used by TLS. Also, the protocol employs a blockchain to ensure that no proof can be generated for data that does not exist.
+Reclaim Protocol generates cryptographic proofs on HTTPS traffic. The type of cryptographic proof it generates is called a [zero knowledge proof](https://en.wikipedia.org/wiki/Zero-knowledge_proof). It lets the user generate the proof without knowledge of anything other than what the user wants to share with you. The Protocol is built upon open standards such as HTTPS and TLS.
 
 You can learn more here
 - [A non technical overview of how Reclaim Works](https://blog.reclaimprotocol.org/posts/what-is-reclaimprotocol)
 - [A technical deepdive via our Whitepaper](https://link.reclaimprotocol.org/whitepaper-draft)
 
 ## Is this safe to use?
-The users' data is secured by TLS protocol. That means no third party, including Reclaim Protocol or the participating stakeholders (aka attestors) can see the data that is being transferred between the user and the website. You can see our thirdparty [security audits here](https://blog.reclaimprotocol.org/posts/chacha-circuit-audit).
+The user data is secured by TLS protocol. That means no third party, including Reclaim Protocol or the participating stakeholders (aka attestors) can see the data that is being transferred between the user and the website. You can see our thirdparty [security audits here](https://blog.reclaimprotocol.org/posts/chacha-circuit-audit).
 
 Additionally, for the technically curious here are some more resources
 - [How attacks to break the underlying cryptography is infeasible](https://blog.reclaimprotocol.org/posts/fake-key-reveal)
@@ -39,17 +38,17 @@ Additionally, for the technically curious here are some more resources
 
 
 <br/>
-Reclaim Protocol unlocks a new design space for applications to be built. If you are building a new application, we would love to talk to you. Ask your questions on our [Telegram group](https://t.me/+8DFG48VunqljMDY1), and the core developers and founders of Reclaim Protocol will respond to you directly!
+Reclaim Protocol unlocks a new design space for applications to be built. If you are building a new application, we would love to talk to you. Ask your questions on our [Telegram group](https://t.me/+8DFG48VunqljMDY1), and the developers and founders of Reclaim Protocol will respond to you directly!
  
 ### Integrate Reclaim Protocol in your products
 <div>
 <br></br>
 <Cards>
-    <SdkCard title='NodeJs' subtitle='Integrate on backend' link='node' iconName='node' tag='Recommended'/>
-    <SdkCard title='React' subtitle='Integrate on your website' link='react' iconName='reactjs' tag='Quick Start'/>
-    <SdkCard title='React Native' subtitle='Integrate in your mobile app' link='react-native' iconName='react_native' tag="Mobile app"/>
+    <SdkCard title='NodeJs' subtitle='Integrate on Backend' link='node' iconName='node' tag='Recommended'/>
+    <SdkCard title='React' subtitle='Integrate on Web' link='react' iconName='reactjs' tag='Quick Start'/>
+    <SdkCard title='React Native' subtitle='Integrate on Mobile' link='react-native' iconName='react_native' tag="Mobile app"/>
     <SdkCard title='Solidity' subtitle='Integrate on EVM' link='solidity' iconName='solidity' tag="On-chain"/>
-    <SdkCard title='Flutter' subtitle='Integrate in your mobile app' link='flutter/quickstart' iconName='flutter' tag="Mobile app, Coming soon"/>
+    <SdkCard title='Flutter' subtitle='Integrate on Mobile' link='flutter/quickstart' iconName='flutter' tag="Mobile app, Coming soon"/>
     <SdkCard title='Solana' subtitle='Integrate on Solana' link='solana' iconName='solana' tag="On-chain"/>
     <SdkCard title='Cosmos' subtitle='Integrate on Cosmos' link='cosmos' iconName='cosmos' tag="On-chain, Coming soon"/>
     <SdkCard title='Polkadot' subtitle='Integrate on Polkadot' link='polkadot' iconName='polka' tag="On-chain, Coming soon"/>
