@@ -8,6 +8,10 @@ At this stage, we assume that you followed the steps at [ReactJs](/react).
 
 We will be using [Keplr](https://www.keplr.app/) as a wallet to interact with the frontend interface. Make sure that you have it installed and funded via [Neutron-Testnet Faucet Channel](https://t.me/+SyhWrlnwfCw2NGM6).
 
+Also, we use [Wamskit](https://wasmkit.kubiklabs.xyz/) for compiling and deploying the cosmwasm contracts.
+
+It is automatically installed when installing npm modules.
+
 You can access the code of this walkthrough on Gitlab:
 
 - [CosmWasm contract](https://gitlab.reclaimprotocol.org/reclaim-clients/reclaim-cosmwasm/-/tree/neutron).
@@ -183,6 +187,10 @@ import { SigningCosmWasmClient } from "@cosmjs/cosmwasm-stargate";
 const NeutronContext = createContext(null);
 const NEUTRON_CHAIN_ID = "pion-1";
 const NEUTRON_LCD = "https://rpc-palvus.pion-1.ntrn.tech/";
+
+// Uncomment for Mainnet
+// const NEUTRON_CHAIN_ID = "neutron-1";
+// const NEUTRON_LCD = "https://rpc-kralum.neutron-1.neutron.org";
  
 const NeutronContextProvider = ({ children }) => {
   const [neutronClient, setNeutronClient] = useState(null);
@@ -247,6 +255,105 @@ const NeutronContextProvider = ({ children }) => {
     // console.log for success
     console.log("Wallet disconnected!");
   }
+
+  async function addNeutronToKeplr () {
+        try {
+          if (!window.keplr) {
+            alert("Intall keplr!");
+          } else {
+            //Uncomment for Mainnet
+            /*
+            const chainConfig = {
+              "rpc": "https://rpc-neutron.keplr.app",
+              "rest": "https://lcd-neutron.keplr.app",
+              "chainId": "neutron-1",
+              "chainName": "Neutron",
+              "chainSymbolImageUrl": "https://raw.githubusercontent.com/chainapsis/keplr-chain-registry/main/images/neutron/chain.png",
+              "bip44": {
+                "coinType": 118
+              },
+              "bech32Config": {
+                "bech32PrefixAccAddr": "neutron",
+                "bech32PrefixAccPub": "neutronpub",
+                "bech32PrefixValAddr": "neutronvaloper",
+                "bech32PrefixValPub": "neutronvaloperpub",
+                "bech32PrefixConsAddr": "neutronvalcons",
+                "bech32PrefixConsPub": "neutronvalconspub"
+              },
+              "currencies": [
+                {
+                  "coinDenom": "NTRN",
+                  "coinMinimalDenom": "untrn",
+                  "coinDecimals": 6,
+                  "coinGeckoId": "neutron-3",
+                  "coinImageUrl": "https://raw.githubusercontent.com/chainapsis/keplr-chain-registry/main/images/neutron/untrn.png"
+                }
+              ],
+              "feeCurrencies": [
+                {
+                  "coinDenom": "NTRN",
+                  "coinMinimalDenom": "untrn",
+                  "coinDecimals": 6,
+                  "coinGeckoId": "neutron-3",
+                  "gasPriceStep": {
+                    "low": 0.0053,
+                    "average": 0.0053,
+                    "high": 0.0053
+                  }
+                }
+              ],
+              "features": ["cosmwasm"]
+            }
+            */
+
+            const chainConfig = {
+              "rpc": "https://rpc-palvus.pion-1.ntrn.tech",
+              "rest": "https://rest-palvus.pion-1.ntrn.tech",
+              "chainId": "pion-1",
+              "chainName": "Neutron Testnet",
+              "chainSymbolImageUrl": "https://raw.githubusercontent.com/chainapsis/keplr-chain-registry/main/images/neutron/chain.png",
+              "bip44": {
+                "coinType": 118
+              },
+              "bech32Config": {
+                "bech32PrefixAccAddr": "neutron",
+                "bech32PrefixAccPub": "neutronpub",
+                "bech32PrefixValAddr": "neutronvaloper",
+                "bech32PrefixValPub": "neutronvaloperpub",
+                "bech32PrefixConsAddr": "neutronvalcons",
+                "bech32PrefixConsPub": "neutronvalconspub"
+              },
+              "currencies": [
+                {
+                  "coinDenom": "NTRN",
+                  "coinMinimalDenom": "untrn",
+                  "coinDecimals": 6
+                }
+              ],
+              "feeCurrencies": [
+                {
+                  "coinDenom": "NTRN",
+                  "coinMinimalDenom": "untrn",
+                  "coinDecimals": 6,
+                  "gasPriceStep": {
+                    "low": 0.02,
+                    "average": 0.02,
+                    "high": 0.02
+                  }
+                }
+              ],
+              "features": []
+            }
+          await window.keplr.experimentalSuggestChain(chainConfig);
+      }
+    } catch (error) {
+      alert(
+        "An error occurred while connecting to the wallet. Please try again."
+      );
+    }
+  }
+
+
  
   return (
     <NeutronContext.Provider
@@ -257,13 +364,14 @@ const NeutronContextProvider = ({ children }) => {
         setNeutronAddress,
         connectWallet,
         disconnectWallet,
+        addNeutronToKeplr
       }}
     >
       {children}
     </NeutronContext.Provider>
   );
 };
- 
+
 export { NeutronContext, NeutronContextProvider };
 ```
 
@@ -399,11 +507,15 @@ import { useContext } from "react";
 import { NeutronContext } from "./utilities/NeutronContext";
  
 export default function ConnectButton () {
-    const { neutronAddress, connectWallet } = useContext(NeutronContext);
+    const { neutronAddress, connectWallet, addNeutronToKeplr } = useContext(NeutronContext);
   
     return (
         <div>Neutron
         <div>
+          <button className="button" onClick={addNeutronToKeplr}>
+            Add Neutron to Keplr
+          </button>
+          <hr/>
           <button className="button" onClick={connectWallet}>
             Connect Keplr
           </button>
