@@ -8,7 +8,7 @@ This tutorial assumes that you have a frontend that requests proofs from the use
 <Steps>
 ### Deploy a smart contract
 Deploy the following smart contract to the chain of your choice, we will be using Polygon's Mumbai for this walkthrough.
-```js copy showLineNumbers
+```solidity copy showLineNumbers
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
  
@@ -30,7 +30,7 @@ contract Attestor {
    }  
  
    function verifyProof(Reclaim.Proof memory proof) public view{
-       Reclaim(reclaimAddress).verifyProof(proof, providersHashes);
+       Reclaim(reclaimAddress).verifyProof(proof);
        // TODO: your business logic upon success
        // verify proof.context is what you expect
    }
@@ -38,7 +38,22 @@ contract Attestor {
 ```
 
 You can check out the [supported networks here](https://github.com/reclaimprotocol/demo-solidity-sdk/blob/main/contracts/Addresses.sol)
+### Context Field
+`proof.claimInfo.context` is the field were you can add a message and an address to the proof.
+In addition, context will be having provider extracted data (e.g. your SteamId if you're using SteamId Provider).
+As context is a ``string``, we provide a function that will make it easier for you to extract fields from it:
 
+```solidity copy
+function extractFieldFromContext(string memory data, string memory target)
+public pure returns (string memory)
+  ```
+where ``data`` is the context field string and ``target`` is name of the field you want to extract.
+<Callout type='warning'>
+  Please note that you will need to provider target string in the following format: '"FIELD_NAME_HERE":"' (e.g. '"SteamId":"')
+</Callout>
+<Callout type='info'>
+  you can also use `extractFieldFromContext` to extract `contextAddress` and `contextMessage` using the same mentioned way. 
+</Callout>
 ### Get the artifacts
 Once deployed, take a note of the following:
   - ChainId (80001 in our case).
