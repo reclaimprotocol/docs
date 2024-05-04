@@ -6,36 +6,43 @@ import { Steps, Callout } from "nextra/components";
 
 At this stage, we assume that you followed the steps at [ReactJs](/react).
 
-We will be using [Keplr](https://www.keplr.app/) as a wallet to interact with the frontend interface. Make sure that you have it installed and funded via [Neutron-Testnet Faucet Channel](https://t.me/+SyhWrlnwfCw2NGM6).
+We will be using 
+- [Keplr](https://www.keplr.app/) as a wallet to interact with the frontend interface. Make sure that you have it installed and funded via [Neutron-Testnet Faucet Channel](https://t.me/+SyhWrlnwfCw2NGM6).
 
-Also, we use [Wamskit](https://wasmkit.kubiklabs.xyz/) for compiling and deploying the cosmwasm contracts.
+- [Wamskit](https://wasmkit.kubiklabs.xyz/) for compiling and deploying the cosmwasm contracts.
+  It is automatically installed when installing npm modules.
 
-It is automatically installed when installing npm modules.
+- [Hermes](https://hermes.informal.systems/) for IBC relayer.
+  For the installation, please refer to this [installation guide](https://hermes.informal.systems/quick-start/installation.html).
+
 
 You can access the code of this walkthrough on Gitlab:
 
-- [CosmWasm contract](https://gitlab.reclaimprotocol.org/starterpacks/reclaim-neutron-client).
-- [React client](https://gitlab.reclaimprotocol.org/starterpacks/reclaim-neutron-example).
+- [CosmWasm contract](https://gitlab.reclaimprotocol.org/starterpacks/reclaim-neutron-terra-client).
+- [React client](https://gitlab.reclaimprotocol.org/starterpacks/reclaim-neutron-terra-example).
 
 ## Contract deployment
 
 <Steps>
 ### Clone the client contract repo.
 
-This [Neutron contract](https://gitlab.reclaimprotocol.org/reclaim-clients/reclaim-cosmwasm/-/tree/neutron-client) serves as a client to our Reclaim contract. It takes Reclaim's contract address, handles proofs, and verifies them.
+The [Neutron-Client](https://gitlab.reclaimprotocol.org/starterpacks/reclaim-neutron-terra-client/Neutron-Client) contract interacts with Terra-host 
+contract for sending verification requsts.
+The [Terra-host](https://gitlab.reclaimprotocol.org/starterpacks/reclaim-neutron-terra-client/Terra-host) contract receives the request,
+relays it to the Core Verification contract deployed on the same network and records the result in itself.
 
 ```bash copy
-git clone https://gitlab.reclaimprotocol.org/starterpacks/reclaim-neutron-client.git
-cd reclaim-neutron-client
-wasmkit compile
+git clone https://gitlab.reclaimprotocol.org/starterpacks/reclaim-neutron-terra-client
 ```
 
 ### Add your wallet information.
 
-As stated in the README, add your wallet credentials to your `wasmkit.config.js` as specified in `wasmkit.config.js.example`.
+1. Neutron-Client
+
+Add your wallet credentials to your `wasmkit.config.js` as specified in `wasmkit.config.js.example`.
 
 ```bash copy
-const neutron_testnet_accounts = [
+const neutron_mainnet_accounts = [
   {
     name: 'account_0',
     address: '', // your neutron address
@@ -44,24 +51,324 @@ const neutron_testnet_accounts = [
 ];
 ```
 
+2. Terra-Host
+
+Make an `.env` file in the `scripts` folder and add your wallet MNEMONIC there.
+
+```bash copy
+MNEMONIC="..."
+```
+
 ### Deploy and verify a proof.
+1. Neutron-Client
 
-Take a look at `wasmkit.config.js` and `all.ts`, make sure that you have the correct RPCs and contract addresses.
+Take a look at `wasmkit.config.js`, make sure that you have the correct RPCs and contract addresses.
 
-If you want to deploy to mainnet, search for the `Uncomment for mainnet` comment.
+By running the following commands, you can compile, upload the contract and instantiate it.
 
-By running `wasmkit run scripts/verify.ts`, you can upload the contract, instantiate it, and verify a Reclaim proof on it.
+```bash copy
+wasmkit compile
+wasmkit run scripts/deploy.ts
+```
+
 Run the script and take a note of your contract address, we will be using them later.
+To verify a Reclaim proof on it, run `wasmkit run scripts/verifyProof.ts`.
 
 ```bash copy
 npm i
-wasmkit run scripts/verify.ts
+wasmkit run scripts/verifyProof.ts
 ```
 
 Here is an example of how your output should look like:
 
 ![storeCode](/neutron/storeCode.png)
 ![instantiate&verify](/neutron/instantiate&verify.png)
+
+
+
+2. Terra-host
+
+Run the following commands to upload the contract and instantiate it.
+
+```bash copy
+wasmkit compile
+cd Terra
+npm i
+node deploy.js
+```
+
+Take a note of the deployed contract address. We're going to need it.
+
+</Steps>
+
+## IBC Relayer Configuration
+
+<Steps>
+
+### Adding a private key
+
+Prepare two wallets(Neutron and Terra) with enough funds in them. They will be used for executing IBC messages on both chains.
+
+Run the following commands for setting up accounts.
+
+```bash copy
+echo word1 ... word12or24 > mnemonic_file_neutron
+hermes keys add --key-name keyneutron --chain neutron-1 --mnemonic-file mnemonic_file_neutron
+rm mnemonic_file_neutron
+
+echo word1 ... word12or24 > mnemonic_file_terra
+hermes keys add --key-name keyterra --chain phoenix-1 --mnemonic-file mnemonic_file_terra
+rm mnemonic_file_terra
+
+```
+
+Warning: If you look at the `keyterra.json` file in the `$HOME/.hermes/keys/phoenix-1/keyring-test`, 
+you may see a different account address from your wallet address.
+
+That is because Terra's address generation algorithm is different from other cosmos chains and hermes as well.
+
+You should send funds to the account adddress in the json file, as that is the actual address that executes the messages.
+
+### Configuration file
+
+The command `hermes config auto` provides a way to automatically generate a configuration file for the chains:
+
+```bash copy
+hermes config auto --output $HOME/.hermes/config.toml --chain neutron:keyneutron terra2:keyphoenix --chain 
+```
+
+If the command runs successfully, it should output something like:
+
+```bash
+2024-05-04T01:06:45.546898Z  INFO ThreadId(01) running Hermes v1.8.2+06dfbaf
+2024-05-04T01:06:45.550373Z  INFO ThreadId(11) neutron: Fetching asset list...
+2024-05-04T01:06:45.550395Z  INFO ThreadId(10) terra2: Fetching asset list...
+2024-05-04T01:06:45.550406Z  INFO ThreadId(13) terra2: Fetching chain data...
+2024-05-04T01:06:45.550409Z  INFO ThreadId(12) neutron: Fetching chain data...
+2024-05-04T01:06:49.118997Z  INFO ThreadId(01) phoenix-1: uses key 'keyphoenix'
+2024-05-04T01:06:49.140496Z  INFO ThreadId(01) neutron-1: uses key 'keyneutron'
+SUCCESS "Config file written successfully : $HOME/.hermes/config.toml."
+```
+
+(Make sure that each chain uses the correct corresponding key.)
+
+And generate the following configuration:
+
+```toml {61-62, 108-110, 128-129, 175-177}
+[global]
+log_level = "info"
+
+[mode.clients]
+enabled = true
+refresh = true
+misbehaviour = true
+
+[mode.connections]
+enabled = false
+
+[mode.channels]
+enabled = false
+
+[mode.packets]
+enabled = true
+clear_interval = 100
+clear_on_start = true
+tx_confirmation = false
+auto_register_counterparty_payee = false
+
+[mode.packets.ics20_max_memo_size]
+enabled = true
+size = 32768
+
+[mode.packets.ics20_max_receiver_size]
+enabled = true
+size = 2048
+
+[rest]
+enabled = false
+host = "127.0.0.1"
+port = 3000
+
+[telemetry]
+enabled = false
+host = "127.0.0.1"
+port = 3001
+
+[telemetry.buckets.latency_submitted]
+start = 500
+end = 20000
+buckets = 10
+
+[telemetry.buckets.latency_confirmed]
+start = 1000
+end = 30000
+buckets = 10
+
+[[chains]]
+type = "CosmosSdk"
+id = "phoenix-1"
+rpc_addr = "https://terra2.tdrsys.com:2053/"
+grpc_addr = "https://terra2.tdrsys.com:2083/"
+rpc_timeout = "10s"
+trusted_node = false
+account_prefix = "terra"
+key_name = "keyphoenix"
+key_store_type = "Test"
+store_prefix = "ibc"
+default_gas = 1000000
+max_gas = 4000000
+gas_multiplier = 1.1
+max_msg_num = 30
+max_tx_size = 180000
+max_grpc_decoding_size = 33554432
+query_packets_chunk_size = 50
+clock_drift = "5s"
+max_block_time = "30s"
+client_refresh_rate = "1/3"
+ccv_consumer_chain = false
+memo_prefix = ""
+sequential_batch_tx = false
+
+[chains.event_source]
+mode = "push"
+url = "wss://terra2.tdrsys.com:2053/websocket"
+batch_delay = "500ms"
+
+[chains.trust_threshold]
+numerator = 2
+denominator = 3
+
+[chains.gas_price]
+price = 0.015
+denom = "uluna"
+
+[chains.packet_filter]
+policy = "allow"
+list = [
+    [
+    "transfer",
+    "channel-229",
+],
+    [
+    "wasm.terra1jhfjnm39y3nn9l4520mdn4k5mw23nz0674c4gsvyrcr90z9tqcvst22fce",
+    "channel-167",
+],
+    [
+    "wasm.terra1k9j8rcyk87v5jvfla2m9wp200azegjz0eshl7n2pwv852a7ssceqsnn7pq",
+    "channel-396",
+],
+]
+
+[chains.packet_filter.min_fees]
+
+[chains.dynamic_gas_price]
+enabled = true
+multiplier = 1.2
+max = 0.6
+
+[chains.address_type]
+derivation = "cosmos"
+
+[chains.excluded_sequences]
+
+[[chains]]
+type = "CosmosSdk"
+id = "neutron-1"
+rpc_addr = "https://rpc-neutron.whispernode.com/"
+grpc_addr = "https://neutron-grpc.publicnode.com/"
+rpc_timeout = "10s"
+trusted_node = false
+account_prefix = "neutron"
+key_name = "keyneutron"
+key_store_type = "Test"
+store_prefix = "ibc"
+default_gas = 1000000
+max_gas = 4000000
+gas_multiplier = 1.2
+max_msg_num = 30
+max_tx_size = 180000
+max_grpc_decoding_size = 33554432
+query_packets_chunk_size = 50
+clock_drift = "5s"
+max_block_time = "30s"
+client_refresh_rate = "1/3"
+ccv_consumer_chain = false
+memo_prefix = ""
+sequential_batch_tx = false
+
+[chains.event_source]
+mode = "push"
+url = "wss://rpc-neutron.cosmos-spaces.cloud/websocket"
+batch_delay = "500ms"
+
+[chains.trust_threshold]
+numerator = 2
+denominator = 3
+
+[chains.gas_price]
+price = 0.0053
+denom = "untrn"
+
+[chains.packet_filter]
+policy = "allow"
+list = [
+    [
+    "transfer",
+    "channel-25",
+],
+    [
+    "transfer",
+    "channel-5",
+],
+    [
+    "wasm.neutron1ffus553eet978k024lmssw0czsxwr97mggyv85lpcsdkft8v9ufsz3sa07",
+    "channel-2112",
+],
+]
+
+[chains.packet_filter.min_fees]
+
+[chains.dynamic_gas_price]
+enabled = true
+multiplier = 1.2
+max = 0.6
+
+[chains.address_type]
+derivation = "cosmos"
+
+[chains.excluded_sequences]
+
+[tracing_server]
+enabled = false
+port = 5555
+
+```
+
+Take special care to the highlighted lines. Your setup transaction may fail if the gas settings are not properly configured.
+Refer them and make your own adjustion.
+
+### Creating a channel
+
+Run the following command for creating a channel between the two contracts you have already deployed.
+Replace the contract addresses with your own.
+
+The channel version should be identical to the one set in your contract.
+```bash copy
+hermes create channel --a-chain phoenix-1 --a-connection connection-192 
+--a-port wasm.terra1gmn5mmqjssvtscr3ce7n6ztd5dgacg0kwws6dw3ugu20j7nny0vqj5zw4f 
+--b-port wasm.neutron1zcytw9p07ytdskz4wk2txyqwlggpenly5d0adxsr4qlm6hfc2r8seqaezl 
+--channel-version ibc-cosmwasm
+```
+
+Now your two contracts can interact with each other.
+
+Perform a `health-check` to verify that your setup is correct with:
+
+```bash copy
+hermes health-check
+```
+
+Save the `channel id` in the result and pass them as a parameter in the `verifyProof` query.
 
 </Steps>
 
@@ -80,6 +387,7 @@ Add the following to project dependency(packages.json) and install modules.
     "@cosmjs/encoding": "^0.32.0",
     "@cosmjs/math": "^0.32.0",
     "@cosmjs/cosmwasm-stargate": "^0.32.0",
+    "@terra-money/terra.js": "^3.1.10",
     "@reclaimprotocol/js-sdk": "^0.1.5",
     "react-qr-code": "^2.0.12",
     ...
@@ -91,7 +399,7 @@ npm i
 
 ### Setup your React codebase.
 
-We will continue building on the [reclaim react client](https://gitlab.reclaimprotocol.org/starterpacks/reclaim-neutron-example), new lines are highlighted below.
+We will continue building on the [reclaim react client](https://gitlab.reclaimprotocol.org/starterpacks/reclaim-neutron-terra-example), new lines are highlighted below.
 
 ```js copy showLineNumbers {8-9, 37-38}
 import "./App.css";
@@ -185,13 +493,9 @@ import { createContext, useState } from "react";
 import { SigningCosmWasmClient } from "@cosmjs/cosmwasm-stargate";
 
 const NeutronContext = createContext(null);
-const NEUTRON_CHAIN_ID = "pion-1";
-const NEUTRON_LCD = "https://rpc-palvus.pion-1.ntrn.tech/";
+const NEUTRON_CHAIN_ID = "neutron-1";
+const NEUTRON_LCD = "https://rpc-kralum.neutron-1.neutron.org";
 
-// Uncomment for Mainnet
-// const NEUTRON_CHAIN_ID = "neutron-1";
-// const NEUTRON_LCD = "https://rpc-kralum.neutron-1.neutron.org";
- 
 const NeutronContextProvider = ({ children }) => {
   const [neutronClient, setNeutronClient] = useState(null);
   const [neutronAddress, setNeutronAddress] = useState("");
@@ -261,8 +565,6 @@ const NeutronContextProvider = ({ children }) => {
           if (!window.keplr) {
             alert("Intall keplr!");
           } else {
-            //Uncomment for Mainnet
-            /*
             const chainConfig = {
               "rpc": "https://rpc-neutron.keplr.app",
               "rest": "https://lcd-neutron.keplr.app",
@@ -304,46 +606,6 @@ const NeutronContextProvider = ({ children }) => {
               ],
               "features": ["cosmwasm"]
             }
-            */
-
-            const chainConfig = {
-              "rpc": "https://rpc-palvus.pion-1.ntrn.tech",
-              "rest": "https://rest-palvus.pion-1.ntrn.tech",
-              "chainId": "pion-1",
-              "chainName": "Neutron Testnet",
-              "chainSymbolImageUrl": "https://raw.githubusercontent.com/chainapsis/keplr-chain-registry/main/images/neutron/chain.png",
-              "bip44": {
-                "coinType": 118
-              },
-              "bech32Config": {
-                "bech32PrefixAccAddr": "neutron",
-                "bech32PrefixAccPub": "neutronpub",
-                "bech32PrefixValAddr": "neutronvaloper",
-                "bech32PrefixValPub": "neutronvaloperpub",
-                "bech32PrefixConsAddr": "neutronvalcons",
-                "bech32PrefixConsPub": "neutronvalconspub"
-              },
-              "currencies": [
-                {
-                  "coinDenom": "NTRN",
-                  "coinMinimalDenom": "untrn",
-                  "coinDecimals": 6
-                }
-              ],
-              "feeCurrencies": [
-                {
-                  "coinDenom": "NTRN",
-                  "coinMinimalDenom": "untrn",
-                  "coinDecimals": 6,
-                  "gasPriceStep": {
-                    "low": 0.02,
-                    "average": 0.02,
-                    "high": 0.02
-                  }
-                }
-              ],
-              "features": []
-            }
           await window.keplr.experimentalSuggestChain(chainConfig);
       }
     } catch (error) {
@@ -353,8 +615,6 @@ const NeutronContextProvider = ({ children }) => {
     }
   }
 
-
- 
   return (
     <NeutronContext.Provider
       value={{
@@ -382,32 +642,54 @@ Replace with your contract address. You can leave values as are if you did not d
 ```js copy showLineNumbers
 import { useContext } from "react";
 import { NeutronContext } from "./NeutronContext";
+import { LCDClient } from '@terra-money/terra.js';
 import { calculateFee, GasPrice } from "@cosmjs/stargate";
 
-let contractAddress = "neutron1cqh6yx9jt2c6khkedc6cu2v6h8vv7apmtye56lg76flhture79jsxmrke5";
-
-// Uncomment for mainnet
-// let contractAddress = "neutron1c4rl2zws642m2nfkm7jl9ej0mc8emkhss5397ph7dh3sqggrldlsapylwe";
+const contractAddress = "neutron1zcytw9p07ytdskz4wk2txyqwlggpenly5d0adxsr4qlm6hfc2r8seqaezl";
+const channel_id = "channel-4282";
+const terra2Address = "terra13z58nvwxf5hjx0l7pwd72tt4dd2ycvj3zp3n5m5vtr3wnfw2jdzss35maw";
+const terra2URL = "https://luna.nownodes.io/8e88b7de-791c-4ec1-9892-535929724e87";
+const terra2ChainId = "phoenix-1";
  
 const NeutronFunctions = () => {
   const { neutronClient, neutronAddress } = useContext(NeutronContext);
+
+  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
  
   let verify_proof = async (proof) => {
     const defaultGasPrice = GasPrice.fromString("0.025untrn");
     const defaultExecuteFee = calculateFee(200_000, defaultGasPrice);
 
     console.log(proof);
+
+    const terra = new LCDClient({
+      URL: terra2URL, 
+      chainID: terra2ChainId, 
+    });
+
     const result = await neutronClient.execute(
       neutronAddress, 
       contractAddress,
       {
         verify_proof: {
-          proof: proof
+          proof: {
+            proof: proof
+          },
+          channel: channel_id
         }
       },
       defaultExecuteFee
     );
     console.log(result);
+    
+    // Wait till the packet from neutron arrives at terra
+    // (This mechanism will be soon deprecated in the next version.)
+    await sleep(5000);
+    const queryResult = await terra.wasm.contractQuery(
+      terra2Address,
+      { query_result: { identifier: proof.signedClaim.claim.identifier} } // query msg
+    );
+    return queryResult.proof_result === 'Success';
   }
 
   return {
@@ -464,9 +746,11 @@ export default function VerifyProof(props) {
         className="button"
         onClick={async () => {
           try {
-            console.log(proof);
-            await verify_proof(proof);
-            setVerified(true);
+            if (await verify_proof(proof) === true) {
+              setVerified(true);
+            } else {
+              setVerified(false);
+            }
           } catch (e) {
             console.error(e);
           }
@@ -627,8 +911,8 @@ Make sure your Keplr is connected, click the button, a wallet pop-up will show p
 
 ![screen1](/neutron/screen1.png)
 
-![keplr1](/neutron/keplr.png)
+![keplr1](/neutron/keplr-ibc.png)
 
-Now your proof will get approved on-chain, here is the sample [transaction](https://www.mintscan.io/neutron-testnet/tx/6620835F30152B21FCBCA45E7EA3BF6A7E8B804C474C3CB09159CA5AD902543C?height=13769997) from the screenshot above.
+Now your proof will get approved on-chain, here is the sample [transaction](https://www.mintscan.io/neutron/tx/80EC4F2340427978FC6C00E9787C57CDA9231E452C0ABF6739C9599F1185075B?height=9845995) from the screenshot above.
 
 </Steps>
