@@ -2,6 +2,7 @@
   "index": "Overview",
   "secret": "Secret",
   "neutron": "Neutron",
+  "archway": "Archway",
   "neutron-terra": "Neutron-Terra(IBC)",
   "nibiru": "Nibiru",
   "start-from-example": {
