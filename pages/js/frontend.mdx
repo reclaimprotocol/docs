@@ -1,11 +1,20 @@
 import { Steps, Callout } from 'nextra/components'
 
+## Before you begin
+**All sdk's methods used in this tutorial are expalined in detail in [Methods documentation](/sdk-methods).**
+
+We will be building a simple app, which users can use to generate a proof request, then generate the actual proof using Reclaim mobile App.
+Please note that for JS sdk, this process can be implemented either on the frontend or the backend.
+
+We will be walking you through the **Frontend** implementation in this section, you can also take a look at the [backend implementation](/js/backend). 
 ## Prerequisites
 
 - Node.js 18.0.0 or later
 
 ## Quickstart
-
+<Callout type='info'>
+ We will be using ReactJs in the following tutorial. 
+</Callout>
 <Steps>
 ### Create an application on Dev Tool
 Head to https://dev.reclaimprotocol.org and create a new application. You'll be prompted to provide the websites you want to import data from. Once you create the application, you'll be given an `application ID` and an `application secret`. Please take note of these. These will be used in the next steps.
@@ -150,6 +159,7 @@ export default App
 ```
 
 However, we recommend not generating the signature on the frontend because this leaks the APP_SECRET. You may expose a `/sign` endpoint that authenticates your user and returns a signature.
+You can read more about this in [Sign Proof Requests](/js/sign).
 
 ```js copy showLineNumbers
 reclaimClient.setSignature() //TODO: signature response from your backend
@@ -286,6 +296,7 @@ function App() {
     await reclaimClient.startSession({
       onSuccessCallback: proof => {
         console.log('Verification success', proof)
+        const data = proof.claimData.context.extractedParameters
         // Your business logic here
       },
       onFailureCallback: error => {

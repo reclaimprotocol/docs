@@ -1,9 +1,9 @@
 ## Overview
 
 You can use Reclaim SDK directly in your app without needing any backend changes. 
-If you want to implement your own authentication mechanism to keep user's data secure - we recommend using the [backend libraries](/node).
+If you want to implement your own authentication mechanism to keep user's data secure - we recommend using the [backend implementation](/js/backend) of the JS SDK.
 
-However, the React SDK is a great way to get something going quickly. Particularly good for MVPs.
+However, the JS SDK is a great way to get something going quickly. Particularly good for MVPs.
 
 ## Flows
 ### Integrating Reclaim on a Desktop Website
@@ -23,3 +23,7 @@ The flow remains pretty much the same. After step 2 (session creation), the flow
 1. **Device Detection**: Identify the user's device type (desktop or mobile) to tailor the flow, at step 3.
 2. **Button Display**: Instead of a QR code, display a button linked to the session-specific URI.
 3. Steps 4 to 8 are identical to the desktop integration, starting from the user tapping the button, through to the execution of business logic based on the submitted proof.
+
+### Where to use the sdk in your app
+You can use the sdk to generate proof reqeusts either in your backend or frontend
+We will be showing examples for both the cases in the following sections.

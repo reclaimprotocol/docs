@@ -13,17 +13,17 @@
     "type": "separator",
     "title": "SDKs"
   },
-  "node": {
-    "title": "NodeJs"
-  },
-  "react": {
-    "title": "ReactJs"
+  "js": {
+    "title": "JS"
   },
   "react-native": {
     "title": "React Native"
   },
   "flutter": {
     "title": "Flutter"
+  },
+  "sdk-methods": {
+    "title": "Methods for Off-chain sdks"
   },
   "solidity": {
     "title": "Solidity"
