@@ -31,7 +31,7 @@ Transforms proof data into a format suitable for on-chain transactions, you need
 <Callout type='info'>
 Please note that Reclaim verifier contracts only accept proofs that were processed by the `transformForOnchain` method.
 </Callout>
-#### `verifyProvider(proof, providerHash) ⇒ Promise<boolean>`
+#### `verifyProvider(proof, providerHash) ⇒ boolean`
 Validates the provider used to generate the proof against the provided one. Logs will provide detials in case of verification failure.
 This method is optional for off-chain sdks. 
 
@@ -40,7 +40,7 @@ This method is optional for off-chain sdks.
 - `providerHash: string` - Provider hash that you're expecting to be used to generate the proof.
 
 **Returns:**
-- `Promise<boolean>` - True if proof's provider is same to the one expected, otherwise false.
+- `boolean` - True if proof's provider is same to the one expected, otherwise false.
 <Callout type='info'>
 Please note that you will be able to get the providerHash for the provider you used from https://dev.reclaimprotocol.org.
 </Callout>
