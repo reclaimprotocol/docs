@@ -35,12 +35,13 @@ import { Reclaim } from '@reclaimprotocol/js-sdk'
 
 Boiler plate stuff.
 
-```js copy showLineNumbers {5}
+```js copy showLineNumbers {5,6}
 import './App.css'
 import { Reclaim } from '@reclaimprotocol/js-sdk'
 
 function App() {
-  const reclaimClient = new Reclaim.ProofRequest('YOUR_APPLICATION_ID_HERE') //TODO: replace with your applicationId
+  const APP_ID = "YOUR_APPLICATION_ID" //TODO: replace with your applicationId
+  const reclaimClient = new Reclaim.ProofRequest(APP_ID)
 
   return <div className='App'></div>
 }
@@ -50,12 +51,13 @@ export default App
 
 ### Add a function to request proofs
 
-```js copy showLineNumbers {7-9}
+```js copy showLineNumbers {8-10}
 import './App.css'
 import { Reclaim } from '@reclaimprotocol/js-sdk'
 
 function App() {
-  const reclaimClient = new Reclaim.ProofRequest('YOUR_APPLICATION_ID_HERE') //TODO: replace with your applicationId
+  const APP_ID = "YOUR_APPLICATION_ID" //TODO: replace with your applicationId
+  const reclaimClient = new Reclaim.ProofRequest(APP_ID)
 
   async function generateVerificationRequest() {
     const providerId = 'PROVIDER_ID' //TODO: replace with your provider ids you had selected while creating the application
@@ -74,12 +76,13 @@ You can add context to your proof. There are two pieces of information that are 
 1. Address - this can be an Ethereum/Solana/Cosmos address. This is typically set when the proof is to be used on a blockchain application. When using on blockchain applications, we recommend setting this context address and using this address in the business logic instead of signer of the transaction (e.g. `msg.sender`). If you don't set the context address and use transaction signer as the user's address, there is a front-running security threat.
 2. Message - this can be used to inform the user why this proof is being requested. If your application needs to be sure that the user generates a fresh cryptographic proof for your application, and not reuse an existing proof they created for some other application, you should set the `context.message` to something that is unique to your application. Upon receiving the proof from the user, ensure that the context.message is exactly what you had set it to earlier to avoid scammers from spoofing your users' proofs.
 
-```js copy showLineNumbers {10-13}
+```js copy showLineNumbers {11-14}
 import './App.css'
 import { Reclaim } from '@reclaimprotocol/js-sdk'
 
 function App() {
-  const reclaimClient = new Reclaim.ProofRequest('YOUR_APPLICATION_ID_HERE') //TODO: replace with your applicationId
+  const APP_ID = "YOUR_APPLICATION_ID" //TODO: replace with your applicationId
+  const reclaimClient = new Reclaim.ProofRequest(APP_ID)
 
   async function generateVerificationRequest() {
     const providerId = 'PROVIDER_ID' //TODO: replace with your provider ids you had selected while creating the application
@@ -98,12 +101,13 @@ export default App
 
 ### Build the Proof Request object
 
-```js copy showLineNumbers {15}
+```js copy showLineNumbers {16}
 import './App.css'
 import { Reclaim } from '@reclaimprotocol/js-sdk'
 
 function App() {
-  const reclaimClient = new Reclaim.ProofRequest('YOUR_APPLICATION_ID_HERE') //TODO: replace with your applicationId
+  const APP_ID = "YOUR_APPLICATION_ID" //TODO: replace with your applicationId
+  const reclaimClient = new Reclaim.ProofRequest(APP_ID)
 
   async function generateVerificationRequest() {
     const providerId = 'PROVIDER_ID' //TODO: replace with your provider ids you had selected while creating the application
@@ -128,12 +132,13 @@ You must set a signature on the request so that the users don't get tricked on p
 
 For a simple MVP, you can generate the signature on the frontend :
 
-```js copy showLineNumbers {17-21}
+```js copy showLineNumbers {18-22}
 import './App.css'
 import { Reclaim } from '@reclaimprotocol/js-sdk'
 
 function App() {
-  const reclaimClient = new Reclaim.ProofRequest('YOUR_APPLICATION_ID_HERE') //TODO: replace with your applicationId
+  const APP_ID = "YOUR_APPLICATION_ID" //TODO: replace with your applicationId
+  const reclaimClient = new Reclaim.ProofRequest(APP_ID)
 
   async function generateVerificationRequest() {
     const providerId = 'PROVIDER_ID' //TODO: replace with your provider ids you had selected while creating the application
@@ -167,12 +172,14 @@ reclaimClient.setSignature() //TODO: signature response from your backend
 
 ### Get the request URL
 
-```js copy showLineNumbers {23-26}
+```js copy showLineNumbers {5,25-28}
 import './App.css'
 import { Reclaim } from '@reclaimprotocol/js-sdk'
 
 function App() {
-  const reclaimClient = new Reclaim.ProofRequest('YOUR_APPLICATION_ID_HERE') //TODO: replace with your applicationId
+  const [url, setUrl] = useState('')
+  const APP_ID = "YOUR_APPLICATION_ID" //TODO: replace with your applicationId
+  const reclaimClient = new Reclaim.ProofRequest(APP_ID)
 
   async function generateVerificationRequest() {
     const providerId = 'PROVIDER_ID' //TODO: replace with your provider ids you had selected while creating the application
@@ -205,7 +212,7 @@ export default App
 ### Display the QR code
 If the user opens your website on a mobile, show a button that has a link to `requestUrl`.
 
-```js copy showLineNumbers {3-4, 7, 34-43}
+```js copy showLineNumbers {3-4, 34-43}
 import './App.css'
 import { Reclaim } from '@reclaimprotocol/js-sdk'
 import { useState } from 'react'
@@ -213,8 +220,8 @@ import QRCode from "react-qr-code";
 
 function App() {
   const [url, setUrl] = useState('')
-
-  const reclaimClient = new Reclaim.ProofRequest('YOUR_APPLICATION_ID_HERE') //TODO: replace with your applicationId
+  const APP_ID = "YOUR_APPLICATION_ID" //TODO: replace with your applicationId
+  const reclaimClient = new Reclaim.ProofRequest(APP_ID)
 
   async function generateVerificationRequest() {
     const providerId = 'PROVIDER_ID' //TODO: replace with your provider ids you had selected while creating the application
@@ -261,7 +268,7 @@ export default App
 
 You get a callback when the user uploads the proof
 
-```js copy showLineNumbers {32-41}
+```js copy showLineNumbers {32-42}
 import './App.css'
 import { Reclaim } from '@reclaimprotocol/js-sdk'
 import { useState } from 'react'
@@ -269,8 +276,8 @@ import QRCode from "react-qr-code";
 
 function App() {
   const [url, setUrl] = useState('')
-
-  const reclaimClient = new Reclaim.ProofRequest('YOUR_APPLICATION_ID_HERE') //TODO: replace with your applicationId
+  const APP_ID = "YOUR_APPLICATION_ID" //TODO: replace with your applicationId
+  const reclaimClient = new Reclaim.ProofRequest(APP_ID)
 
   async function generateVerificationRequest() {
     const providerId = 'PROVIDER_ID' //TODO: replace with your provider ids you had selected while creating the application
@@ -338,8 +345,9 @@ import QRCode from "react-qr-code";
 
 function App() {
   const [url, setUrl] = useState('')
-
-  const reclaimClient = new Reclaim.ProofRequest('YOUR_APPLICATION_ID_HERE') //TODO: replace with your applicationId
+  
+  const APP_ID = "YOUR_APPLICATION_ID" //TODO: replace with your applicationId
+  const reclaimClient = new Reclaim.ProofRequest(APP_ID)
 
   async function generateVerificationRequest() {
     const providerId = 'PROVIDER_ID' //TODO: replace with your provider ids you had selected while creating the application
