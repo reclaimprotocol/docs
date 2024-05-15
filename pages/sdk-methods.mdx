@@ -14,6 +14,16 @@ Verifies the authenticity and completeness of a given proof. It checks if the pr
 
 **Parameters:**
 - `proof: Proof` - The proof to verify, containing signatures, claim data, and identifiers etc..
+you can read a breif description of the proof object here
+``` js 
+interface Proof {
+  identifier: string; /// The proof identifier, used to verify the proof.
+  claimData: ProviderClaimData; /// Contains data of the proof, including provider data and the context field 
+  signatures: string[]; /// Contains signatures of witness that verified & signed the proof.
+  witnesses: WitnessData[]; /// Contains witness data, including the witness id and url.
+}
+```
+For more details, you can take a look at the [Proof type](#proof-type) section.
 
 **Returns:**
 - `Promise<boolean>` - Resolves to `true` if the proof is verified correctly, otherwise `false`.
@@ -33,11 +43,11 @@ Please note that Reclaim verifier contracts only accept proofs that were process
 </Callout>
 #### `verifyProvider(proof, providerHash) ⇒ boolean`
 Validates the provider used to generate the proof against the provided one. Logs will provide detials in case of verification failure.
-This method is optional for off-chain sdks. 
+This method is optional for off-chain sdks.
 
 **Parameters:**
 - `proof: Proof` - The recieved proof.
-- `providerHash: string` - Provider hash that you're expecting to be used to generate the proof.
+- `providerHash: string` - Provider hash that you're expecting to be used to generate the proof, you can find it in your application details on https://dev.reclaimprotocol.org.
 
 **Returns:**
 - `boolean` - True if proof's provider is same to the one expected, otherwise false.
@@ -92,7 +102,7 @@ Sets the status URL for the proof request to monitor the progress or status upda
 - `url: string` - The URL to set as the status URL.
 #### `generateSignature(applicationSecret: string) ⇒ Promise<Signature>`
 Generates a signature using the provided application secret. The method uses ethers library to sign a hashed message derived from the requested proofs.
-We have a section on [how to sign a proof](/js/frontend#set-signature-for-request) for more information.
+Signing the request is necessary so that users don't get tricked on phishing websites, and mistakenly upload all their data to a malicious website.
 
 **Parameters:**
 - `applicationSecret: string` - The secret key used to generate the wallet and signature, you will find it on https://dev.reclaimprotocol.org **only the first time you create the app**.
@@ -107,7 +117,8 @@ We don't recommend generating the signature on the frontend, you should do this 
 </Callout>
 #### `setSignature(signature: string) ⇒ void`
 Assigns a signature to the proof request, you can easily use the [above mentioned method](#generatesignatureapplicationsecret-string--promisesignature)  to generate a signature.
-We have a section on [how to sign a proof](/js/frontend#set-signature-for-request) for more information.
+For production mode, we recommend you to [generate the signature on the backend](/js/sign).
+For prototype mode, you can set it on the frontned similar to [here](/js/frontend#set-signature-for-request).
 
 **Parameters:**
 - `signature: string` - The signature to assign to the proof request.
@@ -170,3 +181,27 @@ Then it will be handling success or failure callbacks based on proof checks.
 
 **Exceptions:**
 - Throws `SessionNotStartedError` if session parameters are incorrectly defined or missing.
+
+#### Proof type
+You can take a look at Proof type and its fields here:
+``` js
+interface Proof {
+  identifier: string; /// The proof identifier, used to verify the proof.
+  claimData: ProviderClaimData; /// Contains data of the proof, including provider data and the context field 
+  signatures: string[]; /// Contains signatures of witness that verified & signed the proof.
+  witnesses: WitnessData[]; /// Contains witness data, including the witness id and url.
+}
+interface WitnessData {
+  id: string; // witness id
+  url: string; // witness url
+}
+export interface ProviderClaimData {
+  provider: string; // provider type
+  parameters: string; // parameters of the provider
+  owner: string; // owner of the claim
+  timestampS: number; // timestamp of the claim creation in seconds
+  context: string; // a stringified object, containg  contextMessage, contextAddress, and extractedParams 
+  identifier: string; //identifier of the claim; Hash of (provider, parameters, context)
+  epoch: number; // number of the epoch when the claim was created
+}
+```
