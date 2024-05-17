@@ -172,10 +172,10 @@ reclaimClient.setSignature() //TODO: signature response from your backend
 
 ### Get the request URL
 
-```js copy showLineNumbers {5,25-28}
+```js copy showLineNumbers {3,5,25-28}
 import './App.css'
 import { Reclaim } from '@reclaimprotocol/js-sdk'
-
+import { useState } from'react'
 function App() {
   const [url, setUrl] = useState('')
   const APP_ID = "YOUR_APPLICATION_ID" //TODO: replace with your applicationId
@@ -212,7 +212,7 @@ export default App
 ### Display the QR code
 If the user opens your website on a mobile, show a button that has a link to `requestUrl`.
 
-```js copy showLineNumbers {3-4, 34-43}
+```js copy showLineNumbers {4, 34-43}
 import './App.css'
 import { Reclaim } from '@reclaimprotocol/js-sdk'
 import { useState } from 'react'
