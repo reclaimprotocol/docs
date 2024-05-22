@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint"
   },
-  "author": "Sweta Shaw",
+  "author": "Koushith Amin",
   "license": "ISC",
   "dependencies": {
     "@papercups-io/chat-widget": "^1.3.1",
