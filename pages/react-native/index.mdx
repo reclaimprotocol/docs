@@ -1,3 +1,6 @@
+import {ChatWidget} from "@papercups-io/chat-widget";
+
+
 ## Overview
 
 You can integrate Reclaim into your mobile apps using the React Native SDK or the [Flutter SDK](/flutter).
@@ -12,3 +15,19 @@ The flow looks like follows
 6. Once user has logged in, a proof is generated on the user's device
 7. User hits submit to send the proof back to your app
 8. Your app executes business logic basis the proof submitted by the user
+
+ <ChatWidget
+      
+        token="c2b8d6bc-469d-49c0-9494-e9811a78cbb4"
+        inbox="e7a96b6e-183c-4c64-9e87-0f7b691c7ef1"
+        title="Welcome to Reclaim Protocol"
+        subtitle="Ask us anything in the chat window below 😊"
+        primaryColor="#1200ED"
+        newMessagePlaceholder="Start typing..."
+        showAgentAvailability={false}
+        agentAvailableText="We're online right now!"
+        agentUnavailableText="We're away at the moment."
+        requireEmailUpfront={false}
+        iconVariant="outlined"
+        baseUrl="https://app.papercups.io"
+      />

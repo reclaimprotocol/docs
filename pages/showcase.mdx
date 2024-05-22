@@ -2,6 +2,7 @@ import { Callout, Cards, Card } from 'nextra/components'
 import React from 'react'
 import {applications} from '../utils'
 import CustomCard from '../components/CustomCard'
+import {ChatWidget} from "@papercups-io/chat-widget";
 
 export default function Integrations() {
     
@@ -20,6 +21,33 @@ export default function Integrations() {
                     ))
                 }
             </Cards>
+            <ChatWidget
+        // `accountId` is used instead of `token` in older versions
+        // of the @papercups-io/chat-widget package (before v1.2.x).
+        // You can delete this line if you are on the latest version.
+        // accountId="c2b8d6bc-469d-49c0-9494-e9811a78cbb4"
+        token="c2b8d6bc-469d-49c0-9494-e9811a78cbb4"
+        inbox="e7a96b6e-183c-4c64-9e87-0f7b691c7ef1"
+        title="Welcome to Reclaim Protocol"
+        subtitle="Ask us anything in the chat window below 😊"
+        primaryColor="#1890ff"
+        newMessagePlaceholder="Start typing..."
+        showAgentAvailability={false}
+        agentAvailableText="We're online right now!"
+        agentUnavailableText="We're away at the moment."
+        requireEmailUpfront={false}
+        iconVariant="outlined"
+        baseUrl="https://app.papercups.io"
+        // Optionally include data about your customer here to identify them
+        // customer={{
+        //   name: __CUSTOMER__.name,
+        //   email: __CUSTOMER__.email,
+        //   external_id: __CUSTOMER__.id,
+        //   metadata: {
+        //     plan: "premium"
+        //   }
+        // }}
+      />
         </div>
     )
 }

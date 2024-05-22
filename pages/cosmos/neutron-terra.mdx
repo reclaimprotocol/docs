@@ -1,4 +1,6 @@
 import { Steps, Callout } from "nextra/components";
+import {ChatWidget} from "@papercups-io/chat-widget";
+
 
 # Publish on chain using CosmWasm
 
@@ -916,3 +918,19 @@ Make sure your Keplr is connected, click the button, a wallet pop-up will show p
 Now your proof will get approved on-chain, here is the sample [transaction](https://www.mintscan.io/neutron/tx/80EC4F2340427978FC6C00E9787C57CDA9231E452C0ABF6739C9599F1185075B?height=9845995) from the screenshot above.
 
 </Steps>
+
+ <ChatWidget
+      
+        token="c2b8d6bc-469d-49c0-9494-e9811a78cbb4"
+        inbox="e7a96b6e-183c-4c64-9e87-0f7b691c7ef1"
+        title="Welcome to Reclaim Protocol"
+        subtitle="Ask us anything in the chat window below 😊"
+        primaryColor="#1200ED"
+        newMessagePlaceholder="Start typing..."
+        showAgentAvailability={false}
+        agentAvailableText="We're online right now!"
+        agentUnavailableText="We're away at the moment."
+        requireEmailUpfront={false}
+        iconVariant="outlined"
+        baseUrl="https://app.papercups.io"
+      />
