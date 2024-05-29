@@ -1,0 +1,60 @@
+import { Steps, Callout } from "nextra/components";
+
+
+
+# Publish on chain using gear-js
+
+## Pre-requisite
+
+You can access the code of this walkthrough on Gitlab:
+
+- [Gear contract](https://gitlab.reclaimprotocol.org/starterpacks/reclaim-gear).
+
+This monorepo holds all configurations and metadata required to publish a Reclaim proof to Vara network.
+
+## Contract and JS interactions
+
+<Steps>
+### Clone the client contract repo.
+
+```bash copy
+git clone https://gitlab.reclaimprotocol.org/starterpacks/reclaim-gear
+cd reclaim-gear
+cargo b --workspace
+```
+
+### Add your wallet information.
+
+As stated in the README, add your wallet credentials to your `js/.env` as specified in `js/.env.example`.
+
+```bash copy
+MNEMONIC= // Your mnemonic
+```
+
+### Deploy contract.
+Follow steps at [Gear Wiki](https://wiki.gear-tech.io/docs/getting-started-in-5-minutes) to set up a wallet, generate artifiacts, and deploy through [IDEA](idea.gear-tech.io).
+Upon deployment, add your contract address to your `js/.env`.
+
+```bash copy
+ADDRESS= // Your contract address
+``` 
+
+### Verify a proof.
+
+Give the `js/index.js` file a quick read, make sure that you have the correct RPCs and contract addresses.
+
+There are three functions of interest here:
+
+- `initiate`: Pings the contract to bootstrap an initial state.
+
+- `addEpoch`: Adds witnesses for epochs.
+
+- `verifyProof`: Verifies a proof.
+
+Run the script with `npm run start`. You may comment and un-comment depending on your purpose, but note that functions should be called in the order stated above.
+
+
+</Steps>
+
+
+Here is a sample proof verification [transaction](https://idea.gear-tech.io/messages/0x0635ac7face036c37297e74a6a86c4a3be18019b60fcdfccf1af84b0ca10c771?node=wss%3A%2F%2Ftestnet.vara.network).

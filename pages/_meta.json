@@ -37,6 +37,9 @@
   "sui": {
     "title": "Sui"
   },
+  "gear": {
+    "title": "Gear"
+  },
   "--3": {
     "type": "separator",
     "title": "Resources"
