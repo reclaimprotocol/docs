@@ -58,3 +58,36 @@ Run the script with `npm run start`. You may comment and un-comment depending on
 
 
 Here is a sample proof verification [transaction](https://idea.gear-tech.io/messages/0x0635ac7face036c37297e74a6a86c4a3be18019b60fcdfccf1af84b0ca10c771?node=wss%3A%2F%2Ftestnet.vara.network).
+
+## React client development
+<Steps>
+
+### Cloning the frontend repo.
+
+```bash
+git clone https://gitlab.reclaimprotocol.org/starterpacks/reclaim-gear-example.git
+
+cd reclaim-gear-example
+
+npm install
+```
+
+### Code discovery.
+In your `App.js`, make sure you have your Reclaim credentials ready for placeholders marked with ```//TODO```s. Proof submission to Vara happens in `VerifyProof` component.
+### Submitting the proof.
+
+```bash
+npm run build
+
+npm run start
+```
+After requesting a proof from Reclaim and performing the verification on your end, a verify proof button will appear on the screen.
+Make sure your polkadot.js is connected, click the button, a wallet pop-up will show prompting you to submit.
+
+{/* ![screen2](/screen2.png)
+
+
+![keplr2](/keplr2.png) */}
+
+</Steps>
+
