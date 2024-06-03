@@ -40,6 +40,9 @@
   "gear": {
     "title": "Gear"
   },
+  "near": {
+    "title": "NEAR"
+  },
   "--3": {
     "type": "separator",
     "title": "Resources"
