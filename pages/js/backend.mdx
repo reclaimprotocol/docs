@@ -97,7 +97,7 @@ router.get('/request-proofs', async () => {
   )
 
   // id of the provider you want to generate the proof for
-  await reclaimProofRequest.buildProofRequest('PROVIDER_ID')
+  await reclaimClient.buildProofRequest('PROVIDER_ID')
 })
 ```
 
@@ -117,7 +117,7 @@ router.get('/request-proofs', async () => {
   )
 
   // id of the provider you want to generate the proof for
-  await reclaimProofRequest.buildProofRequest('PROVIDER_ID')
+  await reclaimClient.buildProofRequest('PROVIDER_ID')
 
   reclaimClient.setSignature(
     await reclaimClient.generateSignature(
@@ -141,7 +141,7 @@ router.get('/request-proofs', () => {
   )
 
   // id of the provider you want to generate the proof for
-  await reclaimProofRequest.buildProofRequest('PROVIDER_ID')
+  await reclaimClient.buildProofRequest('PROVIDER_ID')
 
   reclaimClient.setSignature(
     await reclaimClient.generateSignature(
