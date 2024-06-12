@@ -43,6 +43,9 @@
   "near": {
     "title": "NEAR"
   },
+  "azero": {
+    "title": "Aleph Zero"
+  },
   "--3": {
     "type": "separator",
     "title": "Resources"
