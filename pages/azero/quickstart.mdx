@@ -10,7 +10,7 @@ We will be using [Polkadot.js extension](https://polkadot.js.org/extension/) as 
 
 You can access the code of this walkthrough on Gitlab:
 
-- [Ink! contract](https://gitlab.reclaimprotocol.org/starterpacks/reclaim-aleph-client).
+- [Ink! contract](https://gitlab.reclaimprotocol.org/integrations/onchain/ink-sdk.git).
 - [Frontend](https://gitlab.reclaimprotocol.org/starterpacks/reclaim-aleph-example).
 
 ## Contract Deployment
@@ -20,13 +20,13 @@ If you don't need to add more checks and logic to on-chain contract, You can ski
 <Steps>
 ### Clone the Reclaim Aleph Contract repo.
 
-This [Ink! contract](https://gitlab.reclaimprotocol.org/starterpacks/reclaim-aleph-client) serves as a client to our Reclaim protocol. It instantiates Reclaim's contract, handles proofs, and verifies them.
+This [Ink! contract](https://gitlab.reclaimprotocol.org/integrations/onchain/ink-sdk.git) serves as a client to our Reclaim protocol. It instantiates Reclaim's contract, handles proofs, and verifies them.
 
 - You can add more checks and logic to your on-chain contract.
 - Build Command will bundle your contract into a `.contract` file.
 
 ```bash copy
-git clone https://gitlab.reclaimprotocol.org/starterpacks/reclaim-aleph-client
+git clone https://gitlab.reclaimprotocol.org/integrations/onchain/ink-sdk.git
 cd reclaim-aleph-client
 cargo contract build --release
 ```
