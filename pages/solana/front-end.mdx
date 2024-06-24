@@ -1,199 +1,50 @@
-
-
-
 import { Steps, Callout } from "nextra/components";
 
-# Interact with the deployed contract using React/Anchor CLI
 
-At this stage, we assume the you followed the steps at [ReactJs](/js/frontend), and you have pasted the idl generated while building the program.
+
+# Publish on chain using solana/web3.js
+
+## Pre-requisite
+
+You can access the code of this walkthrough on Gitlab:
+
+- [Frontend example](https://gitlab.reclaimprotocol.org/starterpacks/reclaim-solana-example).
+
+This starter project illustrates the process of building a Solana-Reclaim client application in Next.js.
+
+
+## Code Discovery
 
 <Steps>
+### Clone the starter repo.
 
-### Setup your React codebase
-
-We will submit the proof on chain once we get the `success` callback.
-
-```typescript copy showLineNumbers
-import { useAnchorWallet, useConnection } from "@solana/wallet-adapter-react";
-import "../css/App.css";
-
-import { Reclaim } from "@reclaimprotocol/js-sdk";
-import { useEffect, useState } from "react";
-import QRCode from "react-qr-code";
-
-import { Program, AnchorProvider } from "@coral-xyz/anchor";
-import { PublicKey, SystemProgram } from "@solana/web3.js";
-import { getEpochPda, getGroupPda } from "@reclaimprotocol/solana-sdk";
-import { IDL } from "../idl";
-import { sendTransactionAnchor } from "../utils";
-
-/** Change the following keys as per the environment you are working on (devnet, mainnet, localnet) */
-const EPOCH_CONFIG_ADDRESS = new PublicKey("EPOCH CONFIG ADDRESS");
-
-// Reclaim program ID
-const RECLAIM_PROGRAM_ID = new PublicKey("rEcLDWaVLaymz82eGr6cutosPxE6SEzw6q4pbtLuyqf");
-
-// Your program ID
-const YOUR_PROGRAM_ID = new PublicKey("your program id");
-
-const contextMessage = "Application related context";
-
-export function serializeHash(hash: string) {
-  return Array.from(new Uint8Array(ethers.getBytes(hash)));
-}
-
-function App() {
-  const { connection } = useConnection();
-  const wallet = useAnchorWallet();
-  const [verifyURL, setverifyURL] = useState<string | null>();
-
-  useEffect(() => {
-    setverifyURL(null);
-  }, [wallet]);
-
-  async function getVerificationReq() {
-    if (wallet?.publicKey) {
-      const publicKey = wallet.publicKey;
-      const APP_ID = "YOUR APP ID";
-      const APP_SECRET = "YOUR APP SECRET";
-      const providerId = "HTML PROVIDER ID";
-      const reclaimClient = new Reclaim.ProofRequest(APP_ID);
-
-      reclaimClient.addContext(publicKey.toString(), contextMessage);
-      await reclaimClient.buildProofRequest(providerId);
-      const signature = await reclaimClient.generateSignature(APP_SECRET);
-
-      reclaimClient.setSignature(signature);
-      const { requestUrl } = await reclaimClient.createVerificationRequest();
-      setverifyURL(requestUrl);
-
-      await reclaimClient.startSession({
-        onSuccessCallback: (proof) => {
-          verifyProof(proof[0]).then((txHash) => {
-            console.log(txHash);
-          });
-        },
-        onFailureCallback: (error) => {
-          console.error("Verification failed", error);
-          setverifyURL(null);
-        },
-      });
-    }
-  }
-
-  async function verifyProof(data: any) {
-    try {
-      if (wallet) {
-        const context = JSON.parse(data.claimData.context);
-        const { provider, parameters, contextAddress, contextMessage } = {
-          provider: data.claimData.provider,
-          parameters: data.claimData.parameters,
-          contextAddress: new PublicKey(context.contextAddress),
-          contextMessage: context.contextMessage,
-        };
-
-        const {
-          claimData: { identifier, owner, timestamp, epochIndex },
-          signatures,
-        } = {
-          claimData: {
-            identifier: data.identifier,
-            owner: data.claimData.owner,
-            timestamp: data.claimData.timestampS,
-            epochIndex: data.claimData.epoch,
-          },
-          signatures: data.signatures,
-        };
-
-        const program = new Program(
-          IDL,
-          YOUR_PROGRAM_ID,
-          new AnchorProvider(connection, wallet, { commitment: "confirmed" })
-        );
-
-        // PDAs for reclaim
-        const [epochPda] = getEpochPda({
-          epochConfig: EPOCH_CONFIG_ADDRESS,
-          epochIndex,
-        });
-
-        const [groupPda] = getGroupPda({ provider });
-
-        let verifyTx = await program.methods
-          .verify({
-            claimInfo: {
-              provider,
-              parameters,
-              contextAddress,
-              contextMessage,
-            },
-            signedClaim: {
-              signatures: signatures.map((s: string) => serializeHash(s)),
-              claimData: {
-                identifier: serializeHash(identifier),
-                epochIndex,
-                timestamp,
-                owner,
-              },
-            },
-          })
-          .accounts({
-            /** Address who requested the proof */
-            signer: wallet.publicKey,
-            /** Reclaim related accounts */
-            reclaimProgram: RECLAIM_PROGRAM_ID,
-            systemProgram: SystemProgram.programId,
-            epoch: epochPda,
-            epochConfig: EPOCH_CONFIG_ADDRESS,
-          })
-          .transaction();
-
-        // This can be solana/web3.js sendTransaction as well
-        return sendTransactionAnchor(
-          connection,
-          claimTx.instructions,
-          wallet.publicKey,
-          wallet,
-          []
-        );
-      }
-    } catch (err) {
-    } finally {
-      setverifyURL(null);
-    }
-  }
-
-  return (
-    <div className="App">
-      {wallet ? (
-        <header className="App-header">
-          <button onClick={getVerificationReq} style={buttonSyle}>
-            Submit and Verify Proof
-          </button>
-          {verifyURL && (
-            <>
-              <button style={buttonSyle} onClick={() => window.open(verifyURL, "_blank")}>
-                Open link
-              </button>
-              <QRCode style={{ marginTop: "20px" }} value={verifyURL} />
-            </>
-          )}
-        </header>
-      ) : (
-        <p>Loading ...</p>
-      )}
-    </div>
-  );
-}
-
-export default App;
+```bash copy
+git clone https://gitlab.reclaimprotocol.org/starterpacks/reclaim-solana-example
+cd reclaim-solana-example
+npm i 
+npm run dev
 ```
 
-### Install packages.
+### Set your metadata.
 
-```js copy
-npm install @solana/web3.js @coral-xyz/anchor
+The starter repo has already-filled configurations for addresses, IDL, and Reclaim credintials. Add your own metadata as per your use case.
+```js copy 
+
+const EPOCH_CONFIG_ADDRESS = new PublicKey("FUmVofehkRN6RG4CT8eeszswuqtDcZbCgVKMCQFLvgfY");
+
+const RECLAIM_PROGRAM_ID = new PublicKey("8rYXFrtST4ePpMWcEqhazFyRG2DtCUqgtFmKT7FdjRyp");
+
+const SEED_PREFIX = new TextEncoder().encode("reclaim");
+const SEED_EPOCH = new TextEncoder().encode("epoch");
+
 ```
+
+Also, note that we are using Devnet and Solflare wallet for this example.
+### Publish proof.
+
+
+As in [Reclaim React SDK](../js/frontend), our starter app shows a QR-code for you to scan and create proof. Upon successfull proof generation, A button with the text `Verify Proof` appears. Clicking this button prompts you to publish the obtained proof. 
 
 </Steps>
+
 
