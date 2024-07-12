@@ -1,0 +1,67 @@
+import { Steps, Callout } from 'nextra/components'
+
+# Publish on-chain with Reclaim contract on Cardano
+
+## Pre-requisite
+
+Before proceeding, ensure familiarity with ReactJs development as described
+[here](/js/frontend).
+
+You can access the code of this walkthrough on Gitlab:
+
+- [Pluts SDK](https://gitlab.reclaimprotocol.org/integrations/onchain/pluts-sdk).
+
+## Dapp Development
+
+<Steps>
+
+### Cloning the `Dapp` repo.
+
+```bash
+git clone https://gitlab.reclaimprotocol.org/integrations/onchain/pluts-sdk
+
+cd pluts-sdk
+
+npm install
+```
+
+### Code Discovery (`unlockTx.ts`)
+
+- Primary Functionality: Handles the unlocking of assets on the blockchain.
+- Key Functions:
+  - getUnlockTx : Assembles the transaction required to unlock assets.
+  - unlockTx : Signs and submits the unlock transaction to the blockchain.
+
+### Code Discovery (`lockTx.ts`)
+
+- Primary Functionality: Manages the locking of assets into the blockchain.
+- Key Functions:
+  - getLockTx : Prepares the transaction for locking assets.
+  - lockTx : Signs and submits the lock transaction to the blockchain.
+
+### Code Discovery (`reclaimPlutus.ts`)
+
+- Description: Contains smart contract logic used in transaction validation.
+- Components:
+  - Datum and Redeemer : Structures that define the data formats for smart contracts.
+  - scriptTestnetAddr : Specifies the blockchain address for script execution.
+
+### Verification Flow
+
+#### Connect Wallet
+
+- use Nami wallet to connect to the testnet.
+
+#### Generate Proof
+
+- Scan Qrcode to start `Reclaim App` and generate a proof.
+
+#### Lock Proof
+
+- After generating the proof, you will need to lock your proof on-chain so only you can unlock it.
+
+#### Verify by unlocking
+
+- Verify that you own data by unlocking the published proof on-chain.
+
+</Steps>

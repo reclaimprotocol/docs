@@ -46,6 +46,9 @@
   "polkadot": {
     "title": "Polkadot"
   },
+  "cardano": {
+    "title": "Cardano"
+  },
   "--3": {
     "type": "separator",
     "title": "Resources"
