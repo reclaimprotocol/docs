@@ -49,6 +49,9 @@
   "cardano": {
     "title": "Cardano"
   },
+  "stellar": {
+    "title": "Stellar"
+  },
   "--3": {
     "type": "separator",
     "title": "Resources"
