@@ -52,6 +52,9 @@
   "stellar": {
     "title": "Stellar"
   },
+  "lukso": {
+    "title": "LUKSO"
+  },
   "--3": {
     "type": "separator",
     "title": "Resources"

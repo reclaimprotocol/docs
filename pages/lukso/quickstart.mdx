@@ -1,0 +1,273 @@
+import { Steps, Callout } from "nextra/components";
+
+# Publish on-chain with Reclaim contract on LUKSO
+
+## Pre-requisite
+
+At this stage, we assume that you are familiar with the steps at [ReactJs](/js/frontend).
+
+We will be using [Metamask](https://metamask.io/download/) as a wallet to interact with the frontend interface. Make sure that you have it installed and funded with [LYXT](https://faucet.testnet.lukso.network/).
+
+You can access the code of this walkthrough on Gitlab:
+
+- [LUKSO contract](https://gitlab.reclaimprotocol.org/integrations/onchain/lukso-sdk).
+- [Frontend](https://gitlab.reclaimprotocol.org/starterpacks/reclaim-lukso-example).
+
+## Contract Deployment
+
+If you don't need to add more checks and logic to on-chain contract, You can skip those steps and use [our already deployed contract on the testnet](https://explorer.execution.testnet.lukso.network/address/0x93a9d327836A5279E835EF3147ac1fb54FBd726B).
+
+<Steps>
+### Clone the Lukso contract sdk repo.
+
+This [Contract](https://gitlab.reclaimprotocol.org/integrations/onchain/lukso-sdk/-/blob/main/contracts/Reclaim.sol?ref_type=heads) serves as a client to our Reclaim protocol. It instantiates Reclaim's contract, handles proofs, and verifies them, then stores the proofs on [ProofStorage Contract](https://gitlab.reclaimprotocol.org/integrations/onchain/lukso-sdk/-/blob/main/contracts/ProofStorage.sol?ref_type=heads) that utilizes the ERC725Y standard for a dynamic and flexible storage.
+
+```bash copy
+git clone https://gitlab.reclaimprotocol.org/integrations/onchain/lukso-sdk.git
+cd lukso-sdk
+```
+
+### Setup
+
+Install dependencies:
+
+```bash copy
+npm install
+```
+
+In root directory, populate your .env and make sure to add your private key:
+
+```bash copy
+echo 'PRIVATE_KEY=your-private-key-here' > .env
+```
+
+### Deploy
+
+Deploy the contracts with your account on LuksoTestnet.
+
+```bash copy
+npx hardhat run scripts/deploy.ts --network luksoTestnet
+```
+
+### Save the adresses
+
+You will see the following logs:
+
+```
+ProofStorage deployed to: 0x...
+Reclaim deployed to: 0x...
+```
+
+The first Contract Address is ProofStorage address the Contract that will be used for Storing the proofs with ERC725Y standard.
+The Second one is the Reclaim contract used for verifying proofs before storing them, you can check both of them on [Lukso explorer](https://explorer.execution.testnet.lukso.network/).
+
+### Add Epoch
+
+**Before Adding Epoch** make sure to replace the old contract address in the file `/tasks/add-new-epoch.ts` (line 21) with your new **Reclaim** contract address that you got from the last step.
+
+```js copy showLineNumbers {21}
+import { task, types } from "hardhat/config";
+import "@nomicfoundation/hardhat-toolbox";
+import { Reclaim } from "../src/types";
+
+task("add-new-epoch", "Start a new epoch")
+  .addParam("address", "address of a witness", undefined, types.string)
+  .addParam("host", "Hostof a witness", undefined, types.string)
+  .setAction(async (taskArgs, { ethers, network }) => {
+    const { address, host } = taskArgs;
+    if (!address) {
+      console.log("here");
+      return;
+    }
+
+    const witness: Reclaim.WitnessStruct = { addr: address, host };
+    const signerAddress = await ethers.provider.getSigner().getAddress();
+    console.log(
+      `adding witness on "${network.name}" from address "${signerAddress}"`
+    );
+
+    const contractAddress = "0x93a9d327836A5279E835EF3147ac1fb54FBd726B"; //Replace with your Contract address
+    const factory = await ethers.getContractFactory("Reclaim");
+    const contract = factory.attach(contractAddress);
+
+    const tx = await contract.addNewEpoch([witness], 1);
+    //Rest of the code.
+```
+
+**Finally** Send a transaction to add epoch from the owner account.
+
+```bash copy
+npx hardhat add-new-epoch --address 0x244897572368Eadf65bfBc5aec98D8e5443a9072 --host https://reclaim-node.questbook.app --network sei_testnet
+```
+
+</Steps>
+
+## Frontend Development
+
+<Steps>
+
+### Cloning the frontend repo.
+
+```bash
+git clone https://gitlab.reclaimprotocol.org/starterpacks/reclaim-lukso-example
+
+cd reclaim-lukso-example
+
+npm install
+```
+
+### Code discovery (src/App.js).
+
+We will submit the proof on chain once we get the `onSuccessCallback`. Fill in your Reclaim credentials marked with `//TODO`s.
+
+```js copy showLineNumbers {25, 29, 41, 50-54}
+import "./App.css";
+import { Reclaim } from "@reclaimprotocol/js-sdk";
+import { useState } from "react";
+import { WagmiProvider, useAccount } from "wagmi";
+import { config } from "./config";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import QRCode from "react-qr-code";
+import VerifyProof from "./verify-proof";
+import { Account } from "./account";
+import { WalletOptions } from "./wallet-options";
+
+const queryClient = new QueryClient();
+
+function ConnectWallet() {
+  const { isConnected } = useAccount();
+  if (isConnected) return <Account />;
+  return <WalletOptions />;
+}
+
+function App() {
+  const [url, setUrl] = useState("");
+  const [ready, setReady] = useState(false);
+  const [proof, setProof] = useState({});
+
+  const APP_ID = "0x408edDD2dF298C2F5df1E2eDE2eBF1278A96Ee45"; //TODO: replace with your applicationId
+  const reclaimClient = new Reclaim.ProofRequest(APP_ID);
+
+  async function generateVerificationRequest() {
+    const providerId = "1bba104c-f7e3-4b58-8b42-f8c0346cdeab"; //TODO: replace with your provider ids you had selected while creating the application
+
+    reclaimClient.addContext(
+      `user's address`,
+      "for acmecorp.com on 1st january"
+    );
+
+    await reclaimClient.buildProofRequest(providerId);
+
+    reclaimClient.setSignature(
+      await reclaimClient.generateSignature(
+        // this is an MVP, you should not generate the signature on the frontend
+        "0x5bdaf747ad9333898a0d9cb613f499d0b00164d7b8230628cf7ffa30fd323372" //TODO : replace with your APP_SECRET
+      )
+    );
+
+    const { requestUrl } = await reclaimClient.createVerificationRequest();
+
+    setUrl(requestUrl);
+
+    await reclaimClient.startSession({
+      onSuccessCallback: (proofs) => {
+        console.log("Verification success", proofs);
+        setReady(true);
+        setProof(proofs[0]);
+        // Your business logic here
+      },
+      onFailureCallback: (error) => {
+        console.error("Verification failed", error);
+        // Your business logic here to handle the error
+      },
+    });
+  }
+
+  return (
+    <WagmiProvider config={config}>
+      <QueryClientProvider client={queryClient}>
+        <div className="App">
+          <ConnectWallet />
+          {!url && (
+            <button onClick={generateVerificationRequest}>
+              Create Claim QrCode
+            </button>
+          )}
+          {url && <QRCode value={url} />}
+          {ready && <VerifyProof proof={proof}></VerifyProof>}
+        </div>
+      </QueryClientProvider>
+    </WagmiProvider>
+  );
+}
+export default App;
+```
+
+### Code discovery (src/verify-proof.jsx).
+
+If you deployed your own version of the contract, you will need to update the contract address.
+
+```js copy showLineNumbers {24, 26}
+import { useState, useEffect } from "react";
+import { writeContract } from "@wagmi/core";
+import { abi } from "./abi";
+import { config } from "./config";
+import { Reclaim } from "@reclaimprotocol/js-sdk";
+
+export default function VerifyProof(props) {
+  const [proof, setProof] = useState({});
+  const [verified, setVerified] = useState(false);
+  const [transactionHash, setTransactionHash] = useState("");
+
+  useEffect(() => {
+    const newProof = Reclaim.transformForOnchain(props.proof);
+    setProof(newProof);
+  }, []);
+
+  return (
+    <div>
+      <button
+        className="button"
+        onClick={async () => {
+          const hash = await writeContract(config, {
+            abi: abi,
+            address: "0x93a9d327836A5279E835EF3147ac1fb54FBd726B", //TODO : replace with your Reclaim contract's address
+            functionName: "verifyProof",
+            chainId: 4201, //TODO : replace with your chain id 4201 for Testnet 42 For Mainnet
+            args: [proof],
+          });
+          if (hash) {
+            setVerified(true);
+            setTransactionHash(hash);
+          }
+        }}
+      >
+        Verify Proof
+      </button>
+      {verified && (
+        <div>
+          {" "}
+          <p>Proof verified</p>
+          <a
+            href={`https://explorer.execution.testnet.lukso.network/tx/${transactionHash}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Click here to view transaction.
+          </a>
+        </div>
+      )}
+```
+
+### Submitting the proof.
+
+```bash
+npm run start
+```
+
+- First, You will need to connect your metamask wallet.
+- Then, After requesting a proof from Reclaim and performing the verification on your end, a verify proof button will appear on the screen.
+- Finally, Clicking on the `Verify Proof` button will send a transaction.
+- You can check the transaction on the explorer by clicking on `View Transaction` button.
+
+</Steps>
