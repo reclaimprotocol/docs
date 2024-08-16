@@ -26,7 +26,7 @@ Add this to your `Move.toml`:
 ```toml
 [dependencies]
 ---
-Reclaim = { git = "https://gitlab.reclaimprotocol.org/reclaim-clients/move-sdk.git", rev = "main" }
+Reclaim = { git = "https://gitlab.reclaimprotocol.org/integrations/onchain/move-sdk.git", rev = "main" }
 ---
 ```
 
@@ -37,13 +37,8 @@ Build with `sui move build`, you should have Reclaim sources installed.
 Add these functions to your designated module, they simply delegate calls to Reclaim:
 
 ```rust
-    use std::string;
+module client::client {
     use reclaim::reclaim::{ReclaimManager, Proof};
-
-    // Creates a new witness
-    public fun create_witness(addr: vector<u8>, host: string::String): vector<u8> {
-        reclaim::reclaim::create_witness(addr, host)
-    }
 
     // Creates a new Reclaim Manager
     public fun create_reclaim_manager(
@@ -67,9 +62,11 @@ Add these functions to your designated module, they simply delegate calls to Rec
     public fun verify_proof(
         manager: &ReclaimManager,
         proof: &Proof,
+        ctx: &mut TxContext,
     ): vector<vector<u8>> {
-        reclaim::reclaim::verify_proof(manager, proof)       
+        reclaim::reclaim::verify_proof(manager, proof, ctx)       
     }
+}
 ```
 
 ### Add test scenarios to confirm compatibility:
@@ -77,7 +74,9 @@ Add these functions to your designated module, they simply delegate calls to Rec
 These tests show how to plug data into Reclaim's models, include them under your `tests/your_tests.move`:
 
 ```rust
-  use client::client; // TODO: replace with your own module
+#[test_only]
+module client::client_tests {
+  use client::client;
   use reclaim::reclaim;
   use sui::test_scenario;
 
@@ -99,10 +98,8 @@ These tests show how to plug data into Reclaim's models, include them under your
     test_scenario::next_tx(scenario, owner);
     {
       let mut witnesses = vector<vector<u8>>[];
-      let witness = client::create_witness(
-          x"244897572368eadf65bfbc5aec98d8e5443a9072",
-          b"http".to_string());
-      witnesses.push_back(witness);
+      let witness_address = x"244897572368eadf65bfbc5aec98d8e5443a9072";
+      witnesses.push_back(witness_address);
 
       let requisite_witnesses_for_claim_create = 1_u128;
 
@@ -150,8 +147,9 @@ These tests show how to plug data into Reclaim's models, include them under your
     {
       let manager = test_scenario::take_shared<reclaim::ReclaimManager>(scenario);
       let proof = test_scenario::take_shared<reclaim::Proof>(scenario);
-      
-      let signers = client::verify_proof(&manager, &proof);
+      let ctx = test_scenario::ctx(scenario); 
+
+      let signers = client::verify_proof(&manager, &proof, ctx);
       assert!(signers == vector[x"244897572368eadf65bfbc5aec98d8e5443a9072"], 0);
 
       test_scenario::return_shared(manager);
@@ -160,8 +158,49 @@ These tests show how to plug data into Reclaim's models, include them under your
     
     test_scenario::end(scenario_val);
   }
+}
 ```
 
-    Run tests with `sui move test -i 100000000000000000`.
+### Running Tests
+
+To execute the test suite and verify the functionality of the modules, use:
+
+```bash
+sui move test
+```
+
+
+### Publishing the Package
+
+To publish the package on the Sui network, execute:
+
+```bash
+sui client publish --gas-budget 100000000
+```
+
+## Interacting with the Reclaim Manager
+
+#### Creating a Reclaim Manager
+
+To create a new Reclaim Manager, use the following command:
+
+```bash
+sui client call --package $PACKAGE --module client --function create_reclaim_manager --args 1000000 --gas-budget 100000000
+```
+
+**Note:** Replace `$PACKAGE` with your actual package ID.
+
+#### Adding a New Epoch
+
+To add a new epoch to an existing Reclaim Manager, use the following command:
+
+```bash
+sui client call --package $PACKAGE --module client --function add_new_epoch --args $MANAGER "[0x244897572368eadf65bfbc5aec98d8e5443a9072]" 1 --gas-budget 100000000
+```
+
+**Note:**
+- Replace `$PACKAGE` with your package ID.
+- Replace `$MANAGER` with the object ID obtained from the `create_reclaim_manager` command.
+
 
 </Steps>
