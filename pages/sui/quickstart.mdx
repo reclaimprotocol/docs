@@ -20,13 +20,29 @@ Reclaim is available on:
 <Steps>
 ### Add Reclaim as a dependency.
 
-Add this to your `Move.toml`:
+To include the Reclaim SDK in your project, add the following to your Move.toml file. The only change needed based on the network you are targeting is the rev value:
+
 
 
 ```toml
 [dependencies]
 ---
-Reclaim = { git = "https://gitlab.reclaimprotocol.org/integrations/onchain/move-sdk.git", rev = "main" }
+Reclaim = { git = "https://gitlab.reclaimprotocol.org/integrations/onchain/move-sdk.git", rev = "[network]" }
+---
+```
+
+Replace [network] with one of the following:
+
+main for Mainnet
+testnet for Testnet
+devnet for Devnet
+For example, to use the Reclaim SDK on Testnet:
+
+
+```toml
+[dependencies]
+---
+Reclaim = { git = "https://gitlab.reclaimprotocol.org/integrations/onchain/move-sdk.git", rev = "testnet" }
 ---
 ```
 
