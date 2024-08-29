@@ -55,6 +55,9 @@
   "lukso": {
     "title": "LUKSO"
   },
+  "starknet": {
+    "title": "Starknet"
+  },
   "--3": {
     "type": "separator",
     "title": "Resources"
