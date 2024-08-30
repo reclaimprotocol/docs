@@ -24,7 +24,7 @@ To include the Reclaim SDK in your project, add the following to your Move.toml 
 
 
 
-```toml
+```toml copy
 [dependencies]
 ---
 Reclaim = { git = "https://gitlab.reclaimprotocol.org/integrations/onchain/move-sdk.git", rev = "[network]" }
@@ -35,11 +35,10 @@ Replace [network] with one of the following:
 
 main for Mainnet
 testnet for Testnet
-devnet for Devnet
 For example, to use the Reclaim SDK on Testnet:
 
 
-```toml
+```toml copy
 [dependencies]
 ---
 Reclaim = { git = "https://gitlab.reclaimprotocol.org/integrations/onchain/move-sdk.git", rev = "testnet" }
@@ -52,9 +51,11 @@ Build with `sui move build`, you should have Reclaim sources installed.
 
 Add these functions to your designated module, they simply delegate calls to Reclaim:
 
-```rust
+```rust copy
 module client::client {
     use reclaim::reclaim::{ReclaimManager, Proof};
+    use std::string::String;
+    use sui::event;
 
     // Creates a new Reclaim Manager
     public fun create_reclaim_manager(
@@ -74,13 +75,47 @@ module client::client {
         reclaim::reclaim::add_new_epoch(manager, witnesses, requisite_witnesses_for_claim_create, ctx)       
     }
 
+    public fun create_proof(parameters: String, context: String,
+        identifier: String, owner: String, epoch: String, timestamp: String,
+        signature: vector<u8>, ctx: &mut TxContext) {
+        let claim_info = reclaim::reclaim::create_claim_info(
+            b"http".to_string(),
+            parameters,
+            context
+        );
+
+        let complete_claim_data = reclaim::reclaim::create_claim_data(
+            identifier,
+            owner,
+            epoch,
+            timestamp,
+        );
+
+        let mut signatures = vector<vector<u8>>[];
+        signatures.push_back(signature);
+
+        let signed_claim = reclaim::reclaim::create_signed_claim(
+            complete_claim_data,
+            signatures
+        );
+
+        reclaim::reclaim::create_proof(claim_info, signed_claim, ctx);
+    }
+
+
+    public struct ProofVerified has copy, drop {
+        verified: bool,
+        witness: vector<vector<u8>>,
+    }
     // Verifies a proof
     public fun verify_proof(
         manager: &ReclaimManager,
         proof: &Proof,
         ctx: &mut TxContext,
     ): vector<vector<u8>> {
-        reclaim::reclaim::verify_proof(manager, proof, ctx)       
+        let witness = reclaim::reclaim::verify_proof(manager, proof, ctx);
+        event::emit<ProofVerified>(ProofVerified{verified: true, witness: witness});
+        return witness
     }
 }
 ```
@@ -89,12 +124,14 @@ module client::client {
 
 These tests show how to plug data into Reclaim's models, include them under your `tests/your_tests.move`:
 
-```rust
+```rust copy
 #[test_only]
 module client::client_tests {
   use client::client;
   use reclaim::reclaim;
   use sui::test_scenario;
+  use std::string;
+  use std::debug;
 
 #[test]
   fun test_reclaim() {
@@ -181,7 +218,7 @@ module client::client_tests {
 
 To execute the test suite and verify the functionality of the modules, use:
 
-```bash
+```bash copy
 sui move test
 ```
 
@@ -190,7 +227,7 @@ sui move test
 
 To publish the package on the Sui network, execute:
 
-```bash
+```bash copy
 sui client publish --gas-budget 100000000
 ```
 
@@ -200,7 +237,7 @@ sui client publish --gas-budget 100000000
 
 To create a new Reclaim Manager, use the following command:
 
-```bash
+```bash copy
 sui client call --package $PACKAGE --module client --function create_reclaim_manager --args 1000000 --gas-budget 100000000
 ```
 
@@ -210,7 +247,7 @@ sui client call --package $PACKAGE --module client --function create_reclaim_man
 
 To add a new epoch to an existing Reclaim Manager, use the following command:
 
-```bash
+```bash copy
 sui client call --package $PACKAGE --module client --function add_new_epoch --args $MANAGER "[0x244897572368eadf65bfbc5aec98d8e5443a9072]" 1 --gas-budget 100000000
 ```
 
@@ -218,5 +255,33 @@ sui client call --package $PACKAGE --module client --function add_new_epoch --ar
 - Replace `$PACKAGE` with your package ID.
 - Replace `$MANAGER` with the object ID obtained from the `create_reclaim_manager` command.
 
+#### Create a Proof
+
+Use the `create_proof` function to generate a proof. This proof is based on specific parameters, context, identifier, ownership, epoch, timestamp, and a signature.
+
+- Replace placeholders like `$PARAMETERS`, `$CONTEXT`, etc., with your actual data.
+- This process bundles the provided information into a proof that can be stored and verified on the Sui blockchain.
+
+```bash copy
+sui client call --package $PACKAGE --module client \
+    --function create_proof --args '"$PARAMETERS"' \
+    '"$CONTEXT"' \
+    '"$IDENTIFIER"' \
+    '"$OWNER"' \
+    '"$EPOCH"' \
+    '"$TIMESTAMP_S"' \
+    "$SIGNATURE" --gas-budget 100000000
+```
+
+#### Verify a Proof
+The `verify_proof` function is used to validate a proof that was previously generated.
+
+```bash copy
+sui client call package $PACKAGE --module client \
+    --function verify_proof --args $MANAGER $PROOF --gas-budget 100000000
+```
+
+- Replace `$MANAGER` with your ReclaimManager object ID and `$PROOF` with the proof object ID.
+- Upon successful verification, a confirmation event is emitted, and any associated witnesses are returned.
 
 </Steps>
