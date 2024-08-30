@@ -273,6 +273,31 @@ sui client call --package $PACKAGE --module client \
     "$SIGNATURE" --gas-budget 100000000
 ```
 
+##### Steps to Obtain Arguments from the Demo
+To obtain the necessary arguments for the `create_proof` function, you can use the demo available on [demo.reclaimprotocol.org](https://demo.reclaimprotocol.org). This demo walks you through the process of creating a proof, which will provide you with concrete data for the function arguments.
+
+
+1. **Visit the Demo Site:**
+   - Go to [demo.reclaimprotocol.org](https://demo.reclaimprotocol.org). This site allows you to interactively create proofs from various providers.
+
+2. **Create a Proof:**
+   - **Select a Provider:** Choose the provider you want to use to create a proof (e.g., proving ownership of an account on Steam).
+   - **Scan the QR Code:** Scan the code with your phone, which will open the Reclaim app and prompt you to log in to the provider you selected.
+   - **Provide Required Data:** Log in to your account and wait for the proof generation process to be completed.
+
+
+3. **Extract Data for Function Arguments:**
+   - **Parameters:** Extract the parameters used in the claim, typically a JSON string that contains details like URL, HTTP method, etc.
+   - **Context:** Obtain the context string, which often includes the context address, message, and other relevant details.
+   - **Identifier and Owner:** The demo will generate an identifier for the claim, and you’ll also need to provide the owner’s address.
+   - **Epoch and Timestamp:** These are generated based on the current time and the context of the claim.
+   - **Signature:** The demo will provide a signature based on the data provided. This is crucial for the integrity of the proof.
+
+4. **Use Data in `create_proof` Function:**
+   - Once you have gathered all the necessary information from the demo, you can plug these values directly into the `create_proof` function in your code. Each piece of data corresponds to the respective argument in the function.
+
+By following the above steps, the demo will give you all the concrete data required to populate the arguments for the `create_proof` call, ensuring that your interaction with the Reclaim protocol is accurate and verifiable.
+
 #### Verify a Proof
 The `verify_proof` function is used to validate a proof that was previously generated.
 
