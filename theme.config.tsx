@@ -11,7 +11,7 @@ const config: DocsThemeConfig = {
         key: 'connect-key',
         text: (
           <div className="flex flex-col gap-1 p-2">
-            <p>✨Works out of the box guarantee. If you face any issue at all, hit us up <a href="https://t.me/+8DFG48VunqljMDY1" target='_blank' className="underline ">on Telegram</a> and we will write the integration for you.</p>
+            <p>✨Works out of the box guarantee. If you face any issue at all, hit us up <a href="https://t.me/protocolreclaim" target='_blank' className="underline ">on Telegram</a> and we will write the integration for you.</p>
           </div>
         )
       },
@@ -27,7 +27,7 @@ const config: DocsThemeConfig = {
       link: 'https://github.com/reclaimprotocol',
     },
     chat: {
-      link: 'https://t.me/+8DFG48VunqljMDY1',
+      link: 'https://t.me/protocolreclaim',
       icon: <Image src='/assets/icons/tg.png' width={30} height={30} alt='contact'/>
     },
     docsRepositoryBase: 'https://github.com/reclaimprotocol',
