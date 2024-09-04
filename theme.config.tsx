@@ -24,16 +24,17 @@ const config: DocsThemeConfig = {
       </>
     ),
     project: {
-      link: 'https://github.com/reclaimprotocol',
+      link: 'https://github.com/reclaimprotocol/reclaim-docs',
     },
     chat: {
       link: 'https://t.me/protocolreclaim',
       icon: <Image src='/assets/icons/tg.png' width={30} height={30} alt='contact'/>
     },
-    docsRepositoryBase: 'https://github.com/reclaimprotocol',
+    docsRepositoryBase: 'https://gitlab.reclaimprotocol.org/reclaim-developer-experience/reclaim-docs/-/tree/main/',
     footer: {
-      text: 'Reclaim Protocol © 2021',
+      text: 'Reclaim Protocol © 2024',
     },
   }
   
-  export default config
+  export default config;
+  
