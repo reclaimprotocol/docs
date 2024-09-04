@@ -1,5 +1,4 @@
-# Reclaim Documentation
-Reclaim docs
+# Reclaim Protocol - Documentation
 
 ## Install the packages
 ```bash copy
