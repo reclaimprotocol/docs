@@ -30,11 +30,10 @@ const config: DocsThemeConfig = {
       link: 'https://t.me/protocolreclaim',
       icon: <Image src='/assets/icons/tg.png' width={30} height={30} alt='contact'/>
     },
-    docsRepositoryBase: 'https://gitlab.reclaimprotocol.org/reclaim-developer-experience/reclaim-docs/-/tree/main/',
+    docsRepositoryBase: 'https://github.com/reclaimprotocol/docs/tree/main',
     footer: {
       text: 'Reclaim Protocol © 2024',
     },
   }
   
   export default config;
-  
