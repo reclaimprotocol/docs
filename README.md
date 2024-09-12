@@ -1,4 +1,8 @@
-# Reclaim Protocol - Documentation
+<div>
+    <div>
+        <img src="https://raw.githubusercontent.com/reclaimprotocol/.github/main/assets/banners/Docs.png"  />
+    </div>
+</div>
 
 ## Install the packages
 ```bash copy
