@@ -13,9 +13,9 @@ You can integrate Reclaim into your backend using zkFetch SDK
 
 The workflow is as follows:
 
-1. **User Initiates Fetch:** The user triggers a fetch request through your backend
-2. **Add Required Headers:** adds necessary headers, such as authentication tokens or API keys, to the fetch request if required
-3. **Fetch and Generate Proof:** zkFetch performs the fetch operation and generates a proof of correct execution.
+1. **Initiate Request:** The user calls zkFetch, providing options such as URL, method, and headers.
+2. **Fetch and Generate Proof:** zkFetch performs the fetch operation and generates a proof
+3. **Verify and Transform Proof:** The proof is verified using `verifySignedProof` and transformed with the `transform` method 
 
 
 ## When to Use zkFetch
