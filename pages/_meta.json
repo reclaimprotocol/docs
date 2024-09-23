@@ -16,6 +16,9 @@
   "js": {
     "title": "JS"
   },
+  "zkfetch": {
+    "title": "zkFetch"
+  },
   "react-native": {
     "title": "React Native"
   },
