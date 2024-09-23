@@ -1,13 +1,13 @@
-import { Steps, Callout } from 'nextra/components'
-
+import { Steps, Callout } from "nextra/components";
 
 ## Before you begin
+
 **All sdk's methods used in this tutorial are expalined in detail in [Methods documentation](/sdk-methods).**
 
 We will be building a simple app, which users can use to generate a proof request, then generate the actual proof using Reclaim mobile App.
 Please note that for JS sdk, this process can be implemented either on the frontend or the backend.
 
-We will be walking you through the **Backend** implementation in this section, you can also take a look at the [frontend implementation](/js/frontend). 
+We will be walking you through the **Backend** implementation in this section, you can also take a look at the [frontend implementation](/js/frontend).
 
 ## Prerequisites
 
@@ -15,7 +15,7 @@ We will be walking you through the **Backend** implementation in this section, y
 
 ## Quickstart
 
-<Callout type='info'>
+<Callout type="info">
   The following tutorial is based on node express backend
 </Callout>
 
@@ -32,7 +32,7 @@ npm i @reclaimprotocol/js-sdk
 ### Import Reclaim Client
 
 ```js copy showLineNumbers
-import { Reclaim } from '@reclaimprotocol/js-sdk'
+import { Reclaim } from "@reclaimprotocol/js-sdk";
 ```
 
 ### Generate a user session id
@@ -42,11 +42,11 @@ Be sure to store the session id in your database to map the session id to your w
 In some cases, it might be ok to set the sessionId to the user's userId
 
 ```js copy showLineNumbers
-const sessionId = random() // we recommend using uuid.v4()
+const sessionId = random(); // we recommend using uuid.v4()
 // or
-const sessionId = userId
+const sessionId = userId;
 // or
-const sessionId = null // reclaim protocol will auto generate a sessionId
+const sessionId = null; // reclaim protocol will auto generate a sessionId
 ```
 
 ### Initialize Reclaim Client
@@ -54,12 +54,12 @@ const sessionId = null // reclaim protocol will auto generate a sessionId
 Boiler plate stuff.
 
 ```js copy showLineNumbers {2-5}
-router.get('/request-proofs', async () => {
+router.get("/request-proofs", async () => {
   const reclaimClient = new Reclaim.ProofRequest(
-    'YOUR_APPLICATION_ID_HERE',
+    "YOUR_APPLICATION_ID_HERE",
     sessionId
-  ) //TODO: replace with your applicationId
-})
+  ); //TODO: replace with your applicationId
+});
 ```
 
 ### Add Context to the proof, optional but recommended
@@ -70,35 +70,65 @@ You can add context to your proof. There are two pieces of information that are 
 2. Message - this can be used to inform the user why this proof is being requested. If your application needs to be sure that the user generates a fresh cryptographic proof for your application, and not reuse an existing proof they created for some other application, you should set the `context.message` to something that is unique to your application. Upon receiving the proof from the user, ensure that the context.message is exactly what you had set it to earlier to avoid scammers from spoofing your users' proofs.
 
 ```js copy showLineNumbers {7-10}
-router.get('/request-proofs', async () => {
+router.get("/request-proofs", async () => {
   const reclaimClient = new Reclaim.ProofRequest(
-    'YOUR_APPLICATION_ID_HERE',
+    "YOUR_APPLICATION_ID_HERE",
     sessionId
-  ) //TODO: replace with your applicationId
+  ); //TODO: replace with your applicationId
 
   await reclaimClient.addContext(
-    (`user's address`),
-    ('for acmecorp.com on 1st january')
-  )
-})
+    `user's address`,
+    "for acmecorp.com on 1st january"
+  );
+});
 ```
 
 ### Build the Proof Request
 
-```js copy showLineNumbers {11-12}
-router.get('/request-proofs', async () => {
-  const reclaimClient = new Reclaim.ProofRequest(
-    'YOUR_APPLICATION_ID_HERE',
-    sessionId
-  ) //TODO: replace with your applicationId
-  await reclaimClient.addContext(
-    (`user's address`),
-    ('for acmecorp.com on 1st january')
-  )
+Builds proof request for the given providerId. `redirectUser` is an optional parameter that defaults to false. If `redirectUser` is true, the user will be redirected to the website that is set using `setRedirectUrl`, after completing the proof request. `linkingVersion` is an optional parameter that defaults to undefined. If `linkingVersion` contains the value `V2Linking`, the proof request will be created for the new v2 linking flow.
 
-  // id of the provider you want to generate the proof for
-  await reclaimClient.buildProofRequest('PROVIDER_ID')
-})
+```js copy showLineNumbers {11-12}
+router.get("/request-proofs", async () => {
+  const reclaimClient = new Reclaim.ProofRequest(
+    "YOUR_APPLICATION_ID_HERE",
+    sessionId
+  ); //TODO: replace with your applicationId
+  await reclaimClient.addContext(
+    `user's address`,
+    "for acmecorp.com on 1st january"
+  );
+
+  // buildProofRequest takes providerId, redirectUser, linkingVersion as parameters.
+  await reclaimClient.buildProofRequest("PROVIDER_ID", true, "V2Linking");
+});
+```
+
+<Callout type="info">
+  Note: if the `redirectUser` is set to true, `setRedirectUrl` must be called
+  before calling `createVerificationRequest`
+</Callout>
+
+### Set Redirect URL (Optional, but recommended)
+
+Sets the redirect URL for the user to be redirected to after completing a proof request.
+
+```js copy showLineNumbers {11-12}
+router.get("/request-proofs", async () => {
+  const reclaimClient = new Reclaim.ProofRequest(
+    "YOUR_APPLICATION_ID_HERE",
+    sessionId
+  ); //TODO: replace with your applicationId
+  await reclaimClient.addContext(
+    `user's address`,
+    "for acmecorp.com on 1st january"
+  );
+
+  // The user will be redirected to this URL after completing the proof request.
+  reclaimClient.setRedirectUrl("https://example.com");
+
+  // buildProofRequest takes providerId, redirectUser, linkingVersion as parameters.
+  await reclaimClient.buildProofRequest("PROVIDER_ID", true, "V2Linking");
+});
 ```
 
 ### Set Signature for request
@@ -106,25 +136,25 @@ router.get('/request-proofs', async () => {
 You must set a signature on the request so that the users don't get tricked on phishing websites, and mistakenly upload all their data to a malicious website.
 
 ```js copy showLineNumbers {14-18}
-router.get('/request-proofs', async () => {
+router.get("/request-proofs", async () => {
   const reclaimClient = new Reclaim.ProofRequest(
-    'YOUR_APPLICATION_ID_HERE',
+    "YOUR_APPLICATION_ID_HERE",
     sessionId
-  ) //TODO: replace with your applicationId
+  ); //TODO: replace with your applicationId
   await reclaimClient.addContext(
-    (`user's address`),
-    ('for acmecorp.com on 1st january')
-  )
+    `user's address`,
+    "for acmecorp.com on 1st january"
+  );
 
-  // id of the provider you want to generate the proof for
-  await reclaimClient.buildProofRequest('PROVIDER_ID')
+  // buildProofRequest takes providerId, redirectUser, linkingVersion as parameters.
+  await reclaimClient.buildProofRequest("PROVIDER_ID", true, "V2Linking");
 
   reclaimClient.setSignature(
     await reclaimClient.generateSignature(
       APP_SECRET //TODO : replace with your APP_SECRET
     )
-  )
-})
+  );
+});
 ```
 
 ### Get the status URL & request URL
@@ -140,8 +170,8 @@ router.get('/request-proofs', () => {
     ('for acmecorp.com on 1st january')
   )
 
-  // id of the provider you want to generate the proof for
-  await reclaimClient.buildProofRequest('PROVIDER_ID')
+  // buildProofRequest takes providerId, redirectUser, linkingVersion as parameters.
+  await reclaimClient.buildProofRequest('PROVIDER_ID',true,"V2Linking")
 
   reclaimClient.setSignature(
     await reclaimClient.generateSignature(
@@ -196,4 +226,3 @@ You can poll the status URL. When, the proof is uploaded, the status is updated 
 ```
 
 </Steps>
-
