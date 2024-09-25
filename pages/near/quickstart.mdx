@@ -20,7 +20,7 @@ You can access the code of this walkthrough on Gitlab:
 If you don't need to add more checks and logic to on-chain contract, You can skip those steps and use our already deployed contract on the testnet or mainnet:
 
 - Mainnet: [reclaim-protocol-mainnet.near](https://nearblocks.io/address/reclaim-protocol-mainnet.near?tab=txns)
-- Testnet: [reclaim-protocol.testnet ](https://testnet.nearblocks.io/address/reclaim-protocol.testnet)
+- Testnet: [reclaim-protocol.testnet](https://testnet.nearblocks.io/address/reclaim-protocol.testnet)
 
 <Steps>
 ### Clone the near contract sdk repo.
@@ -168,10 +168,10 @@ export const CreateNewProof = ({ setNewProof, setReadyToVerify }) => {
 If you deployed your own version of the contract, you will need to update the `contractPerNetwork`
 list with your contract's account address.
 
-```js copy showLineNumbers {3}
+```js copy showLineNumbers {2, 3}
 const contractPerNetwork = {
-  mainnet: 'todo()',
-  testnet: 'reclaim-protocol-testnet-hadi-sa.testnet' // Replace it with your contract's account address
+  mainnet: 'reclaim-protocol-mainnet.near', // Replace it with your contract's account address
+  testnet: 'reclaim-protocol.testnet' // Replace it with your contract's account address
 }
 
 export const NetworkId = 'testnet'
