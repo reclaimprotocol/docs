@@ -10,12 +10,25 @@ This guide provides detailed information on advanced configuration options for t
 
 ## Advanced Options
 
+<Callout type="warning">
+  Important: All advanced configuration methods should be called before invoking `getRequestUrl()`. This ensures that all settings are properly applied to your proof request.
+</Callout>
+
 ### Adding Context
 
 The `addContext` method allows you to add additional information to your proof request. This context is reflected in the proof object, helping to identify and distinguish between different proof requests.
 
 ```javascript
-reclaimProofRequest.addContext('0x1234567890abcdef', 'Context message')
+const reclaimProofRequest = await ReclaimProofRequest.init(
+  process.env.RECLAIM_APP_ID,
+  process.env.RECLAIM_APP_SECRET,
+  'google-login'
+)
+
+// Add context before getting the request URL
+reclaimProofRequest.addContext('0x1234567890abcdef', 'User registration proof')
+
+const requestUrl = await reclaimProofRequest.getRequestUrl()
 ```
 
 - `contextId`: A unique identifier for the context (hex address)
@@ -34,7 +47,19 @@ reclaimProofRequest.addContext('0x1234567890abcdef', 'Context message')
 The `setParams` method allows you to set specific conditions that must be met for the proof to be generated. This is useful for selective triggering and manual verification flows.
 
 ```javascript
-reclaimProofRequest.setParams({ key1: "value1", key2: "value2" })
+const reclaimProofRequest = await ReclaimProofRequest.init(
+  process.env.RECLAIM_APP_ID,
+  process.env.RECLAIM_APP_SECRET,
+  'linkedin-profile'
+)
+
+// Set parameters before getting the request URL
+reclaimProofRequest.setParams({
+  minConnections: 500,
+  industry: "Technology"
+})
+
+const requestUrl = await reclaimProofRequest.getRequestUrl()
 ```
 
 <Callout type="warning">
@@ -46,7 +71,16 @@ reclaimProofRequest.setParams({ key1: "value1", key2: "value2" })
 The `setRedirectUrl` method allows you to specify a custom URL where users will be redirected after the verification process.
 
 ```javascript
+const reclaimProofRequest = await ReclaimProofRequest.init(
+  process.env.RECLAIM_APP_ID,
+  process.env.RECLAIM_APP_SECRET,
+  'github-repo'
+)
+
+// Set custom redirect URL before getting the request URL
 reclaimProofRequest.setRedirectUrl('https://your-app.com/verification-complete')
+
+const requestUrl = await reclaimProofRequest.getRequestUrl()
 ```
 
 <Callout type="info">
@@ -55,10 +89,19 @@ reclaimProofRequest.setRedirectUrl('https://your-app.com/verification-complete')
 
 ### Custom Callback URL
 
-The `setCallbackUrl` method allows you to specify a custom API endpoint where proofs will be sent upon successful generation.
+The `setAppCallbackUrl` method allows you to specify a custom API endpoint where proofs will be sent upon successful generation.
 
 ```javascript
-reclaimProofRequest.setCallbackUrl('https://your-api.com/receive-proofs')
+const reclaimProofRequest = await ReclaimProofRequest.init(
+  process.env.RECLAIM_APP_ID,
+  process.env.RECLAIM_APP_SECRET,
+  'twitter-follower-count'
+)
+
+// Set custom callback URL before getting the request URL
+reclaimProofRequest.setAppCallbackUrl('https://your-api.com/receive-proofs')
+
+const requestUrl = await reclaimProofRequest.getRequestUrl()
 ```
 
 <Callout type="tip">
@@ -90,19 +133,14 @@ const proofRequest = await ReclaimProofRequest.init(
   process.env.RECLAIM_APP_ID,
   process.env.RECLAIM_APP_SECRET,
   providerId,
-  { log: true, acceptAiProviders: true }
+  { log: true }
 )
 ```
 
 - `log`: When set to `true`, enables detailed logging for debugging purposes.
-- `acceptAiProviders`: When set to `true`, allows the application to use AI-generated providers.
 
 <Callout type="tip">
-  Use these options to enhance debugging capabilities and expand provider compatibility in your application. The logging option is particularly useful during development and testing phases.
-</Callout>
-
-<Callout type="warning">
-  Be cautious when enabling `acceptAiProviders` in production environments. Ensure you understand the implications and trust the AI-generated providers before using them.
+  Use this option to enhance debugging capabilities in your application. The logging option is particularly useful during development and testing phases.
 </Callout>
 
 ## Best Practices for Advanced Configuration

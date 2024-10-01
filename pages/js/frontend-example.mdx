@@ -68,7 +68,16 @@ useEffect(() => {
 ```
 
 <Callout type="warning">
-  Remember to replace 'YOUR_APPLICATION_ID', 'YOUR_APPLICATION_SECRET', and 'YOUR_PROVIDER_ID' with your actual credentials from the Reclaim Developer Portal.
+  🚨 Safety First! 🚨
+  
+  For real-world apps, don't put sensitive info like APP_SECRET in your frontend code. It's not safe!
+  
+  Instead, do this:
+  1. Store sensitive stuff on your backend
+  2. Get the SDK config from your backend
+  3. Use `fromJsonString()` on the frontend to create your request and status URLs. (Check backend example for more details)
+  
+  This keeps your app secure and your secrets... well, secret! 🔒
 </Callout>
 
 ### 4. Render the Component

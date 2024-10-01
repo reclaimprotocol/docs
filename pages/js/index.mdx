@@ -1,47 +1,69 @@
 # Reclaim Protocol JavaScript SDK
 
-Welcome to the Reclaim Protocol JavaScript SDK documentation! This toolkit enables you to integrate Reclaim's proof verification system into your JavaScript applications, both in the browser and on Node.js servers.
+Welcome to the Reclaim Protocol JavaScript SDK! This toolkit empowers you to integrate Reclaim's proof verification system into your JavaScript applications, whether you're building for the browser or Node.js servers.
 
-## Getting Started
+## Overview
 
-Follow these steps to integrate the Reclaim JavaScript SDK into your project:
+Our JavaScript SDK makes it easy to implement this powerful functionality in your projects.
+
+## Quick Start for Beginners
+
+New to Reclaim? Here's how to get started:
 
 1. [Installation](./js/installation)
-   Learn how to install the SDK in your project.
+   Get the SDK set up in your project.
 
 2. [Basic Usage](./js/basic-usage)
-   Get started with a simple implementation.
+   Create your first implementation with a simple example.
 
+## How It Works
 
-## Advanced Topics
+Here's a simplified flow of how Reclaim works in a typical web application:
 
-Once you're comfortable with the basics, dive into these advanced features:
+1. **User Login**: A user logs into your website.
+2. **Session Creation**: Your site creates a new Reclaim session, generating a unique URI.
+3. **Request URL**: Send the user to the reclaim request URL.
+4. **User Interaction**: The user visits the request url and logs into the target website (e.g., Acme.com).
+5. **Proof Generation**: A proof is created on the user's device.
+6. **Proof Submission**: The user submits the proof to your application.
+7. **Verification**: Your app verifies the proof and takes appropriate action.
 
-- [Advanced Configuration](./js/advanced-configuration)
-   Customize the SDK to fit your specific requirements.
+## Choosing Your Implementation
 
-- [Best Practices](./js/best-practices)
-   Optimize your implementation with our recommended practices.
+- **Frontend-only**: Perfect for quick prototypes and MVPs. Implement Reclaim directly in your app without backend changes.
+- **Backend Integration**: For production apps, we recommend using the backend implementation for enhanced security and custom authentication.
 
 ## Examples
 
 See the SDK in action with our detailed examples:
 
 - [Frontend Example (React)](./js/frontend-example)
+  See a practical application in a React environment.
 - [Backend Example (Node.js)](./js/backend-example)
+  Explore how to use Reclaim on the server-side.
+
+## Advanced Topics
+
+Ready to dive deeper? Explore these advanced features:
+
+- [Advanced Configuration](./js/advanced-configuration)
+   Tailor the SDK to your specific needs.
+
+- [Best Practices](./js/best-practices)
+   Optimize your Reclaim integration with our recommended approaches.
 
 ## Need Help?
 
-If you encounter any issues or have questions:
+We're here to support you:
 
 - Join our [Telegram community](https://t.me/protocolreclaim)
-- Check our [Website](https://reclaimprotocol.org/faq)
+- Visit our [FAQ page](https://reclaimprotocol.org/faq)
 
-## Stay Updated
+## Stay Connected
 
-Keep up with the latest SDK updates:
+Keep up with the latest Reclaim developments:
 
 - Follow us on [Twitter](https://twitter.com/reclaimprotocol)
 - Star our [GitHub repository](https://github.com/reclaimprotocol/reclaim-js-sdk/)
 
-We're excited to see what you'll build with the Reclaim Protocol JavaScript SDK. Happy coding!
+We're excited to see what you'll create with the Reclaim Protocol JavaScript SDK. Happy building!
