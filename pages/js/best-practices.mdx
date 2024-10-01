@@ -1,0 +1,105 @@
+import { Callout } from 'nextra/components'
+
+# Best Practices for Using the Reclaim Protocol JavaScript SDK
+
+Welcome to our best practices guide! Following these recommendations will help you use the Reclaim Protocol JavaScript SDK securely and efficiently in your applications.
+
+## Security Best Practices
+
+### 1. Protect Your Application Secret
+
+<Callout type="warning">
+  Never expose your Application Secret in client-side code or public repositories. This is crucial for maintaining the security of your application.
+</Callout>
+
+- Store your `APP_SECRET` securely on your server.
+- Use environment variables to manage sensitive information like `APP_ID` and `APP_SECRET`.
+
+### 2. Use HTTPS
+
+Always use HTTPS for all communications, especially when handling sensitive data. This ensures that data transmitted between your application and Reclaim's servers is encrypted.
+
+### 3. Implement Rate Limiting
+
+To prevent abuse of your API endpoints, implement rate limiting and other security measures. This helps protect your application from potential attacks or misuse.
+
+## Implementation Best Practices
+
+### 1. Implement Proper Error Handling
+
+Ensure you have robust error handling to manage failed verifications gracefully. This improves user experience and helps with debugging.
+
+```javascript
+try {
+  const result = await reclaimProofRequest.verify(proof);
+  // Handle successful verification
+} catch (error) {
+  console.error('Verification failed:', error);
+  // Handle the error appropriately
+}
+```
+
+### 2. Keep the SDK Updated
+
+<Callout type="info">
+  Regularly update the SDK to ensure you have the latest features and security improvements.
+</Callout>
+
+You can update the SDK using npm:
+
+```bash
+npm update @reclaimprotocol/sdk
+```
+
+## Performance Best Practices
+
+### 1. Optimize API Calls
+
+Minimize the number of API calls to Reclaim servers. Cache results when appropriate to reduce latency and improve performance.
+
+### 2. Use Asynchronous Operations
+
+Leverage asynchronous operations to prevent blocking the main thread, especially in frontend applications.
+
+```javascript
+async function verifyProof() {
+  try {
+    const result = await reclaimProofRequest.verify(proof);
+    updateUI(result);
+  } catch (error) {
+    handleError(error);
+  }
+}
+```
+
+## Testing and Monitoring
+
+### 1. Implement Comprehensive Testing
+
+Write unit tests and integration tests for your Reclaim SDK implementation. This helps catch issues early and ensures reliability.
+
+### 2. Monitor SDK Usage
+
+Keep track of your SDK usage, including the number of proof requests and verifications. This can help you optimize your application and plan for scaling.
+
+<Callout type="info">
+  Consider implementing logging and monitoring solutions to track SDK performance and catch any issues in real-time.
+</Callout>
+
+## User Experience Best Practices
+
+### 1. Provide Clear Instructions
+
+Guide users through the proof verification process with clear, concise instructions. Explain what they need to do and why it's necessary.
+
+### 2. Implement Graceful Fallbacks
+
+Design your application to handle scenarios where proof verification might fail or be unavailable. Provide alternative paths or clear error messages to users.
+
+### 3. Optimize Loading States
+
+Implement loading indicators or skeleton screens while waiting for proof verifications to complete. This keeps users informed and improves perceived performance.
+
+By following these best practices, you'll be well on your way to building secure, efficient, and reliable applications with the Reclaim Protocol JavaScript SDK. If you have any questions or need further clarification, don't hesitate to reach out to our support team or community forums.
+
+Happy coding!

@@ -1,0 +1,168 @@
+import { Callout } from 'nextra/components'
+
+# Basic Usage of the Reclaim Protocol JavaScript SDK
+
+Welcome to the basic usage guide for the Reclaim Protocol JavaScript SDK. This guide will walk you through the fundamental steps to integrate Reclaim's proof verification system into your application.
+
+## Prerequisites
+
+Before you begin, ensure you have:
+
+- Installed the SDK (see [Installation Guide](./installation))
+- Your Application ID, Secret, and Provider ID from the [Reclaim Developer Portal](https://dev.reclaimprotocol.org/)
+
+<Callout type="warning">
+  Keep your Application Secret secure and never expose it in client-side code.
+</Callout>
+
+## Step-by-Step Guide
+
+### 1. Import the SDK
+
+First, import the necessary components from the SDK:
+
+```javascript
+import { ReclaimProofRequest } from '@reclaimprotocol/sdk'
+```
+
+### 2. Initialize the SDK
+
+Set up your credentials and initialize the SDK:
+
+```javascript
+const APP_ID = 'YOUR_APPLICATION_ID'
+const APP_SECRET = 'YOUR_APPLICATION_SECRET'
+const PROVIDER_ID = 'YOUR_PROVIDER_ID'
+
+const reclaimProofRequest = await ReclaimProofRequest.init(APP_ID, APP_SECRET, PROVIDER_ID)
+```
+
+<Callout type="info">
+  Replace 'YOUR_APPLICATION_ID', 'YOUR_APPLICATION_SECRET', and 'YOUR_PROVIDER_ID' with your actual credentials.
+</Callout>
+
+### 3. Generate a Request URL
+
+Create a URL that users can visit to initiate the proof request:
+
+```javascript
+const requestUrl = await reclaimProofRequest.getRequestUrl()
+console.log('Request URL:', requestUrl)
+```
+
+<Callout type="info">
+  In a real application, you would typically redirect the user to this URL or display it as a QR code.
+</Callout>
+
+### 4. Get the Status URL
+
+Obtain a URL to check the status of the proof request:
+
+```javascript
+const statusUrl = reclaimProofRequest.getStatusUrl()
+console.log('Status URL:', statusUrl)
+```
+
+### 5. Start a Session
+
+Begin listening for proofs:
+
+```javascript
+await reclaimProofRequest.startSession({
+  onSuccessCallback: (proofs) => {
+    console.log('Verification success', proofs)
+  },
+  onFailureCallback: (error) => {
+    console.error('Verification failed', error)
+  }
+})
+```
+
+<Callout type="warning">
+  Ensure you handle both success and failure cases in your callbacks.
+</Callout>
+
+## Complete Basic Example
+
+Here's a full example putting all the steps together:
+
+```javascript
+import { ReclaimProofRequest } from '@reclaimprotocol/sdk'
+
+async function main() {
+  const APP_ID = 'YOUR_APPLICATION_ID'
+  const APP_SECRET = 'YOUR_APPLICATION_SECRET'
+  const PROVIDER_ID = 'YOUR_PROVIDER_ID'
+
+  const reclaimProofRequest = await ReclaimProofRequest.init(APP_ID, APP_SECRET, PROVIDER_ID)
+
+  const requestUrl = await reclaimProofRequest.getRequestUrl()
+  console.log('Request URL:', requestUrl)
+
+  const statusUrl = reclaimProofRequest.getStatusUrl()
+  console.log('Status URL:', statusUrl)
+
+  await reclaimProofRequest.startSession({
+    onSuccessCallback: (proofs) => {
+      console.log('Verification success', proofs)
+    },
+    onFailureCallback: (error) => {
+      console.error('Verification failed', error)
+    }
+  })
+}
+
+main().catch(console.error)
+```
+
+<Callout type="info">
+  This example is for demonstration purposes. In a real application, you'd need to handle errors more robustly and integrate this flow into your application logic.
+</Callout>
+
+## Frontend Integration
+
+For frontend applications, you might use the SDK like this:
+
+```javascript
+// In a React component
+useEffect(() => {
+  const initReclaim = async () => {
+    const reclaimProofRequest = await ReclaimProofRequest.init(APP_ID, APP_SECRET, PROVIDER_ID)
+    const requestUrl = await reclaimProofRequest.getRequestUrl()
+    setReclaimUrl(requestUrl) // Set the URL in your component state
+  }
+  initReclaim()
+}, [])
+```
+
+<Callout type="info">
+  In a frontend application, consider using environment variables to store your credentials securely.
+</Callout>
+
+## Backend Integration
+
+For backend applications, you might use the SDK like this:
+
+```javascript
+// In an Express.js route handler
+app.get('/initiate-proof', async (req, res) => {
+  const reclaimProofRequest = await ReclaimProofRequest.init(APP_ID, APP_SECRET, PROVIDER_ID)
+  const requestUrl = await reclaimProofRequest.getRequestUrl()
+  res.json({ requestUrl })
+})
+```
+
+<Callout type="info">
+  Backend integration is generally more secure as it keeps your APP_SECRET hidden from clients.
+</Callout>
+
+## Next Steps
+
+Now that you've learned the basics, you can:
+
+1. Check out complete [Frontend Example (React)](./frontend-example) and [Backend Example (Node.js)](./backend-example).
+2. Learn about [Advanced Configuration](./advanced-configuration) options to customize the SDK for your specific needs.
+
+If you have any questions, don't hesitate to join our [Telegram community](https://t.me/protocolreclaim) for support.
+
+Happy coding with Reclaim Protocol!

@@ -1,0 +1,171 @@
+import { Callout } from 'nextra/components'
+
+# Backend Example: Integrating Reclaim SDK in a Node.js Application
+
+This guide demonstrates how to integrate the Reclaim Protocol JavaScript SDK into a Node.js backend application using Express. We'll create a simple server that generates a request URL and handles proof verification.
+
+<Callout type="info">
+  This example uses Express.js, but the core concepts can be applied to other Node.js frameworks or vanilla Node.js.
+</Callout>
+
+## Step-by-Step Implementation
+
+### 1. Set Up Your Project
+
+First, make sure you have Node.js installed and create a new project:
+
+```bash
+mkdir reclaim-backend-demo
+cd reclaim-backend-demo
+npm init -y
+npm install express @reclaimprotocol/sdk
+```
+
+### 2. Import Dependencies
+
+Create a new file named `server.js` and import the necessary dependencies:
+
+```javascript
+const express = require('express')
+const { ReclaimProofRequest } = require('@reclaimprotocol/sdk')
+```
+
+### 3. Initialize Express App
+
+Set up your Express application:
+
+```javascript
+const app = express()
+const port = 3000
+
+app.use(express.json()) // Middleware to parse JSON bodies
+```
+
+### 4. Create Route to Generate Request URL
+
+Implement a route that initializes the SDK and generates a request URL:
+
+```javascript
+app.get('/generate-request', async (req, res) => {
+  const APP_ID = 'YOUR_APPLICATION_ID'
+  const APP_SECRET = 'YOUR_APPLICATION_SECRET'
+  const PROVIDER_ID = 'YOUR_PROVIDER_ID'
+
+  try {
+    const reclaimProofRequest = await ReclaimProofRequest.init(APP_ID, APP_SECRET, PROVIDER_ID)
+    
+    reclaimProofRequest.setAppCallbackUrl('https://your-backend.com/receive-proofs')
+    
+    const requestUrl = await reclaimProofRequest.getRequestUrl()
+    const statusUrl = reclaimProofRequest.getStatusUrl()
+
+    res.json({ requestUrl, statusUrl })
+  } catch (error) {
+    console.error('Error generating request:', error)
+    res.status(500).json({ error: 'Failed to generate request' })
+  }
+})
+```
+
+<Callout type="warning">
+  Remember to replace 'YOUR_APPLICATION_ID', 'YOUR_APPLICATION_SECRET', and 'YOUR_PROVIDER_ID' with your actual credentials from the Reclaim Developer Portal. Also, update the callback URL to match your actual backend URL.
+</Callout>
+
+### 5. Create Route to Receive Proofs
+
+Implement a route to receive and process the proofs:
+
+```javascript
+app.post('/receive-proofs', (req, res) => {
+  const proofs = req.body
+  console.log('Received proofs:', proofs)
+  // Process the proofs here
+  res.sendStatus(200)
+})
+```
+
+<Callout type="info">
+  In a production environment, you'd want to implement more robust proof verification and error handling in this route.
+</Callout>
+
+### 6. Start the Server
+
+Finally, start your Express server:
+
+```javascript
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}`)
+})
+```
+
+### Complete Server Code
+
+Here's the complete `server.js` file:
+
+```javascript
+const express = require('express')
+const { ReclaimProofRequest } = require('@reclaimprotocol/sdk')
+
+const app = express()
+const port = 3000
+
+app.use(express.json())
+
+app.get('/generate-request', async (req, res) => {
+  const APP_ID = 'YOUR_APPLICATION_ID'
+  const APP_SECRET = 'YOUR_APPLICATION_SECRET'
+  const PROVIDER_ID = 'YOUR_PROVIDER_ID'
+
+  try {
+    const reclaimProofRequest = await ReclaimProofRequest.init(APP_ID, APP_SECRET, PROVIDER_ID)
+    
+    reclaimProofRequest.setAppCallbackUrl('https://your-backend.com/receive-proofs')
+    
+    const requestUrl = await reclaimProofRequest.getRequestUrl()
+    const statusUrl = reclaimProofRequest.getStatusUrl()
+
+    res.json({ requestUrl, statusUrl })
+  } catch (error) {
+    console.error('Error generating request:', error)
+    res.status(500).json({ error: 'Failed to generate request' })
+  }
+})
+
+app.post('/receive-proofs', (req, res) => {
+  const proofs = req.body
+  console.log('Received proofs:', proofs)
+  // Process the proofs here
+  res.sendStatus(200)
+})
+
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}`)
+})
+```
+
+## Usage and Next Steps
+
+To use this server:
+
+1. Save the code in `server.js`.
+2. Run the server using `node server.js`.
+3. Access the `/generate-request` endpoint to get a request URL.
+4. The server will receive proofs at the `/receive-proofs` endpoint.
+
+<Callout type="info">
+  This example provides a basic implementation. In a production environment, you'd want to add more robust error handling, implement proper security measures, and potentially use a database to store and manage proofs.
+</Callout>
+
+### Enhancing the Implementation
+
+Consider these improvements for a production-ready implementation:
+
+1. Implement proper authentication and authorization for your endpoints.
+2. Use environment variables to manage sensitive information like APP_ID and APP_SECRET.
+3. Add more comprehensive logging and error handling.
+4. Implement a database to store and manage received proofs.
+5. Consider using HTTPS for secure communication.
+
+By following this example and considering these enhancements, you'll be well on your way to integrating the Reclaim Protocol into your Node.js backend. Happy coding!
+
+

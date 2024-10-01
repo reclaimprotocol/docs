@@ -1,33 +1,47 @@
+# Reclaim Protocol JavaScript SDK
+
+Welcome to the Reclaim Protocol JavaScript SDK documentation! This toolkit enables you to integrate Reclaim's proof verification system into your JavaScript applications, both in the browser and on Node.js servers.
+
+## Getting Started
+
+Follow these steps to integrate the Reclaim JavaScript SDK into your project:
+
+1. [Installation](./js/installation)
+   Learn how to install the SDK in your project.
+
+2. [Basic Usage](./js/basic-usage)
+   Get started with a simple implementation.
 
 
+## Advanced Topics
 
-## Overview
+Once you're comfortable with the basics, dive into these advanced features:
 
-You can use Reclaim SDK directly in your app without needing any backend changes. 
-If you want to implement your own authentication mechanism to keep user's data secure - we recommend using the [backend implementation](/js/backend) of the JS SDK.
+- [Advanced Configuration](./js/advanced-configuration)
+   Customize the SDK to fit your specific requirements.
 
-However, the JS SDK is a great way to get something going quickly. Particularly good for MVPs.
+- [Best Practices](./js/best-practices)
+   Optimize your implementation with our recommended practices.
 
-## Flows
-### Integrating Reclaim on a Desktop Website
-The flow looks like follows
-1. **User Login**: The user logs in into your website
-2. **Session Creation**: Your website creates a new session for this user using the Reclaim SDK, requesting data from the website that you configure in the SDK; This returns a URI.
-3. **QR Code Display**: Your website displays a QR code linked to the URI for the user's session.
-4. **QR Code Scan**: User scans the QR code using their mobile phone regular camera
-5. **Login Prompt**: User is prompted to login into Acme.com on a webview
-6. **Proof Generation**: Once user has logged in, a proof is generated on the user's device
-7. **Proof Submission**: User hits submit to upload the proof
-8. **Business Logic**: Your website executes business logic basis the proof submitted by the user
+## Examples
 
-### Integrating Reclaim on a Mobile Website
-The flow remains pretty much the same. After step 2 (session creation), the flow diverges into the following steps:
+See the SDK in action with our detailed examples:
 
-1. **Device Detection**: Identify the user's device type (desktop or mobile) to tailor the flow, at step 3.
-2. **Button Display**: Instead of a QR code, display a button linked to the session-specific URI.
-3. Steps 4 to 8 are identical to the desktop integration, starting from the user tapping the button, through to the execution of business logic based on the submitted proof.
+- [Frontend Example (React)](./js/frontend-example)
+- [Backend Example (Node.js)](./js/backend-example)
 
-### Where to use the sdk in your app
-You can use the sdk to generate proof reqeusts either in your backend or frontend
-We will be showing examples for both the cases in the following sections.
+## Need Help?
 
+If you encounter any issues or have questions:
+
+- Join our [Telegram community](https://t.me/protocolreclaim)
+- Check our [Website](https://reclaimprotocol.org/faq)
+
+## Stay Updated
+
+Keep up with the latest SDK updates:
+
+- Follow us on [Twitter](https://twitter.com/reclaimprotocol)
+- Star our [GitHub repository](https://github.com/reclaimprotocol/reclaim-js-sdk/)
+
+We're excited to see what you'll build with the Reclaim Protocol JavaScript SDK. Happy coding!

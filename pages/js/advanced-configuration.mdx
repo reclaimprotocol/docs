@@ -1,0 +1,126 @@
+import { Callout } from 'nextra/components'
+
+# Advanced Configuration of the Reclaim Protocol JavaScript SDK
+
+This guide provides detailed information on advanced configuration options for the Reclaim Protocol JavaScript SDK. These options allow you to customize and enhance your integration for specific use cases.
+
+<Callout type="info">
+  Before diving into advanced configurations, make sure you're familiar with the [basic usage](./basic-usage) of the SDK.
+</Callout>
+
+## Advanced Options
+
+### Adding Context
+
+The `addContext` method allows you to add additional information to your proof request. This context is reflected in the proof object, helping to identify and distinguish between different proof requests.
+
+```javascript
+reclaimProofRequest.addContext('0x1234567890abcdef', 'Context message')
+```
+
+- `contextId`: A unique identifier for the context (hex address)
+- `Context message`: Additional information about the proof request (string)
+
+<Callout type="tip">
+  Use context to provide metadata about the proof request, such as its purpose or origin. This can be particularly useful when handling multiple types of proofs in your application.
+</Callout>
+
+<Callout type="warning">
+  Ensure that the contextId is a valid hex address. It should start with '0x' and contain only hexadecimal characters (0-9 and a-f).
+</Callout>
+
+### Setting Parameters
+
+The `setParams` method allows you to set specific conditions that must be met for the proof to be generated. This is useful for selective triggering and manual verification flows.
+
+```javascript
+reclaimProofRequest.setParams({ key1: "value1", key2: "value2" })
+```
+
+<Callout type="warning">
+  Use this option carefully. If the actual data doesn't match the set parameters, proof generation will not trigger. Ensure that the parameters you set are achievable and relevant to the proof you're requesting.
+</Callout>
+
+### Custom Redirect URL
+
+The `setRedirectUrl` method allows you to specify a custom URL where users will be redirected after the verification process.
+
+```javascript
+reclaimProofRequest.setRedirectUrl('https://your-app.com/verification-complete')
+```
+
+<Callout type="info">
+  This enhances user experience by seamlessly guiding users back to your application after proof generation. Ensure the redirect URL is prepared to handle post-verification logic.
+</Callout>
+
+### Custom Callback URL
+
+The `setCallbackUrl` method allows you to specify a custom API endpoint where proofs will be sent upon successful generation.
+
+```javascript
+reclaimProofRequest.setCallbackUrl('https://your-api.com/receive-proofs')
+```
+
+<Callout type="tip">
+  This method is particularly useful for backend implementations. It allows you to receive proofs directly without polling the status URL. Ensure your endpoint is secure and can handle incoming proof data.
+</Callout>
+
+### Exporting and Importing SDK Configuration
+
+The SDK provides methods to export and import the entire configuration as a JSON string. This allows for flexible usage across different parts of your application.
+
+```javascript
+// Export configuration
+const configJson = reclaimProofRequest.toJsonString()
+
+// Import configuration
+const importedRequest = ReclaimProofRequest.fromJsonString(configJson)
+```
+
+<Callout type="info">
+  This feature is particularly useful when you need to initialize the SDK in one part of your application (e.g., frontend) and use it in another (e.g., backend). It provides a seamless way to transfer the configuration.
+</Callout>
+
+## Initialization Options
+
+When initializing the SDK, you can pass additional options to customize its behavior:
+
+```javascript
+const proofRequest = await ReclaimProofRequest.init(
+  process.env.RECLAIM_APP_ID,
+  process.env.RECLAIM_APP_SECRET,
+  providerId,
+  { log: true, acceptAiProviders: true }
+)
+```
+
+- `log`: When set to `true`, enables detailed logging for debugging purposes.
+- `acceptAiProviders`: When set to `true`, allows the application to use AI-generated providers.
+
+<Callout type="tip">
+  Use these options to enhance debugging capabilities and expand provider compatibility in your application. The logging option is particularly useful during development and testing phases.
+</Callout>
+
+<Callout type="warning">
+  Be cautious when enabling `acceptAiProviders` in production environments. Ensure you understand the implications and trust the AI-generated providers before using them.
+</Callout>
+
+## Best Practices for Advanced Configuration
+
+1. **Security**: Always prioritize security when configuring callbacks and parameters. Use HTTPS for all URLs and avoid passing sensitive data in parameters.
+
+2. **Error Handling**: Implement robust error handling for all advanced configurations, especially when dealing with callbacks and redirects.
+
+3. **Testing**: Thoroughly test your advanced configurations in a staging environment before deploying to production.
+
+4. **Documentation**: Maintain clear documentation of your custom configurations, especially when using context or custom parameters.
+
+<Callout type="info">
+  Remember, while these advanced configurations offer more flexibility, they also require careful implementation to ensure security and reliability.
+</Callout>
+
+By leveraging these advanced configuration options, you can create a more tailored and robust integration of the Reclaim Protocol into your application. If you have any questions about these advanced features, don't hesitate to reach out to our support team or community forums.
+
+Happy coding with Reclaim Protocol!
+
+
