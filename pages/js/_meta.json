@@ -1,7 +1,9 @@
 {
     "index": "Overview",
-    "frontend": "Frontend-quickstart",
-    "backend": "Backend-quickstart",
-    "callback": "Build your own callback",
-    "sign": "Sign Proof Requests"
+    "installation": "Installation",
+    "basic-usage": "Basic Usage",
+    "frontend-example": "Frontend Example (React)",
+    "backend-example": "Backend Example (Node.js)",
+    "advanced-configuration": "Advanced Configuration",
+    "best-practices": "Best Practices"
 }

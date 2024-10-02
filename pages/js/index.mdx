@@ -1,33 +1,65 @@
+# Reclaim Protocol JavaScript SDK
 
+Welcome to the Reclaim Protocol JavaScript SDK! You can use JS SDK to implement Reclaim in your browser or Node.js applications. This SDK helps you create a simple process where users can prove their credentials from other websites, all without sharing sensitive information.
 
+## Quick Start for Beginners
 
-## Overview
+New to Reclaim? Here's how to get started:
 
-You can use Reclaim SDK directly in your app without needing any backend changes. 
-If you want to implement your own authentication mechanism to keep user's data secure - we recommend using the [backend implementation](/js/backend) of the JS SDK.
+1. [Installation](./js/installation)
+   Get the SDK set up in your project.
 
-However, the JS SDK is a great way to get something going quickly. Particularly good for MVPs.
+2. [Basic Usage](./js/basic-usage)
+   Understand the basic flow on how to use the JS SDK.
 
-## Flows
-### Integrating Reclaim on a Desktop Website
-The flow looks like follows
-1. **User Login**: The user logs in into your website
-2. **Session Creation**: Your website creates a new session for this user using the Reclaim SDK, requesting data from the website that you configure in the SDK; This returns a URI.
-3. **QR Code Display**: Your website displays a QR code linked to the URI for the user's session.
-4. **QR Code Scan**: User scans the QR code using their mobile phone regular camera
-5. **Login Prompt**: User is prompted to login into Acme.com on a webview
-6. **Proof Generation**: Once user has logged in, a proof is generated on the user's device
-7. **Proof Submission**: User hits submit to upload the proof
-8. **Business Logic**: Your website executes business logic basis the proof submitted by the user
+## How It Works
 
-### Integrating Reclaim on a Mobile Website
-The flow remains pretty much the same. After step 2 (session creation), the flow diverges into the following steps:
+Here's a simplified flow of how Reclaim works in a typical web application:
 
-1. **Device Detection**: Identify the user's device type (desktop or mobile) to tailor the flow, at step 3.
-2. **Button Display**: Instead of a QR code, display a button linked to the session-specific URI.
-3. Steps 4 to 8 are identical to the desktop integration, starting from the user tapping the button, through to the execution of business logic based on the submitted proof.
+1. **User Login**: A user logs into your website.
+2. **Session Creation**: Your site creates a new Reclaim session.
+3. **Request URL**: Your site generates a request URL. Display this to the user.
+4. **User Interaction**: The user visits the request url and logs into the target website (e.g., Amazon.com).
+5. **Proof Generation**: A proof is created on the user's device.
+6. **Proof Submission**: The user submits the proof to your application.
+7. **Verification**: Your app verifies the proof and takes appropriate action.
 
-### Where to use the sdk in your app
-You can use the sdk to generate proof requests either in your backend or frontend
-We will be showing examples for both the cases in the following sections.
+## Choosing Your Implementation
 
+- **Frontend-only**: Perfect for quick prototypes and MVPs. Implement Reclaim directly in your app without backend changes.
+- **Full Stack Implementation**: For production apps, we recommend using the backend implementation along with client application for enhanced security and custom authentication.
+
+## Examples
+
+See the SDK in action with our detailed examples:
+
+- [Frontend Example (React)](./js/frontend-example)
+  See a practical application in a React environment.
+- [Backend Example (Node.js)](./js/backend-example)
+  Explore how to use Reclaim on the server-side.
+
+## Advanced Topics
+
+Ready to dive deeper? Explore these advanced features:
+
+- [Advanced Configuration](./js/advanced-configuration)
+   Tailor the SDK to your specific needs.
+
+- [Best Practices](./js/best-practices)
+   Optimize your Reclaim integration with our recommended approaches.
+
+## Need Help?
+
+We're here to support you:
+
+- Join our [Telegram community](https://t.me/protocolreclaim)
+- Visit our [Website](https://reclaimprotocol.org)
+
+## Stay Connected
+
+Keep up with the latest Reclaim developments:
+
+- Follow us on [Twitter](https://twitter.com/reclaimprotocol)
+- Star our [GitHub repository](https://github.com/reclaimprotocol/reclaim-js-sdk/)
+
+We're excited to see what you'll create with the Reclaim Protocol JavaScript SDK. Happy building!

@@ -1,41 +1,48 @@
-import { Cards, Card } from 'nextra/components'
-import MakeIcon from '../components/MakeIcon'
-import SdkCard from '../components/SdkCard'
-import Image from 'next/image'
+import { Cards, Card } from "nextra/components";
+import MakeIcon from "../components/MakeIcon";
+import SdkCard from "../components/SdkCard";
+import Image from "next/image";
 
 # Reclaim Protocol SDKs
-<p className='text-blue-300 italic'>Reclaim SDKs make it simple to bring user activity, reputation, and identity from external websites into your own platform.</p>
+
+<p className="text-blue-300 italic">
+  Reclaim SDKs make it simple to bring user activity, reputation, and identity
+  from external websites into your own platform.
+</p>
 <br></br>
 
 <p className=''>
-    Reclaim Protocol has SDKs for web, mobile and on-chain platform. You can use these SDKs to build applications that have access to users' activity, reputation, and identity from websites across the internet. 
+    Reclaim Protocol has SDKs for web, mobile and on-chain platform. You can use these SDKs to build applications that have access to users' activity, reputation, and identity from websites across the internet.
 
     For example,
-    - Import the number of rides the user has taken on Uber to build a competing ride sharing platform 
-    - Import the users purchasing preferences using Amazon to provide discounts to the right users 
+    - Import the number of rides the user has taken on Uber to build a competing ride sharing platform
+    - Import the users purchasing preferences using Amazon to provide discounts to the right users
     - Enable economics on a blockchain using users offchain activity data
-    - Use national IDs to perform KYC 
+    - Use national IDs to perform KYC
     - And many more...
 
     We have data provider from the most of the popular websites. If the website you want to import data from isn't on the list, you can build your own data provider using our [developer tool](https://dev.reclaimprotocol.org).
 
     The best thing is, your users don't need to install an app or browser extension, unlike most other solutions out there. [Check out our demo!](https://demo.reclaimprotocol.org)
+
 </p>
 <br></br>
 ## How does it work?
 Reclaim Protocol generates cryptographic proofs on HTTPS traffic. The type of cryptographic proof it generates is called a [zero knowledge proof](https://en.wikipedia.org/wiki/Zero-knowledge_proof). It lets the user generate the proof without knowledge of anything other than what the user wants to share with you. The Protocol is built upon open standards such as HTTPS and TLS.
 
 You can learn more here
+
 - [A non technical overview of how Reclaim Works](https://blog.reclaimprotocol.org/posts/reclaim-explained)
 - [A technical deepdive via our Whitepaper](https://link.reclaimprotocol.org/whitepaper-draft)
 
 ## Is this safe to use?
+
 The user data is secured by TLS protocol. That means no third party, including Reclaim Protocol or the participating stakeholders (aka attestors) can see the data that is being transferred between the user and the website. You can see our thirdparty [security audits here](https://blog.reclaimprotocol.org/posts/chacha-circuit-audit).
 
 Additionally, for the technically curious here are some more resources
+
 - [How attacks to break the underlying cryptography is infeasible](https://blog.reclaimprotocol.org/posts/fake-key-reveal)
 - [How additional security is added to ensure integrity of cryptographic proofs](https://blog.reclaimprotocol.org/posts/honey-pot)
-
 
 <br/>
 Reclaim Protocol unlocks a new design space for applications to be built. If you are building a new application, we would love to talk to you. Ask your questions on our [Telegram group](https://t.me/protocolreclaim), and the developers and founders of Reclaim Protocol will respond to you directly!
