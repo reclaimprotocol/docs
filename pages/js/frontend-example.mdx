@@ -73,11 +73,11 @@ useEffect(() => {
   For real-world apps, don't put sensitive info like APP_SECRET in your frontend code. It's not safe!
   
   Instead, do this:
-  1. Store sensitive stuff on your backend
-  2. Get the SDK config from your backend
-  3. Use `fromJsonString()` on the frontend to create your request and status URLs. (Check backend example for more details)
+  1. Store sensitive info like APP_SECRET on your backend
+  2. Get the ReclaimProofRequestConfig from your backend
+  3. Use `fromJsonString(reclaimProofRequestConfig)` on the frontend to get the reclaimProofRequest object and then generate the request URL. (Check backend example for more details)
   
-  This keeps your app secure and your secrets... well, secret! 🔒
+  This keeps your application secure and your secrets... well, secret! 🔒
 </Callout>
 
 ### 4. Render the Component

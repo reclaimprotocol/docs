@@ -1,10 +1,6 @@
 # Reclaim Protocol JavaScript SDK
 
-Welcome to the Reclaim Protocol JavaScript SDK! This toolkit empowers you to integrate Reclaim's proof verification system into your JavaScript applications, whether you're building for the browser or Node.js servers.
-
-## Overview
-
-Our JavaScript SDK makes it easy to implement this powerful functionality in your projects.
+Welcome to the Reclaim Protocol JavaScript SDK! You can use JS SDK to implement Reclaim in your browser or Node.js applications. This SDK helps you create a simple process where users can prove their credentials from other websites, all without sharing sensitive information.
 
 ## Quick Start for Beginners
 
@@ -14,16 +10,16 @@ New to Reclaim? Here's how to get started:
    Get the SDK set up in your project.
 
 2. [Basic Usage](./js/basic-usage)
-   Create your first implementation with a simple example.
+   Understand the basic flow on how to use the JS SDK.
 
 ## How It Works
 
 Here's a simplified flow of how Reclaim works in a typical web application:
 
 1. **User Login**: A user logs into your website.
-2. **Session Creation**: Your site creates a new Reclaim session, generating a unique URI.
-3. **Request URL**: Send the user to the reclaim request URL.
-4. **User Interaction**: The user visits the request url and logs into the target website (e.g., Acme.com).
+2. **Session Creation**: Your site creates a new Reclaim session.
+3. **Request URL**: Your site generates a request URL. Display this to the user.
+4. **User Interaction**: The user visits the request url and logs into the target website (e.g., Amazon.com).
 5. **Proof Generation**: A proof is created on the user's device.
 6. **Proof Submission**: The user submits the proof to your application.
 7. **Verification**: Your app verifies the proof and takes appropriate action.
@@ -31,7 +27,7 @@ Here's a simplified flow of how Reclaim works in a typical web application:
 ## Choosing Your Implementation
 
 - **Frontend-only**: Perfect for quick prototypes and MVPs. Implement Reclaim directly in your app without backend changes.
-- **Backend Integration**: For production apps, we recommend using the backend implementation for enhanced security and custom authentication.
+- **Full Stack Implementation**: For production apps, we recommend using the backend implementation along with client application for enhanced security and custom authentication.
 
 ## Examples
 
@@ -57,7 +53,7 @@ Ready to dive deeper? Explore these advanced features:
 We're here to support you:
 
 - Join our [Telegram community](https://t.me/protocolreclaim)
-- Visit our [FAQ page](https://reclaimprotocol.org/faq)
+- Visit our [Website](https://reclaimprotocol.org)
 
 ## Stay Connected
 

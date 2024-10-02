@@ -147,9 +147,19 @@ For backend applications, you might use the SDK like this:
 // In an Express.js route handler
 app.get('/initiate-proof', async (req, res) => {
   const reclaimProofRequest = await ReclaimProofRequest.init(APP_ID, APP_SECRET, PROVIDER_ID)
-  const requestUrl = await reclaimProofRequest.getRequestUrl()
-  res.json({ requestUrl })
+  const reclaimProofRequestConfig = reclaimProofRequest.toJsonString()
+  res.json({ reclaimProofRequestConfig })
 })
+```
+
+Then use the `reclaimProofRequestConfig` to initialize the SDK on the frontend.
+```javascript
+// In a React component
+const response = await fetch(`${BACKEND_URL}/initiate-proof`)
+const reclaimProofRequestConfig = await response.json()
+const reclaimProofRequest = await ReclaimProofRequest.fromJsonString(reclaimProofRequestConfig)
+const requestUrl = await reclaimProofRequest.getRequestUrl()
+console.log('Request URL:', requestUrl)
 ```
 
 <Callout type="info">

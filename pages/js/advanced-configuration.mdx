@@ -20,12 +20,11 @@ The `addContext` method allows you to add additional information to your proof r
 
 ```javascript
 const reclaimProofRequest = await ReclaimProofRequest.init(
-  process.env.RECLAIM_APP_ID,
-  process.env.RECLAIM_APP_SECRET,
-  'google-login'
+  'YOUR_RECLAIM_APP_ID',
+  'YOUR_RECLAIM_APP_SECRET',
+  'YOUR_PROVIDER_ID'
 )
 
-// Add context before getting the request URL
 reclaimProofRequest.addContext('0x1234567890abcdef', 'User registration proof')
 
 const requestUrl = await reclaimProofRequest.getRequestUrl()
@@ -48,15 +47,14 @@ The `setParams` method allows you to set specific conditions that must be met fo
 
 ```javascript
 const reclaimProofRequest = await ReclaimProofRequest.init(
-  process.env.RECLAIM_APP_ID,
-  process.env.RECLAIM_APP_SECRET,
-  'linkedin-profile'
+  'YOUR_RECLAIM_APP_ID',
+  'YOUR_RECLAIM_APP_SECRET',
+  'YOUR_PROVIDER_ID'
 )
 
-// Set parameters before getting the request URL
-reclaimProofRequest.setParams({
-  minConnections: 500,
-  industry: "Technology"
+reclaimProofRequest.setParams({ // Params value must be a string
+  minConnections: '500', 
+  industry: 'Technology'
 })
 
 const requestUrl = await reclaimProofRequest.getRequestUrl()
@@ -72,12 +70,11 @@ The `setRedirectUrl` method allows you to specify a custom URL where users will 
 
 ```javascript
 const reclaimProofRequest = await ReclaimProofRequest.init(
-  process.env.RECLAIM_APP_ID,
-  process.env.RECLAIM_APP_SECRET,
-  'github-repo'
+  'YOUR_RECLAIM_APP_ID',
+  'YOUR_RECLAIM_APP_SECRET',
+  'YOUR_PROVIDER_ID'
 )
 
-// Set custom redirect URL before getting the request URL
 reclaimProofRequest.setRedirectUrl('https://your-app.com/verification-complete')
 
 const requestUrl = await reclaimProofRequest.getRequestUrl()
@@ -93,18 +90,17 @@ The `setAppCallbackUrl` method allows you to specify a custom API endpoint where
 
 ```javascript
 const reclaimProofRequest = await ReclaimProofRequest.init(
-  process.env.RECLAIM_APP_ID,
-  process.env.RECLAIM_APP_SECRET,
-  'twitter-follower-count'
+  'YOUR_RECLAIM_APP_ID',
+  'YOUR_RECLAIM_APP_SECRET',
+  'YOUR_PROVIDER_ID'
 )
 
-// Set custom callback URL before getting the request URL
 reclaimProofRequest.setAppCallbackUrl('https://your-api.com/receive-proofs')
 
 const requestUrl = await reclaimProofRequest.getRequestUrl()
 ```
 
-<Callout type="tip">
+<Callout type="info">
   This method is particularly useful for backend implementations. It allows you to receive proofs directly without polling the status URL. Ensure your endpoint is secure and can handle incoming proof data.
 </Callout>
 
@@ -114,10 +110,18 @@ The SDK provides methods to export and import the entire configuration as a JSON
 
 ```javascript
 // Export configuration
-const configJson = reclaimProofRequest.toJsonString()
+const reclaimProofRequest = await ReclaimProofRequest.init(
+  'YOUR_RECLAIM_APP_ID',
+  'YOUR_RECLAIM_APP_SECRET',
+  'YOUR_PROVIDER_ID'
+)
 
-// Import configuration
-const importedRequest = ReclaimProofRequest.fromJsonString(configJson)
+const reclaimProofRequestConfig = reclaimProofRequest.toJsonString()
+
+
+// On a different service or application import the configuration
+const reclaimProofRequest = ReclaimProofRequest.fromJsonString(reclaimProofRequestConfig)
+const requestUrl = await reclaimProofRequest.getRequestUrl()
 ```
 
 <Callout type="info">
@@ -130,9 +134,9 @@ When initializing the SDK, you can pass additional options to customize its beha
 
 ```javascript
 const proofRequest = await ReclaimProofRequest.init(
-  process.env.RECLAIM_APP_ID,
-  process.env.RECLAIM_APP_SECRET,
-  providerId,
+  'YOUR_RECLAIM_APP_ID',
+  'YOUR_RECLAIM_APP_SECRET',
+  'YOUR_PROVIDER_ID',
   { log: true }
 )
 ```

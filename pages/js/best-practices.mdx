@@ -29,16 +29,6 @@ To prevent abuse of your API endpoints, implement rate limiting and other securi
 
 Ensure you have robust error handling to manage failed verifications gracefully. This improves user experience and helps with debugging.
 
-```javascript
-try {
-  const result = await reclaimProofRequest.verify(proof);
-  // Handle successful verification
-} catch (error) {
-  console.error('Verification failed:', error);
-  // Handle the error appropriately
-}
-```
-
 ### 2. Keep the SDK Updated
 
 <Callout type="info">
@@ -61,16 +51,6 @@ Minimize the number of API calls to Reclaim servers. Cache results when appropri
 
 Leverage asynchronous operations to prevent blocking the main thread, especially in frontend applications.
 
-```javascript
-async function verifyProof() {
-  try {
-    const result = await reclaimProofRequest.verify(proof);
-    updateUI(result);
-  } catch (error) {
-    handleError(error);
-  }
-}
-```
 
 ## Testing and Monitoring
 
