@@ -18,7 +18,7 @@ First, make sure you have Node.js installed and create a new project:
 mkdir reclaim-backend-demo
 cd reclaim-backend-demo
 npm init -y
-npm install express @reclaimprotocol/sdk
+npm install express @reclaimprotocol/js-sdk
 ```
 
 ### 2. Import Dependencies
@@ -27,7 +27,7 @@ Create a new file named `server.js` and import the necessary dependencies:
 
 ```javascript
 const express = require('express')
-const { ReclaimProofRequest } = require('@reclaimprotocol/sdk')
+const { ReclaimProofRequest } = require('@reclaimprotocol/js-sdk')
 ```
 
 ### 3. Initialize Express App
@@ -75,7 +75,7 @@ app.get('/reclaim/generate-config', async (req, res) => {
 On the client side, you can use the `fromJsonString()` method to reconstruct the `ReclaimProofRequest` object and generate the request URL and status URL. Here's an example of how you might use this in a frontend application:
 
 ```javascript
-import { ReclaimProofRequest } from '@reclaimprotocol/sdk'
+import { ReclaimProofRequest } from '@reclaimprotocol/js-sdk'
 
 async function initializeReclaim() {
   // Fetch the configuration from your backend
@@ -146,7 +146,7 @@ Here's the complete `server.js` file:
 
 ```javascript
 const express = require('express')
-const { ReclaimProofRequest } = require('@reclaimprotocol/sdk')
+const { ReclaimProofRequest } = require('@reclaimprotocol/js-sdk')
 
 const app = express()
 const port = 3000
