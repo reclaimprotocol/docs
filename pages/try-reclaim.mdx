@@ -3,32 +3,45 @@ import Reclaim from '../components/Reclaim';
 import Image from 'next/image'
 import Link from 'next/link'
 
-
+# Try Reclaim Protocol
 
 <Steps>
 ### Generate verification link
 
-<br></br>
+A verification link is a unique URL that allows Reclaim Protocol to verify your ownership of a specific account or piece of information. In this case, we'll use it to verify your Google account.
 
 <div className="flex flex-col gap-4">
-<p> Click on the button below to generate a verification link. This link will be used to verify your ownership of Google account.</p>
+<p>Click on the button below to generate a verification link. This link will be used to verify your ownership of a Google account.</p>
 <Reclaim/>
 </div>
 
- 
+Tip: Make sure you're logged into the correct Google account before proceeding.
+
 ### Generate proof on Reclaim app
-The above url will redirect you to the Reclaim app where you can create the proof
-<br></br>
-<Image src='/assets/generate_proof.jpeg' width={300} height={500}/>
+
+The above URL will redirect you to the Reclaim app where you can create the proof. A proof is a cryptographic verification that you own or have access to certain information. In this case, it proves that you own the Google account without revealing any sensitive details.
+
+<Image src='/assets/generate_proof.jpeg' width={300} height={500} alt="Generate proof screen"/>
+
+If you encounter any issues at this step:
+- Ensure you have a stable internet connection
+- Check that you're logged into the correct Google account
+- If the app is unresponsive, try closing and reopening it
 
 ### Submit proof
 
-Once the proof is generated, click on `Submit` button on the app to submit the proof. Check your proof [here](#generate-verification-link) 
-<br></br>
-<Image src='/assets/submit_proof.jpeg' width={300} height={500}/>
+Once the proof is generated, click on the `Submit` button in the app to submit the proof. You can check your proof [here](#generate-verification-link). 
 
+<Image src='/assets/submit_proof.jpeg' width={300} height={500} alt="Submit proof screen"/>
+
+If the submission fails:
+- Verify that you completed the proof generation step successfully
+- Check your internet connection
+- If the issue persists, try generating a new verification link and starting over
 
 ### Try the Reclaim Mobile App
+
+Experience the Reclaim Protocol in action with our interactive mobile app demo:
 
 <iframe
     id="appetize"
@@ -38,9 +51,39 @@ Once the proof is generated, click on `Submit` button on the app to submit the p
     frameborder="0" 
     scrolling="no"></iframe>
 
+In this demo, you can:
+1. Navigate through the app interface
+2. Generate a sample proof
+3. Submit the proof and see the verification process
+
+Remember, this is a simulation. For a full experience, download the actual Reclaim app on your device.
 
 </Steps>
 
 <Callout>
-Get verified self-sovereign user data using <Link href='react' className='underline'> @reclaimprotocol/reclaim-client-sdk </Link>
+Ready to integrate Reclaim Protocol into your project? Get verified self-sovereign user data using <Link href='react' className='underline'> @reclaimprotocol/reclaim-client-sdk </Link>. This powerful SDK allows you to seamlessly incorporate Reclaim's verification capabilities into your React applications.
 </Callout>
+
+## Troubleshooting
+
+If you encounter any issues while trying out Reclaim Protocol, here are some common problems and their solutions:
+
+1. **Verification link not working**: Ensure you're using the latest generated link. Links expire after a certain time for security reasons.
+
+2. **Proof generation fails**: Check your internet connection and make sure you're logged into the correct Google account.
+
+3. **App not responding**: Try closing and reopening the app. If the issue persists, check for app updates.
+
+4. **Submission errors**: Verify that you completed all previous steps correctly. If problems continue, try generating a new verification link and starting the process over.
+
+Remember, Reclaim Protocol is designed to be user-friendly and secure. If you're experiencing persistent issues, don't hesitate to reach out to our support team or consult our comprehensive documentation for more detailed information.
+
+## Next Steps
+
+Now that you've tried out Reclaim Protocol, consider exploring these advanced topics:
+
+1. Integrating Reclaim Protocol into your own applications
+2. Understanding the cryptographic principles behind Reclaim's proofs
+3. Exploring other types of verifications beyond Google accounts
+
+Stay tuned for more tutorials and documentation on these topics!
