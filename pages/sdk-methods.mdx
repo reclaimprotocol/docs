@@ -1,207 +1,156 @@
-import { Steps, Callout } from 'nextra/components'
-
-
-## Reclaim Class Documentation
+# Reclaim Class Documentation
 
 The `Reclaim` class provides methods to verify and manage proofs creation and blockchain transformation for claims. It cannot be instantiated directly.
 
-### Methods
+## Methods
 
-#### `verifySignedProof(proof) ⇒ Promise<boolean>`
-Verifies the authenticity and completeness of a given proof. It checks if the proof contains signatures, recalculates the proof identifier, and verifies it against the provided signatures. If the verification fails, it will log the error and return `false`.
+### verifySignedProof(proof)
 
-
+Verifies the authenticity and completeness of a given proof.
 
 **Parameters:**
-- `proof: Proof` - The proof to verify, containing signatures, claim data, and identifiers etc..
-you can read a breif description of the proof object here
-``` js 
-interface Proof {
-  identifier: string; /// The proof identifier, used to verify the proof.
-  claimData: ProviderClaimData; /// Contains data of the proof, including provider data and the context field 
-  signatures: string[]; /// Contains signatures of witness that verified & signed the proof.
-  witnesses: WitnessData[]; /// Contains witness data, including the witness id and url.
-}
-```
-For more details, you can take a look at the [Proof type](#proof-type) section.
+- `proof: Proof` (required) - The proof object to verify.
 
 **Returns:**
 - `Promise<boolean>` - Resolves to `true` if the proof is verified correctly, otherwise `false`.
-<Callout type='info'>
-`verifySignedProof` is called automatically right after the proof is recieved to the sdk.
-</Callout>
-#### `transformForOnchain(proof) ⇒ onChainProof`
-Transforms proof data into a format suitable for on-chain transactions, you need to use it before sending the proof to the blockchain.
-
-**Parameters:**
-- `proof: Proof` - The proof object to be transformed.
-
-**Returns:**
-- `onChainProof` - Contains `claimInfo` and `signedClaim` data, prepared for blockchain transactions.
-<Callout type='info'>
-Please note that Reclaim verifier contracts only accept proofs that were processed by the `transformForOnchain` method.
-</Callout>
-#### `verifyProvider(proof, providerHash) ⇒ boolean`
-Validates the provider used to generate the proof against the provided one. Logs will provide detials in case of verification failure.
-This method is optional for off-chain sdks.
-
-**Parameters:**
-- `proof: Proof` - The recieved proof.
-- `providerHash: string` - Provider hash that you're expecting to be used to generate the proof, you can find it in your application details on https://dev.reclaimprotocol.org.
-
-**Returns:**
-- `boolean` - True if proof's provider is same to the one expected, otherwise false.
-<Callout type='info'>
-Please note that you will be able to get the providerHash for the provider you used from https://dev.reclaimprotocol.org.
-</Callout>
-### Nested Class: ProofRequest
-
-Handles the configuration and management of proof requests.
-#### Constructor: `ProofRequest`
-
-Initializes a new instance of `ProofRequest`, optionally configuring logging and session management.
-
-**Parameters:**
-- `applicationId: string` - Your application Id, can be found on https://dev.reclaimprotocol.org.
-- `options?: ProofRequestOptions` - Optional parameters to customize the proof request instance. These can include:
-  - `log: boolean` - If set to `true`, enables logging. Defaults to `false` if not specified.
-  - `sessionId: string` - A predefined session ID. If not provided, a new session ID is generated automatically.
 
 **Example Usage:**
 
-```js
-const options = { log: true, sessionId: "your-session-id" };
-const proofRequest = new Reclaim.ProofRequest("your-application-id", options);
+```javascript
+// Verify a proof
+const proof = {
+  identifier: "abc123",
+  claimData: { /* ... */ },
+  signatures: ["sig1", "sig2"],
+  witnesses: [{ id: "witness1", url: "https://witness1.com" }]
+};
 
+const isValid = await Reclaim.verifySignedProof(proof);
+console.log(`Proof is valid: ${isValid}`);
 ```
 
-#### `addContext(address:string, message:string) ⇒ void`
-Adds a context to the proof request, such as a blockchain address and a related message.
-You can read more about this field here [Context](/js/frontend#add-context-to-the-proof-optional-but-recommended).
+```javascript
+// Handle verification in a try-catch block
+try {
+  const isValid = await Reclaim.verifySignedProof(proof);
+  if (isValid) {
+    processVerifiedProof(proof);
+  } else {
+    handleInvalidProof(proof);
+  }
+} catch (error) {
+  console.error("Error verifying proof:", error);
+}
+```
+
+**Common Errors:**
+- `InvalidProofError`: Thrown when the proof structure is invalid.
+- `SignatureVerificationError`: Thrown when signature verification fails.
+
+### transformForOnchain(proof)
+
+Transforms proof data into a format suitable for on-chain transactions.
 
 **Parameters:**
-- `address: string` - The blockchain address associated with the context.
-- `message: string` - The message or data related to the context.
-
-#### `setAppCallbackUrl(url: string) ⇒ void`
-Sets the application callback URL for the proof request.
-Usually a proof is sent to our Reclaim backend upon it is generated, then the sdk will fetch and process it.
-Here we give you the option to set a custom callback URL for your application, which means you will be receving the proofs to your endpoint.
-We have a section on [how to set up a callback endpoint](/js/callback) for more information.
-
-
-**Parameters:**
-- `url: string` - The URL to set as the application callback.
-<Callout type='info'>
-Note that in case you're using react-native or flutter sdks, you will need to set the callback URL to your deep link, note that the flow won't be functional without this for mobile-sdks.
-</Callout>
-#### `setStatusUrl(url: string) ⇒ void`
-Sets the status URL for the proof request to monitor the progress or status updates.
-
-**Parameters:**
-- `url: string` - The URL to set as the status URL.
-#### `generateSignature(applicationSecret: string) ⇒ Promise<Signature>`
-Generates a signature using the provided application secret. The method uses ethers library to sign a hashed message derived from the requested proofs.
-Signing the request is necessary so that users don't get tricked on phishing websites, and mistakenly upload all their data to a malicious website.
-
-**Parameters:**
-- `applicationSecret: string` - The secret key used to generate the wallet and signature, you will find it on https://dev.reclaimprotocol.org **only the first time you create the app**.
+- `proof: Proof` (required) - The proof object to be transformed.
 
 **Returns:**
-- `Promise<string>` - The generated signature.
+- `onChainProof` - Contains `claimInfo` and `signedClaim` data, prepared for blockchain transactions.
 
-**Exceptions:**
-- Throws `BuildProofRequestError` if there is an issue during signature generation.
-<Callout type='info'>
-We don't recommend generating the signature on the frontend, you should do this in your backend as it is more secure.
-</Callout>
-#### `setSignature(signature: string) ⇒ void`
-Assigns a signature to the proof request, you can easily use the [above mentioned method](#generatesignatureapplicationsecret-string--promisesignature)  to generate a signature.
-For production mode, we recommend you to [generate the signature on the backend](/js/sign).
-For prototype mode, you can set it on the frontned similar to [here](/js/frontend#set-signature-for-request).
+**Example Usage:**
 
-**Parameters:**
-- `signature: string` - The signature to assign to the proof request.
+```javascript
+// Transform a proof for on-chain use
+const proof = { /* ... */ };
+const onChainProof = Reclaim.transformForOnchain(proof);
+console.log("On-chain proof:", onChainProof);
+```
 
-#### `getAppCallbackUrl() ⇒ string`
-Retrieves the application callback URL. If not set, it defaults to the Reclaim callback URL appended with the session ID.
+```javascript
+// Use transformed proof in a smart contract interaction
+const onChainProof = Reclaim.transformForOnchain(proof);
+const contract = new ethers.Contract(address, abi, signer);
+await contract.submitProof(onChainProof.claimInfo, onChainProof.signedClaim);
+```
 
-**Returns:**
-- `string` - The current application callback URL.
+**Common Errors:**
+- `TransformationError`: Thrown when the proof cannot be transformed correctly.
 
-#### `getStatusUrl() ⇒ string`
-Fetches the status URL. If not set, it defaults to a predefined status URL appended with the session ID.
+### verifyProvider(proof, providerHash)
 
-**Returns:**
-- `string` - The current status URL.
-
-#### `buildProofRequest(providerId: string) ⇒ Promise<RequestedProofs>`
-Builds the proof request using the provided provider ID and initializes necessary proof details.
+Validates the provider used to generate the proof against the provided one.
 
 **Parameters:**
-- `providerId: string` - Id of the provider you're using, note that you can get it from your application created on https://dev.reclaimprotocol.org.
-If the passed provider Id is not included in your application, it will throw an error.
+- `proof: Proof` (required) - The received proof.
+- `providerHash: string` (required) - Expected provider hash.
 
 **Returns:**
-- `Promise<RequestedProofs>` - The proofs requested for the application.
+- `boolean` - `true` if proof's provider matches the expected one, otherwise `false`.
 
-**Exceptions:**
-- Throws `BuildProofRequestError` if there is an error in generating the proof request.
+**Example Usage:**
 
-#### `getRequestedProofs() ⇒ RequestedProofs`
-Retrieves the requested proofs. Throws an error if `buildProofRequest` was not called prior to this method.
+```javascript
+// Verify provider for a proof
+const proof = { /* ... */ };
+const providerHash = "0x1234...";
+const isValidProvider = Reclaim.verifyProvider(proof, providerHash);
+console.log(`Provider is valid: ${isValidProvider}`);
+```
 
-**Returns:**
-- `RequestedProofs` - The requested proofs associated with the proof request.
+```javascript
+// Verify provider before processing a proof
+if (Reclaim.verifyProvider(proof, expectedProviderHash)) {
+  processProof(proof);
+} else {
+  console.error("Invalid provider for proof");
+}
+```
 
-**Exceptions:**
-- Throws `BuildProofRequestError` if the proofs are accessed before they are set.
+**Common Errors:**
+- `ProviderMismatchError`: Thrown when the provider doesn't match the expected hash.
 
+## Best Practices
 
+1. Always verify proofs before processing them further.
+2. Use try-catch blocks when calling asynchronous methods to handle potential errors gracefully.
+3. Keep your application secret secure and never expose it in client-side code.
+4. Regularly update your SDK to ensure you have the latest security features and improvements.
 
+## Cross-References
 
-#### `createVerificationRequest() ⇒ Promise<{requestUrl: string, statusUrl: string}>`
-Creates a verification request for the session, returning URLs for the verification process and status updates.
-`requestUrl` will be used by the user to start generating the proof, while `statusUrl` will be used to monitor the status of the session.
+- For more details on proof structure, see the [Proof Type](#proof-type) section.
+- To understand how to set up callbacks, refer to the [Callback Setup Guide](/js/callback).
 
-**Returns:**
-- `Promise<{requestUrl: string, statusUrl: string}>` - URLs for the verification request and session status updates.
+## Troubleshooting
 
-**Exceptions:**
-- Throws various errors if the request cannot be created, including `BuildProofRequestError` and `SignatureNotFoundError`.
+1. **Proof Verification Fails**: Ensure that the proof structure is correct and all required fields are present.
+2. **Provider Verification Issues**: Double-check that you're using the correct provider hash from your application dashboard.
+3. **Transformation Errors**: Verify that the proof contains all necessary data before attempting to transform it for on-chain use.
 
-#### `startSession({ onSuccessCallback, onFailureCallback }) ⇒ void`
+## Proof Type
 
-Initiates a session for proof verification, it periodically checks for proof submission, once the proof is submitted, it will be fetched an verified using [verifySignedProof](#verifysignedproofproof--promiseboolean).
-Then it will be handling success or failure callbacks based on proof checks.
-
-**Parameters:**
-- `onSuccessCallback: (proofs: Proof[]) => void` - Callback function executed when proofs are verified successfully.
-- `onFailureCallback: (error: Error) => void` - Callback function executed upon verification failure or session errors.
-
-**Exceptions:**
-- Throws `SessionNotStartedError` if session parameters are incorrectly defined or missing.
-
-#### Proof type
-You can take a look at Proof type and its fields here:
-``` js
+```typescript
 interface Proof {
-  identifier: string; /// The proof identifier, used to verify the proof.
-  claimData: ProviderClaimData; /// Contains data of the proof, including provider data and the context field 
-  signatures: string[]; /// Contains signatures of witness that verified & signed the proof.
-  witnesses: WitnessData[]; /// Contains witness data, including the witness id and url.
+  identifier: string;
+  claimData: ProviderClaimData;
+  signatures: string[];
+  witnesses: WitnessData[];
 }
+
 interface WitnessData {
-  id: string; // witness id
-  url: string; // witness url
+  id: string;
+  url: string;
 }
-export interface ProviderClaimData {
-  provider: string; // provider type
-  parameters: string; // parameters of the provider
-  owner: string; // owner of the claim
-  timestampS: number; // timestamp of the claim creation in seconds
-  context: string; // a stringified object, containg  contextMessage, contextAddress, and extractedParams 
-  identifier: string; //identifier of the claim; Hash of (provider, parameters, context)
-  epoch: number; // number of the epoch when the claim was created
+
+interface ProviderClaimData {
+  provider: string;
+  parameters: string;
+  owner: string;
+  timestampS: number;
+  context: string;
+  identifier: string;
+  epoch: number;
 }
 ```
+
+For more detailed information on specific methods or concepts, please refer to the relevant sections in this documentation.
