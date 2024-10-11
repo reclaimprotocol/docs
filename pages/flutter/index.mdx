@@ -1,18 +1,65 @@
-## Overview
+# Reclaim Protocol Flutter SDK
 
-You can integrate Reclaim into your mobile apps using the Flutter SDK or the [React Native SDK](/react-native).
+Welcome to the Reclaim Protocol Flutter SDK! This SDK allows you to seamlessly integrate Reclaim functionality into your Flutter applications for both Android and iOS. With our Flutter SDK, you can easily implement a secure process for users to prove their credentials from other websites without sharing sensitive information.
 
-## Flows
+## Quick Start for Beginners
 
-### Integrating Reclaim on a mobile app
+New to Reclaim? Here's how to get started with the Flutter SDK:
 
-The flow looks like follows
+1. [Installation](./flutter/installation)
+   Learn how to add the Reclaim Flutter SDK to your project.
 
-1. User logs in into your app
-2. Your app creates a new session for this user using the Reclaim SDK, requesting data from Acme.com; This returns a URI.
-3. Your app opens this URL using launchUrl() or the equivalent
-4. User will be redirected to AppInstant/AppClip
-5. User is prompted to login into Acme.com on a webview
-6. Once user has logged in, a proof is generated on the user's device
-7. User hits submit to send the proof back to your app
-8. Your app executes business logic basis the proof submitted by the user
+2. [Flutter Example](./flutter/flutter-example)
+   Understand the fundamental concepts and basic flow of using the Flutter SDK.
+
+## How It Works
+
+Here's a simplified flow of how Reclaim works in a typical Flutter application:
+
+1. **User Interaction**: A user opens your Flutter app.
+2. **Session Creation**: Your app creates a new Reclaim session.
+3. **Request URL**: Your app generates a request URL and navigates the user to it.
+4. **Web Authentication**: The user visits the request URL and logs into the target website (e.g., Amazon.com).
+5. **Proof Generation**: A proof is created on the user's device.
+6. **Proof Submission**: The user submits the proof back to your Flutter app.
+7. **Verification**: Your app verifies the proof and takes appropriate action.
+
+## Choosing Your Implementation
+
+- **Mobile-only**: Ideal for quick prototypes and MVPs. Implement Reclaim directly in your Flutter app without backend changes.
+- **Full Stack Implementation**: For production apps, we recommend using a backend implementation along with your Flutter app for enhanced security and custom authentication.
+
+## Examples
+
+See the SDK in action with our detailed examples:
+
+- [Flutter Example](./flutter/flutter-example)
+  Explore a practical implementation in a Flutter environment.
+- [Backend Integration Example](./flutter/backend-example)
+  Learn how to integrate Reclaim with a backend server for enhanced security.
+
+## Advanced Topics
+
+Ready to dive deeper? Explore these advanced features:
+
+- [Advanced Configuration](./flutter/advanced-configuration)
+   Customize the SDK to meet your specific requirements.
+
+- [Best Practices](./flutter/best-practices)
+   Optimize your Reclaim integration with our recommended approaches for Flutter.
+
+## Need Help?
+
+We're here to support you:
+
+- Join our [Telegram community](https://t.me/protocolreclaim)
+- Visit our [Website](https://reclaimprotocol.org)
+
+## Stay Connected
+
+Keep up with the latest Reclaim developments:
+
+- Follow us on [Twitter](https://twitter.com/reclaimprotocol)
+- Star our [GitHub repository](https://github.com/reclaimprotocol/reclaim-flutter-sdk/)
+
+We're excited to see what you'll build with the Reclaim Protocol Flutter SDK. Happy coding!

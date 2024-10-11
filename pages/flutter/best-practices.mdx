@@ -1,0 +1,127 @@
+import { Callout } from 'nextra/components'
+
+# Best Practices for Using Reclaim SDK in Flutter
+
+Welcome to our best practices guide for integrating the Reclaim SDK into your Flutter application! Following these recommendations will help you implement Reclaim Protocol efficiently and securely.
+
+## Security Best Practices
+
+### 1. Protect Sensitive Information
+
+<Callout type="warning">
+  Never expose your Application Secret in your Flutter app's source code or public repositories. This is crucial for maintaining the security of your application.
+</Callout>
+
+- Store your `APP_SECRET` securely on your server.
+- Use environment variables or secure storage solutions for managing sensitive information like `APP_ID`.
+
+### 2. Implement Secure Communication
+
+Always use HTTPS for all network communications, especially when handling sensitive data. This ensures that data transmitted between your app and Reclaim's servers is encrypted.
+
+### 3. Implement User Authentication
+
+Implement proper user authentication and authorization to ensure that only authorized users can initiate proof requests.
+
+## Implementation Best Practices
+
+### 1. Implement Proper Error Handling
+
+Ensure you have robust error handling to manage failed proof requests or unexpected responses gracefully. This improves user experience and helps with debugging.
+
+```dart
+try {
+  final proofRequestObject = await ReclaimProofRequest.init(appId, appSecret, providerId);
+  // Call other methods on proofRequestObject
+} catch (e) {
+  // Handle error
+  print('Error creating proof request: $e');
+  // Show user-friendly error message
+}
+```
+
+### 2. Keep SDK Updated
+
+<Callout type="info">
+  Regularly update the Reclaim SDK to ensure you have the latest features, performance improvements, and security updates.
+</Callout>
+
+You can update dependencies using:
+
+```bash
+flutter pub upgrade
+```
+
+## Performance Best Practices
+
+### 1. Use Asynchronous Operations
+
+Leverage asynchronous operations and Future-based programming to prevent blocking the main thread during proof requests and verifications.
+
+```dart
+Future<void> initiateProofRequest() async {
+  setState(() => _isLoading = true);
+  try {
+    final proofRequest = await ReclaimProofRequest.init(appId, appSecret, providerId);
+    final result = await proofRequest.getRequestUrl();
+    setState(() {
+      _proofResult = result;
+      _isLoading = false;
+    });
+  } catch (e) {
+    setState(() => _isLoading = false);
+    // Handle error
+  }
+}
+```
+
+## Testing and Monitoring
+
+### 1. Implement Comprehensive Testing
+
+Write unit tests, widget tests, and integration tests for your Reclaim SDK implementation. This helps catch issues early and ensures reliability.
+
+### 2. Use Flutter DevTools
+
+Leverage Flutter DevTools for performance profiling, debugging, and monitoring your app's behavior, especially during proof request processes.
+
+<Callout type="info">
+  Consider implementing logging and crash reporting solutions to track SDK performance and catch any issues in real-time.
+</Callout>
+
+## User Experience Best Practices
+
+### 1. Provide Clear Instructions
+
+Guide users through the proof request process with clear, concise instructions. Explain what they need to do and why it's necessary.
+
+### 2. Implement Loading States
+
+Use loading indicators or skeleton screens while waiting for proof requests to complete. This keeps users informed and improves perceived performance.
+
+```dart
+if (_isLoading) {
+  return CircularProgressIndicator();
+} else {
+  return ProofRequestResult(result: _proofResult);
+}
+```
+
+### 3. Implement Graceful Fallbacks
+
+Design your application to handle scenarios where proof verification might fail or be unavailable. Provide alternative paths or clear error messages to users.
+
+### 4. Optimize UI for Proof Requests
+
+Implement a user-friendly interface for initiating and displaying the results of proof requests.
+
+```dart
+ElevatedButton(
+  onPressed: _initiateProofRequest,
+  child: Text('Initiate Proof Request'),
+)
+```
+
+By following these best practices, you'll be well-equipped to integrate the Reclaim SDK securely and efficiently into your Flutter application. Remember to continuously test and iterate on your implementation to provide the best possible experience for your users.
+
+Happy coding with Reclaim!

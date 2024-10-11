@@ -1,0 +1,57 @@
+# Installing the Reclaim Protocol Flutter SDK
+
+Welcome to the first step in integrating Reclaim Protocol into your Flutter project! This guide will walk you through the installation process and help you get started quickly.
+
+## Prerequisites
+
+Before you begin, make sure you have:
+
+- Flutter SDK (latest stable version)
+- Dart SDK (latest stable version)
+- An IDE (e.g., Android Studio, VS Code) with Flutter and Dart plugins installed
+
+## Installation Steps
+
+### 1. Add the SDK to Your Project
+
+Open your `pubspec.yaml` file and add the Reclaim Protocol SDK under the `dependencies` section:
+
+```yaml
+dependencies:
+  flutter:
+    sdk: flutter
+  reclaim_sdk: ^latest_version  # Replace with the latest version
+```
+
+### 2. Install Dependencies
+
+Run the following command in your terminal to fetch and install the SDK:
+
+```bash
+flutter pub get
+```
+
+## Verifying Installation
+
+To ensure the SDK was installed correctly, you can check your `pubspec.lock` file. You should see `reclaim_flutter_sdk` listed with the version you specified.
+
+## Importing the SDK
+
+After installation, you can import the SDK in your Dart files. Here's how:
+
+```dart
+import 'package:reclaim_sdk/reclaim.dart';
+```
+
+
+## Next Steps
+
+Congratulations! You've successfully installed the Reclaim Protocol Flutter SDK. Here's what you can do next:
+
+1. Explore the [Flutter Example](./flutter-example) to see the SDK in action.
+2. Learn about [Advanced Configuration](./advanced-configuration) options to customize the SDK for your needs.
+3. Review our [Best Practices](./best-practices) to optimize your Reclaim integration.
+
+If you encounter any issues during installation or usage, please refer to our [FAQ](https://reclaimprotocol.org/faq) or join our [Telegram community](https://t.me/protocolreclaim) for support.
+
+Happy coding with Reclaim Protocol in Flutter!

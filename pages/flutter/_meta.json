@@ -1,8 +1,8 @@
 {
-  "index": "Overview",
-  "quickstart": "Quickstart",
-  "start-from-example": {
-    "title": "Start from an example",
-    "display": "hidden"
-  }
+  "index": "Introduction",
+  "installation": "Installation",
+  "flutter-example": "Flutter Example",
+  "backend-example": "Backend Example",
+  "advanced-configuration": "Advanced Configurations",
+  "best-practices": "Best Practices"
 }

@@ -1,68 +1,96 @@
-import { Steps, Callout } from 'nextra/components'
+import { Steps, Callout } from "nextra/components";
 
 # Quickstart for Solidity
+
 ## Pre-requisite
+
 This tutorial assumes that you have a frontend that requests proofs from the user and processes the response, like [React](/js/frontend-example), [React Native](/react-native), or [Node](/js/backend-example).
 
-## Solidity 
+## Supported Networks
+
+Before diving into the Solidity integration, ensure you are aware of the supported networks where Reclaim contracts are already deployed. The Reclaim Solidity SDK supports a variety of EVM-compatible chains, including Ethereum, Polygon, Arbitrum, BNB Chain, and more.
+
+For a full list of supported networks and their contract addresses, check out the [supported networks here](./supported-networks).
+
+## Solidity
+
+This section walks you through deploying and integrating a Reclaim contract into your Solidity project.
+
 <Steps>
+
 ### Deploy a smart contract
-Deploy the following smart contract to the chain of your choice, we will be using Polygon's Mumbai for this walkthrough.
+
+Deploy the following contract to any EVM-compatible network of your choice. In this walkthrough, we'll be using Ethereum as an example.
+
 ```solidity copy showLineNumbers
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
- 
- 
+
 import "@reclaimprotocol/verifier-solidity-sdk/contracts/Reclaim.sol";
 import "@reclaimprotocol/verifier-solidity-sdk/contracts/Addresses.sol";
- 
- 
+
 contract Attestor {
    address public reclaimAddress;
-   // add providersHashes for your permitted providers
-   string[] public providersHashes;
 
-   constructor(string[] memory _providersHashes){
-      providersHashes = _providersHashes;
-        // TODO: Replace with network you are deploying on
-      reclaimAddress = Addresses.PLOYGON_MUMBAI_TESTNET; 
- 
-   }  
- 
-   function verifyProof(Reclaim.Proof memory proof) public view{
+   constructor() {
+      // Replace with the network you are deploying on
+      reclaimAddress = Addresses.ETHEREUM;
+   }
+
+   function verifyProof(Reclaim.Proof memory proof) public view {
        Reclaim(reclaimAddress).verifyProof(proof);
-       // TODO: your business logic upon success
-       // verify proof.context is what you expect
+       // Your business logic upon successful verification
+       // Example: Verify that proof.context matches your expectations
    }
 }
 ```
 
-You can check out the [supported networks here](https://github.com/reclaimprotocol/demo-solidity-sdk/blob/main/contracts/Addresses.sol)
+You can check out the supported networks by the `@reclaimprotocol/verifier-solidity-sdk` package in [here](https://gitlab.reclaimprotocol.org/integrations/verifier-solidity-sdk/-/blob/main/contracts/Addresses.sol)
+
 ### Context Field
-`proof.claimInfo.context` is the field were you can add a message and an address to the proof.
-In addition, context will be having provider extracted data (e.g. your SteamId if you're using SteamId Provider).
-As context is a ``string``, we provide a function that will make it easier for you to extract fields from it:
+
+Each proof contains a `context` field inside the `proof.claimInfo` structure. This field allows you to embed additional data, such as a message and an address, which can be useful for verifying specific context details like user identity or specific claims (e.g., SteamId if you're using the SteamId provider).
+
+Since `context` is a `string`, you may want to extract specific fields from it. To simplify this, the Reclaim SDK provides the following utility function:
 
 ```solidity copy
 function extractFieldFromContext(string memory data, string memory target)
 public pure returns (string memory)
-  ```
-where ``data`` is the context field string and ``target`` is name of the field you want to extract.
-<Callout type='warning'>
-  Please note that you will need to provider target string in the following format: '"FIELD_NAME_HERE":"' (e.g. '"SteamId":"')
+```
+
+- `data`: The `context` string from the proof.
+- `target`: The name of the field you wish to extract.
+
+#### Example
+
+To extract the `SteamId` from the context, pass the target in this format:
+
+```
+'"SteamId":"'
+```
+
+<Callout type="warning">
+  Ensure the `target` string is formatted exactly as shown, including the double
+  quotes and colon. format: '"FIELD_NAME_HERE":"' (e.g. '"SteamId":"')
 </Callout>
-<Callout type='info'>
-  you can also use `extractFieldFromContext` to extract `contextAddress` and `contextMessage` using the same mentioned way. 
+<Callout type="info">
+  You can use the same function to extract other context fields such as
+  `contextAddress` or `contextMessage` using the same approach.
 </Callout>
-### Get the artifacts
-Once deployed, take a note of the following:
-  - ChainId (80001 in our case).
-  - Contract address.
-  - ABI.
+
+### Obtain Artifacts
+
+After deploying the contract, make sure to take note of the following essential details:
+
+- **Chain ID**: For example, ETHEREUM has a chain ID of `1`.
+- **Contract Address**: The address of your deployed contract.
+- **ABI**: The contract's Application Binary Interface, which you will need for interacting with the contract.
 
 ### Publish on chain
-  - [wagmi.js](./wagmi).
-  - [ethers.js]().
 
+You can publish your contract and interact with it using popular libraries like:
+
+- [wagmi.js](./wagmi) – A set of React hooks for Ethereum development.
+- [ethers.js]() – A comprehensive library for interacting with the Ethereum blockchain.
 
 </Steps>
