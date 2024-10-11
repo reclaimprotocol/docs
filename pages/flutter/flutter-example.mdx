@@ -1,0 +1,258 @@
+import { Callout } from 'nextra/components'
+
+# Basic Usage of the Reclaim Protocol Flutter SDK
+
+This guide will walk you through the fundamental steps to integrate Reclaim's proof verification system into your Flutter application.
+
+## Prerequisites
+
+Before you begin, ensure you have:
+
+- Installed the SDK (see [Installation Guide](./installation))
+- Your Application ID, Application Secret and Provider ID from the [Reclaim Developer Portal](https://dev.reclaimprotocol.org/)
+
+<Callout type="warning">
+  Keep your Application Secret secure and never expose it in client-side code.
+</Callout>
+
+## Step-by-Step Guide
+
+### 1. Import the SDK
+
+First, import the necessary components from the SDK in your Dart file:
+
+<Callout type="info">
+  We recommend using the `url_launcher` package to open the request URL. Ensure you have added the `url_launcher` package to your `pubspec.yaml` file:
+
+```yaml
+dependencies:
+  url_launcher: ^6.0.20
+```
+
+</Callout>
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:reclaim_sdk/reclaim.dart';
+import 'package:reclaim_sdk/utils/interfaces.dart';
+import 'package:reclaim_sdk/utils/types.dart';
+import 'package:url_launcher/url_launcher.dart';
+```
+
+### 2. Initialize the SDK
+
+Set up your credentials and initialize the SDK:
+
+```dart
+Future<ReclaimProofRequest> _initializeProofRequest() async {
+  final reclaimProofRequest = await ReclaimProofRequest.init(
+    "YOUR_APP_ID", // Replace with your actual Application ID
+    "YOUR_APP_SECRET", // Replace with your actual Application Secret
+    "YOUR_PROVIDER_ID", // Replace with your actual Provider ID
+  );
+
+  return reclaimProofRequest;
+}
+```
+
+<Callout type="info">
+  Replace 'YOUR_APP_ID', 'YOUR_APP_SECRET', and 'YOUR_PROVIDER_ID' with your actual credentials.
+</Callout>
+
+### 3. Generate a Request URL
+
+Create a URL that users can visit to initiate the proof request:
+
+```dart
+Future<String> _generateRequestUrl(ReclaimProofRequest request) async {
+  final requestUrl = await request.getRequestUrl();
+  print('Request URL: $requestUrl');
+  return requestUrl;
+}
+```
+
+### 4. Launch the URL
+
+Use the `url_launcher` package to open the request URL:
+
+
+```dart
+Future<void> _launchUrl(String url) async {
+  if (await canLaunchUrl(Uri.parse(url))) {
+    final launched = await launchUrl(
+      Uri.parse(url),
+      mode: LaunchMode.externalApplication,
+    );
+    if (launched) {
+      setState(() => _status = 'Session started. Waiting for proof...');
+    } else {
+      throw 'Could not launch $url';
+    }
+  } else {
+    throw 'Could not launch $url';
+  }
+}
+```
+
+### 5. Start the Verification Session
+
+Begin listening for proofs:
+
+```dart
+Future<void> _startVerificationSession(ReclaimProofRequest request) async {
+  await request.startSession(
+    onSuccess: _handleProofSuccess,
+    onError: _handleProofError,
+  );
+}
+
+void _handleProofSuccess(Proof proof) {
+  print('Proof received: $proof');
+  setState(() {
+    _status = 'Proof received!';
+    _proofData = 'Extracted data: ${proof.claimData.context}\n\nFull proof: ${proof.toString()}';
+  });
+}
+
+void _handleProofError(Exception error) {
+  _handleError('Error in proof generation', error);
+}
+```
+
+## Complete Basic Example
+
+Here's a full example putting all the steps together in a Flutter widget:
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:reclaim_sdk/reclaim.dart';
+import 'package:reclaim_sdk/utils/interfaces.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
+  runApp(MaterialApp(home: ReclaimExample()));
+}
+
+class ReclaimExample extends StatefulWidget {
+  @override
+  _ReclaimExampleState createState() => _ReclaimExampleState();
+}
+
+class _ReclaimExampleState extends State<ReclaimExample> {
+  String _status = '';
+  String _proofData = '';
+
+  Future<void> _startVerificationSession(ReclaimProofRequest request) async {
+    await request.startSession(
+      onSuccess: _handleProofSuccess,
+      onError: _handleProofError,
+    );
+  }
+
+  void _handleProofSuccess(Proof proof) {
+    print('Proof received: $proof');
+    setState(() {
+      _status = 'Proof received!';
+      _proofData =
+          'Extracted data: ${proof.claimData.context}\n\nFull proof: ${proof.toString()}';
+    });
+  }
+
+  void _handleProofError(Exception error) {
+    _handleError('Error in proof generation', error);
+  }
+
+  void _handleError(String message, dynamic error) {
+    print('$message: $error');
+    setState(() => _status = '$message: ${error.toString()}');
+  }
+
+  Future<ReclaimProofRequest> _initializeProofRequest() async {
+    final reclaimProofRequest = await ReclaimProofRequest.init(
+      "YOUR_APP_ID", // Replace with your actual Application ID
+      "YOUR_APP_SECRET", // Replace with your actual Application Secret
+      "YOUR_PROVIDER_ID", // Replace with your actual Provider ID
+    );
+    return reclaimProofRequest;
+  }
+
+  Future<String> _generateRequestUrl(ReclaimProofRequest request) async {
+    final requestUrl = await request.getRequestUrl();
+    print('Request URL: $requestUrl');
+    return requestUrl;
+  }
+
+  Future<void> _launchUrl(String url) async {
+    if (await canLaunchUrl(Uri.parse(url))) {
+      final launched = await launchUrl(
+        Uri.parse(url),
+        mode: LaunchMode.externalApplication,
+      );
+      if (launched) {
+        setState(() => _status = 'Session started. Waiting for proof...');
+      } else {
+        throw 'Could not launch $url';
+      }
+    }
+  }
+
+  Future<void> startReclaimSession() async {
+    try {
+      print('Starting Reclaim session');
+      final reclaimProofRequest = await _initializeProofRequest();
+      final requestUrl = await _generateRequestUrl(reclaimProofRequest);
+      await _launchUrl(requestUrl);
+      await _startVerificationSession(reclaimProofRequest);
+    } catch (error) {
+      _handleError('Error starting Reclaim session', error);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Reclaim SDK Demo')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ElevatedButton(
+              onPressed: startReclaimSession,
+              child: const Text('Start Reclaim Session'),
+            ),
+            const SizedBox(height: 20),
+            Text(_status, style: const TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 20),
+            if (_proofData.isNotEmpty)
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Text(_proofData),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+```
+
+<Callout type="info">
+  This example demonstrates a basic implementation. In a real application, you'd need to handle errors more robustly, manage state more efficiently, and integrate this flow into your broader application logic.
+</Callout>
+
+## Next Steps
+
+Now that you've learned the basics, you can:
+
+1. Learn about [Advanced Configuration](./advanced-configuration) options to customize the SDK for your specific needs.
+2. Review [Best Practices](./best-practices) for optimizing your Reclaim integration.
+
+If you have any questions, don't hesitate to join our [Telegram community](https://t.me/protocolreclaim) for support.
+
+Happy coding with Reclaim Protocol in Flutter!

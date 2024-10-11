@@ -2,7 +2,7 @@ import { Callout } from 'nextra/components'
 
 # Backend Example: Integrating Reclaim SDK in a Node.js Application
 
-This guide demonstrates how to integrate the Reclaim Protocol JavaScript SDK into a Node.js backend application using Express. We'll create a simple server that generates a request URL and handles proof verification.
+This guide demonstrates how to integrate the Reclaim Protocol JavaScript SDK into a Node.js backend application using Express. We'll create a simple server that generates json configuration for sdk for frontend to use and handles proof verification.
 
 <Callout type="info">
   This example uses Express.js, but the core concepts can be applied to other Node.js frameworks or vanilla Node.js.
@@ -47,9 +47,9 @@ Implement a route that initializes the SDK and generates a JSON configuration st
 
 ```javascript
 app.get('/reclaim/generate-config', async (req, res) => {
-  const APP_ID = 'YOUR_APPLICATION_ID'
-  const APP_SECRET = 'YOUR_APPLICATION_SECRET'
-  const PROVIDER_ID = 'YOUR_PROVIDER_ID'
+  const APP_ID = 'YOUR_APPLICATION_ID' // Replace with your application ID
+  const APP_SECRET = 'YOUR_APPLICATION_SECRET' // Replace with your application secret
+  const PROVIDER_ID = 'YOUR_PROVIDER_ID' // Replace with your provider ID
 
   try {
     const reclaimProofRequest = await ReclaimProofRequest.init(APP_ID, APP_SECRET, PROVIDER_ID)
