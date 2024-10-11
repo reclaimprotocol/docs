@@ -2,17 +2,14 @@ import { Callout } from 'nextra/components'
 
 # Advanced Configuration of the Reclaim Protocol Flutter SDK
 
-This guide provides detailed information on advanced configuration options for the Reclaim Protocol Flutter SDK. These options allow you to customize and enhance your integration for specific use cases.
+This guide covers advanced configuration options for the Reclaim Protocol Flutter SDK, allowing you to customize your integration for specific use cases.
 
 <Callout type="info">
-  Before diving into advanced configurations, make sure you're familiar with the [Flutter example](./flutter-example)
+  Ensure you're familiar with the [Flutter example](./flutter-example) before exploring these advanced options.
+  Make sure to use advanced configuration options before calling `getRequestUrl()`.
 </Callout>
 
 ## Advanced Options
-
-<Callout type="warning">
-  Important: All advanced configuration methods should be called before invoking `getRequestUrl()`. This ensures that all settings are properly applied to your proof request.
-</Callout>
 
 ### Adding Context
 
@@ -33,12 +30,8 @@ final requestUrl = await reclaimProofRequest.getRequestUrl();
 - `contextId`: A unique identifier for the context (hex address)
 - `Context message`: Additional information about the proof request (string)
 
-<Callout type="tip">
-  Use context to provide metadata about the proof request, such as its purpose or origin. This can be particularly useful when handling multiple types of proofs in your application.
-</Callout>
-
-<Callout type="warning">
-  Ensure that the contextId is a valid hex address. It should start with '0x' and contain only hexadecimal characters (0-9 and a-f).
+<Callout type="info">
+  Use context to provide helpful metadata about your proof request, such as its purpose or origin. This is especially useful when handling multiple types of proofs. Remember to use a valid hex address for the contextId, starting with '0x' and containing only hexadecimal characters (0-9 and a-f).
 </Callout>
 
 ### Setting Parameters
@@ -60,7 +53,7 @@ reclaimProofRequest.setParams({
 final requestUrl = await reclaimProofRequest.getRequestUrl();
 ```
 
-<Callout type="warning">
+<Callout type="info">
   Use this option carefully. If the actual data doesn't match the set parameters, proof generation will not trigger. Ensure that the parameters you set are achievable and relevant to the proof you're requesting.
 </Callout>
 
@@ -81,19 +74,13 @@ reclaimProofRequest.setRedirectUrl('yourapp://verification-complete');
 final requestUrl = await reclaimProofRequest.getRequestUrl();
 ```
 
-<Callout type="info">
-  By using a deep link (e.g., 'yourapp://verification-complete'), you can ensure that users are automatically redirected back to your app after the proof generation process. This creates a smooth, uninterrupted user experience. Make sure to set up deep link handling in your app to properly process this redirect.
-</Callout>
-
 <Callout type="tip">
   To set up deep linking in your Flutter app:
   1. Configure your app to handle the custom URL scheme (e.g., 'yourapp://')
   2. Set up a route in your app to handle the '/verification-complete' path
   3. Process any additional data passed through the deep link as needed
 
-  This way, when users complete the verification, they'll be seamlessly brought back to the relevant screen in your app.
-
-  Complete guide on deep linking in Flutter: [Deep Linking in Flutter](https://docs.flutter.dev/ui/navigation/deep-linking) 
+  For a complete guide on deep linking in Flutter, see: [Deep Linking in Flutter](https://docs.flutter.dev/ui/navigation/deep-linking)
 </Callout>
 
 ### Custom Callback URL

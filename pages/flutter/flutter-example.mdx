@@ -21,16 +21,6 @@ Before you begin, ensure you have:
 
 First, import the necessary components from the SDK in your Dart file:
 
-<Callout type="info">
-  We recommend using the `url_launcher` package to open the request URL. Ensure you have added the `url_launcher` package to your `pubspec.yaml` file:
-
-```yaml
-dependencies:
-  url_launcher: ^6.0.20
-```
-
-</Callout>
-
 ```dart
 import 'package:flutter/material.dart';
 import 'package:reclaim_sdk/reclaim.dart';
@@ -61,7 +51,7 @@ Future<ReclaimProofRequest> _initializeProofRequest() async {
 
 ### 3. Generate a Request URL
 
-Create a URL that users can visit to initiate the proof request:
+Request URL is the URL that users will visit to initiate the proof request process. It redirects the user to the app clip or instant app flow for Reclaim Verifier App. You can generate it using the following method:
 
 ```dart
 Future<String> _generateRequestUrl(ReclaimProofRequest request) async {
@@ -73,7 +63,16 @@ Future<String> _generateRequestUrl(ReclaimProofRequest request) async {
 
 ### 4. Launch the URL
 
-Use the `url_launcher` package to open the request URL:
+<Callout type="info">
+  We recommend using the `url_launcher` package to open the request URL. Ensure you have added the `url_launcher` package to your `pubspec.yaml` file:
+
+```yaml
+dependencies:
+  url_launcher: ^6.0.20
+```
+</Callout>
+
+We use this method to open the request URL in an external browser. User is navigated to the Request URL from your app.
 
 
 ```dart
@@ -128,11 +127,9 @@ import 'package:flutter/material.dart';
 import 'package:reclaim_sdk/reclaim.dart';
 import 'package:reclaim_sdk/utils/interfaces.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env");
   runApp(MaterialApp(home: ReclaimExample()));
 }
 
