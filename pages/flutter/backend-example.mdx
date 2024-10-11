@@ -1,0 +1,281 @@
+import { Callout } from 'nextra/components'
+
+# Backend Example with Express.js for Flutter Integration
+
+While our Flutter SDK primarily focuses on frontend implementation, you'll need a backend to handle authentication, logging, and generating json configuration for sdk for frontend to use securely. This example demonstrates how to create an Express.js backend that works with our Flutter Frontend implementation.
+
+<Callout type="info">
+  This example uses Express.js, but the core concepts can be applied to other Node.js frameworks or vanilla Node.js.
+</Callout>
+
+## Step-by-Step Implementation
+
+### 1. Backend Setup with Express.js
+
+First, make sure you have Node.js installed. Then, create a new directory for your backend project and initialize it:
+
+```bash
+mkdir reclaim-backend-demo
+cd reclaim-backend-demo
+npm init -y
+npm install express @reclaimprotocol/js-sdk
+```
+
+### 2. Import Dependencies
+
+Create a new file named `server.js` and import the necessary dependencies:
+
+```javascript
+const express = require('express')
+const { ReclaimProofRequest } = require('@reclaimprotocol/js-sdk')
+```
+
+### 3. Initialize Express App
+
+Set up your Express application:
+
+```javascript
+const app = express()
+const port = 3000
+
+app.use(express.json()) // Middleware to parse JSON bodies
+```
+
+### 4. Create Route to Generate Request Configuration
+
+Implement a route that initializes the SDK and generates a JSON configuration string:
+
+```javascript
+app.get('/reclaim/generate-config', async (req, res) => {
+  const APP_ID = 'YOUR_APPLICATION_ID' // Replace with your application ID
+  const APP_SECRET = 'YOUR_APPLICATION_SECRET' // Replace with your application secret
+  const PROVIDER_ID = 'YOUR_PROVIDER_ID' // Replace with your provider ID
+
+  try {
+    const reclaimProofRequest = await ReclaimProofRequest.init(APP_ID, APP_SECRET, PROVIDER_ID)
+    
+    reclaimProofRequest.setAppCallbackUrl('https://your-backend.com/receive-proofs')
+    
+    const reclaimProofRequestConfig = reclaimProofRequest.toJsonString()
+
+    return res.json({ reclaimProofRequestConfig })
+  } catch (error) {
+    console.error('Error generating request config:', error)
+    return res.status(500).json({ error: 'Failed to generate request config' })
+  }
+})
+```
+
+### 5. Create Route to Receive Proofs
+
+Implement a route to handle the proofs received from the frontend:
+
+```javascript
+app.post('/receive-proofs', (req, res) => {
+  const proofs = req.body
+  console.log('Received proofs:', proofs)
+  // Process the proofs here
+  return res.sendStatus(200)
+})
+
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}`)
+})
+```
+
+<Callout type="info">
+  In a production environment, you'd want to implement more robust proof verification and error handling in this route.
+</Callout>
+
+### 6. Start the Server
+
+Finally, start your Express server:
+
+```javascript
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}`)
+})
+``` 
+
+### 7. Complete Server Code
+
+Here's the complete `server.js` file:
+
+```javascript
+const express = require('express')
+const { ReclaimProofRequest } = require('@reclaimprotocol/js-sdk')
+
+const app = express()
+const port = 3000
+
+app.use(express.json())
+
+app.get('/reclaim/generate-config', async (req, res) => {
+  const APP_ID = 'YOUR_APPLICATION_ID' // Replace with your application ID
+  const APP_SECRET = 'YOUR_APPLICATION_SECRET' // Replace with your application secret
+  const PROVIDER_ID = 'YOUR_PROVIDER_ID' // Replace with your provider ID
+
+  try {
+    const reclaimProofRequest = await ReclaimProofRequest.init(APP_ID, APP_SECRET, PROVIDER_ID)
+    
+    reclaimProofRequest.setAppCallbackUrl('https://your-backend.com/receive-proofs')
+    
+    const reclaimProofRequestConfig = reclaimProofRequest.toJsonString()
+
+    return res.json({ reclaimProofRequestConfig })
+  } catch (error) {
+    console.error('Error generating request config:', error)
+    return res.status(500).json({ error: 'Failed to generate request config' })
+  }
+})
+
+app.post('/receive-proofs', (req, res) => {
+  const proofs = req.body
+  console.log('Received proofs:', proofs)
+  // Process the proofs here
+  return res.sendStatus(200)
+})
+
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}`)
+})
+```
+
+### 8. Flutter Frontend Integration
+
+Now that we have our Express.js backend set up, let's integrate it with our Flutter frontend. We'll modify the example from the [Flutter Example](./flutter-example) to use our backend API.
+
+Update your Flutter code to fetch the configuration from the backend:
+
+```dart 
+import 'package:flutter/material.dart';
+import 'package:reclaim_sdk/reclaim.dart';
+import 'package:reclaim_sdk/utils/interfaces.dart';
+import 'package:reclaim_sdk/utils/types.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+class ReclaimExample extends StatefulWidget {
+  @override
+  _ReclaimExampleState createState() => _ReclaimExampleState();
+}
+
+class _ReclaimExampleState extends State<ReclaimExample> {
+  String _status = '';
+  String _proofData = '';
+
+  Future<ReclaimProofRequest> _fetchReclaimConfig() async {
+    final response = await http.get(Uri.parse('http://localhost:3000/reclaim/generate-config'));
+    if (response.statusCode == 200) {
+      final jsonData = json.decode(response.body);
+      final reclaimProofRequest = await ReclaimProofRequest.fromJsonString(jsonData['reclaimProofRequestConfig']);
+      return reclaimProofRequest;
+    } else {
+      throw Exception('Failed to fetch Reclaim configuration');
+    }
+  }     
+
+  Future<void> _startVerificationSession(ReclaimProofRequest request) async {
+    await request.startSession(
+      onSuccess: _handleProofSuccess,
+      onError: _handleProofError,
+    );
+  }
+
+  void _handleProofSuccess(Proof proof) {
+    print('Proof received: $proof');
+    setState(() {
+      _status = 'Proof received!';
+      _proofData =
+          'Extracted data: ${proof.claimData.context}\n\nFull proof: ${proof.toString()}';
+    });
+  }
+
+  void _handleProofError(Exception error) {
+    _handleError('Error in proof generation', error);
+  }
+
+  void _handleError(String message, dynamic error) {
+    print('$message: $error');
+    setState(() => _status = '$message: ${error.toString()}');
+  }
+
+  Future<void> _launchUrl(String url) async {
+    if (await canLaunchUrl(Uri.parse(url))) {
+      final launched = await launchUrl(
+        Uri.parse(url),
+        mode: LaunchMode.externalApplication,
+      );
+      if (launched) {
+        setState(() => _status = 'Session started. Waiting for proof...');
+      } else {
+        throw 'Could not launch $url';
+      }
+    }
+  }
+
+  Future<void> startReclaimSession() async {
+    try {
+      print('Starting Reclaim session');
+      final reclaimProofRequest = await _fetchReclaimConfig();
+      final requestUrl = await reclaimProofRequest.getRequestUrl();
+      await _launchUrl(requestUrl);
+      await _startVerificationSession(reclaimProofRequest);
+    } catch (error) {
+      _handleError('Error starting Reclaim session', error);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Reclaim SDK Demo')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ElevatedButton(
+              onPressed: startReclaimSession,
+              child: const Text('Start Reclaim Session'),
+            ),
+            const SizedBox(height: 20),
+            Text(_status, style: const TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 20),
+            if (_proofData.isNotEmpty)
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Text(_proofData),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+```
+
+Make sure to add the `http` package to your `pubspec.yaml`:
+
+```yaml
+dependencies:
+  http: ^0.13.3
+```
+
+This updated Flutter code fetches the Reclaim configuration from our Express.js backend and initializes the `ReclaimProofRequest` on the frontend using the received JSON data.
+
+## Running the Example
+
+1. Start your Express.js backend:
+   ```
+   node server.js   
+   ```
+
+2. Run your Flutter application.
+
+3. When you tap the "Start Reclaim Session" button in your Flutter app, it will fetch the configuration from the backend, generate a request URL, and start the verification process.
+
+By using this approach, you keep sensitive information like your APP_SECRET on the server-side while still allowing your Flutter application to utilize all the SDK features securely.
