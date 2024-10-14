@@ -24,7 +24,7 @@ const config: DocsThemeConfig = {
       </>
     ),
     project: {
-      link: 'https://github.com/reclaimprotocol/reclaim-docs',
+      link: 'https://github.com/reclaimprotocol/docs',
     },
     chat: {
       link: 'https://t.me/protocolreclaim',
