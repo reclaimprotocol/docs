@@ -1,7 +1,6 @@
 {
   "index": "Overview",
   "installation": "Installation",
-  "flutter-example": "Flutter Example",
-  "fullstack-example": "Fullstack Example",
+  "backend-example": "Backend Example",
   "best-practices": "Best Practices"
 }

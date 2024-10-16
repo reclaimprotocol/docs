@@ -239,16 +239,36 @@ class _ReclaimExampleState extends State<ReclaimExample> {
 }
 ```
 
-<Callout type="info">
-  This example demonstrates a basic implementation. In a real application, you'd need to handle errors more robustly, manage state more efficiently, and integrate this flow into your broader application logic.
+<Callout type="warning">
+  🚨 Safety First! 🚨
+  
+  For real-world apps, don't put sensitive info like APP_SECRET in your frontend code. It's not safe!
+  
+  Instead, do this:
+  1. Store sensitive info like APP_SECRET on your backend
+  2. Get the ReclaimProofRequestConfig from your backend
+  3. Use `fromJsonString(reclaimProofRequestConfig)` on the frontend to get the reclaimProofRequest object and then generate the request URL.
+  
+  This keeps your application secure and your secrets... well, secret! 🔒
+  
+  Check out the [Fullstack Example](./fullstack-example) to see how to do this.
 </Callout>
+
+## How It Works
+
+1. We initialize the SDK with your app credentials.
+2. We generate a request URL for the verification process.
+3. When the user presses the button, it opens the request URL.
+4. The SDK listens for the verification result and updates the status.
 
 ## Next Steps
 
-Now that you've learned the basics, you can:
-
-1. Learn about [Advanced Configuration](./advanced-configuration) options to customize the SDK for your specific needs.
+1. Learn about [Advanced Configuration](../advance-configurations/advance-options) options to customize the SDK for your specific needs.
 2. Review [Best Practices](./best-practices) for optimizing your Reclaim integration.
+
+<Callout type="info">
+  This example demonstrates a basic implementation. In a real application, you'd need to handle errors more robustly, manage state more efficiently, and integrate this flow into your broader application logic.
+</Callout>
 
 If you have any questions, don't hesitate to join our [Telegram community](https://t.me/protocolreclaim) for support.
 

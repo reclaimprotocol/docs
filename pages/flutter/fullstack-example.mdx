@@ -1,0 +1,152 @@
+import { Callout } from 'nextra/components'
+
+# Fullstack Example: Integrating Reclaim SDK in a Flutter Application
+
+This guide demonstrates how to integrate the Reclaim Protocol Flutter SDK into a fullstack application. We'll focus on the frontend implementation and how it interacts with a backend.
+
+## Backend Implementation
+
+For a detailed backend implementation using Node.js and Express, please refer to the [Backend Example](/backend/backend-example).
+
+<Callout type="info">
+  The backend example provides a comprehensive guide on setting up a server that generates the SDK configuration and handles proof verification.
+</Callout>
+
+## Frontend Implementation
+
+Here's a basic implementation of how to use the SDK configuration from the backend to initialize the Reclaim SDK in your Flutter application:
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:reclaim_sdk/reclaim.dart';
+import 'package:reclaim_sdk/utils/interfaces.dart';
+import 'package:reclaim_sdk/utils/types.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+ 
+class ReclaimExample extends StatefulWidget {
+  @override
+  _ReclaimExampleState createState() => _ReclaimExampleState();
+}
+ 
+class _ReclaimExampleState extends State<ReclaimExample> {
+  String _status = '';
+  String _proofData = '';
+ 
+  Future<ReclaimProofRequest> _fetchReclaimConfig() async {
+    final response = await http.get(Uri.parse('https://your-backend.com/reclaim/generate-config'));
+    if (response.statusCode == 200) {
+      final jsonData = json.decode(response.body);
+      final reclaimProofRequest = await ReclaimProofRequest.fromJsonString(jsonData['reclaimProofRequestConfig']);
+      return reclaimProofRequest;
+    } else {
+      throw Exception('Failed to fetch Reclaim configuration');
+    }
+  }     
+ 
+  Future<void> _startVerificationSession(ReclaimProofRequest request) async {
+    await request.startSession(
+      onSuccess: _handleProofSuccess,
+      onError: _handleProofError,
+    );
+  }
+ 
+  void _handleProofSuccess(Proof proof) {
+    print('Proof received: $proof');
+    setState(() {
+      _status = 'Proof received!';
+      _proofData =
+          'Extracted data: ${proof.claimData.context}\n\nFull proof: ${proof.toString()}';
+    });
+  }
+ 
+  void _handleProofError(Exception error) {
+    _handleError('Error in proof generation', error);
+  }
+ 
+  void _handleError(String message, dynamic error) {
+    print('$message: $error');
+    setState(() => _status = '$message: ${error.toString()}');
+  }
+ 
+  Future<void> _launchUrl(String url) async {
+    if (await canLaunchUrl(Uri.parse(url))) {
+      final launched = await launchUrl(
+        Uri.parse(url),
+        mode: LaunchMode.externalApplication,
+      );
+      if (launched) {
+        setState(() => _status = 'Session started. Waiting for proof...');
+      } else {
+        throw 'Could not launch $url';
+      }
+    }
+  }
+ 
+  Future<void> startReclaimSession() async {
+    try {
+      print('Starting Reclaim session');
+      final reclaimProofRequest = await _fetchReclaimConfig();
+      final requestUrl = await reclaimProofRequest.getRequestUrl();
+      await _launchUrl(requestUrl);
+      await _startVerificationSession(reclaimProofRequest);
+    } catch (error) {
+      _handleError('Error starting Reclaim session', error);
+    }
+  }
+ 
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Reclaim SDK Demo')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ElevatedButton(
+              onPressed: startReclaimSession,
+              child: const Text('Start Reclaim Session'),
+            ),
+            const SizedBox(height: 20),
+            Text(_status, style: const TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 20),
+            if (_proofData.isNotEmpty)
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Text(_proofData),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+```
+
+<Callout type="tip">
+  This frontend implementation keeps things simple and user-friendly. It fetches the configuration from your backend, initializes the SDK, and provides basic success and failure handling.
+</Callout>
+
+## Usage
+
+1. Set up your backend as described in the [Backend Example](/backend/backend-example).
+2. Implement the frontend code in your Flutter application.
+3. Call the `initializeReclaim()` function when you want to start the Reclaim process (e.g., when a user taps a button).
+
+<Callout type="info">
+  Remember to replace 'https://your-backend.com/reclaim/generate-config' with the actual URL of your backend endpoint.
+</Callout>
+
+## Next Steps
+
+1. Customize the UI to guide users through the Reclaim process.
+2. Implement error handling and loading states for a better user experience.
+3. Consider adding additional security measures, such as user authentication.
+4. Test thoroughly in different environments and edge cases.
+5. Implement URL launching logic using the `url_launcher` package.
+
+By following this example, you'll have a basic fullstack implementation of the Reclaim Protocol in your Flutter application. Happy coding!

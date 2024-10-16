@@ -4,7 +4,7 @@ import { DocsThemeConfig } from 'nextra-theme-docs'
 
 const config: DocsThemeConfig = {
     logo: <span className="font-extrabold flex items-center gap-2">
-        <Image src="/assets/logo.png" alt="logo"  width={50} height={50} />
+        <Image src="/assets/logo.png" alt="logo"  width={35} height={35} />
         <p className="text-xl">Reclaim</p>
         </span>,
       banner: {

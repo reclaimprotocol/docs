@@ -1,0 +1,163 @@
+import { Callout } from 'nextra/components'
+import { Tabs, Tab } from 'nextra/components'
+
+
+# Backend Example with Express.js
+
+This example demonstrates how to create a simple Express.js backend that works with the Reclaim Protocol. The backend will handle generating the configuration for the SDK and receiving proofs.
+
+<Callout type="info">
+  This example uses Express.js, but the core concepts can be applied to other Node.js frameworks or vanilla Node.js.
+</Callout>
+
+## Step-by-Step Implementation
+
+### 1. Set up the project
+
+First, create a new directory for your backend project and initialize it:
+
+```bash
+mkdir reclaim-backend-demo
+cd reclaim-backend-demo
+npm init -y
+npm install express @reclaimprotocol/js-sdk
+```
+
+### 2. Create the server file
+
+Create a new file named `server.js` and add the following code:
+
+```javascript
+const express = require('express')
+const { ReclaimProofRequest } = require('@reclaimprotocol/js-sdk')
+
+const app = express()
+const port = 3000
+
+app.use(express.json())
+
+// Route to generate SDK configuration
+app.get('/reclaim/generate-config', async (req, res) => {
+  const APP_ID = 'YOUR_APPLICATION_ID'
+  const APP_SECRET = 'YOUR_APPLICATION_SECRET'
+  const PROVIDER_ID = 'YOUR_PROVIDER_ID'
+
+  try {
+    const reclaimProofRequest = await ReclaimProofRequest.init(APP_ID, APP_SECRET, PROVIDER_ID)
+    
+    reclaimProofRequest.setAppCallbackUrl('https://your-backend.com/receive-proofs')
+    
+    const reclaimProofRequestConfig = reclaimProofRequest.toJsonString()
+
+    return res.json({ reclaimProofRequestConfig })
+  } catch (error) {
+    console.error('Error generating request config:', error)
+    return res.status(500).json({ error: 'Failed to generate request config' })
+  }
+})
+
+// Route to receive proofs
+app.post('/receive-proofs', (req, res) => {
+  const proofs = req.body
+  console.log('Received proofs:', proofs)
+  // Process the proofs here
+  return res.sendStatus(200)
+})
+
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}`)
+})
+```
+
+### 3. Run the server
+
+Start your Express server:
+
+```bash
+node server.js
+```
+
+## Understanding the `reclaimProofRequestConfig`
+
+The `reclaimProofRequestConfig` is a JSON string that contains all the necessary information for initializing the Reclaim SDK on the client-side. Here's an example of what the response from the `/reclaim/generate-config` endpoint might look like:
+
+```json
+{
+  "reclaimProofRequestConfig": "{
+    \"applicationId\": \"<APPLICATION_ID>\",
+    \"providerId\": \"<PROVIDER_ID>\",
+    \"sessionId\": \"<SESSION_ID>\",
+    \"context\": {
+      \"contextAddress\": \"<CONTEXT_ADDRESS>\",
+      \"contextMessage\": \"<CONTEXT_MESSAGE>\"
+    },
+    \"requestedProof\": {
+      \"url\": \"<PROOF_URL>\",
+      \"parameters\": {
+        \"<PARAM1>\": \"\",
+        \"<PARAM2>\": \"\"
+      }
+    },
+    \"appCallbackUrl\": \"<CALLBACK_URL>\",
+    \"signature\": \"<SIGNATURE>\",
+    \"timeStamp\": \"<TIMESTAMP>\"
+  }"
+}
+```
+
+Let's break down the structure of the `reclaimProofRequestConfig`:
+
+- `applicationId`: Your unique application identifier.
+- `providerId`: The ID of the provider you're using.
+- `sessionId`: A unique identifier for this particular proof request session.
+- `context`: 
+  - `contextAddress`: The address associated with the context (often set to "0x0").
+  - `contextMessage`: A custom message providing context for the proof request.
+- `requestedProof`:
+  - `url`: The URL from which the proof will be generated.
+  - `parameters`: Key-value pairs of parameters required for the proof.
+- `appCallbackUrl`: The URL where the proofs will be sent after generation.
+- `signature`: A cryptographic signature ensuring the integrity of the request.
+- `timeStamp`: The timestamp when the configuration was generated.
+
+When you receive this response from your backend, you'll need to use the `reclaimProofRequestConfig` string to initialize the Reclaim SDK in your client application.
+
+## Using the Configuration in Client Applications
+
+You can use this configuration to initialize the Reclaim SDK in various client platforms:
+
+
+<Tabs items={ ['JavaScript', 'React Native', 'Flutter']}>
+  <Tab>
+    ```javascript
+    import { ReclaimProofRequest } from '@reclaimprotocol/js-sdk';
+
+    // Fetch the config from your backend
+    const response = await fetch('http://your-backend.com/reclaim/generate-config');
+    const jsonData = await response.json();
+    const reclaimProofRequest = await ReclaimProofRequest.fromJsonString(jsonData.reclaimProofRequestConfig);
+    ```
+  </Tab>
+  <Tab>
+    ```javascript
+    import { ReclaimProofRequest } from '@reclaimprotocol/reactnative-sdk';
+
+    // Fetch the config from your backend
+    const response = await fetch('http://your-backend.com/reclaim/generate-config');
+    const jsonData = await response.json();
+    const reclaimProofRequest = await ReclaimProofRequest.fromJsonString(jsonData.reclaimProofRequestConfig);
+    ```
+  </Tab>
+    <Tab>
+    ```dart
+    import 'package:reclaim_sdk/reclaim.dart';
+
+    // Fetch the config from your backend
+    final response = await http.get(Uri.parse('http://your-backend.com/reclaim/generate-config'));
+    final jsonData = json.decode(response.body);
+    final reclaimProofRequest = await ReclaimProofRequest.fromJsonString(jsonData['reclaimProofRequestConfig']);
+    ```
+  </Tab>
+</Tabs>
+
+By using this approach, you keep sensitive information like your `APP_SECRET` on the server-side while still allowing your client applications to utilize all the SDK features securely.

@@ -16,17 +16,20 @@
   "js": {
     "title": "JS"
   },
-  "zkfetch": {
-    "title": "zkFetch"
-  },
   "react-native": {
     "title": "React Native"
   },
   "flutter": {
     "title": "Flutter"
   },
-  "sdk-methods": {
-    "title": "Methods for Off-chain sdks"
+  "backend": {
+    "title": "Backend Flow"
+  },
+  "advance-configurations": {
+    "title": "Advance Configurations"
+  },
+  "zkfetch": {
+    "title": "zkFetch"
   },
   "solidity": {
     "title": "Solidity"

@@ -2,13 +2,20 @@ import { Callout } from 'nextra/components'
 
 # Frontend Example: Integrating Reclaim SDK in a React Application
 
-This guide demonstrates how to integrate the Reclaim Protocol JavaScript SDK into a React application. We'll create a simple component that initializes the SDK, generates a request URL, and handles proof verification.
+This guide will walk you through the fundamental steps to integrate Reclaim's proof verification system into your React application.
 
-<Callout type="info">
-  This example uses React hooks, but the core concepts can be applied to other frontend frameworks or vanilla JavaScript.
+## Prerequisites
+
+Before you begin, ensure you have:
+
+- Installed the SDK (see [Installation Guide](./installation))
+- Your Application ID, Secret, and Provider ID from the [Reclaim Developer Portal](https://dev.reclaimprotocol.org/)
+
+<Callout type="warning">
+  Keep your Application Secret secure and never expose it in client-side code.
 </Callout>
 
-## Step-by-Step Implementation
+## Step-by-Step Guide
 
 ### 1. Import Dependencies
 
@@ -19,131 +26,178 @@ import React, { useState, useEffect } from 'react'
 import { ReclaimProofRequest } from '@reclaimprotocol/js-sdk'
 ```
 
-### 2. Create the React Component
+### 2. Initialize the SDK
 
-We'll create a `ReclaimDemo` component to showcase the SDK integration:
+Set up your credentials and initialize the SDK:
 
 ```javascript
-function ReclaimDemo() {
-  const [requestUrl, setRequestUrl] = useState('')
-  const [proofs, setProofs] = useState(null)
+const APP_ID = 'YOUR_APPLICATION_ID'
+const APP_SECRET = 'YOUR_APPLICATION_SECRET'
+const PROVIDER_ID = 'YOUR_PROVIDER_ID'
 
-  // We'll add the SDK initialization logic here in the next step
-  
-  return (
-    // We'll add the component's JSX here later
-  )
+async function initializeReclaim() {
+  const reclaimProofRequest = await ReclaimProofRequest.init(APP_ID, APP_SECRET, PROVIDER_ID)
+  return reclaimProofRequest
 }
 ```
 
-### 3. Initialize the Reclaim SDK
-
-Use the `useEffect` hook to initialize the SDK when the component mounts:
-
-```javascript
-useEffect(() => {
-  async function initializeReclaim() {
-    const APP_ID = 'YOUR_APPLICATION_ID'
-    const APP_SECRET = 'YOUR_APPLICATION_SECRET'
-    const PROVIDER_ID = 'YOUR_PROVIDER_ID'
-
-    const reclaimProofRequest = await ReclaimProofRequest.init(APP_ID, APP_SECRET, PROVIDER_ID)
-    
-    const url = await reclaimProofRequest.getRequestUrl()
-    setRequestUrl(url)
-
-    await reclaimProofRequest.startSession({
-      onSuccessCallback: (proofs) => {
-        console.log('Verification success', proofs)
-        setProofs(proofs)
-      },
-      onFailureCallback: (error) => {
-        console.error('Verification failed', error)
-      }
-    })
-  }
-
-  initializeReclaim()
-}, [])
-```
-
-<Callout type="warning">
-  🚨 Safety First! 🚨
-  
-  For real-world apps, don't put sensitive info like APP_SECRET in your frontend code. It's not safe!
-  
-  Instead, do this:
-  1. Store sensitive info like APP_SECRET on your backend
-  2. Get the ReclaimProofRequestConfig from your backend
-  3. Use `fromJsonString(reclaimProofRequestConfig)` on the frontend to get the reclaimProofRequest object and then generate the request URL. (Check backend example for more details)
-  
-  This keeps your application secure and your secrets... well, secret! 🔒
+<Callout type="info">
+  Replace 'YOUR_APPLICATION_ID', 'YOUR_APPLICATION_SECRET', and 'YOUR_PROVIDER_ID' with your actual credentials.
 </Callout>
 
-### 4. Render the Component
+### 3. Generate a Request URL
 
-Now, let's add the JSX to render our component:
+Create a URL that users can visit to initiate the proof request:
 
 ```javascript
-return (
-  <div>
-    <h1>Reclaim Protocol Demo</h1>
-    {requestUrl && (
-      <div>
-        <p>Request URL: {requestUrl}</p>
-        <p>Use this URL to start the verification process</p>
-      </div>
-    )}
-    {proofs && (
-      <div>
-        <h2>Verification Successful!</h2>
-        <pre>{JSON.stringify(proofs, null, 2)}</pre>
-      </div>
-    )}
-  </div>
-)
+async function generateRequestUrl(reclaimProofRequest) {
+  const requestUrl = await reclaimProofRequest.getRequestUrl()
+  console.log('Request URL:', requestUrl)
+  return requestUrl
+}
 ```
 
-### 5. Complete Component
+### 4. Start the Verification Session
 
-Here's the complete `ReclaimDemo` component:
+Begin listening for proofs:
 
 ```javascript
-import React, { useState, useEffect } from 'react'
-import { ReclaimProofRequest } from '@reclaimprotocol/js-sdk'
+async function startVerificationSession(reclaimProofRequest, onSuccess, onFailure) {
+  await reclaimProofRequest.startSession({
+    onSuccess: onSuccess,
+    onFailure: onFailure
+  })
+}
+```
 
+### 5. Create the React Component
+
+Now, let's create a `ReclaimDemo` component to showcase the SDK integration:
+
+```javascript
 function ReclaimDemo() {
   const [requestUrl, setRequestUrl] = useState('')
   const [proofs, setProofs] = useState(null)
+  const [status, setStatus] = useState('')
 
   useEffect(() => {
-    async function initializeReclaim() {
-      const APP_ID = 'YOUR_APPLICATION_ID'
-      const APP_SECRET = 'YOUR_APPLICATION_SECRET'
-      const PROVIDER_ID = 'YOUR_PROVIDER_ID'
+    async function setup() {
+      try {
+        const reclaimProofRequest = await initializeReclaim()
+        const url = await generateRequestUrl(reclaimProofRequest)
+        setRequestUrl(url)
+        setStatus('Ready to start verification')
 
-      const reclaimProofRequest = await ReclaimProofRequest.init(APP_ID, APP_SECRET, PROVIDER_ID)
-      
-      const url = await reclaimProofRequest.getRequestUrl()
-      setRequestUrl(url)
-
-      await reclaimProofRequest.startSession({
-        onSuccessCallback: (proofs) => {
-          console.log('Verification success', proofs)
-          setProofs(proofs)
-        },
-        onFailureCallback: (error) => {
-          console.error('Verification failed', error)
-        }
-      })
+        await startVerificationSession(
+          reclaimProofRequest,
+          (proofs) => {
+            console.log('Verification success', proofs)
+            setProofs(proofs)
+            setStatus('Proof received!')
+          },
+          (error) => {
+            console.error('Verification failed', error)
+            setStatus(`Error: ${error.message}`)
+          }
+        )
+      } catch (error) {
+        console.error('Setup failed', error)
+        setStatus(`Setup failed: ${error.message}`)
+      }
     }
 
-    initializeReclaim()
+    setup()
   }, [])
 
   return (
     <div>
       <h1>Reclaim Protocol Demo</h1>
+      <p>Status: {status}</p>
+      {requestUrl && (
+        <div>
+          <p>Request URL: {requestUrl}</p>
+          <p>Use this URL to start the verification process</p>
+        </div>
+      )}
+      {proofs && (
+        <div>
+          <h2>Verification Successful!</h2>
+          <pre>{JSON.stringify(proofs, null, 2)}</pre>
+        </div>
+      )}
+    </div>
+  )
+}
+```
+
+## Complete Example
+
+Here's the complete example putting all the steps together:
+
+```javascript
+import React, { useState, useEffect } from 'react'
+import { ReclaimProofRequest } from '@reclaimprotocol/js-sdk'
+
+const APP_ID = 'YOUR_APPLICATION_ID'
+const APP_SECRET = 'YOUR_APPLICATION_SECRET'
+const PROVIDER_ID = 'YOUR_PROVIDER_ID'
+
+async function initializeReclaim() {
+  const reclaimProofRequest = await ReclaimProofRequest.init(APP_ID, APP_SECRET, PROVIDER_ID)
+  return reclaimProofRequest
+}
+
+async function generateRequestUrl(reclaimProofRequest) {
+  const requestUrl = await reclaimProofRequest.getRequestUrl()
+  console.log('Request URL:', requestUrl)
+  return requestUrl
+}
+
+async function startVerificationSession(reclaimProofRequest, onSuccess, onFailure) {
+  await reclaimProofRequest.startSession({
+    onSuccess: onSuccess,
+    onFailure: onFailure
+  })
+}
+
+function ReclaimDemo() {
+  const [requestUrl, setRequestUrl] = useState('')
+  const [proofs, setProofs] = useState(null)
+  const [status, setStatus] = useState('')
+
+  useEffect(() => {
+    async function setup() {
+      try {
+        const reclaimProofRequest = await initializeReclaim()
+        const url = await generateRequestUrl(reclaimProofRequest)
+        setRequestUrl(url)
+        setStatus('Ready to start verification')
+
+        await startVerificationSession(
+          reclaimProofRequest,
+          (proofs) => {
+            console.log('Verification success', proofs)
+            setProofs(proofs)
+            setStatus('Proof received!')
+          },
+          (error) => {
+            console.error('Verification failed', error)
+            setStatus(`Error: ${error.message}`)
+          }
+        )
+      } catch (error) {
+        console.error('Setup failed', error)
+        setStatus(`Setup failed: ${error.message}`)
+      }
+    }
+
+    setup()
+  }, [])
+
+  return (
+    <div>
+      <h1>Reclaim Protocol Demo</h1>
+      <p>Status: {status}</p>
       {requestUrl && (
         <div>
           <p>Request URL: {requestUrl}</p>
@@ -163,6 +217,21 @@ function ReclaimDemo() {
 export default ReclaimDemo
 ```
 
+<Callout type="warning">
+  🚨 Safety First! 🚨
+  
+  For real-world apps, don't put sensitive info like APP_SECRET in your frontend code. It's not safe!
+  
+  Instead, do this:
+  1. Store sensitive info like APP_SECRET on your backend
+  2. Get the ReclaimProofRequestConfig from your backend
+  3. Use `fromJsonString(reclaimProofRequestConfig)` on the frontend to get the reclaimProofRequest object and then generate the request URL.
+  
+  This keeps your application secure and your secrets... well, secret! 🔒
+  
+  Check out the [Fullstack Example](./fullstack-example) to see how to do this.
+</Callout>
+
 ## Usage and Next Steps
 
 To use this component in your React application:
@@ -174,15 +243,11 @@ To use this component in your React application:
   This example provides a basic implementation. In a production environment, you'd want to add more robust error handling, loading states, and potentially move the SDK initialization to a more appropriate place in your application architecture.
 </Callout>
 
-### Enhancing the User Experience
+Now that you've learned the basics, you can:
 
-Consider these improvements for a production-ready implementation:
+1. Learn about [Advanced Configuration](../advance-configurations/advance-options) options to customize the SDK for your specific needs.
+2. Review [Best Practices](./best-practices) for optimizing your Reclaim integration.
 
-1. Add a loading indicator while the SDK initializes and fetches the request URL.
-2. Implement a QR code generator for the request URL to make it easier for mobile users.
-3. Provide more detailed error messages and recovery options if verification fails.
-4. Consider using React context or state management libraries for more complex applications.
+If you have any questions, don't hesitate to join our [Telegram community](https://t.me/protocolreclaim) for support.
 
-By following this example and considering these enhancements, you'll be well on your way to integrating the Reclaim Protocol into your React application. Happy coding!
-
-
+Happy coding with Reclaim Protocol in React!
