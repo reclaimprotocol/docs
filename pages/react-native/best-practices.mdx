@@ -1,0 +1,123 @@
+import { Callout } from 'nextra/components'
+
+# Best Practices for Using the Reclaim Protocol React Native SDK
+
+Welcome to our best practices guide! These recommendations will help you use the Reclaim Protocol React Native SDK securely and efficiently in your mobile applications.
+
+## Security Best Practices
+
+### 1. Protect Your Application Secret
+
+<Callout type="warning">
+  Never include your Application Secret in your React Native app's code. This is crucial for maintaining the security of your application.
+</Callout>
+
+- Store your `APP_SECRET` securely on your backend server.
+- Use environment variables or a secure storage solution to manage sensitive information like `APP_ID`.
+
+### 2. Secure Communication
+
+Always use HTTPS for all network communications, especially when handling sensitive data. This ensures that data transmitted between your app and your backend (and subsequently to Reclaim's servers) is encrypted.
+
+### 3. Implement API Security
+
+If your React Native app communicates with a backend server that interacts with the Reclaim SDK, implement proper authentication and authorization mechanisms to prevent unauthorized access to your API endpoints.
+
+## Implementation Best Practices
+
+### 1. Proper Error Handling
+
+Implement robust error handling to manage failed verifications gracefully. This improves user experience and helps with debugging.
+
+```javascript
+try {
+  // Reclaim SDK operations
+} catch (error) {
+  // Handle errors appropriately
+  console.error('Reclaim SDK error:', error);
+  // Show user-friendly error message
+}
+```
+
+### 2. Keep the SDK Updated
+
+<Callout type="info">
+  Regularly update the SDK to ensure you have the latest features and security improvements.
+</Callout>
+
+You can update the SDK using npm or yarn:
+
+```bash
+npm update @reclaimprotocol/reactnative-sdk
+# or
+yarn upgrade @reclaimprotocol/reactnative-sdk
+```
+
+## Performance Best Practices
+
+### 1. Optimize Network Requests
+
+Minimize the number of network requests related to Reclaim operations. Consider implementing caching strategies where appropriate to reduce latency and improve performance.
+
+### 2. Use Asynchronous Operations
+
+Leverage asynchronous operations to prevent blocking the main thread and ensure a smooth user experience:
+
+```javascript
+const getRequestUrl = async () => {
+  try {
+    const result = await reclaimProofRequest.getRequestUrl();
+    // Use the result
+  } catch (error) {
+    // Handle error
+  }
+};
+```
+
+## Testing and Monitoring
+
+### 1. Implement Comprehensive Testing
+
+Write unit tests and integration tests for your Reclaim SDK implementation. Use tools like Jest and React Native Testing Library to ensure reliability across different devices and scenarios.
+
+### 2. Monitor SDK Usage
+
+Implement logging and monitoring solutions to track SDK performance and catch any issues in real-time. Consider using tools like React Native Performance Monitor or integrating with mobile analytics platforms.
+
+## User Experience Best Practices
+
+### 1. Provide Clear Instructions
+
+Guide users through the proof verification process with clear, concise instructions. Use React Native's UI components to create an intuitive interface.
+
+### 2. Implement Graceful Fallbacks
+
+Design your app to handle scenarios where proof verification might fail or be unavailable. Provide alternative paths or clear error messages to users.
+
+### 3. Optimize Loading States
+
+Use React Native's ActivityIndicator or custom loading components while waiting for proof verifications to complete:
+
+```jsx
+const [isLoading, setIsLoading] = useState(false);
+
+// ...
+
+{isLoading ? (
+  <ActivityIndicator size="large" color="#0000ff" />
+) : (
+  // Your verification UI
+)}
+```
+
+### 4. Handle Different Screen Sizes
+
+Ensure your Reclaim-related UI components are responsive and work well on various device sizes and orientations. Use React Native's flexbox layout and responsive design techniques.
+
+### 5. Consider Platform-Specific Behavior
+
+Be aware of platform differences between iOS and Android when implementing Reclaim SDK features. Use platform-specific code or components when necessary to provide the best experience on each platform.
+
+By following these best practices, you'll be well-equipped to build secure, efficient, and user-friendly React Native applications with the Reclaim Protocol SDK. If you have any questions or need further clarification, don't hesitate to reach out to our support team or community forums.
+
+Happy mobile development with Reclaim!
