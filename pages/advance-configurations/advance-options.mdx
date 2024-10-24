@@ -348,6 +348,52 @@ When initializing the SDK, you can pass additional options to customize its beha
   Use this option to enhance debugging capabilities in your application. The logging option is particularly useful during development and testing phases.
 </Callout>
 
+## Understanding the Proof Structure
+
+When using any Reclaim SDK (JavaScript, React Native, Flutter), a proof is generated and returned upon successful verification. This proof contains several key components that provide detailed information about the verification process. Below is a generic structure of a proof:
+
+```json
+{
+  "identifier": "unique_identifier_for_proof", // string
+  "claimData": {
+    "provider": "provider_type", // string
+    "parameters": "verified_data_from_website", // stringified JSON object
+    "owner": "owner_address", // string
+    "timestampS": "timestamp_of_proof_generation", // int
+    "context": "additional_context_information", // stringified JSON object
+    "epoch": "epoch_number" // int
+  },
+  "signatures": [
+    "signature_of_proof" // string
+  ],
+  "witnesses": [
+    {
+      "id": "witness_id", // string
+      "url": "witness_url" // string
+    }
+  ],
+  // publicData is optional and only available if provider supports it else it will be empty
+  "publicData": {} // stringified JSON object
+}
+```
+
+### Key Components:
+
+- **identifier**: A unique identifier for the proof.
+- **claimData**: Contains detailed information about the claim, including:
+  - **provider**: The type of provider used for verification.
+  - **parameters**: The parameters used during the verification process.
+  - **owner**: The address of the owner of the proof.
+  - **timestampS**: The timestamp when the proof was generated.
+  - **context**: Any additional context information related to the proof.
+  - **epoch**: The epoch number indicating the version or state of the proof.
+- **signatures**: A list of signatures that validate the proof.
+- **witnesses**: Information about witnesses that observed the proof generation, including their ID and URL.
+- **publicData**: Any public data associated with the proof.
+
+This proof is typically received in the `onSuccess` callback of `startVerificationSession` method when using the default `callbackUrl`. However, if you have set a custom `callbackUrl`, you will receive this proof at your specified API endpoint.
+
+
 ## Best Practices for Advanced Configuration
 
 1. **Security**: Always prioritize security when configuring callbacks and parameters. Use HTTPS for all URLs and avoid passing sensitive data in parameters.

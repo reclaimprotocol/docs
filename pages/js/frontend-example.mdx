@@ -91,9 +91,18 @@ function ReclaimDemo() {
         await startVerificationSession(
           reclaimProofRequest,
           (proofs) => {
-            console.log('Verification success', proofs)
-            setProofs(proofs)
-            setStatus('Proof received!')
+            if (proofs) {
+              if (typeof proofs === 'string') {
+                // When using a custom callback url, the proof is returned to the callback url and we get a message instead of a proof
+                console.log('SDK Message:', proofs)
+                setProofs(proofs)
+              } else if (typeof proofs !== 'string') {
+                // When using the default callback url, we get a proof object in the response
+                console.log('Proof received:', proofs?.claimData.context)
+                setProofs(JSON.stringify(proofs?.claimData.context))
+              }
+              setStatus('Proof received!')
+            }
           },
           (error) => {
             console.error('Verification failed', error)
@@ -129,6 +138,9 @@ function ReclaimDemo() {
   )
 }
 ```
+
+For detailed information about the `proof` object, refer to the [Advance Configuration](../advance-configurations/advance-options#understanding-the-proof-structure) section.
+
 
 ## Complete Example
 
@@ -176,9 +188,18 @@ function ReclaimDemo() {
         await startVerificationSession(
           reclaimProofRequest,
           (proofs) => {
-            console.log('Verification success', proofs)
-            setProofs(proofs)
-            setStatus('Proof received!')
+            if (proofs) {
+              if (typeof proofs === 'string') {
+                // When using a custom callback url, the proof is returned to the callback url and we get a message instead of a proof
+                console.log('SDK Message:', proofs)
+                setProofs(proofs)
+              } else if (typeof proofs !== 'string') {
+                // When using the default callback url, we get a proof object in the response
+                console.log('Proof received:', proofs?.claimData.context)
+                setProofs(JSON.stringify(proofs?.claimData.context))
+              }
+              setStatus('Proof received!')
+            }
           },
           (error) => {
             console.error('Verification failed', error)

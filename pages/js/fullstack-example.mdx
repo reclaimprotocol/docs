@@ -34,7 +34,15 @@ async function initializeReclaim() {
     // Start the session for better UX
     await reclaimProofRequest.startSession({
       onSuccess: (proofs) => {
-        console.log('Verification success', proofs)
+        if (proofs) {
+            if (typeof proofs === 'string') {
+              // When using a custom callback url, the proof is returned to the callback url and we get a message instead of a proof
+              console.log('SDK Message:', proofs)
+            } else if (typeof proofs !== 'string') {
+              // When using the default callback url, we get a proof object in the response
+              console.log('Proof received:', proofs?.claimData.context)
+            }
+          }
         // Handle successful verification (e.g., update UI, send to backend)
       },
       onFailure: (error) => {
@@ -53,6 +61,9 @@ async function initializeReclaim() {
 // Call this function when you want to start the Reclaim process
 initializeReclaim()
 ```
+
+For detailed information about the `proof` object, refer to the [Advance Configuration](../advance-configurations/advance-options#understanding-the-proof-structure) section.
+
 
 <Callout type="tip">
   This frontend implementation keeps things simple and user-friendly. It fetches the configuration from your backend, initializes the SDK, and provides basic success and failure handling.
