@@ -31,6 +31,12 @@
   "zkfetch": {
     "title": "zkFetch"
   },
+  "oauth-react": {
+    "title": "Reclaim OAuth ReactJS"
+  },
+  "oauth-js": {
+    "title": "Reclaim OAuth Javascript"
+  },
   "solidity": {
     "title": "Solidity"
   },

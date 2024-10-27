@@ -1,0 +1,144 @@
+---
+title: "Quick Start"
+description: "Get started with Reclaim Auth React in minutes"
+---
+
+# Quick Start Guide
+
+Get up and running with Reclaim Auth React in your application quickly.
+
+## Important Notes
+
+> **Current Implementation Details**
+> - Uses popup-based authentication flow (redirect-based flow coming soon)
+> - Implements Authorization Code Grant without client credentials (PKCE implementation coming soon)
+> - Redirect URI is required as a security measure to prevent unauthorized applications from initiating the auth flow
+> - The authentication happens in a popup window which closes automatically after completion
+
+## Create Your Application
+
+1. Go to the [Reclaim Identity Dashboard](https://identity.reclaimprotocol.org/dashboard/home)
+
+2. Click on "Create New Application"
+
+3. Fill in your application details:
+   - **Basic Information**: Enter the basic details of your application.
+   - **Identity Providers**: Select the identity providers you want to include in your application. You can think of identity providers as 
+   ways to identify the user, for example if you include Google as a provider the user will be asked to login with google in the first screen of
+   the auth pop-up.
+   - **Additional Providers**: You can request additional data from the user, the user will be asked to generate a proof for each of the selected
+   additional providers.
+   - **Redirect URIs**: Add authorized redirect URIs for your application. This is a required security measure.
+     - For local development: `http://localhost:3000`
+     - For production: `https://yourdomain.com`
+     > Note: While the current flow uses popups, the redirect URI is still required as a security measure to verify the application's identity.
+
+4. Click "Create Application" and save your credentials:
+   - Note your **Application ID** (this will be your clientId)
+
+![Dashboard Application Creation](/oauth-react/dashboard.png)
+
+## Installation
+
+```bash
+npm install @reclaim/identity-react
+# or
+yarn add @reclaim/identity-react
+```
+
+## Environment Setup
+
+Create a `.env` file in your project root:
+
+```env
+REACT_APP_RECLAIM_CLIENT_ID=your_application_id
+REACT_APP_RECLAIM_REDIRECT_URI=your_redirect_uri
+```
+
+## Basic Implementation
+
+Here's a minimal example to get authentication working:
+
+```tsx
+import React from 'react';
+import getReclaimAuth from '@reclaim/identity-react';
+
+const auth = getReclaimAuth(
+  process.env.REACT_APP_RECLAIM_CLIENT_ID,
+  process.env.REACT_APP_RECLAIM_REDIRECT_URI
+);
+
+function App() {
+  const [user, setUser] = React.useState(null);
+
+  React.useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(setUser);
+    return () => unsubscribe();
+  }, []);
+
+  const handleSignIn = async () => {
+    try {
+      await auth.signIn();
+    } catch (error) {
+      console.error('Sign in failed:', error);
+    }
+  };
+
+  return (
+    <div>
+      {user ? (
+        <div>
+          <p>Welcome, {user.id}!</p>
+          <pre>{JSON.stringify(user.data, null, 2)}</pre>
+        </div>
+      ) : (
+        <button onClick={handleSignIn}>Sign In</button>
+      )}
+    </div>
+  );
+}
+```
+
+## Testing Your Integration
+
+1. Start your development server:
+```bash
+npm start
+# or
+yarn start
+```
+
+2. Open `http://localhost:3000` in your browser
+
+3. Click the "Sign In" button
+
+4. You should see:
+   - A popup window for authentication
+   - Redirect back to your application
+   - User information displayed
+
+## Next Steps
+
+- [Complete setup guide](/reclaim-auth-react/setup)
+- [Authentication hooks](/reclaim-auth-react/hooks)
+- [Protected routes](/reclaim-auth-react/protected-routes)
+- [Managing user data](/reclaim-auth-react/user-data)
+
+## Common Issues
+
+### Popup Blocked
+If the authentication popup is blocked, ensure your users:
+- Have popups enabled for your domain
+- Are clicking the sign-in button (popups triggered on page load are often blocked)
+
+### Redirect URI Mismatch
+If you get a redirect URI mismatch error:
+- Verify the URI in your dashboard matches exactly with your environment variable
+- Check for trailing slashes
+- Ensure the protocol (http/https) matches
+
+### CORS Issues
+If you're getting CORS errors:
+- Check that your domain is properly configured in the dashboard
+- Ensure you're using the correct environment URLs
+- Verify your redirect URI is properly whitelisted

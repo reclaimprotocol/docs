@@ -1,0 +1,106 @@
+# API Reference
+
+## Core Functions
+
+### getReclaimAuth
+
+```typescript
+function getReclaimAuth(
+  clientId: string,
+  redirectUri: string
+): ReclaimAuth
+```
+
+Creates or returns the ReclaimAuth instance.
+
+### ReclaimAuth Methods
+
+```typescript
+interface ReclaimAuth {
+  signIn(): Promise<ReclaimUser>;
+  signOut(): Promise<void>;
+  getCurrentUser(): ReclaimUser | null;
+  onAuthStateChanged(callback: (user: ReclaimUser | null) => void): () => void;
+}
+```
+
+## Types
+
+### ReclaimUser
+
+```typescript
+interface ReclaimUser {
+  id: string;
+  data: {
+    [key: string]: string;
+  };
+}
+```
+
+### AuthError
+
+```typescript
+interface AuthError extends Error {
+  code?: string;
+  details?: unknown;
+}
+```
+
+## Hooks
+
+### useReclaimAuth
+
+```typescript
+function useReclaimAuth(): {
+  user: ReclaimUser | null;
+  loading: boolean;
+  error: Error | null;
+  signIn: () => Promise<void>;
+  signOut: () => Promise<void>;
+  getCurrentUser: () => ReclaimUser | null;
+}
+```
+
+### useAuthState
+
+```typescript
+function useAuthState(): {
+  user: ReclaimUser | null;
+  loading: boolean;
+}
+```
+
+### useAuthActions
+
+```typescript
+function useAuthActions(): {
+  signIn: () => Promise<void>;
+  signOut: () => Promise<void>;
+}
+```
+
+## Components
+
+### AuthProvider
+
+```typescript
+function AuthProvider(props: { children: React.ReactNode }): JSX.Element
+```
+
+### ProtectedRoute
+
+```typescript
+function ProtectedRoute(props: { 
+  children: React.ReactNode 
+}): JSX.Element
+```
+
+## Error Codes
+
+| Code | Description |
+|------|-------------|
+| `popup_blocked` | Authentication popup was blocked |
+| `unauthorized` | Client is not authorized |
+| `invalid_request` | Invalid request parameters |
+| `network_error` | Network connectivity issues |
+| `auth_cancelled` | User cancelled authentication |

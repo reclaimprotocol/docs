@@ -1,0 +1,62 @@
+# Reclaim Auth JavaScript SDK
+
+Reclaim Auth JavaScript SDK provides a simple way to integrate Reclaim Protocol authentication into any web application. It offers a streamlined authentication experience with secure token management and event-based state handling.
+
+## Current Features
+
+- 🔐 Secure OAuth 2.0 authentication
+- 🌐 Popup-based authentication flow
+- 🔄 Automatic token management
+- 📡 Event-based state management
+- 🛡️ Built-in security features
+- 📦 Multiple distribution options (CDN/npm)
+
+## Implementation Details
+
+> **Important Notes**
+> - Uses popup-based authentication flow (redirect-based flow coming soon)
+> - Implements Authorization Code Grant without client credentials (PKCE implementation coming soon)
+> - Requires redirect URI as a security measure
+> - Authentication happens in a popup window which closes automatically after completion
+
+## Installation Options
+
+### NPM
+```bash
+npm install @reclaim/identity-js
+```
+
+### CDN
+```html
+<script src="https://unpkg.com/@reclaim/identity-js@latest"></script>
+```
+
+## Browser Support
+
+- Modern browsers with support for:
+  - Web Crypto API
+  - Popup windows
+  - Cookies
+  - PostMessage API
+  - ES6+ features
+
+## System Requirements
+
+- Secure context (HTTPS) in production
+- Modern browser
+- Cookies enabled
+- Popups allowed for authentication domain
+
+## What You'll Learn
+
+- How to set up Reclaim Auth in your web application
+- Managing the authentication flow
+- Handling authentication state
+- Implementing secure user sessions
+- Error handling and security best practices
+
+## Next Steps
+
+- [Quick Start Guide](/reclaim-auth-js/quickstart)
+- [Setup Guide](/reclaim-auth-js/setup)
+- [API Reference](/reclaim-auth-js/api-reference)
