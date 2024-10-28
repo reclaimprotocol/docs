@@ -27,7 +27,7 @@ Create an Auth Provider to manage authentication state throughout your applicati
 ```tsx
 // src/providers/AuthProvider.tsx
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import getReclaimAuth, { type ReclaimUser } from '@reclaim/identity-react';
+import getReclaimAuth, { type ReclaimUser } from 'identity-react';
 import { authConfig } from '../config/auth.config';
 
 interface AuthContextType {

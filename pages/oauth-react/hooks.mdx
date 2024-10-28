@@ -7,7 +7,7 @@
 The primary hook for accessing authentication functionality:
 
 ```typescript
-import { useReclaimAuth } from '@reclaim/identity-react';
+import { useReclaimAuth } from 'identity-react';
 
 function Component() {
   const { user, signIn, signOut, loading, error } = useReclaimAuth();
@@ -33,7 +33,7 @@ interface UseReclaimAuthReturn {
 Hook for accessing only the authentication state:
 
 ```typescript
-import { useAuthState } from '@reclaim/identity-react';
+import { useAuthState } from 'identity-react';
 
 function Component() {
   const { user, loading } = useAuthState();
@@ -46,7 +46,7 @@ function Component() {
 Hook for accessing authentication actions:
 
 ```typescript
-import { useAuthActions } from '@reclaim/identity-react';
+import { useAuthActions } from 'identity-react';
 
 function Component() {
   const { signIn, signOut } = useAuthActions();
