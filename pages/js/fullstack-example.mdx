@@ -1,4 +1,4 @@
-import { Callout } from 'nextra/components'
+import { Callout } from 'nextra/components';
 
 # Fullstack Example: Integrating Reclaim SDK in a JavaScript Application
 
@@ -9,7 +9,8 @@ This guide demonstrates how to integrate the Reclaim Protocol JavaScript SDK int
 For a detailed backend implementation using Node.js and Express, please refer to the [Backend Example](/backend/backend-example).
 
 <Callout type="info">
-  The backend example provides a comprehensive guide on setting up a server that generates the SDK configuration and handles proof verification.
+  The backend example provides a comprehensive guide on setting up a server that generates the SDK configuration and
+  handles proof verification.
 </Callout>
 
 ## Frontend Implementation
@@ -17,56 +18,56 @@ For a detailed backend implementation using Node.js and Express, please refer to
 Here's a basic implementation of how to use the SDK configuration from the backend to initialize the Reclaim SDK on the frontend:
 
 ```javascript
-import { ReclaimProofRequest } from '@reclaimprotocol/js-sdk'
+import { ReclaimProofRequest } from '@reclaimprotocol/js-sdk';
 
 async function initializeReclaim() {
   try {
     // Fetch the configuration from your backend
-    const response = await fetch('https://your-backend.com/reclaim/generate-config')
-    const { reclaimProofRequestConfig } = await response.json()
+    const response = await fetch('https://your-backend.com/reclaim/generate-config');
+    const { reclaimProofRequestConfig } = await response.json();
 
     // Reconstruct the ReclaimProofRequest object
-    const reclaimProofRequest = await ReclaimProofRequest.fromJsonString(reclaimProofRequestConfig)
+    const reclaimProofRequest = await ReclaimProofRequest.fromJsonString(reclaimProofRequestConfig);
 
     // Generate request URL
-    const requestUrl = await reclaimProofRequest.getRequestUrl()
+    const requestUrl = await reclaimProofRequest.getRequestUrl();
 
     // Start the session for better UX
     await reclaimProofRequest.startSession({
       onSuccess: (proofs) => {
         if (proofs) {
-            if (typeof proofs === 'string') {
-              // When using a custom callback url, the proof is returned to the callback url and we get a message instead of a proof
-              console.log('SDK Message:', proofs)
-            } else if (typeof proofs !== 'string') {
-              // When using the default callback url, we get a proof object in the response
-              console.log('Proof received:', proofs?.claimData.context)
-            }
+          if (typeof proofs === 'string') {
+            // When using a custom callback url, the proof is returned to the callback url and we get a message instead of a proof
+            console.log('SDK Message:', proofs);
+          } else if (typeof proofs !== 'string') {
+            // When using the default callback url, we get a proof object in the response
+            console.log('Proof received:', proofs?.claimData.context);
           }
+        }
         // Handle successful verification (e.g., update UI, send to backend)
       },
-      onFailure: (error) => {
-        console.error('Verification failed', error)
+      onError: (error) => {
+        console.error('Verification failed', error);
         // Handle verification failure (e.g., show error message)
-      }
-    })
-    
-    console.log('Request URL:', requestUrl)
+      },
+    });
+
+    console.log('Request URL:', requestUrl);
   } catch (error) {
-    console.error('Error initializing Reclaim:', error)
+    console.error('Error initializing Reclaim:', error);
     // Handle initialization error (e.g., show error message)
   }
 }
 
 // Call this function when you want to start the Reclaim process
-initializeReclaim()
+initializeReclaim();
 ```
 
 For detailed information about the `proof` object, refer to the [Advance Configuration](../advance-configurations/advance-options#understanding-the-proof-structure) section.
 
-
 <Callout type="tip">
-  This frontend implementation keeps things simple and user-friendly. It fetches the configuration from your backend, initializes the SDK, and provides basic success and failure handling.
+  This frontend implementation keeps things simple and user-friendly. It fetches the configuration from your backend,
+  initializes the SDK, and provides basic success and failure handling.
 </Callout>
 
 ## Usage
@@ -87,5 +88,3 @@ For detailed information about the `proof` object, refer to the [Advance Configu
 4. Test thoroughly in different environments and edge cases.
 
 By following this example, you'll have a basic fullstack implementation of the Reclaim Protocol in your JavaScript application. Happy coding!
-
-

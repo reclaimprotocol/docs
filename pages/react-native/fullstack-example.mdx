@@ -1,4 +1,4 @@
-import { Callout } from 'nextra/components'
+import { Callout } from 'nextra/components';
 
 # Fullstack Example: Integrating Reclaim SDK in a React Native Application
 
@@ -9,7 +9,8 @@ This guide demonstrates how to integrate the Reclaim Protocol React Native SDK i
 For a detailed backend implementation using Node.js and Express, please refer to the [Backend Example](/backend/backend-example).
 
 <Callout type="info">
-  The backend example provides a comprehensive guide on setting up a server that generates the SDK configuration and handles proof verification.
+  The backend example provides a comprehensive guide on setting up a server that generates the SDK configuration and
+  handles proof verification.
 </Callout>
 
 ## Frontend Implementation (React Native)
@@ -27,7 +28,7 @@ const ReclaimComponent = () => {
   const initializeReclaim = async () => {
     try {
       setStatus('Initializing...');
-      
+
       // Fetch the configuration from your backend
       const response = await fetch('https://your-backend.com/reclaim/generate-config');
       const { reclaimProofRequestConfig } = await response.json();
@@ -44,22 +45,22 @@ const ReclaimComponent = () => {
           if (proofs) {
             if (typeof proofs === 'string') {
               // When using a custom callback url, the proof is returned to the callback url and we get a message instead of a proof
-              console.log('SDK Message:', proofs)
+              console.log('SDK Message:', proofs);
             } else if (typeof proofs !== 'string') {
               // When using the default callback url, we get a proof object in the response
-              console.log('Proof received:', proofs?.claimData.context)
+              console.log('Proof received:', proofs?.claimData.context);
             }
-            setStatus('Proof received!')
+            setStatus('Proof received!');
           }
           // Handle successful verification (e.g., update UI, send to backend)
         },
-        onFailure: (error) => {
+        onError: (error) => {
           console.error('Verification failed', error);
           setStatus('Verification failed. Please try again.');
           // Handle verification failure (e.g., show error message)
-        }
+        },
       });
-      
+
       console.log('Request URL:', requestUrl);
       setStatus('Reclaim process started. Please follow the instructions.');
     } catch (error) {
@@ -82,9 +83,9 @@ export default ReclaimComponent;
 
 For detailed information about the `proof` object, refer to the [Advance Configuration](../advance-configurations/advance-options#understanding-the-proof-structure) section.
 
-
 <Callout type="tip">
-  This React Native implementation provides a simple UI with a button to start the Reclaim process and a text area to display the current status.
+  This React Native implementation provides a simple UI with a button to start the Reclaim process and a text area to
+  display the current status.
 </Callout>
 
 ## Usage
@@ -105,5 +106,3 @@ For detailed information about the `proof` object, refer to the [Advance Configu
 4. Test thoroughly on both Android and iOS devices, and handle any platform-specific issues.
 
 By following this example, you'll have a basic fullstack implementation of the Reclaim Protocol in your React Native application. Happy coding!
-
-

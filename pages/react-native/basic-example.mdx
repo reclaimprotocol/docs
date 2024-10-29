@@ -1,4 +1,4 @@
-import { Callout } from 'nextra/components'
+import { Callout } from 'nextra/components';
 
 # Basic Example: Using Reclaim SDK in a React Native App
 
@@ -11,9 +11,7 @@ Before you begin, ensure you have:
 - Installed the SDK (see [Installation Guide](./installation))
 - Your Application ID, Secret, and Provider ID from the [Reclaim Developer Portal](https://dev.reclaimprotocol.org/)
 
-<Callout type="warning">
-  Keep your Application Secret secure and never expose it in client-side code.
-</Callout>
+<Callout type="warning">Keep your Application Secret secure and never expose it in client-side code.</Callout>
 
 ## Step-by-Step Guide
 
@@ -63,10 +61,10 @@ async function generateRequestUrl(reclaimProofRequest) {
 Begin listening for proofs:
 
 ```javascript
-async function startVerificationSession(reclaimProofRequest, onSuccess, onFailure) {
+async function startVerificationSession(reclaimProofRequest, onSuccess, onError) {
   await reclaimProofRequest.startSession({
     onSuccess: onSuccess,
-    onFailure: onFailure
+    onError: onError,
   });
 }
 ```
@@ -94,12 +92,12 @@ function ReclaimDemo() {
             if (proofs) {
               if (typeof proofs === 'string') {
                 // When using a custom callback url, the proof is returned to the callback url and we get a message instead of a proof
-                console.log('SDK Message:', proofs)
+                console.log('SDK Message:', proofs);
               } else if (typeof proofs !== 'string') {
                 // When using the default callback url, we get a proof object in the response
-                console.log('Proof received:', proofs?.claimData.context)
+                console.log('Proof received:', proofs?.claimData.context);
               }
-              setStatus('Proof received!')
+              setStatus('Proof received!');
             }
           },
           (error) => {
@@ -126,9 +124,7 @@ function ReclaimDemo() {
     <View style={{ padding: 20 }}>
       <Text style={{ fontSize: 24, fontWeight: 'bold' }}>Reclaim Demo</Text>
       <Text>Status: {status}</Text>
-      {requestUrl && (
-        <Button title="Start Verification" onPress={openRequestUrl} />
-      )}
+      {requestUrl && <Button title="Start Verification" onPress={openRequestUrl} />}
     </View>
   );
 }
@@ -137,6 +133,7 @@ function ReclaimDemo() {
 For detailed information about the `proof` object, refer to the [Advance Configuration](../advance-configurations/advance-options#understanding-the-proof-structure) section.
 
 This component:
+
 - Initializes the SDK and generates a request URL when it mounts.
 - Provides a button to start the verification process.
 - Displays the current status of the verification process.
@@ -168,7 +165,7 @@ async function generateRequestUrl(reclaimProofRequest) {
 async function startVerificationSession(reclaimProofRequest, onSuccess, onFailure) {
   await reclaimProofRequest.startSession({
     onSuccess: onSuccess,
-    onFailure: onFailure
+    onFailure: onFailure,
   });
 }
 
@@ -190,12 +187,12 @@ function ReclaimDemo() {
             if (proofs) {
               if (typeof proofs === 'string') {
                 // When using a custom callback url, the proof is returned to the callback url and we get a message instead of a proof
-                console.log('SDK Message:', proofs)
+                console.log('SDK Message:', proofs);
               } else if (typeof proofs !== 'string') {
                 // When using the default callback url, we get a proof object in the response
-                console.log('Proof received:', proofs?.claimData.context)
+                console.log('Proof received:', proofs?.claimData.context);
               }
-              setStatus('Proof received!')
+              setStatus('Proof received!');
             }
           },
           (error) => {
@@ -222,9 +219,7 @@ function ReclaimDemo() {
     <View style={{ padding: 20 }}>
       <Text style={{ fontSize: 24, fontWeight: 'bold' }}>Reclaim Demo</Text>
       <Text>Status: {status}</Text>
-      {requestUrl && (
-        <Button title="Start Verification" onPress={openRequestUrl} />
-      )}
+      {requestUrl && <Button title="Start Verification" onPress={openRequestUrl} />}
     </View>
   );
 }
@@ -244,7 +239,8 @@ export default ReclaimDemo;
   
   This keeps your application secure and your secrets... well, secret! 🔒
 
-  Check out the [Fullstack Example](./fullstack-example) to see how to do this.
+Check out the [Fullstack Example](./fullstack-example) to see how to do this.
+
 </Callout>
 
 ## Usage and Next Steps
@@ -255,7 +251,9 @@ To use this component in your React Native app:
 2. Add it to your app's JSX: `<ReclaimDemo />`
 
 <Callout type="info">
-  This example provides a basic implementation. In a production environment, you'd want to add more robust error handling, loading states, and potentially move the SDK initialization to a more appropriate place in your application architecture.
+  This example provides a basic implementation. In a production environment, you'd want to add more robust error
+  handling, loading states, and potentially move the SDK initialization to a more appropriate place in your application
+  architecture.
 </Callout>
 
 Now that you've learned the basics, you can:

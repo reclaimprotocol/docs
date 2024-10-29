@@ -1,33 +1,28 @@
-import { Cards, Card } from "nextra/components";
-import MakeIcon from "../components/MakeIcon";
-import SdkCard from "../components/SdkCard";
-import Image from "next/image";
+import { Cards, Card } from 'nextra/components';
+import MakeIcon from '../components/MakeIcon';
+import SdkCard from '../components/SdkCard';
+import Image from 'next/image';
 
 # Reclaim Protocol SDKs
 
-<p className="text-blue-300 italic">
-  Reclaim SDKs make it simple to bring user activity, reputation, and identity
-  from external websites into your own platform.
-</p>
-<br></br>
+_Reclaim SDKs make it simple to bring user activity, reputation, and identity from external websites into your own platform._
 
-<p className=''>
-    Reclaim Protocol has SDKs for web, mobile and on-chain platform. You can use these SDKs to build applications that have access to users' activity, reputation, and identity from websites across the internet.
+Reclaim Protocol has SDKs for web, mobile and on-chain platform. You can use these SDKs to build applications that have access to users' activity, reputation, and identity from websites across the internet.
 
-    For example,
-    - Import the number of rides the user has taken on Uber to build a competing ride sharing platform
-    - Import the users purchasing preferences using Amazon to provide discounts to the right users
-    - Enable economics on a blockchain using users offchain activity data
-    - Use national IDs to perform KYC
-    - And many more...
+For example:
 
-    We have data provider from the most of the popular websites. If the website you want to import data from isn't on the list, you can build your own data provider using our [developer tool](https://dev.reclaimprotocol.org).
+- Import the number of rides the user has taken on Uber to build a competing ride sharing platform
+- Import the users purchasing preferences using Amazon to provide discounts to the right users
+- Enable economics on a blockchain using users offchain activity data
+- Use national IDs to perform KYC
+- And many more...
 
-    The best thing is, your users don't need to install an app or browser extension, unlike most other solutions out there. [Check out our demo!](https://demo.reclaimprotocol.org)
+We have data provider from the most of the popular websites. If the website you want to import data from isn't on the list, you can build your own data provider using our [developer tool](https://dev.reclaimprotocol.org).
 
-</p>
-<br></br>
+The best thing is, your users don't need to install an app or browser extension, unlike most other solutions out there. [Check out our demo!](https://demo.reclaimprotocol.org)
+
 ## How does it work?
+
 Reclaim Protocol generates cryptographic proofs on HTTPS traffic. The type of cryptographic proof it generates is called a [zero knowledge proof](https://en.wikipedia.org/wiki/Zero-knowledge_proof). It lets the user generate the proof without knowledge of anything other than what the user wants to share with you. The Protocol is built upon open standards such as HTTPS and TLS.
 
 You can learn more here
@@ -44,29 +39,53 @@ Additionally, for the technically curious here are some more resources
 - [How attacks to break the underlying cryptography is infeasible](https://blog.reclaimprotocol.org/posts/fake-key-reveal)
 - [How additional security is added to ensure integrity of cryptographic proofs](https://blog.reclaimprotocol.org/posts/honey-pot)
 
-<br/>
-Reclaim Protocol unlocks a new design space for applications to be built. If you are building a new application, we would love to talk to you. Ask your questions on our [Telegram group](https://t.me/protocolreclaim), and the developers and founders of Reclaim Protocol will respond to you directly!
- 
-### Integrate Reclaim Protocol in your products
+<br />
+Reclaim Protocol unlocks a new design space for applications to be built. If you are building a new application, we would
+love to talk to you. Ask your questions on our [Telegram group](https://t.me/protocolreclaim), and the developers and founders
+of Reclaim Protocol will respond to you directly! ### Integrate Reclaim Protocol in your products
 <div>
-<br></br>
-<Cards>
-    <SdkCard title='NodeJs' subtitle='Integrate on Backend' link='js/backend-example' iconName='node' tag='Recommended'/>
-    <SdkCard title='React' subtitle='Integrate on Web' link='js/frontend-example' iconName='reactjs' tag='Quick Start'/>
-    <SdkCard title='React Native' subtitle='Integrate on Mobile' link='react-native' iconName='react_native' tag="Mobile app"/>
-    <SdkCard title='Solidity' subtitle='Integrate on EVM' link='solidity' iconName='solidity' tag="On-chain"/>
-    <SdkCard title='Flutter' subtitle='Integrate on Mobile' link='flutter' iconName='flutter' tag="Mobile app"/>
-    <SdkCard title='Solana' subtitle='Integrate on Solana' link='solana' iconName='solana' tag="On-chain"/>
-    <SdkCard title='Cosmos' subtitle='Integrate on Cosmos' link='cosmos' iconName='cosmos' tag="On-chain"/>
-    <SdkCard title='Sui' subtitle='Integrate on Sui' link='sui' iconName='sui' tag="On-chain"/>
-    <SdkCard title='Gear' subtitle='Integrate on Gear' link='gear' iconName='gear' tag="On-chain"/>
-    <SdkCard title='NEAR' subtitle='Integrate on NEAR' link='near' iconName='near' tag="On-chain"/>
-    <SdkCard title='Polkadot' subtitle='Integrate on Polkadot' link='polkadot' iconName='polka' tag="On-chain"/>
-    <SdkCard title='Aleph Zero' subtitle='Integrate on Aleph Zero' link='alephzero' iconName='alephzero' tag="On-chain"/>
-    <SdkCard title='Cardano' subtitle='Integrate on Cardano' link='cardano' iconName='cardano' tag="On-chain"/>
-    <SdkCard title='Stellar' subtitle='Integrate on Stellar' link='stellar' iconName='stellar' tag="On-chain"/>
-    <SdkCard title='Lukso' subtitle='Integrate on Lukso' link='lukso' iconName='lukso' tag="On-chain"/>
-    <SdkCard title='Starknet' subtitle='Integrate on Starknet' link='starknet' iconName='starknet' tag="On-chain"/>
-    <SdkCard title='Aptos' subtitle='Integrate on Aptos' link='aptos' iconName='aptos' tag="On-chain"/>
-</Cards>
+  <br />
+  <Cards>
+    <SdkCard
+      title="NodeJs"
+      subtitle="Integrate on Backend"
+      link="js/backend-example"
+      iconName="node"
+      tag="Recommended"
+    />
+    <SdkCard
+      title="React"
+      subtitle="Integrate on Web"
+      link="js/frontend-example"
+      iconName="reactjs"
+      tag="Quick Start"
+    />
+    <SdkCard
+      title="React Native"
+      subtitle="Integrate on Mobile"
+      link="react-native"
+      iconName="react_native"
+      tag="Mobile app"
+    />
+    <SdkCard title="Solidity" subtitle="Integrate on EVM" link="solidity" iconName="solidity" tag="On-chain" />
+    <SdkCard title="Flutter" subtitle="Integrate on Mobile" link="flutter" iconName="flutter" tag="Mobile app" />
+    <SdkCard title="Solana" subtitle="Integrate on Solana" link="solana" iconName="solana" tag="On-chain" />
+    <SdkCard title="Cosmos" subtitle="Integrate on Cosmos" link="cosmos" iconName="cosmos" tag="On-chain" />
+    <SdkCard title="Sui" subtitle="Integrate on Sui" link="sui" iconName="sui" tag="On-chain" />
+    <SdkCard title="Gear" subtitle="Integrate on Gear" link="gear" iconName="gear" tag="On-chain" />
+    <SdkCard title="NEAR" subtitle="Integrate on NEAR" link="near" iconName="near" tag="On-chain" />
+    <SdkCard title="Polkadot" subtitle="Integrate on Polkadot" link="polkadot" iconName="polka" tag="On-chain" />
+    <SdkCard
+      title="Aleph Zero"
+      subtitle="Integrate on Aleph Zero"
+      link="alephzero"
+      iconName="alephzero"
+      tag="On-chain"
+    />
+    <SdkCard title="Cardano" subtitle="Integrate on Cardano" link="cardano" iconName="cardano" tag="On-chain" />
+    <SdkCard title="Stellar" subtitle="Integrate on Stellar" link="stellar" iconName="stellar" tag="On-chain" />
+    <SdkCard title="Lukso" subtitle="Integrate on Lukso" link="lukso" iconName="lukso" tag="On-chain" />
+    <SdkCard title="Starknet" subtitle="Integrate on Starknet" link="starknet" iconName="starknet" tag="On-chain" />
+    <SdkCard title="Aptos" subtitle="Integrate on Aptos" link="aptos" iconName="aptos" tag="On-chain" />
+  </Cards>
 </div>
