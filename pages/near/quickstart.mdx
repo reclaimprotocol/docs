@@ -67,13 +67,25 @@ near contract call-function as-transaction <ACCOUNT_ID\> add_epoch \
 
 <Steps>
 
+### Features
+
+- **Proof Submission**: Generate proof requests and submit them on-chain.
+- **Proof Verification**: Verify submitted proofs directly through the smart contract.
+- **Wallet Connection**: Built-in wallet connection.
+
 ### Cloning the frontend repo.
 
 ```bash
 git clone https://gitlab.reclaimprotocol.org/starterpacks/reclaim-near-example
 
 cd reclaim-near-frontend-example
+```
 
+### 2. Install Dependencies
+
+Run this command:
+
+```bash
 npm install
 ```
 
@@ -170,9 +182,9 @@ list with your contract's account address.
 
 ```js copy showLineNumbers {2, 3}
 const contractPerNetwork = {
-  mainnet: 'reclaim-protocol-mainnet.near', // Replace it with your contract's account address
-  testnet: 'reclaim-protocol.testnet' // Replace it with your contract's account address
-}
+  mainnet: "reclaim-protocol-mainnet.near", // Replace it with your contract's account address
+  testnet: "reclaim-protocol.testnet", // Replace it with your contract's account address
+};
 
 export const NetworkId = "testnet";
 export const ReclaimNearContract = contractPerNetwork[NetworkId];
@@ -219,5 +231,25 @@ npm run dev
 ![near-exp](/near-exp.png)
 
 Now your proof will get approved on-chain, here is the sample [transaction](https://explorer.testnet.near.org/transactions/Cwi8sSMwQzDqT818d6UFAxZjrEnMB8TNKs5RtEXDaMm4) from the screenshot above.
+
+### Code Overview
+
+`src/components/create-new-proof.js`
+
+- Proof Request: Configures and initiates proof requests through Reclaim’s SDK.
+- QR Code Generation: Displays a QR code for users to scan and submit proofs.
+- Proof Submission: Handles on-chain submission upon proof verification.
+
+`src/pages/index.js`
+
+- Proof Transformation: Transforms the received proof to be compatible with the smart contract.
+- Verification Process: Sends a transaction to verify the proof on-chain and provides a link to the transaction on the explorer.
+
+---
+
+### Troubleshooting
+
+- **Wallet Connection Issues**: Ensure that your wallet is set to the correct network that you contract is deployed on and refresh the page if the connection fails.
+- **Proof Submission Fails**: Double-check your Reclaim credentials, contract address, and that the correct network is selected.
 
 </Steps>
