@@ -2,7 +2,6 @@
     "index": "Overview",
     "quickstart": "Quickstart",
     "full-setup": "In-depth Setup",
-    "hooks": "Authentication Hooks",
     "error-handling": "Handling Errors",
     "api": "API Reference"
 }
