@@ -11,7 +11,7 @@ Get up and running with Reclaim Auth React in your application quickly.
 
 > **Current Implementation Details**
 > - Uses popup-based authentication flow (redirect-based flow coming soon)
-> - Implements Authorization Code Grant without client credentials (PKCE implementation coming soon)
+> - Implements Authorization Code Grant (PKCE implementation coming soon)
 > - Redirect URI is required as a security measure to prevent unauthorized applications from initiating the auth flow
 > - The authentication happens in a popup window which closes automatically after completion
 
@@ -35,7 +35,7 @@ Get up and running with Reclaim Auth React in your application quickly.
 
 4. Click "Create Application" and save your credentials:
    - Note your **Application ID** (this will be your clientId)
-
+   - Note your **Application Secret** (this will be you clientSecret)
 ![Dashboard Application Creation](/oauth-react/dashboard.png)
 
 ## Installation
@@ -52,6 +52,7 @@ Create a `.env` file in your project root:
 
 ```env
 REACT_APP_RECLAIM_CLIENT_ID=your_application_id
+REACT_APP_RECLAIM_CLIENT_SECRET=you_client_secret
 REACT_APP_RECLAIM_REDIRECT_URI=your_redirect_uri
 ```
 
@@ -65,6 +66,7 @@ import getReclaimAuth from 'identity-react';
 
 const auth = getReclaimAuth(
   process.env.REACT_APP_RECLAIM_CLIENT_ID,
+  process.env.REACT_APP_RECLAIM_CLIENT_SECRET,
   process.env.REACT_APP_RECLAIM_REDIRECT_URI
 );
 

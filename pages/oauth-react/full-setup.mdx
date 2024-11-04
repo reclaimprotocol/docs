@@ -15,6 +15,7 @@ interface AuthConfig {
 
 export const authConfig: AuthConfig = {
   clientId: process.env.REACT_APP_RECLAIM_CLIENT_ID!,
+  clientSecret: process.env.REACT_APP_RECLAIM_CLIENT_SECRET!,
   redirectUri: process.env.REACT_APP_RECLAIM_REDIRECT_URI!,
   environment: process.env.NODE_ENV as 'development' | 'production'
 };
@@ -45,7 +46,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  const auth = getReclaimAuth(authConfig.clientId, authConfig.redirectUri);
+  const auth = getReclaimAuth(authConfig.clientId, authConfig.clientSecret, authConfig.redirectUri);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((newUser) => {
@@ -182,6 +183,7 @@ interface AuthError extends Error {
 1. **Environment Variables**: Always use environment variables for sensitive configuration:
 ```env
 REACT_APP_RECLAIM_CLIENT_ID=your_client_id
+REACT_APP_RECLAIM_CLIENT_SECRET=your_client_secret,
 REACT_APP_RECLAIM_REDIRECT_URI=http://localhost:3000
 ```
 
