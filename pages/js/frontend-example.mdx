@@ -46,8 +46,17 @@ function ReclaimDemo() {
     await reclaimProofRequest.startSession({
       // Called when the user successfully completes the verification
       onSuccess: (proofs) => {
-        console.log('Verification success', proofs);
-        setProofs(proofs);
+        if (proofs) {
+          if (typeof proofs === 'string') {
+            // When using a custom callback url, the proof is returned to the callback url and we get a message instead of a proof
+            console.log('SDK Message:', proofs);
+            setProofs([proofs]);
+          } else if (typeof proofs !== 'string') {
+            // When using the default callback url, we get a proof object in the response
+            console.log('Verification success', proofs?.claimData.context);
+            setProofs(proofs);
+          }
+        }
         // Add your success logic here, such as:
         // - Updating UI to show verification success
         // - Storing verification status

@@ -54,10 +54,18 @@ class _ReclaimExampleState extends State<ReclaimExample> {
  
   void _handleProofSuccess(Proof proof) {
     print('Proof received: $proof');
+    // check if proof is of type String
+    var proofDataValue = '';
+    if (proof is String) {
+      // For custom callback URL, the proof is a just a string message suggesting the proof is successfully sent and the user should check their backend for the proof
+      proofDataValue = proof;
+    } else {
+      proofDataValue =
+          'Extracted data: ${proof.claimData.context}\n\nFull proof: ${proof.toString()}';
+    }
     setState(() {
       _status = 'Proof received!';
-      _proofData =
-          'Extracted data: ${proof.claimData.context}\n\nFull proof: ${proof.toString()}';
+      _proofData = proofDataValue;
     });
   }
  
