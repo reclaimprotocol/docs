@@ -323,9 +323,11 @@ When initializing the SDK, you can pass additional options to customize its beha
       'YOUR_RECLAIM_APP_ID',
       'YOUR_RECLAIM_APP_SECRET',
       'YOUR_PROVIDER_ID',
-      { log: true }
+      { useAppClip: true, log: true }
     )
     ```
+
+    - `useAppClip`: When set to `true`, the SDK will give an App Clip url(for ios) and instant app url(for android) when calling `getRequestUrl()` which allows to open the reclaim verifier app directly from your application.
   </Tab>
   <Tab>
     ```dart
