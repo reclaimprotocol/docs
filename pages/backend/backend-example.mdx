@@ -35,6 +35,8 @@ const app = express()
 const port = 3000
 
 app.use(express.json())
+app.use(express.text({ type: '*/*', limit: '50mb' })); // This is to parse the urlencoded proof object that is returned to the callback url
+
 
 // Route to generate SDK configuration
 app.get('/reclaim/generate-config', async (req, res) => {
@@ -69,7 +71,11 @@ app.listen(port, () => {
 })
 ```
 
-For detailed information about the `proof` object received in the `/receive-proofs` endpoint, refer to the [Advance Configuration](../advance-configurations/advance-options#understanding-the-proof-structure) section.
+<Callout type="warning">
+  Do not use the `express.urlencoded()` middleware as it will conflict with the `express.text()` middleware above. The proof object sent to the callback URL needs to be parsed as text, otherwise it won't be processed correctly.
+</Callout>
+
+For detailed information about the `proof` object received in the `/receive-proofs` endpoint, refer to the Advance Configuration [Proof Structure](../advance-configurations/advance-options#understanding-the-proof-structure) section.
 
 ### 3. Run the server
 
