@@ -73,11 +73,11 @@
   "starknet": {
     "title": "Starknet"
   },
-  "mina-o1js": {
-    "title": "Mina"
-  },
   "aptos": {
     "title": "Aptos"
+  },
+  "mina": {
+    "title": "Mina"
   },
   "--3": {
     "type": "separator",
