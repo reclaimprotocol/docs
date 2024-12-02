@@ -22,62 +22,20 @@
   "flutter": {
     "title": "Flutter"
   },
+  "sdk": {
+    "title": "Other SDKs"
+  },
   "backend": {
     "title": "Backend Flow"
   },
   "advance-configurations": {
     "title": "Advance Configurations"
   },
-  "zkfetch": {
-    "title": "zkFetch"
-  },
   "oauth-react": {
     "title": "OAuth ReactJS"
   },
   "oauth-js": {
     "title": "OAuth Javascript"
-  },
-  "solidity": {
-    "title": "Solidity"
-  },
-  "solana": {
-    "title": "Solana"
-  },
-  "cosmos": {
-    "title": "Cosmos"
-  },
-  "sui": {
-    "title": "Sui"
-  },
-  "gear": {
-    "title": "Gear"
-  },
-  "near": {
-    "title": "NEAR"
-  },
-  "polkadot": {
-    "title": "Polkadot"
-  },
-  "alephzero": {
-    "title": "Aleph Zero"
-  },
-  "cardano": {
-    "title": "Cardano"
-  },
-  "stellar": {
-    "title": "Stellar"
-  },
-  "lukso": {
-    "title": "LUKSO"
-  },
-  "starknet": {
-    "title": "Starknet"
-  },
-  "aptos": {
-    "title": "Aptos"
-  },
-  "mina": {
-    "title": "Mina"
   },
   "--3": {
     "type": "separator",
