@@ -19,16 +19,16 @@
   "react-native": {
     "title": "React Native"
   },
+  "backend": {
+    "title": "Backend"
+  },
   "flutter": {
     "title": "Flutter"
   },
   "sdk": {
     "title": "Other SDKs"
   },
-  "backend": {
-    "title": "Backend Flow"
-  },
-  "advance-configurations": {
+  "advanced-configurations": {
     "title": "Advance Configurations"
   },
   "oauth-react": {
