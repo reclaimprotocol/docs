@@ -16,11 +16,11 @@
   "js": {
     "title": "JS"
   },
-  "react-native": {
-    "title": "React Native"
-  },
   "backend": {
     "title": "Backend Flow"
+  },
+  "react-native": {
+    "title": "React Native"
   },
   "flutter": {
     "title": "Flutter"
@@ -28,8 +28,8 @@
   "sdk": {
     "title": "Other SDKs"
   },
-  "advanced-configurations": {
-    "title": "Advance Configurations"
+  "advance-configurations": {
+    "title": "Advanced Configurations"
   },
   "oauth-react": {
     "title": "OAuth ReactJS"
