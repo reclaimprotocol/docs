@@ -1,4 +1,4 @@
-# X (Twitter) OAuth Integration
+# LinkedIn OAuth Integration
 
 ## Overview
 Reclaim Protocol allows you to access LinkedIn user data through our OAuth integration. This guide will walk you through the setup process and available endpoints.
