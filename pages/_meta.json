@@ -31,6 +31,9 @@
   "sdk": {
     "title": "Other SDKs"
   },
+  "apis": {
+    "title": "APIs"
+  },
   "oauth-react": {
     "title": "OAuth ReactJS"
   },
