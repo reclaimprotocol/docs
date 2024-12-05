@@ -25,11 +25,11 @@
   "flutter": {
     "title": "Flutter"
   },
-  "sdk": {
-    "title": "Other SDKs"
-  },
   "advance-configurations": {
     "title": "Advanced Configurations"
+  },
+  "sdk": {
+    "title": "Other SDKs"
   },
   "oauth-react": {
     "title": "OAuth ReactJS"

@@ -210,6 +210,11 @@ The `setAppCallbackUrl` method allows you to specify a custom API endpoint where
 
     const requestUrl = await reclaimProofRequest.getRequestUrl()
     ```
+
+  Parameters for `setAppCallbackUrl`:
+    - `URL`: The URL of the API endpoint where proofs will be sent.
+    - `jsonProofResponse` (Optional): By default, it is set to `false`. When set to `false`, the proof is returned as a url encoded message in the response. When set to `true`, the proof is returned as a JSON object in the response.
+
   </Tab>
   <Tab>
     ```javascript
@@ -240,7 +245,7 @@ The `setAppCallbackUrl` method allows you to specify a custom API endpoint where
 </Tabs>
 
 <Callout type="info">
-  This method is particularly useful for backend implementations. It allows you to receive proofs directly without polling the status URL. Ensure your endpoint is secure and can handle incoming proof data.
+  This method is particularly useful for backend implementations. It allows you to receive proofs directly without polling the status URL. Ensure your endpoint is secure and can handle incoming proof data. Make sure to proper middleware to parse the proof object in the response. Eg. `express.text({ type: '*/*', limit: '50mb' })` in express.js.
 </Callout>
 
 ### Exporting and Importing SDK Configuration
