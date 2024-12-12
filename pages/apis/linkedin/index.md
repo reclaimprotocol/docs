@@ -73,7 +73,7 @@ function App() {
 When the user is authenticated you can access user data using API endpoints.
 For example:
 ```tsx
-fetch('https://identity.reclaimprotocol.org/v1/linkedin/me', {
+fetch('https://identity.reclaimprotocol.org/api/v1/production/oauth/linkedin/me', {
     method: 'GET',
     credentials: 'include'
 })
