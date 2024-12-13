@@ -1,137 +1,126 @@
 import { Callout } from 'nextra/components'
+import { Tabs, Tab } from 'nextra/components'
 
-# Best Practices for Using the Reclaim Protocol JavaScript SDK in Node.js Backend
+# Backend Best Practices
 
-Welcome to our best practices guide for backend developers! This guide will help you use the Reclaim Protocol JavaScript SDK securely and efficiently in your Node.js server applications.
+This guide outlines the best practices for implementing Reclaim Protocol in your backend applications, covering both JavaScript and Python implementations.
 
 ## Security Best Practices
 
-### 1. Protect Your Application Secret
+## Protect Your Application Secret
+
+<Tabs items={['JavaScript', 'Python']}>
+  <Tabs.Tab>
+    ```javascript
+    // Store secrets securely
+    const APP_SECRET = process.env.RECLAIM_APP_SECRET;
+    const APP_ID = process.env.RECLAIM_APP_ID;
+    
+    // Validate proofs before processing
+    const isValid = await verifyProof(proof);
+    if (!isValid) {
+      throw new Error('Invalid proof');
+    }
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```python
+    # Store secrets securely
+    APP_SECRET = os.environ.get("RECLAIM_APP_SECRET")
+    APP_ID = os.environ.get("RECLAIM_APP_ID")
+    
+    # Validate proofs before processing
+    is_valid = await verify_proof(proof)
+    if not is_valid:
+        raise ValueError("Invalid proof")
+    ```
+  </Tabs.Tab>
+</Tabs>
 
 <Callout type="warning">
   Never expose your Application Secret in public repositories or client-side code. This is crucial for maintaining the security of your application.
 </Callout>
 
-- Store your `APP_SECRET` securely using environment variables.
-- Use a package like `dotenv` to manage your environment variables:
+1. Store your `APP_SECRET` securely using environment variables.
+2. Use a package like `dotenv` to manage your environment variables:
 
-```javascript
-require('dotenv').config();
-const APP_SECRET = process.env.RECLAIM_APP_SECRET;
-```
+## Error Handling
 
-### 2. Implement HTTPS
+<Tabs items={['JavaScript', 'Python']}>
+  <Tabs.Tab>
+    ```javascript
+    try {
+      const reclaimProof = await ReclaimProofRequest.init(APP_ID, APP_SECRET);
+      // ... handle success
+    } catch (error) {
+      console.error('Initialization failed:', error);
+      // Implement proper error reporting
+      throw new Error('Service temporarily unavailable');
+    }
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```python
+    try:
+        reclaim_proof = await ReclaimProofRequest.init(APP_ID, APP_SECRET)
+        # ... handle success
+    except Exception as error:
+        logging.error(f"Initialization failed: {error}")
+        # Implement proper error reporting
+        raise HTTPException(status_code=503, detail="Service temporarily unavailable")
+    ```
+  </Tabs.Tab>
+</Tabs>
 
-Always use HTTPS for all communications, especially when handling sensitive data. In a Node.js server, you can use the `https` module or a reverse proxy like Nginx to handle SSL/TLS.
+1. **Graceful Error Handling**: Implement proper error handling for all SDK operations.
+2. **Logging**: Log errors for debugging while keeping sensitive information secure.
+3. **User-Friendly Messages**: Return appropriate error messages to clients.
 
-### 3. Implement Rate Limiting
+## Performance Optimization
 
-To prevent abuse of your API endpoints, use a rate limiting middleware. This helps protect your server from potential attacks or misuse.
+<Tabs items={['JavaScript', 'Python']}>
+  <Tabs.Tab>
+    ```javascript
+    // Cache initialization where appropriate
+    let reclaimProofRequest;
+    
+    async function getOrCreateProofRequest() {
+      if (!reclaimProofRequest) {
+        reclaimProofRequest = await ReclaimProofRequest.init(APP_ID, APP_SECRET);
+      }
+      return reclaimProofRequest;
+    }
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```python
+    # Cache initialization where appropriate
+    reclaim_proof_request = None
+    
+    async def get_or_create_proof_request():
+        global reclaim_proof_request
+        if not reclaim_proof_request:
+            reclaim_proof_request = await ReclaimProofRequest.init(APP_ID, APP_SECRET)
+        return reclaim_proof_request
+    ```
+  </Tabs.Tab>
+</Tabs>
 
-```javascript
-const rateLimit = require('express-rate-limit');
-
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
-});
-
-app.use(limiter);
-```
-
-## Implementation Best Practices
-
-### 1. Use Async/Await for SDK Operations
-
-Leverage async/await syntax for cleaner and more readable code when working with the SDK's asynchronous operations.
-
-```javascript
-async function getRequestUrl(data) {
-  try {
-    const result = await reclaimProofRequest.getRequestUrl();
-    return result;
-  } catch (error) {
-    console.error('Operation failed:', error);
-    throw error;
-  }
-}
-```
-
-### 2. Implement Proper Error Handling
-
-Use try-catch blocks to handle errors gracefully. This improves the reliability of your server and helps with debugging.
-
-### 3. Keep the SDK Updated
-
-<Callout type="info">
-  Regularly update the SDK to ensure you have the latest features and security improvements.
-</Callout>
-
-You can update the SDK using npm:
-
-```bash
-npm update @reclaimprotocol/js-sdk
-```
-
-## Performance Best Practices
-
-### 1. Use Caching
-
-Implement caching strategies to reduce the load on your server and improve response times. You can use in-memory caching or a distributed cache like Redis.
-
-```javascript
-const NodeCache = require('node-cache');
-const myCache = new NodeCache({ stdTTL: 100, checkperiod: 120 });
-
-function getCachedData(key) {
-  const value = myCache.get(key);
-  if (value) {
-    return value;
-  }
-  // If not found in cache, fetch from source and cache it
-  const newData = fetchDataFromSource();
-  myCache.set(key, newData);
-  return newData;
-}
-```
-
-### 2. Use Connection Pooling
-
-If you're interacting with a database, use connection pooling to manage database connections efficiently.
+1. **Request Caching**: Cache proof request configurations when appropriate.
+2. **Connection Pooling**: Use connection pooling for database operations.
+3. **Async Operations**: Utilize async/await for better performance.
 
 ## Monitoring and Logging
 
-### 1. Implement Logging
+1. **Metrics**: Track success rates, response times, and error rates.
+2. **Alerts**: Set up alerts for unusual patterns or high error rates.
+3. **Logging**: Implement structured logging for better debugging.
 
-Use a logging library like Winston or Bunyan to keep track of important events and errors in your application.
+## Additional Recommendations
 
-```javascript
-const winston = require('winston');
+1. **Version Control**: Keep track of SDK versions and update regularly.
+2. **Documentation**: Document your implementation and any custom configurations.
+3. **Backup**: Implement backup strategies for proof data if stored.
+4. **Rate Limiting**: Implement rate limiting to prevent abuse.
 
-const logger = winston.createLogger({
-  level: 'info',
-  format: winston.format.json(),
-  transports: [
-    new winston.transports.File({ filename: 'error.log', level: 'error' }),
-    new winston.transports.File({ filename: 'combined.log' })
-  ]
-});
-
-// Usage
-logger.info('Proof verification successful', { proofId: '123' });
-logger.error('Proof verification failed', { error: err });
-```
-
-### 2. Monitor Server Health
-
-Implement health check endpoints and use monitoring tools to keep track of your server's performance and catch any issues in real-time.
-
-## Testing
-
-### 1. Write Unit and Integration Tests
-
-Create comprehensive tests for your Reclaim SDK implementation. This helps catch issues early and ensures reliability.
-
-By following these best practices, you'll be well-equipped to build secure, efficient, and reliable Node.js backend applications with the Reclaim Protocol JavaScript SDK. Remember to always prioritize security and performance in your server-side implementations.
-
-Happy coding!
+Remember to always refer to the latest SDK documentation for specific version requirements and updates.

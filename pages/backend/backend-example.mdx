@@ -2,88 +2,186 @@ import { Callout } from 'nextra/components'
 import { Tabs, Tab } from 'nextra/components'
 
 
-# Backend Example with Express.js
+# Backend Example
 
-This example demonstrates how to create a simple Express.js backend that works with the Reclaim Protocol. The backend will handle generating the configuration for the SDK and receiving proofs.
-
-<Callout type="info">
-  This example uses Express.js, but the core concepts can be applied to other Node.js frameworks or vanilla Node.js.
-</Callout>
+This example demonstrates how to create a simple backend that works with the Reclaim Protocol. The backend will handle generating the configuration for the SDK and receiving proofs.
 
 ## Step-by-Step Implementation
 
 ### 1. Set up the project
 
-First, create a new directory for your backend project and initialize it:
+<Tabs items={['JavaScript (Express)', 'Python (FastAPI)']}>
+  <Tabs.Tab>
+    First, create a new directory for your backend project and initialize it:
 
-```bash
-mkdir reclaim-backend-demo
-cd reclaim-backend-demo
-npm init -y
-npm install express @reclaimprotocol/js-sdk
-```
+    ```bash
+    mkdir reclaim-backend-demo
+    cd reclaim-backend-demo
+    npm init -y
+    npm install express @reclaimprotocol/js-sdk
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    First, create a new directory and set up a Python virtual environment:
+
+    ```bash
+    mkdir reclaim-backend-demo
+    cd reclaim-backend-demo
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    pip install fastapi uvicorn reclaim-python-sdk==0.1.5
+    ```
+  </Tabs.Tab>
+</Tabs>
 
 ### 2. Create the server file
 
-Create a new file named `server.js` and add the following code:
+<Tabs items={['JavaScript (Express)', 'Python (FastAPI)']}>
+  <Tabs.Tab>
+    Create a new file named `server.js` and add the following code:
 
-```javascript
-const express = require('express')
-const { ReclaimProofRequest } = require('@reclaimprotocol/js-sdk')
+    ```javascript
+    const express = require('express')
+    const { ReclaimProofRequest, verifyProof } = require('@reclaimprotocol/js-sdk')
 
-const app = express()
-const port = 3000
+    const app = express()
+    const port = 3000
 
-app.use(express.json())
-app.use(express.text({ type: '*/*', limit: '50mb' })); // This is to parse the urlencoded proof object that is returned to the callback url
+    app.use(express.json())
+    app.use(express.text({ type: '*/*', limit: '50mb' })) // This is to parse the urlencoded proof object that is returned to the callback url
 
+    // Route to generate SDK configuration
+    app.get('/reclaim/generate-config', async (req, res) => {
+      const APP_ID = 'YOUR_APPLICATION_ID'
+      const APP_SECRET = 'YOUR_APPLICATION_SECRET'
+      const PROVIDER_ID = 'YOUR_PROVIDER_ID'
 
-// Route to generate SDK configuration
-app.get('/reclaim/generate-config', async (req, res) => {
-  const APP_ID = 'YOUR_APPLICATION_ID'
-  const APP_SECRET = 'YOUR_APPLICATION_SECRET'
-  const PROVIDER_ID = 'YOUR_PROVIDER_ID'
+      try {
+        const reclaimProofRequest = await ReclaimProofRequest.init(APP_ID, APP_SECRET, PROVIDER_ID)
+        
+        reclaimProofRequest.setAppCallbackUrl('https://your-backend.com/receive-proofs')
+        
+        const reclaimProofRequestConfig = reclaimProofRequest.toJsonString()
 
-  try {
-    const reclaimProofRequest = await ReclaimProofRequest.init(APP_ID, APP_SECRET, PROVIDER_ID)
-    
-    reclaimProofRequest.setAppCallbackUrl('https://your-backend.com/receive-proofs')
-    
-    const reclaimProofRequestConfig = reclaimProofRequest.toJsonString()
+        return res.json({ reclaimProofRequestConfig })
+      } catch (error) {
+        console.error('Error generating request config:', error)
+        return res.status(500).json({ error: 'Failed to generate request config' })
+      }
+    })
 
-    return res.json({ reclaimProofRequestConfig })
-  } catch (error) {
-    console.error('Error generating request config:', error)
-    return res.status(500).json({ error: 'Failed to generate request config' })
-  }
-})
+    // Route to receive proofs
+    app.post('/receive-proofs', async (req, res) => {
+      // decode the urlencoded proof object
+      const decodedBody = decodeURIComponent(req.body);
+      const proof = JSON.parse(decodedBody);
 
-// Route to receive proofs
-app.post('/receive-proofs', (req, res) => {
-  const proofs = req.body
-  console.log('Received proofs:', proofs)
-  // Process the proofs here
-  return res.sendStatus(200)
-})
+      // Verify the proof using the SDK verifyProof function
+      const result = await verifyProof(proof)
+      if (!result) {
+        return res.status(400).json({ error: 'Invalid proofs data' });
+      }
 
-app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`)
-})
-```
+      console.log('Received proofs:', proof)
+      // Process the proofs here
+      return res.sendStatus(200)
+    })
 
-<Callout type="warning">
+    app.listen(port, () => {
+      console.log(`Server running at http://localhost:${port}`)
+    })
+    ```
+
+    <Callout type="warning">
   Do not use the `express.urlencoded()` middleware as it will conflict with the `express.text()` middleware above. The proof object sent to the callback URL needs to be parsed as text, otherwise it won't be processed correctly.
 </Callout>
+  </Tabs.Tab>
+  <Tabs.Tab>
+    Create a new file named `main.py` and add the following code:
+
+    ```python
+    from fastapi import FastAPI, Request
+    from reclaim_python_sdk import ReclaimProofRequest, verify_proof, Proof
+    import uvicorn
+    from urllib.parse import unquote
+
+    app = FastAPI()
+
+    # Route to generate SDK configuration
+    @app.get("/reclaim/generate-config")
+    async def generate_config():
+        APP_ID = "YOUR_APPLICATION_ID"
+        APP_SECRET = "YOUR_APPLICATION_SECRET"
+        PROVIDER_ID = "YOUR_PROVIDER_ID"
+
+        try:
+            reclaim_proof_request = await ReclaimProofRequest.init(APP_ID, APP_SECRET, PROVIDER_ID)
+            
+            reclaim_proof_request.set_app_callback_url("https://your-backend.com/receive-proofs")
+            
+            reclaim_proof_request_config = reclaim_proof_request.to_json_string()
+
+            return {"reclaimProofRequestConfig": reclaim_proof_request_config}
+        except Exception as error:
+            print(f"Error generating request config: {error}")
+            return {"error": "Failed to generate request config"}, 500
+
+    # Route to receive proofs
+    @app.post("/receive-proofs")
+    async def receive_proofs(request: Request):
+       # Get the raw body content
+        body = await request.body()
+        # Decode the bytes to string
+        body_str = body.decode()
+        # unquote the body string to remove the url encoding
+        body_str = unquote(body_str)
+        # parse the body string to a dictionary
+
+        parsed_data = json.loads(body_str)
+        # print('parsed_data', parsed_data)
+        proof = Proof.from_json(parsed_data)
+
+        result = await verify_proof(proof)
+        if not result:
+            return {"status": "failed", "message": "Proof verification failed"} , 400
+
+        # You backend logic here after verifying the proof
+        # Process the proofs here
+
+
+        return {"status": "success"}
+
+    if __name__ == "__main__":
+        uvicorn.run(app, host="0.0.0.0", port=3000)
+    ```
+  </Tabs.Tab>
+</Tabs>
 
 For detailed information about the `proof` object received in the `/receive-proofs` endpoint, refer to the Advance Configuration [Proof Structure](../advance-configurations/advance-options#understanding-the-proof-structure) section.
 
 ### 3. Run the server
 
-Start your Express server:
+<Tabs items={['JavaScript (Express)', 'Python (FastAPI)']}>
+  <Tabs.Tab>
+    Start your Express server:
 
-```bash
-node server.js
-```
+    ```bash
+    node server.js
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    Start your FastAPI server:
+
+    ```bash
+    python main.py
+    ```
+    
+    Or using uvicorn directly:
+    ```bash
+    uvicorn main:app --reload --port 3000
+    ```
+  </Tabs.Tab>
+</Tabs>
 
 ## Understanding the `reclaimProofRequestConfig`
 
@@ -156,7 +254,7 @@ You can use this configuration to initialize the Reclaim SDK in various client p
     const reclaimProofRequest = await ReclaimProofRequest.fromJsonString(jsonData.reclaimProofRequestConfig);
     ```
   </Tab>
-    <Tab>
+  <Tab>
     ```dart
     import 'package:reclaim_sdk/reclaim.dart';
 

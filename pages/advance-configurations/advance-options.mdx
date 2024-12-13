@@ -16,7 +16,7 @@ This guide provides detailed information on advanced configuration options for t
 
 The `addContext` method allows you to add additional information to your proof request. This context is reflected in the proof object, helping to identify and distinguish between different proof requests.
 
-<Tabs items={['JavaScript', 'React Native', 'Flutter']}>
+<Tabs items={['JavaScript', 'React Native', 'Flutter', 'Python']}>
   <Tab>
     ```javascript
     const reclaimProofRequest = await ReclaimProofRequest.init(
@@ -56,6 +56,21 @@ The `addContext` method allows you to add additional information to your proof r
     final requestUrl = await reclaimProofRequest.getRequestUrl();
     ```
   </Tab>
+  <Tab>
+    ```python
+    from reclaim_python_sdk import ReclaimProofRequest
+
+    reclaim_proof_request = await ReclaimProofRequest.init(
+        'YOUR_RECLAIM_APP_ID',
+        'YOUR_RECLAIM_APP_SECRET', 
+        'YOUR_PROVIDER_ID'
+    )
+
+    reclaim_proof_request.add_context('0x1234567890abcdef', 'User registration proof')
+
+    request_url = await reclaim_proof_request.get_request_url()
+    ```
+  </Tab>
 </Tabs>
 
 - `contextId`: A unique identifier for the context (hex address)
@@ -69,7 +84,7 @@ The `addContext` method allows you to add additional information to your proof r
 
 The `setParams` method allows you to set specific conditions that must be met for the proof to be generated. This is useful for selective triggering and manual verification flows.
 
-<Tabs items={['JavaScript', 'React Native', 'Flutter']}>
+<Tabs items={['JavaScript', 'React Native', 'Flutter', 'Python']}>
   <Tab>
     ```javascript
     const reclaimProofRequest = await ReclaimProofRequest.init(
@@ -118,6 +133,24 @@ The `setParams` method allows you to set specific conditions that must be met fo
     final requestUrl = await reclaimProofRequest.getRequestUrl();
     ```
   </Tab>
+  <Tab>
+    ```python
+    from reclaim_python_sdk import ReclaimProofRequest
+
+    reclaim_proof_request = await ReclaimProofRequest.init(
+        'YOUR_RECLAIM_APP_ID',
+        'YOUR_RECLAIM_APP_SECRET',
+        'YOUR_PROVIDER_ID'
+    )
+
+    reclaim_proof_request.set_params({
+        'minConnections': '500',
+        'industry': 'Technology'
+    })
+
+    request_url = await reclaim_proof_request.get_request_url()
+    ```
+  </Tab>
 </Tabs>
 
 <Callout type="info">
@@ -126,7 +159,7 @@ The `setParams` method allows you to set specific conditions that must be met fo
 
 ### Custom Redirect URL
 
-<Tabs items={['JavaScript', 'React Native', 'Flutter']}>
+<Tabs items={['JavaScript', 'React Native', 'Flutter', 'Python']}>
   <Tab>
 The `setRedirectUrl` method allows you to specify a custom URL where users will be redirected after the verification process.
     ```javascript
@@ -191,13 +224,28 @@ The `setRedirectUrl` method allows you to specify a custom URL where users will 
     For a complete guide on deep linking in Flutter, see: [Deep Linking in Flutter](https://docs.flutter.dev/ui/navigation/deep-linking)
     </Callout>
   </Tab>
+  <Tab>
+    ```python
+    from reclaim_python_sdk.proof_request import ReclaimProofRequest
+
+    reclaim_proof_request = await ReclaimProofRequest.init(
+        'YOUR_RECLAIM_APP_ID',
+        'YOUR_RECLAIM_APP_SECRET',
+        'YOUR_PROVIDER_ID'
+    )
+
+    reclaim_proof_request.set_redirect_url('https://your-app.com/verification-complete')
+
+    request_url = await reclaim_proof_request.get_request_url()
+    ```
+  </Tab>
 </Tabs>
 
 ### Custom Callback URL
 
 The `setAppCallbackUrl` method allows you to specify a custom API endpoint where proofs will be sent upon successful generation.
 
-<Tabs items={['JavaScript', 'React Native', 'Flutter']}>
+<Tabs items={['JavaScript', 'React Native', 'Flutter', 'Python']}>
   <Tab>
     ```javascript
     const reclaimProofRequest = await ReclaimProofRequest.init(
@@ -242,6 +290,21 @@ The `setAppCallbackUrl` method allows you to specify a custom API endpoint where
     final requestUrl = await reclaimProofRequest.getRequestUrl();
     ```
   </Tab>
+  <Tab>
+    ```python
+    from reclaim_python_sdk.proof_request import ReclaimProofRequest
+
+    reclaim_proof_request = await ReclaimProofRequest.init(
+        'YOUR_RECLAIM_APP_ID',
+        'YOUR_RECLAIM_APP_SECRET',
+        'YOUR_PROVIDER_ID'
+    )
+
+    reclaim_proof_request.set_app_callback_url('https://your-api.com/receive-proofs')
+
+    request_url = await reclaim_proof_request.get_request_url()
+    ```
+  </Tab>
 </Tabs>
 
 <Callout type="info">
@@ -252,7 +315,7 @@ The `setAppCallbackUrl` method allows you to specify a custom API endpoint where
 
 The SDK provides methods to export and import the entire configuration as a JSON string. This allows for flexible usage across different parts of your application.
 
-<Tabs items={['JavaScript', 'React Native', 'Flutter']}>
+<Tabs items={['JavaScript', 'React Native', 'Flutter', 'Python']}>
   <Tab>
     ```javascript
     // Export configuration
@@ -301,17 +364,133 @@ The SDK provides methods to export and import the entire configuration as a JSON
     final requestUrl = await reclaimProofRequest.getRequestUrl();
     ```
   </Tab>
+  <Tab>
+    ```python
+    # Export configuration
+    reclaim_proof_request = await ReclaimProofRequest.init(
+        'YOUR_RECLAIM_APP_ID',
+        'YOUR_RECLAIM_APP_SECRET',
+        'YOUR_PROVIDER_ID'
+    )
+
+    reclaim_proof_request_config = reclaim_proof_request.to_json_string()
+
+    # On a different service or application import the configuration
+    reclaim_proof_request = await ReclaimProofRequest.from_json_string(reclaim_proof_request_config)
+    request_url = await reclaim_proof_request.get_request_url()
+    ```
+  </Tab>
 </Tabs>
 
 <Callout type="info">
   This feature is particularly useful when you need to initialize the SDK in one part of your application (e.g., frontend) and use it in another (e.g., backend). It provides a seamless way to transfer the configuration.
 </Callout>
 
-## Initialization Options
+### Verifying Proof Signatures
+
+The SDK provides a method to verify the cryptographic signatures of proofs to ensure their authenticity. This is particularly useful when receiving proofs from users or application sources.
+
+<Tabs items={['JavaScript', 'React Native', 'Flutter', 'Python', 'Rust']}>
+  <Tab>
+    ```javascript
+    import { ReclaimProofRequest, verifyProof } from 'reclaim-sdk'
+
+    // make sure proofObject is of type Proof Object
+    const isValid = await verifyProof(proofObject)
+    if (isValid) {
+      console.log('Proof is valid!')
+    } else {
+      console.log('Invalid proof - signature verification failed')
+    }
+    ```
+  </Tab>
+  <Tab>
+    ```javascript
+    import { ReclaimProofRequest, verifyProof } from 'reclaim-sdk'
+
+    // make sure proofObject is of type Proof Object
+    const isValid = await verifyProof(proofObject)
+    if (isValid) {
+      console.log('Proof is valid!')
+    } else {
+      console.log('Invalid proof - signature verification failed') 
+    }
+    ```
+  </Tab>
+  <Tab>
+    ```dart
+    import 'package:reclaim_sdk/reclaim.dart';
+
+    // make sure proofObject is of type Proof Object
+    final isValid = await verifyProof(proofObject);
+    if (isValid) {
+      print('Proof is valid!');
+    } else {
+      print('Invalid proof - signature verification failed');
+    }
+    ```
+  </Tab>
+  <Tab>
+    ```python
+    from reclaim_python_sdk import ReclaimProofRequest, verify_proof, Proof
+
+    # make sure proof_object is of type Proof Object
+    proof_object = Proof.from_json(proof_json_object)
+    is_valid = await verify_proof(proof_object)
+    if is_valid:
+        print('Proof is valid!')
+    else:
+        print('Invalid proof - signature verification failed')
+    ```
+  </Tab>
+  <Tab>
+
+    <Callout type="info" title="Note">
+      The reclaim-rust-sdk crate is currently in development and only supports verify proof for now.
+    </Callout>
+
+    Install the reclaim-rust-sdk crate in your project.
+
+    ```bash
+    cargo add reclaim-rust-sdk@=0.1.0
+    cargo add serde_json@=1.0.0
+    ```
+
+    Add the following to your `Cargo.toml` file:
+
+    ```toml
+    [dependencies]
+    reclaim-rust-sdk = "0.1.0"
+    serde_json = "1.0.0"
+    ```
+
+    ```rust
+    use reclaim_rust_sdk::verify_proof;
+    use serde_json::json;
+
+    let proof: reclaim_rust_sdk::Proof = serde_json::from_value(proof_json).unwrap();
+
+    let is_valid = verify_proof(&proof);
+    if is_valid {
+        println!("✅ Proof is valid!");
+    } else {
+        println!("❌ Invalid proof - signature verification failed");
+    }
+    ```
+  </Tab>
+</Tabs>
+
+<Callout type="info">
+  The `verifyProof` method checks the cryptographic signatures in the proof against the attestor's public key to ensure the proof hasn't been tampered with. Always verify proofs before accepting them as valid, especially when receiving them from different application sources.
+</Callout>
+
+
+
+### Initialization Options
 
 When initializing the SDK, you can pass additional options to customize its behavior:
 
-<Tabs items={['JavaScript', 'React Native', 'Flutter']}>
+<Tabs items={['JavaScript', 'React Native', 'Flutter', 'Python']}>
   <Tab>
     ```javascript
     const proofRequest = await ReclaimProofRequest.init(
@@ -349,6 +528,20 @@ When initializing the SDK, you can pass additional options to customize its beha
 
     - `useAppClip`: When set to `true`, the SDK will give an App Clip url(for ios) and instant app url(for android) when calling `getRequestUrl()` which allows to open the reclaim verifier app directly from your application.
   </Tab>
+  <Tab>
+    ```python
+    from reclaim_python_sdk.proof_request import ReclaimProofRequest
+
+    proof_request = await ReclaimProofRequest.init(
+        'YOUR_RECLAIM_APP_ID',
+        'YOUR_RECLAIM_APP_SECRET',
+        'YOUR_PROVIDER_ID',
+        options={'log': True}
+    )
+    ```
+
+    - `log`: When set to `true`, enables detailed logging for debugging purposes.
+  </Tab>
 </Tabs>
 
 - `log`: When set to `true`, enables detailed logging for debugging purposes.
@@ -356,6 +549,7 @@ When initializing the SDK, you can pass additional options to customize its beha
 <Callout type="tip">
   Use this option to enhance debugging capabilities in your application. The logging option is particularly useful during development and testing phases.
 </Callout>
+
 
 ## Understanding the Proof Structure
 
@@ -420,3 +614,4 @@ This proof is typically received in the `onSuccess` callback of `startVerificati
 By leveraging these advanced configuration options, you can create a more tailored and robust integration of the Reclaim Protocol into your application. If you have any questions about these advanced features, don't hesitate to reach out to our support team or community forums.
 
 Happy coding with Reclaim Protocol!
+
