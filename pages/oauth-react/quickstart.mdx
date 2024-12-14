@@ -17,7 +17,7 @@ Get up and running with Reclaim Auth React in your application quickly.
 
 ## Create Your Application
 
-1. Go to the [Reclaim Identity Dashboard](https://identity.reclaimprotocol.org/dashboard/home)
+1. Go to the [Reclaim Identity Dashboard](https://dev.reclaimprotocol.org/new-application)
 
 2. Click on "Create New Application"
 
@@ -62,7 +62,7 @@ Here's a minimal example to get authentication working:
 
 ```tsx
 import React from 'react';
-import getReclaimAuth from 'identity-react';
+import getReclaimAuth, { ReclaimUser } from 'identity-react';
 
 const auth = getReclaimAuth(
   process.env.REACT_APP_RECLAIM_CLIENT_ID,
@@ -71,8 +71,7 @@ const auth = getReclaimAuth(
 );
 
 function App() {
-  const [user, setUser] = React.useState(null);
-
+  const [user, setUser] = React.useState<ReclaimUser | null>(null);
   React.useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(setUser);
     return () => unsubscribe();
@@ -89,10 +88,11 @@ function App() {
   return (
     <div>
       {user ? (
-        <div>
-          <p>Welcome, {user.id}!</p>
-          <pre>{JSON.stringify(user.data, null, 2)}</pre>
-        </div>
+      <div>
+        <p>Welcome, {user.id}!</p>
+        <pre>{JSON.stringify(user.userData, null, 2)}</pre>
+        <pre>{JSON.stringify(user.additionalData, null, 2)}</pre>
+      </div>
       ) : (
         <button onClick={handleSignIn}>Sign In</button>
       )}
@@ -121,10 +121,7 @@ yarn start
 
 ## Next Steps
 
-- [Complete setup guide](/oauth-react/setup)
 - [Authentication hooks](/oauth-react/hooks)
-- [Protected routes](/oauth-react/protected-routes)
-- [Managing user data](/oauth-react/user-data)
 
 ## Common Issues
 

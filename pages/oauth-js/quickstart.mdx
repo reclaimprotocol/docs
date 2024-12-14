@@ -4,7 +4,7 @@ Get up and running with Reclaim Auth JavaScript in your application quickly.
 
 ## Create Your Application
 
-1. Go to the [Reclaim Identity Dashboard](https://identity.reclaimprotocol.org/dashboard/home)
+1. Go to the [Reclaim Identity Dashboard](https://dev.reclaimprotocol.org/new-application)
 
 2. Click on "Create New Application"
 
@@ -22,14 +22,13 @@ Get up and running with Reclaim Auth JavaScript in your application quickly.
 4. Click "Create Application" and save your credentials:
    - Note your **Application ID** (this will be your clientId)
    - Note your **Application Secret** (this will be you clientSecret)
-
-![Dashboard Application Creation](/oauth-js/dashboard.png)
+![Dashboard Application Creation](/oauth-react/dashboard.png)
 
 ## Installation
 
 ### Using NPM
 ```bash
-npm install @reclaim/identity-js
+npm install reclaim-identity-js
 ```
 
 ### Using CDN
@@ -51,13 +50,13 @@ npm install @reclaim/identity-js
 
     <script src="https://unpkg.com/reclaim-identity-js@latest"></script>
     <script>
-        const auth = getReclaimAuth(
-            'your-client-id',
-            'http://localhost:3000'  // Must match dashboard configuration
-        );
+        const clientId = 'your-client-id';
+        const clientSecret = 'your-client-secret'
+        const redirectUri = 'your-redirect-uri';
+        const reclaimAuth = getReclaimAuth(clientId, clientSecret,redirectUri);
 
         // Handle auth state changes
-        auth.onAuthStateChanged(user => {
+        reclaimAuth.onAuthStateChanged(user => {
             const userInfo = document.getElementById('userInfo');
             if (user) {
                 userInfo.textContent = JSON.stringify(user, null, 2);
@@ -69,7 +68,7 @@ npm install @reclaim/identity-js
         // Handle sign in
         document.getElementById('loginBtn').onclick = async () => {
             try {
-                const user = await auth.signIn();
+                const user = await reclaimAuth.signIn();
                 console.log('Signed in:', user);
             } catch (error) {
                 console.error('Sign in failed:', error);
@@ -114,9 +113,3 @@ If the authentication popup is blocked:
 If you're getting CORS errors:
 - Verify your domain is properly configured in the dashboard
 - Check that you're using the correct environment URLs
-
-## Next Steps
-
-- [Complete setup guide](/reclaim-auth-js/setup)
-- [Authentication events](/reclaim-auth-js/events)
-- [Security best practices](/reclaim-auth-js/security)
