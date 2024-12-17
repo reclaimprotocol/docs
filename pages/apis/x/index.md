@@ -30,7 +30,7 @@ Integrate Reclaim OAuth in your application using the library of choice and cred
 #### React Example
 ```tsx
 import React from 'react';
-import getReclaimAuth from 'identity-react';
+import getReclaimAuth, { ReclaimUser } from 'identity-react';
 
 const auth = getReclaimAuth(
   process.env.REACT_APP_RECLAIM_CLIENT_ID,
@@ -39,7 +39,7 @@ const auth = getReclaimAuth(
 );
 
 function App() {
-  const [user, setUser] = React.useState(null);
+  const [user, setUser] = React.useState<ReclaimUser | null>(null);
 
   React.useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(setUser);
@@ -57,10 +57,11 @@ function App() {
   return (
     <div>
       {user ? (
-        <div>
-          <p>Welcome, {user.id}!</p>
-          <pre>{JSON.stringify(user.data, null, 2)}</pre>
-        </div>
+      <div>
+        <p>Welcome, {user.id}!</p>
+        <pre>{JSON.stringify(user.userData, null, 2)}</pre>
+        <pre>{JSON.stringify(user.additionalData, null, 2)}</pre>
+      </div>
       ) : (
         <button onClick={handleSignIn}>Sign In</button>
       )}
