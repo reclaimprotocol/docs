@@ -153,7 +153,8 @@ function Profile() {
     <div>
       <h1>Profile</h1>
       <p>ID: {user.id}</p>
-      <pre>{JSON.stringify(user.data, null, 2)}</pre>
+      <pre>{JSON.stringify(user.userData, null, 2)}</pre>
+      <pre>{JSON.stringify(user.additionalData, null, 2)}</pre>
       <button onClick={signOut}>Sign Out</button>
     </div>
   );
@@ -167,9 +168,12 @@ The SDK includes TypeScript definitions:
 ```typescript
 interface ReclaimUser {
   id: string;
-  data: {
-    [key: string]: string;
-  };
+  userData: {
+      [key: string]: string;
+  }
+  additionalData: {
+      [key: string]: string;
+  }[];
 }
 
 interface AuthError extends Error {
