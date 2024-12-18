@@ -1,4 +1,4 @@
-import { Steps, Callout } from 'nextra/components'
+import { Steps, Callout } from "nextra/components";
 
 # Publish on-chain with Reclaim contract on Cardano
 
@@ -9,11 +9,22 @@ import { Steps, Callout } from 'nextra/components'
 
 - You can access the code of this walkthrough on [Gitlab](https://gitlab.reclaimprotocol.org/integrations/onchain/pluts-sdk).
 
+## Overview
+
+This walkthrough demonstrates how to integrate Reclaim Protocol proofs with decentralized identity (DID) and verifiable credentials (VCs) using Atala PRISM/Hyperledger Identus. Once a Reclaim Proof is generated, we use it to:
+
+1. Create a DID.
+2. Issue a Verifiable Credential (VC) tied to that Proof.
+3. Incorporate the DID and VC into the transaction's datum before locking.
+4. During unlocking, verify the VC on-chain before granting access.
+
+By coupling these steps, we ensure that not only is the proof cryptographically valid, but it is also bound to a self-sovereign identity and a tamper-evident credential. This greatly enhances trust and security in decentralized identity workflows on the Cardano blockchain.
+
 ## Dapp Development
 
 <Steps>
 
-### Cloning the `Dapp` repo.
+### 1. Cloning the `Dapp` repo.
 
 ```bash
 git clone https://gitlab.reclaimprotocol.org/integrations/onchain/pluts-sdk
@@ -23,46 +34,76 @@ cd pluts-sdk
 npm install
 ```
 
-### Code Discovery (`unlockTx.ts`)
+### 2. Code Discovery: `lockTx.ts`
 
-- Primary Functionality: Handles the unlocking of assets on the blockchain.
-- Key Functions:
-  - getUnlockTx : Assembles the transaction required to unlock assets.
-  - unlockTx : Signs and submits the unlock transaction to the blockchain.
+**Primary Functionality:**
 
-### Code Discovery (`lockTx.ts`)
+- Prepares and locks the transaction that holds the proof, DID, and VC.
 
-- Primary Functionality: Manages the locking of assets into the blockchain.
-- Key Functions:
-  - getLockTx : Prepares the transaction for locking assets.
-  - lockTx : Signs and submits the lock transaction to the blockchain.
+**Key Steps:**
 
-### Code Discovery (`reclaimPlutus.ts`)
+- **Get Proof from Reclaim**: Retrieve the proof generated off-chain.
+- **Create DID & VC**: Use the proof to create a Decentralized Identifier and issue a Verifiable Credential using Atala PRISM/Identus before locking.
+- **Add to Datum**: Incorporate the DID and VC data into the transaction datum, ensuring that both the proof and associated identity credentials are recorded on-chain.
+- **Lock Transaction**: Sign and submit the lock transaction, making the proof-backed VC accessible only to the rightful owner’s DID.
 
-- Description: Contains smart contract logic used in transaction validation.
-- Components:
-  - Datum and Redeemer : Structures that define the data formats for smart contracts.
-  - scriptTestnetAddr : Specifies the blockchain address for script execution.
+Functions:
 
-### Verification Flow
+- `getLockTx`: Builds the locking transaction, including proof and VC data.
+- `lockTx`: Signs and submits the locked transaction to the blockchain.
 
-#### Connect Wallet
+### 3. Code Discovery: `unlockTx.ts`
 
-- use Nami wallet to connect to the testnet.
+**Primary Functionality:**
 
-#### Generate Proof
+- Handles the unlocking process by verifying the proof and the associated VC on-chain.
 
-- Scan Qrcode to start `Reclaim App` and generate a proof.
+**Key Steps:**
 
-#### Lock Proof
+- **Fetch On-Chain Data**: Retrieve the DID and VC from the locked UTxO.
+- **Verify VC**: Ensure the Verifiable Credential (issued during the locking step) is valid and corresponds to the DID owner attempting the unlock.
+- **Unlock Transaction**: Once verified, proceed to sign and submit the unlocking transaction, releasing assets and confirming ownership.
 
-- After generating the proof, you will need to lock your proof on-chain so only you can unlock it.
+Functions:
+
+- `getUnlockTx`: Assembles the transaction required to unlock assets after verifying the VC.
+- `unlockTx`: Signs and submits the unlock transaction to the blockchain.
+
+### 4. Code Discovery: `reclaimPlutus.ts`
+
+**Description:**
+
+- Defines the smart contract logic for validation.
+- Ensures that the DID, VC, and proof embedded in the datum meet the required unlocking conditions.
+
+**Components:**
+
+- **Datum & Redeemer**: Data formats that the validator uses to verify if the transaction (with the included DID and VC) meets the unlocking criteria.
+- **scriptTestnetAddr**: The testnet address where the contract runs, ensuring that all transactions occur in the correct environment.
+
+### 5. Verification Flow
+
+**Connect Wallet**
+
+Use Nami or another Cardano-compatible wallet set to the testnet environment.
+
+**Generate Proof**
+
+Scan the provided QR code or initiate the Reclaim App process to produce a zero-knowledge proof.
+
+**Lock Proof with DID & VC**
+
+- After generating the proof, create your DID and issue a VC from that proof using Atala PRISM/Identus.
+- Include the DID and VC in the datum during the `lockTx` process.
+- Submit the lock transaction, thereby publishing the proof and identity credentials on-chain.
 
 ![lock-exp](/cardano/lock.jpg)
 
-#### Verify by unlocking
+**Verify by Unlocking**
 
-- Verify that you own data by unlocking the published proof on-chain.
+- To unlock, the DApp fetches the DID and VC from the on-chain datum.
+- Verifies the authenticity of the VC and checks that it belongs to the wallet’s DID.
+- If verified, proceed with `unlockTx` to release funds and confirm rightful ownership.
 
   ![unlock-exp](/cardano/unlock.jpg)
 
@@ -71,3 +112,11 @@ npm install
 ### Contract Deployment
 
 - Contract is deployed on the testnet. you can find the contract address [here](https://preprod.cardanoscan.io/address/addr_test1wzv5v4jx3xaz4nlgp6j6juw707huauprhfdkst66mlh0fcsgk7uvw).
+
+## Summary
+
+This documentation outlines how to:
+
+- Generate a Reclaim proof and transform it into a DID and a Verifiable Credential using Atala PRISM/Hyperledger Identus.
+- Lock this credentialized proof on-chain with a Plutus smart contract.
+- Verify the DID and VC upon unlocking, ensuring that only an authenticated entity can reclaim the locked assets.
