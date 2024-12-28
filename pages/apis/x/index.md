@@ -95,14 +95,21 @@ Returns user email used in X
 ```
 /x/tweets
 ```
-Returns a list of the users last 10 tweets
+Returns a list of the users last 20 tweets
 ```
 [
   {
-    "id": "727848983297703936",
-    "text": "tweet text example",
-    "createdAt": "Wed May 04 13:14:55 +0000 2016", 
-    "userName": "user name example"
+    "id": "1628347912635469824",
+    "text": "test tweets",
+    "createdAt": "2024-12-01T14:32:11.000Z",
+    "views": 12854,
+    "likes": 543,
+    "id_str": "1628347912635469824",
+    "quote_count": 12,
+    "reply_count": 34,
+    "retweet_count": 89,
+    "bookmark_count": 18,
+    "userName": "janedoe_writer"
   },
   {
     ...
@@ -116,12 +123,22 @@ Returns a list of the users last 10 tweets
 Returns user profile data
 ```
 {
-  "name": "John Stevens",
-  "screenName": "John Stevens", 
-  "profileImage": "https://pbs.twimg.com/profile_images/1862853120600031232/L601BxP6_normal.jpg",
-  "bio": "",
-  "followersCount": 2,
-  "followingCount": 69,
-  "tweetCount": 3
+{
+  "id": "1628347912635469824",
+  "name": "Jane Doe",
+  "screen_name": "janedoe_pro",
+  "description": "Software Engineer",
+  "followers_count": 15423,
+  "following_count": 732,
+  "profile_image_url": "https://pbs.twimg.com/profile_images/1234567890123456789/abcdefg.jpg",
+  "profile_banner_url": "https://pbs.twimg.com/profile_banners/1234567890123456789/1618294823/1500x500",
+  "location": "New York, USA",
+  "url": "https://janedoe.com",
+  "created_at": "Wed Feb 10 14:32:11 +0000 2010",
+  "verified": true,
+  "is_blue_verified": false,
+  "media_count": 342,
+  "statuses_count": 5814
+}
 }
 ```
