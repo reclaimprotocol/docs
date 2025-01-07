@@ -1,8 +1,11 @@
 {
-    "linkedin": {
-        "title": "LinkedIn"
-    },
-    "x": {
-        "title": "X"
-    }
+  "linkedin": {
+    "title": "LinkedIn"
+  },
+  "x": {
+    "title": "X"
+  },
+  "recurring-proofs": {
+    "title": "Recurrent Proofs"
+  }
 }
