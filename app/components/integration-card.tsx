@@ -4,7 +4,7 @@ import { Zap, ArrowRight, Check } from 'lucide-react';
 export function IntegrationCard() {
   return (
     <div className="relative group">
-       <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-600 to-[#3385FF] rounded-xl blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-pulse"></div>
+       <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-600 to-[#3385FF] rounded-xl blur opacity-50 group-hover:opacity-25 transition duration-1000 group-hover:duration-200 animate-pulse"></div>
       <div className="relative px-7 py-6 bg-white dark:bg-gray-900 rounded-lg leading-none flex items-center">
         <div className="flex flex-col w-full">
           <div className="flex items-center space-x-3">
