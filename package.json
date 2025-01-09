@@ -8,6 +8,10 @@
     "start": "next start",
     "postinstall": "fumadocs-mdx"
   },
+  "author": {
+    "name": "Adithya Krishna",
+    "email": "aadithya794@gmail.com"
+  },
   "dependencies": {
     "@theguild/remark-mermaid": "^0.2.0",
     "fumadocs-core": "14.6.1",
