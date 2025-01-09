@@ -1,0 +1,121 @@
+---
+title: Fullstack Example
+description: This guide demonstrates how to integrate the Reclaim Protocol JavaScript SDK into a fullstack application. We'll cover both the backend and frontend implementations.
+---
+
+### Backend Implementation
+
+For a detailed backend implementation using Node.js and Express, please refer to the [Backend Example](/backend/backend-example).
+
+<Callout type="info">
+  The backend example provides a comprehensive guide on setting up a server that generates the SDK configuration and
+  handles proof verification.
+</Callout>
+
+## Frontend Implementation
+
+This section demonstrates how to integrate the Reclaim SDK into your frontend application using the configuration received from your backend server.
+
+### Prerequisites
+- A running backend server with Reclaim SDK configuration endpoints
+- Node.js environment with npm/yarn
+- Basic understanding of async/await and Promise handling
+
+### Basic Implementation
+
+Here's a step-by-step implementation showing how to initialize and use the Reclaim SDK:
+
+```javascript
+import { ReclaimProofRequest } from '@reclaimprotocol/js-sdk';
+
+async function initializeReclaim() {
+  try {
+    // Step 1: Fetch the configuration from your backend
+    const response = await fetch('https://your-backend.com/reclaim/generate-config');
+    const { reclaimProofRequestConfig } = await response.json();
+
+    // Step 2: Initialize the ReclaimProofRequest with the received configuration
+    const reclaimProofRequest = await ReclaimProofRequest.fromJsonString(reclaimProofRequestConfig);
+
+    // Step 3: Generate the request URL for the verification process
+    const requestUrl = await reclaimProofRequest.getRequestUrl();
+
+    // Step 4: Start the verification session
+    await reclaimProofRequest.startSession({
+      onSuccess: (proofs) => {
+        if (proofs) {
+          if (typeof proofs === 'string') {
+            // Custom callback URL case: proof is sent to callback URL
+            console.log('SDK Message:', proofs);
+          } else if (typeof proofs !== 'string') {
+            // Default callback URL case: proof object received directly
+            console.log('Proof received:', proofs?.claimData.context);
+          }
+        }
+        // Handle successful verification (e.g., update UI, send to backend)
+      },
+      onError: (error) => {
+        console.error('Verification failed', error);
+        // Handle verification failure (e.g., show error message)
+      },
+    });
+
+    console.log('Request URL:', requestUrl);
+  } catch (error) {
+    console.error('Error initializing Reclaim:', error);
+    // Handle initialization error (e.g., show error message)
+  }
+}
+
+// Initialize Reclaim when needed (e.g., button click)
+initializeReclaim();
+```
+
+For detailed information about the proof object structure, see the [Advanced Configuration](../advance-configurations/advance-options#understanding-the-proof-structure) documentation.
+
+<Callout type="tip">
+  This implementation provides a streamlined approach to integrating Reclaim SDK. It handles both success and error cases while maintaining a clean, user-friendly interface.
+</Callout>
+
+## Implementation Guide
+
+1. **Backend Setup**
+   - Complete the backend setup as outlined in the [Backend Example](/backend/backend-example)
+   - Ensure your endpoints are properly secured and tested
+
+2. **Frontend Integration**
+   - Install the Reclaim SDK package
+   - Implement the frontend code in your application
+   - Configure proper error handling and user feedback
+
+3. **Configuration**
+   - Replace 'https://your-backend.com/reclaim/generate-config' with your actual backend endpoint
+   - Customize the success and error handlers according to your application needs
+
+<Callout type="info">
+  Ensure your backend endpoint is properly secured and accessible from your frontend application's domain.
+</Callout>
+
+## Best Practices and Recommendations
+
+1. **User Experience**
+   - Implement loading states during verification
+   - Provide clear feedback throughout the process
+   - Add proper error messages for different failure scenarios
+
+2. **Security Considerations**
+   - Implement proper authentication mechanisms
+   - Validate all incoming data
+   - Use secure communication channels (HTTPS)
+
+3. **Testing**
+   - Test with different network conditions
+   - Verify error handling scenarios
+   - Ensure cross-browser compatibility
+
+4. **Maintenance**
+   - Keep the SDK updated to the latest version
+   - Monitor for any deprecation notices
+   - Maintain proper logging for debugging
+
+This implementation provides a solid foundation for integrating the Reclaim Protocol into your application. For additional features and customization options, refer to our advanced documentation sections.

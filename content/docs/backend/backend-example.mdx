@@ -1,0 +1,179 @@
+---
+title: Example
+description: This example demonstrates how to create a simple Express.js backend that works with the Reclaim Protocol. The backend will handle generating the configuration for the SDK and receiving proofs.
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+
+### Backend Example with Express.js
+
+This guide demonstrates how to integrate the Reclaim Protocol with an Express.js backend. You'll learn how to create a server that generates SDK configurations and handles proof verification.
+
+<Callout type="info">
+  While this example uses Express.js, the concepts apply to any Node.js framework or vanilla Node.js implementation.
+</Callout>
+
+### Prerequisites
+- Node.js installed on your system
+- Basic understanding of Express.js
+- Access to Reclaim Protocol credentials (APP_ID, APP_SECRET, PROVIDER_ID)
+
+### Step-by-Step Implementation
+
+### 1. Project Setup
+
+Create a new project directory and initialize it with the required dependencies:
+
+```bash
+mkdir reclaim-backend-demo
+cd reclaim-backend-demo
+npm init -y
+npm install express @reclaimprotocol/js-sdk
+```
+
+### 2. Server Implementation
+
+Create a `server.js` file with the following code:
+
+```javascript
+const express = require('express')
+const { ReclaimProofRequest } = require('@reclaimprotocol/js-sdk')
+
+const app = express()
+const port = 3000
+
+// Middleware configuration
+app.use(express.json())
+// Configure text parser for proof object handling
+app.use(express.text({ type: '*/*', limit: '50mb' })); 
+
+// Route to generate SDK configuration
+app.get('/reclaim/generate-config', async (req, res) => {
+  // Replace with your actual credentials
+  const APP_ID = 'YOUR_APPLICATION_ID'
+  const APP_SECRET = 'YOUR_APPLICATION_SECRET'
+  const PROVIDER_ID = 'YOUR_PROVIDER_ID'
+
+  try {
+    const reclaimProofRequest = await ReclaimProofRequest.init(APP_ID, APP_SECRET, PROVIDER_ID)
+    
+    // Set the callback URL where proofs will be received
+    reclaimProofRequest.setAppCallbackUrl('https://your-backend.com/receive-proofs')
+    
+    const reclaimProofRequestConfig = reclaimProofRequest.toJsonString()
+
+    return res.json({ reclaimProofRequestConfig })
+  } catch (error) {
+    console.error('Error generating request config:', error)
+    return res.status(500).json({ error: 'Failed to generate request config' })
+  }
+})
+
+// Route to handle incoming proofs
+app.post('/receive-proofs', (req, res) => {
+  const proofs = req.body
+  console.log('Received proofs:', proofs)
+  // Implement your proof processing logic here
+  return res.sendStatus(200)
+})
+
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}`)
+})
+```
+
+<Callout type="warning">
+  Important: Do not use `express.urlencoded()` middleware as it conflicts with the `express.text()` middleware. The proof object must be parsed as text for proper processing.
+</Callout>
+
+### 3. Server Deployment
+
+Start your Express server:
+
+```bash
+node server.js
+```
+
+## Configuration Structure
+
+The `reclaimProofRequestConfig` is a JSON string containing essential SDK initialization parameters. Here's a breakdown of its structure:
+
+```json
+{
+  "reclaimProofRequestConfig": "{
+    \"applicationId\": \"<APPLICATION_ID>\",
+    \"providerId\": \"<PROVIDER_ID>\",
+    \"sessionId\": \"<SESSION_ID>\",
+    \"context\": {
+      \"contextAddress\": \"<CONTEXT_ADDRESS>\",
+      \"contextMessage\": \"<CONTEXT_MESSAGE>\"
+    },
+    \"requestedProof\": {
+      \"url\": \"<PROOF_URL>\",
+      \"parameters\": {
+        \"<PARAM1>\": \"\",
+        \"<PARAM2>\": \"\"
+      }
+    },
+    \"appCallbackUrl\": \"<CALLBACK_URL>\",
+    \"signature\": \"<SIGNATURE>\",
+    \"timeStamp\": \"<TIMESTAMP>\"
+  }"
+}
+```
+
+### Configuration Components
+
+- **applicationId**: Your unique application identifier
+- **providerId**: Provider-specific identifier
+- **sessionId**: Unique identifier for each proof request session
+- **context**: Contains proof request context information
+  - **contextAddress**: Associated address (typically "0x0")
+  - **contextMessage**: Custom context message
+- **requestedProof**: Proof generation details
+  - **url**: Target URL for proof generation
+  - **parameters**: Required proof parameters
+- **appCallbackUrl**: Endpoint for proof submission
+- **signature**: Request integrity verification
+- **timeStamp**: Configuration generation time
+
+## Client Integration
+
+Use the generated configuration to initialize the Reclaim SDK in your client applications:
+
+<Tabs items={ ['JavaScript', 'React Native', 'Flutter']}>
+  <Tab>
+    ```javascript
+    import { ReclaimProofRequest } from '@reclaimprotocol/js-sdk';
+
+    // Fetch the config from your backend
+    const response = await fetch('http://your-backend.com/reclaim/generate-config');
+    const jsonData = await response.json();
+    const reclaimProofRequest = await ReclaimProofRequest.fromJsonString(jsonData.reclaimProofRequestConfig);
+    ```
+  </Tab>
+  <Tab>
+    ```javascript
+    import { ReclaimProofRequest } from '@reclaimprotocol/reactnative-sdk';
+
+    // Fetch the config from your backend
+    const response = await fetch('http://your-backend.com/reclaim/generate-config');
+    const jsonData = await response.json();
+    const reclaimProofRequest = await ReclaimProofRequest.fromJsonString(jsonData.reclaimProofRequestConfig);
+    ```
+  </Tab>
+    <Tab>
+    ```dart
+    import 'package:reclaim_sdk/reclaim.dart';
+
+    // Fetch the config from your backend
+    final response = await http.get(Uri.parse('http://your-backend.com/reclaim/generate-config'));
+    final jsonData = json.decode(response.body);
+    final reclaimProofRequest = await ReclaimProofRequest.fromJsonString(jsonData['reclaimProofRequestConfig']);
+    ```
+  </Tab>
+</Tabs>
+
+This architecture ensures secure handling of sensitive credentials by keeping them server-side while enabling full SDK functionality in client applications.
+
+For more details about the proof object structure, see the [Proof Structure](../advance-configurations/advance-options#understanding-the-proof-structure) documentation.

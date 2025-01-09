@@ -1,0 +1,33 @@
+---
+title: Alephzero SDK
+description: The Reclaim Protocol Proofs enable secure data verification in blockchain applications.
+---
+
+### Overview
+The Alephzero SDK allows you to integrate and verify Reclaim Protocol Proofs in your blockchain applications. These proofs provide a secure way to validate user data while maintaining privacy and authenticity.
+
+### Implementation Flow
+
+1. **Request Proofs**
+   - Implement proof requests in your application using one of our official SDKs:
+     - [Reclaim React SDK](/js/frontend-example) for web applications
+     - [Reclaim React Native SDK](/react-native) for mobile applications
+     - [Reclaim Flutter SDK](/flutter) for cross-platform applications
+     - [Reclaim Node SDK](/js/backend-example) for backend implementations
+
+2. **Handle Proof Upload**
+   - Once the user successfully uploads their proof, store the proof identifier
+   - Maintain proper record-keeping for subsequent verification
+
+3. **Submit for Verification**
+   - Transform the proof into its serialized format
+   - Submit the serialized proof to your designated smart contract
+
+4. **Verify On-Chain**
+   - Execute the verification process within your smart contract
+   - Handle the verification result according to your application logic
+
+### Next Steps
+- Review our [API Reference](/api-reference) for detailed implementation guidelines
+- Check out our [Examples](/examples) section for practical implementation scenarios
+- Join our [Developer Community](/community) for support and updates

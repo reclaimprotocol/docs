@@ -1,0 +1,83 @@
+---
+title: Quickstart
+description: Publish on chain using js-stellar-sdk
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+## Pre-requisite
+
+You can access the code on Gitlab:
+
+- [Soroban contract](https://gitlab.reclaimprotocol.org/integrations/onchain/stellar-sdk).
+- [Frontend example](https://gitlab.reclaimprotocol.org/starterpacks/reclaim-stellar-example).
+
+These two repos hold all configurations and metadata required to publish a Reclaim proof to Stellar.
+
+You will need the [Soroban CLI](https://developers.stellar.org/docs/build/smart-contracts/getting-started/setup) to build the smart contract. Also, we are using [Freighter](https://www.freighter.app/) wallet for this walkthrough, make sure to have it installed. Once Freighter is installed and configured, go on and allow experimental features by switching it in `Settings > Preferences`, this is required to try the frontend in localhost.  
+
+## Contract and JS interactions
+
+You can skip this part if you wish to verify on our [deployed contract](https://stellar.expert/explorer/testnet/contract/CA4OZVT36RMBNI5MRDB4724N5LJ4H2FDA633UO2SH37DPLFRBXVBPNVT) with address `CA4OZVT36RMBNI5MRDB4724N5LJ4H2FDA633UO2SH37DPLFRBXVBPNVT`.
+<Steps>
+### Clone the client contract repo.
+
+```bash copy
+git clone https://gitlab.reclaimprotocol.org/integrations/onchain/stellar-sdk.git
+cd stellar-sdk
+soroban contract build
+```
+
+### Deploy the contract.
+
+Upload to Stellar network and instantiate the contract.
+
+```bash copy
+soroban contract deploy --wasm target/wasm32-unknown-unknown/release/reclaim.wasm --source reclaim --network testnet
+export CONTRACT= // Paste in the resulting contract address
+export ACCOUNT= // Paste in your public address 
+soroban contract invoke --id $CONTRACT --source reclaim --network testnet -- instantiate --user $ACCOUNT
+```
+
+Save the contract address, it is the only contract-specific metadata to be used in the frontend client.
+
+
+</Steps>
+
+
+## React client development
+<Steps>
+
+### Cloning the frontend repo.
+
+```bash
+git clone https://gitlab.reclaimprotocol.org/starterpacks/reclaim-stellar-example.git
+
+cd reclaim-stellar-example
+
+npm install
+```
+
+### Code discovery.
+In your `App.js`, make sure you have your Reclaim credentials ready for placeholders marked with ```//TODO```s. For your convenience, we included some smoke credentials for Steam Id provider.
+
+Add your contract address to `.env`. If you wish to use our contract, just copy contents of `.env.example` to your `.env`.
+
+```bash
+cp .env.example .env
+```
+
+### Submitting the proof.
+
+```bash
+npm run build
+
+npm run start
+```
+After requesting a proof from Reclaim and performing the verification on your end, a verify proof button will appear on the screen.
+Make sure your wallet is connected, click the button, a wallet pop-up will show prompting you to submit.
+
+
+
+</Steps>
+

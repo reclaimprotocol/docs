@@ -1,0 +1,120 @@
+---
+title: Frontend Example
+description: This guide will walk you through the fundamental steps to integrate Reclaim's proof verification system into your React application.
+---
+
+### Prerequisites
+
+Before implementing Reclaim verification in your React application, ensure you have:
+
+- Successfully installed the Reclaim SDK (refer to the [Installation Guide](./installation))
+- Obtained your credentials from the [Reclaim Developer Portal](https://dev.reclaimprotocol.org/):
+  - Application ID
+  - Application Secret
+  - Provider ID
+
+<Callout type="warning">
+⚠️ Security Critical: Your Application Secret must be kept secure and should never be exposed in client-side code. Store it securely on your backend server.
+</Callout>
+
+## Implementation Guide
+
+The following example demonstrates how to create a React component that implements Reclaim verification with QR code functionality:
+
+```javascript
+[Previous code block remains unchanged]
+```
+
+### Implementation Breakdown
+
+#### 1. Component Architecture
+The component is structured around three main elements:
+- State management for verification URL and proofs
+- Verification request handling
+- User interface rendering
+
+#### 2. Verification Process Flow
+
+a. **Initialization**
+- User triggers verification by clicking the button
+- SDK initializes with your credentials
+- Request URL is generated and stored in state
+
+b. **Session Management**
+- Component begins monitoring for proof submissions
+- Handles both success and error scenarios
+- Supports multiple response formats (string and object)
+
+c. **User Interface**
+- Displays verification button
+- Shows QR code when URL is available
+- Presents verification results
+
+#### 3. Response Handling
+
+The component handles two types of proof responses:
+- String responses (when using custom callback URLs)
+- Object responses (when using default callback URL)
+
+### Integration Steps
+
+1. **Component Integration**
+```jsx
+import ReclaimDemo from './ReclaimDemo';
+
+function App() {
+  return (
+    <div>
+      <h1>Reclaim Verification</h1>
+      <ReclaimDemo />
+    </div>
+  );
+}
+```
+
+2. **Environment Setup**
+- Store your credentials securely
+- Configure error handling
+- Set up appropriate loading states
+
+<Callout type="info">
+💡 Device Detection Tip: Consider implementing device detection to optimize the user experience:
+- Desktop: Display QR code for mobile scanning
+- Mobile: Show direct verification link
+</Callout>
+
+<Callout type="warning">
+🔒 Production Security Requirements:
+1. Never expose APP_SECRET in frontend code
+2. Generate request configurations server-side
+3. Use `fromJsonString()` method in frontend code
+4. Implement proper error handling and validation
+
+Refer to the [Fullstack Example](./fullstack-example) for secure implementation details.
+</Callout>
+
+## Next Steps
+
+After implementing the basic verification:
+
+1. **Advanced Configuration**
+   - Explore [Advanced Configuration Options](../advance-configurations/advance-options)
+   - Customize SDK behavior for your use case
+
+2. **Optimization**
+   - Review [Best Practices](./best-practices)
+   - Implement proper error handling
+   - Add loading states and user feedback
+
+3. **Testing**
+   - Test across different devices and browsers
+   - Verify error scenarios
+   - Validate security measures
+
+### Support Resources
+
+- View complete working example: [demo repository](https://gitlab.reclaimprotocol.org/starterpacks/demo-js-sdk)
+- Join our [Telegram community](https://t.me/protocolreclaim) for support
+- Consult the API documentation for detailed reference
+
+Remember to regularly update your implementation as new SDK versions are released to ensure optimal security and performance.

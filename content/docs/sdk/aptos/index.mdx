@@ -1,0 +1,37 @@
+---
+title: Aptos SDK
+description: The Reclaim Protocol Proofs are compatible with blockchain applications and can be seamlessly integrated with Aptos blockchain.
+---
+
+### Overview
+The Reclaim Protocol allows you to verify user data proofs on the Aptos blockchain. This integration enables decentralized verification of user-provided proofs through smart contracts.
+
+### Integration Flow
+
+The integration process consists of four main steps:
+
+1. **Proof Request**
+   - Implement proof requests using one of our front-end libraries:
+     - [Reclaim React SDK](/js/frontend-example)
+     - [Reclaim React Native SDK](/react-native)
+     - [Reclaim Flutter SDK](/flutter)
+   - Alternatively, use our backend solution:
+     - [Reclaim Node SDK](/js/backend-example)
+
+2. **Proof Management**
+   - Once the user uploads their proof, store the proof identifier
+   - Maintain necessary metadata for on-chain verification
+   - Ensure secure handling of proof data
+
+3. **Smart Contract Submission**
+   - Serialize the proof data in the required format
+   - Submit the serialized proof to your Aptos smart contract
+   - Handle any submission errors appropriately
+
+4. **On-chain Verification**
+   - Execute proof verification within your smart contract
+   - Process the verification results according to your application logic
+   - Implement appropriate error handling and fallback mechanisms
+
+### Next Steps
+After understanding the basic flow, refer to our specific SDK documentation for detailed implementation guidelines and best practices.

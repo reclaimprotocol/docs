@@ -1,0 +1,315 @@
+---
+title: Quickstart
+description: Publish on chain using Move 
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+## Pre-requisite
+
+We assume that you have installed [Sui](https://move-book.com/before-we-begin/install-sui.html) on your device and that you have an understanding of Reclaim's proofs.
+
+In this walkthrough, we will show how you can leverage Reclaim's Move sdk in your own contracts.
+
+You can access the code of this walkthrough on [Gitlab](https://gitlab.reclaimprotocol.org/starterpacks/reclaim-move-client).
+
+Reclaim is available on:
+
+- [Mainnet](https://suivision.xyz/package/0xbfd81ff7150e0e85be1daab249353b887f78b9b076c78675a8b09311e4cd2089).
+- [Testnet](https://suiscan.xyz/testnet/object/0x6e3f6a52a6a33bb59da15d1f9b04b63bfbdc7404c50f4aa08352b84c00eab73a/txs).
+
+## Integrating Reclaim
+
+<Steps>
+### Add Reclaim as a dependency.
+
+To include the Reclaim SDK in your project, add the following to your Move.toml file. The only change needed based on the network you are targeting is the rev value:
+
+
+
+```toml copy
+[dependencies]
+---
+Reclaim = { git = "https://gitlab.reclaimprotocol.org/integrations/onchain/move-sdk.git", rev = "[network]" }
+---
+```
+
+Replace [network] with one of the following:
+
+main for Mainnet
+testnet for Testnet
+For example, to use the Reclaim SDK on Testnet:
+
+
+```toml copy
+[dependencies]
+---
+Reclaim = { git = "https://gitlab.reclaimprotocol.org/integrations/onchain/move-sdk.git", rev = "testnet" }
+---
+```
+
+Build with `sui move build`, you should have Reclaim sources installed.
+
+### Add handlers for Reclaim operations.
+
+Add these functions to your designated module, they simply delegate calls to Reclaim:
+
+```rust copy
+module client::client {
+    use reclaim::reclaim::{ReclaimManager, Proof};
+    use std::string::String;
+    use sui::event;
+
+    // Creates a new Reclaim Manager
+    public fun create_reclaim_manager(
+        epoch_duration_s: u32,
+        ctx: &mut TxContext,
+    ) {
+        reclaim::reclaim::create_reclaim_manager(epoch_duration_s, ctx)
+    }
+
+    // Adds a new epoch to the Reclaim Manager
+    public fun add_new_epoch(
+        manager: &mut ReclaimManager,
+        witnesses: vector<vector<u8>>,
+        requisite_witnesses_for_claim_create: u128,
+        ctx: &mut TxContext,
+    ) {
+        reclaim::reclaim::add_new_epoch(manager, witnesses, requisite_witnesses_for_claim_create, ctx)       
+    }
+
+    public fun create_proof(parameters: String, context: String,
+        identifier: String, owner: String, epoch: String, timestamp: String,
+        signature: vector<u8>, ctx: &mut TxContext) {
+        let claim_info = reclaim::reclaim::create_claim_info(
+            b"http".to_string(),
+            parameters,
+            context
+        );
+
+        let complete_claim_data = reclaim::reclaim::create_claim_data(
+            identifier,
+            owner,
+            epoch,
+            timestamp,
+        );
+
+        let mut signatures = vector<vector<u8>>[];
+        signatures.push_back(signature);
+
+        let signed_claim = reclaim::reclaim::create_signed_claim(
+            complete_claim_data,
+            signatures
+        );
+
+        reclaim::reclaim::create_proof(claim_info, signed_claim, ctx);
+    }
+
+
+    public struct ProofVerified has copy, drop {
+        verified: bool,
+        witness: vector<vector<u8>>,
+    }
+    // Verifies a proof
+    public fun verify_proof(
+        manager: &ReclaimManager,
+        proof: &Proof,
+        ctx: &mut TxContext,
+    ): vector<vector<u8>> {
+        let witness = reclaim::reclaim::verify_proof(manager, proof, ctx);
+        event::emit<ProofVerified>(ProofVerified{verified: true, witness: witness});
+        return witness
+    }
+}
+```
+
+### Add test scenarios to confirm compatibility:
+
+These tests show how to plug data into Reclaim's models, include them under your `tests/your_tests.move`:
+
+```rust copy
+#[test_only]
+module client::client_tests {
+  use client::client;
+  use reclaim::reclaim;
+  use sui::test_scenario;
+  use std::string;
+  use std::debug;
+
+#[test]
+  fun test_reclaim() {
+    let owner = @0xC0FFEE;
+    let user1 = @0xA1;
+    let epoch_duration_s = 1_000_000_u32;
+
+    let mut scenario_val = test_scenario::begin(user1);
+    let scenario = &mut scenario_val;
+
+    test_scenario::next_tx(scenario, owner);
+    {
+      client::create_reclaim_manager(epoch_duration_s,
+                                      test_scenario::ctx(scenario));
+    };
+
+    test_scenario::next_tx(scenario, owner);
+    {
+      let mut witnesses = vector<vector<u8>>[];
+      let witness_address = x"244897572368eadf65bfbc5aec98d8e5443a9072";
+      witnesses.push_back(witness_address);
+
+      let requisite_witnesses_for_claim_create = 1_u128;
+
+      let mut manager =
+          test_scenario::take_shared<reclaim::ReclaimManager>(scenario);
+
+      client::add_new_epoch(&mut manager, witnesses,
+                             requisite_witnesses_for_claim_create,
+                             test_scenario::ctx(scenario));
+
+      test_scenario::return_shared(manager);
+    };
+
+
+   test_scenario::next_tx(scenario, user1);
+    {
+     let ctx = test_scenario::ctx(scenario);
+
+      let claim_info = reclaim::create_claim_info(
+         b"http".to_string(),
+         b"{\"body\":\"\",\"geoLocation\":\"in\",\"method\":\"GET\",\"responseMatches\":[{\"type\":\"regex\",\"value\":\"_steamid\\\">Steam ID: (?<CLAIM_DATA>.*)</div>\"}],\"responseRedactions\":[{\"jsonPath\":\"\",\"regex\":\"_steamid\\\">Steam ID: (?<CLAIM_DATA>.*)</div>\",\"xPath\":\"id(\\\"responsive_page_template_content\\\")/div[@class=\\\"page_header_ctn\\\"]/div[@class=\\\"page_content\\\"]/div[@class=\\\"youraccount_steamid\\\"]\"}],\"url\":\"https://store.steampowered.com/account/\"}".to_string(),
+         b"{\"contextAddress\":\"user's address\",\"contextMessage\":\"for acmecorp.com on 1st january\",\"extractedParameters\":{\"CLAIM_DATA\":\"76561199601812329\"},\"providerHash\":\"0xffd5f761e0fb207368d9ebf9689f077352ab5d20ae0a2c23584c2cd90fc1b1bf\"}".to_string()
+      );
+
+      let complete_claim_data = reclaim::create_claim_data(
+        b"0xd1dcfc5338cb588396e44e6449e8c750bd4d76332c7e9440c92383382fced0fd".to_string(),
+        b"0x13239fc6bf3847dfedaf067968141ec0363ca42f".to_string(),
+        b"1".to_string(),
+        b"1712174155".to_string(),
+      );
+
+      let mut signatures = vector<vector<u8>>[];
+      let signature = x"2888485f650f8ed02d18e32dd9a1512ca05feb83fc2cbf2df72fd8aa4246c5ee541fa53875c70eb64d3de9143446229a250c7a762202b7cc289ed31b74b31c811c";
+      signatures.push_back(signature);
+      
+      let signed_claim = reclaim::create_signed_claim(
+        complete_claim_data,
+        signatures
+      );
+
+      reclaim::create_proof(claim_info, signed_claim, ctx);
+    };
+
+  test_scenario::next_tx(scenario, user1);
+    {
+      let manager = test_scenario::take_shared<reclaim::ReclaimManager>(scenario);
+      let proof = test_scenario::take_shared<reclaim::Proof>(scenario);
+      let ctx = test_scenario::ctx(scenario); 
+
+      let signers = client::verify_proof(&manager, &proof, ctx);
+      assert!(signers == vector[x"244897572368eadf65bfbc5aec98d8e5443a9072"], 0);
+
+      test_scenario::return_shared(manager);
+      test_scenario::return_shared(proof);
+    };
+    
+    test_scenario::end(scenario_val);
+  }
+}
+```
+
+### Running Tests
+
+To execute the test suite and verify the functionality of the modules, use:
+
+```bash copy
+sui move test
+```
+
+
+### Publishing the Package
+
+To publish the package on the Sui network, execute:
+
+```bash copy
+sui client publish --gas-budget 100000000
+```
+
+## Interacting with the Reclaim Manager
+
+#### Creating a Reclaim Manager
+
+To create a new Reclaim Manager, use the following command:
+
+```bash copy
+sui client call --package $PACKAGE --module client --function create_reclaim_manager --args 1000000 --gas-budget 100000000
+```
+
+**Note:** Replace `$PACKAGE` with your actual package ID.
+
+#### Adding a New Epoch
+
+To add a new epoch to an existing Reclaim Manager, use the following command:
+
+```bash copy
+sui client call --package $PACKAGE --module client --function add_new_epoch --args $MANAGER "[0x244897572368eadf65bfbc5aec98d8e5443a9072]" 1 --gas-budget 100000000
+```
+
+**Note:**
+- Replace `$PACKAGE` with your package ID.
+- Replace `$MANAGER` with the object ID obtained from the `create_reclaim_manager` command.
+
+#### Create a Proof
+
+Use the `create_proof` function to generate a proof. This proof is based on specific parameters, context, identifier, ownership, epoch, timestamp, and a signature.
+
+- Replace placeholders like `$PARAMETERS`, `$CONTEXT`, etc., with your actual data.
+- This process bundles the provided information into a proof that can be stored and verified on the Sui blockchain.
+
+```bash copy
+sui client call --package $PACKAGE --module client \
+    --function create_proof --args '"$PARAMETERS"' \
+    '"$CONTEXT"' \
+    '"$IDENTIFIER"' \
+    '"$OWNER"' \
+    '"$EPOCH"' \
+    '"$TIMESTAMP_S"' \
+    "$SIGNATURE" --gas-budget 100000000
+```
+
+##### Steps to Obtain Arguments from the Demo
+To obtain the necessary arguments for the `create_proof` function, you can use the demo available on [demo.reclaimprotocol.org](https://demo.reclaimprotocol.org). This demo walks you through the process of creating a proof, which will provide you with concrete data for the function arguments.
+
+
+1. **Visit the Demo Site:**
+   - Go to [demo.reclaimprotocol.org](https://demo.reclaimprotocol.org). This site allows you to interactively create proofs from various providers.
+
+2. **Create a Proof:**
+   - **Select a Provider:** Choose the provider you want to use to create a proof (e.g., proving ownership of an account on Steam).
+   - **Scan the QR Code:** Scan the code with your phone, which will open the Reclaim app and prompt you to log in to the provider you selected.
+   - **Provide Required Data:** Log in to your account and wait for the proof generation process to be completed.
+
+
+3. **Extract Data for Function Arguments:**
+   - **Parameters:** Extract the parameters used in the claim, typically a JSON string that contains details like URL, HTTP method, etc.
+   - **Context:** Obtain the context string, which often includes the context address, message, and other relevant details.
+   - **Identifier and Owner:** The demo will generate an identifier for the claim, and you’ll also need to provide the owner’s address.
+   - **Epoch and Timestamp:** These are generated based on the current time and the context of the claim.
+   - **Signature:** The demo will provide a signature based on the data provided. This is crucial for the integrity of the proof.
+
+4. **Use Data in `create_proof` Function:**
+   - Once you have gathered all the necessary information from the demo, you can plug these values directly into the `create_proof` function in your code. Each piece of data corresponds to the respective argument in the function.
+
+By following the above steps, the demo will give you all the concrete data required to populate the arguments for the `create_proof` call, ensuring that your interaction with the Reclaim protocol is accurate and verifiable.
+
+#### Verify a Proof
+The `verify_proof` function is used to validate a proof that was previously generated.
+
+```bash copy
+sui client call package $PACKAGE --module client \
+    --function verify_proof --args $MANAGER $PROOF --gas-budget 100000000
+```
+
+- Replace `$MANAGER` with your ReclaimManager object ID and `$PROOF` with the proof object ID.
+- Upon successful verification, a confirmation event is emitted, and any associated witnesses are returned.
+
+</Steps>

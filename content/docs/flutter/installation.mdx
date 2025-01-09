@@ -1,0 +1,78 @@
+---
+title: Installation
+description: Welcome to the first step in integrating Reclaim Protocol into your Flutter project! This guide will walk you through the installation process and help you get started quickly.
+---
+
+## Installing Reclaim Protocol SDK for Flutter
+
+### Prerequisites
+
+Before starting the installation, ensure you have the following requirements:
+
+- Flutter SDK (2.0.0 or higher) - [Install Flutter](https://flutter.dev/docs/get-started/install)
+- Dart SDK (2.12.0 or higher) - Included with Flutter installation
+- Development Environment:
+  - Android Studio (recommended) with Flutter and Dart plugins, OR
+  - Visual Studio Code with Flutter and Dart extensions
+- A working Flutter project
+
+### Installation Guide
+
+### 1. Add Dependencies
+
+Add the Reclaim Protocol SDK to your project's dependencies in the `pubspec.yaml` file:
+
+```yaml
+dependencies:
+  flutter:
+    sdk: flutter
+  reclaim_sdk: ^latest_version  # Replace with the latest version
+```
+
+### 2. Install Dependencies
+
+Execute the following command in your project's root directory:
+
+```bash
+flutter pub get
+```
+
+### 3. Verify Installation
+
+To confirm successful installation:
+
+1. Check your `pubspec.lock` file for the `reclaim_flutter_sdk` entry
+2. Verify the version matches your specified version
+3. Ensure no error messages appeared during installation
+
+### 4. Import the SDK
+
+Add the following import statement to your Dart files where you'll use the SDK:
+
+```dart
+import 'package:reclaim_sdk/reclaim.dart';
+```
+
+### Validation and Next Steps
+
+### Quick Validation
+To verify everything is working correctly:
+1. The project should compile without errors
+2. The SDK should be recognized in your IDE
+3. Auto-completion should work for SDK components
+
+### Further Steps
+
+Now that you've installed the SDK, you can:
+
+1. Explore the [Flutter Example](./flutter-example) for implementation samples
+2. Configure advanced settings through our [Advanced Configuration](../advance-configurations/advance-options) guide
+3. Follow our [Best Practices](./best-practices) for optimal integration
+
+### Support and Resources
+
+Need help? Access these resources:
+- [FAQ](https://reclaimprotocol.org/faq) for common questions
+- [Telegram Community](https://t.me/protocolreclaim) for direct support
+
+**Note**: Keep your SDK version updated for the latest features and security improvements.

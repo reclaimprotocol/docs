@@ -1,36 +1,37 @@
 {
-  "name": "reclaim-docs",
-  "version": "1.0.0",
-  "description": "Documentation for Reclaim SDK",
+  "name": "reclaim-fumadocs",
+  "version": "0.0.0",
+  "private": true,
   "scripts": {
-    "dev": "next dev",
     "build": "next build",
+    "dev": "next dev",
     "start": "next start",
-    "lint": "next lint"
+    "postinstall": "fumadocs-mdx"
   },
-  "author": "Koushith Amin",
-  "license": "See License in <https://github.com/reclaimprotocol/.github/blob/main/LICENSE>",
-  "bugs": {
-    "url": "https://github.com/reclaimprotocol/docs/issues"
+  "author": {
+    "name": "Adithya Krishna",
+    "email": "aadithya794@gmail.com"
   },
-  "homepage": "https://github.com/reclaimprotocol/docs/",
   "dependencies": {
-    "@reclaimprotocol/reclaim-client-sdk": "^0.0.12",
-    "@reclaimprotocol/reclaim-connect-react": "^0.0.1-beta.14",
-    "aws-amplify": "^6.3.2",
-    "next": "14.2.6",
-    "nextra": "^2.13.4",
-    "nextra-theme-docs": "^2.13.4",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-is": "^18.3.1",
-    "react-qr-code": "^2.0.12"
+    "@theguild/remark-mermaid": "^0.2.0",
+    "fumadocs-core": "14.6.1",
+    "fumadocs-mdx": "11.1.2",
+    "fumadocs-ui": "14.6.1",
+    "lucide-react": "^0.469.0",
+    "next": "15.1.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
-    "@types/node": "^20.4.8",
-    "autoprefixer": "^10.4.14",
-    "postcss": "^8.4.27",
-    "tailwindcss": "^3.3.3",
-    "typescript": "5.1.6"
+    "@types/mdx": "^2.0.13",
+    "@types/node": "22.10.2",
+    "@types/react": "^19.0.1",
+    "@types/react-dom": "^19.0.2",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^8",
+    "eslint-config-next": "15.1.0",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.16",
+    "typescript": "^5.7.2"
   }
 }

@@ -1,0 +1,181 @@
+---
+title: Best Practices
+description: Welcome to our best practices guide for backend developers! This guide will help you use the Reclaim Protocol JavaScript SDK securely and efficiently in your Node.js server applications.
+---
+
+## Backend Developer Best Practices Guide: Reclaim Protocol JavaScript SDK
+
+This comprehensive guide outlines security, implementation, and operational best practices for integrating the Reclaim Protocol JavaScript SDK in Node.js server applications.
+
+### Security Best Practices
+
+### 1. Protect Your Application Secret
+
+<Callout type="warning">
+  Never expose your Application Secret in public repositories or client-side code. This is crucial for maintaining the security of your application.
+</Callout>
+
+#### Secure Storage Implementation
+- Store your `APP_SECRET` in environment variables
+- Implement environment variable management:
+
+```javascript
+// Load environment variables from .env file
+require('dotenv').config();
+const APP_SECRET = process.env.RECLAIM_APP_SECRET;
+```
+
+### 2. Secure Communication
+
+Always implement HTTPS for all network communications:
+- Use the Node.js `https` module for direct SSL/TLS implementation
+- Alternatively, configure a reverse proxy (e.g., Nginx) for SSL/TLS termination
+- Ensure valid SSL certificates are properly maintained
+
+### 3. Request Rate Limiting
+
+Implement rate limiting to protect your API endpoints from abuse:
+
+```javascript
+const rateLimit = require('express-rate-limit');
+
+// Configure rate limiting middleware
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15-minute window
+  max: 100, // Max 100 requests per window
+  message: 'Too many requests from this IP, please try again later'
+});
+
+// Apply rate limiting to all routes
+app.use(limiter);
+```
+
+## Implementation Best Practices
+
+### 1. Asynchronous Operations
+
+Use modern async/await patterns for cleaner code and better error handling:
+
+```javascript
+async function getRequestUrl(data) {
+  try {
+    // Await the async operation
+    const result = await reclaimProofRequest.getRequestUrl();
+    return result;
+  } catch (error) {
+    // Log error details for debugging
+    console.error('Request URL generation failed:', error);
+    throw error;
+  }
+}
+```
+
+### 2. Error Management Strategy
+
+Implement comprehensive error handling:
+- Use try-catch blocks consistently
+- Implement error logging
+- Return appropriate HTTP status codes
+- Provide meaningful error messages
+
+### 3. SDK Maintenance
+
+<Callout type="info">
+  Regular SDK updates are essential for security and functionality improvements.
+</Callout>
+
+Update the SDK using npm:
+```bash
+npm update @reclaimprotocol/js-sdk
+```
+
+## Performance Optimization
+
+### 1. Caching Implementation
+
+Optimize performance with strategic caching:
+
+```javascript
+const NodeCache = require('node-cache');
+const myCache = new NodeCache({ 
+  stdTTL: 100, // Time to live in seconds
+  checkperiod: 120 // Cleanup interval in seconds
+});
+
+async function getCachedData(key) {
+  // Check cache first
+  const cachedValue = myCache.get(key);
+  if (cachedValue) {
+    return cachedValue;
+  }
+  
+  // Fetch and cache if not found
+  const newData = await fetchDataFromSource();
+  myCache.set(key, newData);
+  return newData;
+}
+```
+
+### 2. Database Connection Management
+
+Implement connection pooling for optimal database performance:
+- Configure appropriate pool sizes
+- Monitor connection usage
+- Implement connection timeout handling
+
+## Monitoring and Logging
+
+### 1. Structured Logging
+
+Implement comprehensive logging using Winston:
+
+```javascript
+const winston = require('winston');
+
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.json(),
+  transports: [
+    new winston.transports.File({ 
+      filename: 'error.log', 
+      level: 'error',
+      maxsize: 5242880 // 5MB
+    }),
+    new winston.transports.File({ 
+      filename: 'combined.log',
+      maxsize: 5242880 // 5MB
+    })
+  ]
+});
+
+// Example usage
+logger.info('Proof verification completed', { 
+  proofId: '123',
+  timestamp: new Date().toISOString()
+});
+```
+
+### 2. Application Monitoring
+
+Implement comprehensive monitoring:
+- Create health check endpoints
+- Monitor server metrics (CPU, memory, response times)
+- Set up automated alerts for critical issues
+
+## Testing Framework
+
+### 1. Comprehensive Testing Strategy
+
+Develop a robust testing suite:
+- Unit tests for individual components
+- Integration tests for SDK interactions
+- Load tests for performance verification
+- Regular security audits
+
+## Additional Resources
+
+- [Reclaim Protocol Documentation](https://docs.reclaimprotocol.org)
+- [Node.js Security Best Practices](https://nodejs.org/en/docs/guides/security)
+- [Express.js Documentation](https://expressjs.com)
+
+By implementing these practices, you'll create secure, efficient, and maintainable Node.js applications using the Reclaim Protocol JavaScript SDK.

@@ -1,0 +1,120 @@
+---
+title: Quickstart
+description: Learn how to publish and verify proofs on-chain using the Reclaim contract on Aleph Zero
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+## Overview
+This guide walks you through deploying a Reclaim contract on Aleph Zero and building a frontend interface to interact with it. You'll learn how to generate and verify proofs using the Reclaim protocol.
+
+## Prerequisites
+
+Before starting, ensure you have:
+- Completed the setup steps from the [ReactJs guide](/js/frontend-example)
+- Installed the [Polkadot.js extension](https://polkadot.js.org/extension/) wallet
+- Funded your wallet with test tokens
+- Basic familiarity with React and smart contracts
+
+Reference implementations are available on GitLab:
+- [Smart Contract Repository](https://gitlab.reclaimprotocol.org/integrations/onchain/ink-sdk.git)
+- [Frontend Repository](https://gitlab.reclaimprotocol.org/starterpacks/reclaim-aleph-example)
+
+## Contract Deployment
+
+> **Note**: If you don't need custom contract logic, you can skip this section and use our [pre-deployed testnet contract](https://ui.use.ink/contract/5FB2yCSyjJbKjMJXP8dgZ1kWa7Rin2x9afxzUbmRAaWEj43P).
+
+<Steps>
+### Deploy the Reclaim Contract
+
+Clone and build the contract:
+```bash copy
+git clone https://gitlab.reclaimprotocol.org/integrations/onchain/ink-sdk.git
+cd reclaim-aleph-client
+cargo contract build --release
+```
+
+This contract:
+- Acts as a client for the Reclaim protocol
+- Manages proof instantiation and verification
+- Supports custom validation logic (optional)
+
+### Deploy to Network
+
+1. Visit the [Contract UI](https://ui.use.ink/)
+2. Connect your wallet
+3. Upload the generated `.contract` file
+4. Deploy using your account
+
+### Initialize Epoch
+
+Configure the contract's epoch through the Contract UI:
+
+Required parameters:
+- `minimum_witness_for_claim_creation`: Set to 1
+- `witnesses`: Use the following array:
+```json
+[{
+    "address": "0x244897572368eadf65bfbc5aec98d8e5443a9072",
+    "host": "reclaim.testnet"
+}]
+```
+
+</Steps>
+
+## Frontend Implementation
+
+<Steps>
+
+### Setup Frontend Environment
+
+Clone and install dependencies:
+```bash
+git clone https://gitlab.reclaimprotocol.org/starterpacks/reclaim-aleph-example
+cd reclaim-aleph-example
+npm install
+```
+
+### Configure Components
+
+#### GenerateProofPage.tsx
+This component handles proof generation and storage:
+- Implements the `onSuccessCallback` to save proofs
+- Requires your Reclaim credentials (look for `//TODO` comments)
+- Enables navigation to the proof verification page
+
+#### Contract Configuration
+If using a custom contract deployment:
+
+1. Update `src/metadata/addresses.json`:
+   - Add your contract's address
+
+2. Update `src/metadata/reclaim.json`:
+   - Include your contract's ABI
+
+#### Proof Verification (src/utils/verifyProof.ts)
+Customize this file if you:
+- Modified the `verify_proof` function
+- Added custom verification logic
+- Need to call different contract functions
+
+### Launch and Test
+
+Start the development server:
+```bash
+npm start
+```
+
+Workflow:
+1. Connect your wallet to the application
+2. Generate a proof using the Reclaim interface
+3. Navigate to the "Verify Proof" page
+4. Submit the proof for on-chain verification
+
+</Steps>
+
+## Next Steps
+- Explore adding custom verification logic to the contract
+- Implement additional frontend features
+- Test with different proof types
+- Review the [Reclaim Protocol documentation](https://docs.reclaimprotocol.org/) for advanced features
