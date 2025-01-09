@@ -1,0 +1,126 @@
+---
+title: Setup Guide
+description: This guide provides a comprehensive setup of Reclaim Auth in your React application.
+---
+
+## Prerequisites
+- React application
+- Node.js environment
+- Basic understanding of TypeScript
+- Access to Reclaim Protocol credentials
+
+### Configuration Setup
+
+First, create a configuration file to manage your authentication settings:
+
+1. Create `src/config/auth.config.ts`:
+
+```typescript
+interface AuthConfig {
+  clientId: string;
+  redirectUri: string;
+  environment?: 'development' | 'production';
+}
+
+export const authConfig: AuthConfig = {
+  clientId: process.env.REACT_APP_RECLAIM_CLIENT_ID!,
+  clientSecret: process.env.REACT_APP_RECLAIM_CLIENT_SECRET!,
+  redirectUri: process.env.REACT_APP_RECLAIM_REDIRECT_URI!,
+  environment: process.env.NODE_ENV as 'development' | 'production'
+};
+```
+
+### Authentication Provider Implementation
+
+The Authentication Provider manages the authentication state throughout your application using React's Context API:
+
+```tsx
+// src/providers/AuthProvider.tsx
+[Previous code block remains unchanged]
+```
+
+### Application Integration
+
+To enable authentication across your application:
+
+1. Wrap your root component with the AuthProvider:
+
+```tsx
+// src/App.tsx
+import { AuthProvider } from './providers/AuthProvider';
+
+function App() {
+  return (
+    <AuthProvider>
+      <Router>
+        <YourAppComponents />
+      </Router>
+    </AuthProvider>
+  );
+}
+```
+
+### Implementation Example
+
+Here's a practical example of implementing authentication in a Profile component:
+
+```tsx
+// src/components/Profile.tsx
+[Previous code block remains unchanged]
+```
+
+### Type Definitions
+
+The SDK provides TypeScript interfaces for type safety:
+
+```typescript
+[Previous TypeScript interfaces remain unchanged]
+```
+
+### Security Best Practices
+
+To ensure secure authentication:
+
+1. **Environment Variable Management**
+   Create a `.env` file in your project root:
+```env
+REACT_APP_RECLAIM_CLIENT_ID=your_client_id
+REACT_APP_RECLAIM_CLIENT_SECRET=your_client_secret,
+REACT_APP_RECLAIM_REDIRECT_URI=http://localhost:3000
+```
+
+2. **Security Headers Configuration**
+   Add security headers to your HTML file:
+```html
+<!-- public/index.html -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https://identity.reclaimprotocol.org; frame-src 'self' https://identity.reclaimprotocol.org">
+```
+
+3. **Robust Error Handling**
+   Implement comprehensive error handling:
+```typescript
+try {
+  await auth.signIn();
+} catch (error) {
+  if (error.message.includes('popup')) {
+    // Handle popup blocked
+  } else if (error.message.includes('unauthorized')) {
+    // Handle unauthorized client
+  } else {
+    // Handle other errors
+  }
+}
+```
+
+### Additional Resources
+
+- For more information about authentication hooks, visit [Authentication Hooks](/oauth/react/hooks)
+- Review the [Security Guidelines](link-to-security-guidelines) for best practices
+- Check the [API Documentation](link-to-api-docs) for detailed reference
+
+### Troubleshooting Tips
+
+- Ensure all environment variables are properly set before running the application
+- Check browser console for authentication-related errors
+- Verify CORS settings if experiencing cross-origin issues
+- Confirm proper setup of redirect URIs in your Reclaim Protocol dashboard

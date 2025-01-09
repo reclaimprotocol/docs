@@ -1,0 +1,135 @@
+---
+title: Authentication Hooks
+description: ""
+---
+
+## Built-in Hooks
+
+### useReclaimAuth
+The primary hook for managing authentication state and actions in your application. This hook provides a comprehensive interface for handling user authentication.
+
+```typescript
+import { useReclaimAuth } from 'identity-react';
+
+function Component() {
+  const { user, signIn, signOut, loading, error } = useReclaimAuth();
+  // ...
+}
+```
+
+#### Returns
+```typescript
+interface UseReclaimAuthReturn {
+  user: ReclaimUser | null;      // Current user object or null if not authenticated
+  loading: boolean;              // Authentication state loading indicator
+  error: Error | null;           // Authentication error if any
+  signIn: () => Promise<void>;   // Function to initiate sign-in
+  signOut: () => Promise<void>;  // Function to sign out current user
+  getCurrentUser: () => ReclaimUser | null; // Function to get current user synchronously
+}
+```
+
+### useAuthState
+A simplified hook for accessing authentication state only. Useful when you only need to check user authentication status.
+
+```typescript
+import { useAuthState } from 'identity-react';
+
+function Component() {
+  const { user, loading } = useAuthState();
+  // ...
+}
+```
+
+### useAuthActions
+A focused hook providing authentication action methods. Ideal when you only need authentication operations without state management.
+
+```typescript
+import { useAuthActions } from 'identity-react';
+
+function Component() {
+  const { signIn, signOut } = useAuthActions();
+  // ...
+}
+```
+
+## Custom Hook Examples
+
+### useRequireAuth
+A protection hook that enforces authentication by redirecting unauthorized users to a login page.
+
+```typescript
+function useRequireAuth(redirectUrl = '/login') {
+  const { user, loading } = useReclaimAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate(redirectUrl);
+    }
+  }, [user, loading, navigate, redirectUrl]);
+
+  return { user, loading };
+}
+```
+
+### useAuthCallback
+A utility hook for handling authentication callbacks with error handling and loading states.
+
+```typescript
+function useAuthCallback(onSuccess?: (user: ReclaimUser) => void) {
+  const { signIn } = useReclaimAuth();
+  const [error, setError] = useState<Error | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleAuth = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const user = await signIn();
+      onSuccess?.(user);
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Auth failed'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { handleAuth, error, loading };
+}
+```
+
+## TypeScript Integration
+
+### Using Hooks with Custom User Types
+
+```typescript
+// Custom hook with proper typing
+function useAuth<T extends ReclaimUser>() {
+  const { user, ...rest } = useReclaimAuth();
+  return {
+    user: user as T | null,
+    ...rest
+  };
+}
+
+// Usage with custom user type
+interface CustomUser extends ReclaimUser {
+  data: {
+    email: string;
+    name: string;
+    providerId: string;
+  };
+}
+
+function Profile() {
+  const { user } = useAuth<CustomUser>();
+  
+  if (user) {
+    // TypeScript now knows about email, name, and providerId
+    const { email, name, providerId } = user.data;
+  }
+}
+```
+
+**Note:** Always ensure proper error handling when using authentication hooks, especially in production environments.

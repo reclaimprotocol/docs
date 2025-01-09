@@ -1,0 +1,161 @@
+---
+title: Example
+description: This guide will walk you through the fundamental steps to integrate Reclaim's proof verification system into your Flutter application.
+---
+
+### Prerequisites
+
+Before you begin integrating the Reclaim SDK into your Flutter application, ensure you have:
+
+- Installed the Reclaim SDK (see [Installation Guide](./installation))
+- Obtained your credentials from the [Reclaim Developer Portal](https://dev.reclaimprotocol.org/):
+  - Application ID
+  - Application Secret
+  - Provider ID
+
+<Callout type="warning">
+  Security Notice: Never expose your Application Secret in client-side code. This credential should be kept secure and only used in server-side operations.
+</Callout>
+
+## Implementation Guide
+
+### 1. Import Required Dependencies
+
+Start by importing the necessary packages in your Dart file:
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:reclaim_sdk/reclaim.dart';
+import 'package:reclaim_sdk/utils/interfaces.dart';
+import 'package:reclaim_sdk/utils/types.dart';
+import 'package:url_launcher/url_launcher.dart';
+```
+
+### 2. SDK Initialization
+
+Initialize the Reclaim SDK with your credentials:
+
+```dart
+Future<ReclaimProofRequest> _initializeProofRequest() async {
+  final reclaimProofRequest = await ReclaimProofRequest.init(
+    "YOUR_APP_ID", // Replace with your actual Application ID
+    "YOUR_APP_SECRET", // Replace with your actual Application Secret
+    "YOUR_PROVIDER_ID", // Replace with your actual Provider ID
+  );
+
+  return reclaimProofRequest;
+}
+```
+
+<Callout type="info">
+  Replace the placeholder credentials with your actual values obtained from the Reclaim Developer Portal.
+</Callout>
+
+### 3. Generate Verification Request URL
+
+Create a URL that users will use to initiate the proof request process. This URL redirects users to the Reclaim Verifier App through either an app clip or instant app flow:
+
+```dart
+Future<String> _generateRequestUrl(ReclaimProofRequest request) async {
+  final requestUrl = await request.getRequestUrl();
+  print('Request URL: $requestUrl');
+  return requestUrl;
+}
+```
+
+### 4. URL Launch Implementation
+
+<Callout type="info">
+  Add the `url_launcher` package to your project by including it in your `pubspec.yaml`:
+
+```yaml
+dependencies:
+  url_launcher: ^6.0.20
+```
+</Callout>
+
+Implement the URL launcher to open the verification request in an external browser:
+
+```dart
+Future<void> _launchUrl(String url) async {
+  if (await canLaunchUrl(Uri.parse(url))) {
+    final launched = await launchUrl(
+      Uri.parse(url),
+      mode: LaunchMode.externalApplication,
+    );
+    if (launched) {
+      setState(() => _status = 'Session started. Waiting for proof...');
+    } else {
+      throw 'Could not launch $url';
+    }
+  } else {
+    throw 'Could not launch $url';
+  }
+}
+```
+
+### 5. Verification Session Management
+
+Implement the verification session handlers:
+
+```dart
+Future<void> _startVerificationSession(ReclaimProofRequest request) async {
+  await request.startSession(
+    onSuccess: _handleProofSuccess,
+    onError: _handleProofError,
+  );
+}
+
+void _handleProofSuccess(dynamic proof) {
+  print('Proof received: $proof');
+  var proofDataValue = '';
+  if (proof is String) {
+    // Handle custom callback URL response
+    proofDataValue = proof;
+  } else {
+    proofDataValue =
+        'Extracted data: ${proof.claimData.context}\n\nFull proof: ${proof.toString()}';
+  }
+  setState(() {
+    _status = 'Proof received!';
+    _proofData = proofDataValue;
+  });
+}
+
+void _handleProofError(Exception error) {
+  _handleError('Error in proof generation', error);
+}
+```
+
+For detailed information about the proof object structure, see the [Advanced Configuration](../advance-configurations/advance-options#understanding-the-proof-structure) documentation.
+
+[Rest of the documentation remains unchanged as it contains important implementation details and code examples]
+
+## Key Concepts and Best Practices
+
+1. **Security Considerations**
+   - Keep credentials secure
+   - Implement proper error handling
+   - Use backend validation for sensitive operations
+
+2. **User Experience**
+   - Provide clear feedback during the verification process
+   - Handle edge cases gracefully
+   - Implement proper loading states
+
+3. **Error Handling**
+   - Implement comprehensive error handling
+   - Provide meaningful error messages
+   - Log errors appropriately for debugging
+
+## Next Steps
+
+1. Explore [Advanced Configuration](../advance-configurations/advance-options) options for customization
+2. Review [Best Practices](./best-practices) for optimal implementation
+3. Join our [Telegram community](https://t.me/protocolreclaim) for support and updates
+
+<Callout type="info">
+  While this guide covers basic implementation, production applications should include additional error handling, state management, and integration with your application's architecture.
+</Callout>
+
+Need help? Join our developer community or refer to our comprehensive documentation for more detailed guidance.

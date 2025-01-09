@@ -1,0 +1,95 @@
+---
+title: Installation
+description: Welcome to the first step in integrating Reclaim Protocol into your JavaScript project! This guide will walk you through the installation process and help you get started quickly.
+---
+
+## Installing the Reclaim Protocol SDK
+
+### Prerequisites
+
+Before installation, ensure your development environment meets these requirements:
+
+- Node.js version 14.x or later (LTS version recommended)
+- npm version 6.x or later (included with Node.js) or yarn version 1.22.x or later
+- A project directory initialized with `package.json`
+
+To verify your installations:
+```bash
+node --version
+npm --version # or yarn --version
+```
+
+### Installation Steps
+
+### 1. Install the SDK
+
+Navigate to your project directory in the terminal:
+```bash
+cd your-project-directory
+```
+
+Choose one of the following commands based on your package manager:
+
+Using npm:
+```bash
+npm install @reclaimprotocol/js-sdk
+```
+
+Using yarn:
+```bash
+yarn add @reclaimprotocol/js-sdk
+```
+
+### 2. Verify Installation
+
+Confirm the installation by:
+
+1. Checking your `package.json` dependencies:
+```json
+{
+  "dependencies": {
+    "@reclaimprotocol/js-sdk": "^x.x.x"  // Version number will vary
+  }
+}
+```
+
+2. Ensuring the SDK files are in your `node_modules` directory
+
+### Using the SDK
+
+Import the SDK into your application using either ES modules or CommonJS syntax:
+
+```javascript
+import { ReclaimProofRequest } from '@reclaimprotocol/js-sdk';
+```
+
+For CommonJS environments:
+```javascript
+const { ReclaimProofRequest } = require('@reclaimprotocol/js-sdk');
+```
+
+### Next Steps
+
+Now that you've installed the SDK successfully, you can:
+
+1. Create your first proof request by following the [Frontend Example (React)](./frontend-example) guide
+2. Explore [Advanced Configuration](../advance-configurations/advance-options) options for customization
+3. Test your installation by creating a basic implementation
+
+### Troubleshooting
+
+If you encounter installation issues:
+
+- Ensure your Node.js version is compatible
+- Clear your package manager's cache and try reinstalling
+- Check our [FAQ](https://reclaimprotocol.org/faq) for common issues
+- Join our [Telegram community](https://t.me/protocolreclaim) for direct support
+
+### Additional Resources
+
+- [API Documentation](https://docs.reclaimprotocol.org)
+- [Example Projects](./examples)
+- [Best Practices Guide](./best-practices)
+
+Happy coding with Reclaim Protocol!
+

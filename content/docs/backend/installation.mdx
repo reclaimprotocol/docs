@@ -1,0 +1,61 @@
+---
+title: Installation
+description: Welcome to the guide on integrating Reclaim Protocol into your Node.js backend project! This guide will walk you through the installation process and help you get started quickly.
+---
+
+### Installing the Reclaim Protocol JavaScript SDK for Backend
+
+This guide explains how to integrate the Reclaim Protocol JavaScript SDK into your Node.js backend project. Follow these steps to set up the SDK and start building with Reclaim Protocol.
+
+## Prerequisites
+
+Before installation, ensure your development environment meets these requirements:
+
+- Node.js installed (version 14.x or later)
+- Package manager: npm (v6.x or later) or yarn (v1.22.x or later)
+- A Node.js backend project initialized with a `package.json` file
+
+## Installation Steps
+
+### 1. Install the SDK
+
+Navigate to your project's root directory in the terminal and execute one of these commands:
+
+Using npm:
+```bash
+npm install @reclaimprotocol/js-sdk
+```
+
+Using yarn:
+```bash
+yarn add @reclaimprotocol/js-sdk
+```
+
+### 2. Verify Installation
+
+Confirm successful installation by:
+- Checking your `package.json` file for the entry: `"@reclaimprotocol/js-sdk": "^x.x.x"` under dependencies
+- Ensuring the `node_modules/@reclaimprotocol` directory exists in your project
+
+### 3. Import the SDK
+
+Add the following import statement to your Node.js application:
+
+```javascript
+const { ReclaimProofRequest } = require('@reclaimprotocol/js-sdk');
+```
+
+## Next Steps
+
+Now that you've installed the SDK, you can:
+
+1. **Create Your First Proof Request**: Follow our [Backend Example](./backend-example) guide to implement basic proof verification.
+2. **Explore Advanced Features**: Learn about [Advanced Configuration](../advance-configurations/advance-options) options for customizing the SDK behavior.
+3. **Test Your Integration**: Verify your setup using our provided test suite (documentation coming soon).
+
+## Need Help?
+
+- **Documentation**: Visit our [comprehensive documentation](https://reclaimprotocol.org/docs)
+- **Community Support**: Join our [Telegram community](https://t.me/protocolreclaim)
+- **FAQs**: Check our [Frequently Asked Questions](https://reclaimprotocol.org/faq)
+- **Technical Issues**: Submit issues on our [GitHub repository](https://github.com/reclaimprotocol/js-sdk)

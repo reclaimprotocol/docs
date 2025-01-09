@@ -1,0 +1,232 @@
+---
+title: Quickstart
+description: The Reclaim Protocol Proofs are compatible with blockchain applications.
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+## Pre-requisite
+
+This tutorial assumes that you have a frontend that requests proofs from the user and processes the response, like [React](/js/frontend), [React Native](/react-native), or [Node](/js/backend).
+
+## Solana
+
+<Steps>
+
+## Environment Setup
+
+Before you begin, ensure that your development environment meets the following prerequisites.
+
+### Prerequisites
+
+1. **Rust** - The programming language used for writing Solana programs. Install Rust by following the instructions [here](https://www.rust-lang.org/tools/install) .
+
+2. **Solana Tool Suite** - Provides the Solana CLI and other tools necessary for interacting with the Solana network. Install the Solana Tool Suite by following the instructions [here]() .
+
+3. **Node.js** - Required for running JavaScript and TypeScript scripts. Download Node.js from [here](https://nodejs.org/en/download) .
+
+4. **Yarn Package Manager** - A fast, reliable, and secure dependency management tool.
+   Install Yarn globally using npm:
+
+```bash
+npm install -g yarn
+```
+
+5. **Anchor Framework** - A framework for Solana's Sealevel runtime providing several developer tools. Install Anchor by following the instructions [here](https://www.anchor-lang.com/docs/installation) .
+
+### Repository Structure
+
+Understanding the repository structure will help you navigate and modify the code as needed.
+
+- **`programs/reclaim`** - The Anchor smart contract code for the Reclaim program.
+
+- **`sdk`** - The auto-generated SDK folder using Solita.
+
+- **`scripts`** - Automated scripts to streamline certain initialization processes.
+
+- **`program-keypairs`** - The keypairs stored for vanity addresses.
+
+- **`tests`** - The test suites that are run during `anchor test`.
+
+### Installation
+
+To get started, clone the repository and install the dependencies:
+
+```bash
+git clone https://github.com/reclaimprotocol/reclaim-solana-sdk.git
+cd reclaim-solana-sdk
+yarn install
+```
+
+This command installs all necessary dependencies for both the SDK and the scripts.
+
+### Setup
+
+The setup process involves generating a new program keypair and updating the configuration files to use the newly generated program ID. This ensures that you have a unique program ID for your deployment.
+
+Run the setup script:
+
+```bash
+yarn setup
+```
+
+The setup script performs the following actions:
+
+- **Generates a new program keypair** : Creates a new Solana keypair for the program and saves it to `program-keypairs/reclaim-program-keypair.json`.
+
+- **Updates configuration files** : Replaces the program ID in `Anchor.toml`, `.solitarc.js`, `lib.rs`, and other utility files with the new program ID.
+
+- **Prepares the project for deployment** : Ensures that all references to the program ID are consistent across the project.
+
+### Building the SDK
+
+Before deploying the contract, you need to build the SDK. The SDK contains TypeScript definitions and client code generated from the Solana program.
+
+Build the SDK using the following command:
+
+```bash
+yarn build
+```
+
+This command compiles the SDK and generates the required build artifacts, making it ready for interaction with the Solana program.
+
+## Deploying the Contract
+
+Deploying the Reclaim smart contract involves building the Anchor project and deploying it to the Solana network of your choice.
+
+### Building the Anchor Project
+
+First, build the Anchor project to compile the smart contract code:
+
+```bash
+anchor build
+```
+
+This command compiles the Rust code located in the `programs/reclaim` directory, producing a deployable Solana program.
+
+### Deploying to Solana Network
+
+Deploy the contract using the generated program keypair:
+
+```bash
+anchor deploy --program-name reclaim --program-keypair program-keypairs/reclaim-program-keypair.json
+```
+
+- **`--program-name reclaim`** : Specifies the name of the program as defined in `Anchor.toml`.
+
+- **`--program-keypair`** : Points to the keypair file generated during the setup.
+  **Note** : The default network for deployment is `devnet`. To deploy to a different network, see [Specifying the Network](/solana/quickstart#specifying-the-network) .After deployment, take note of the **Program ID** displayed in the output:
+
+```yaml
+Program Id: YourProgramIDHere
+```
+
+Ensure that this Program ID matches the one generated during the setup.
+
+## Configuring the Program
+
+After deploying the program, you need to initialize the `epochConfig` account, which is essential for the Reclaim protocol's operation.
+
+### Backfilling Epochs
+
+Run the backfill command to initialize the `epochConfig` account:
+
+```bash
+yarn backfill
+```
+
+This command:
+
+- Derives the Program Derived Address (PDA) for the `epochConfig` account.
+
+- Initializes the `epochConfig` account on the Solana network.
+
+- Configures the initial epoch settings.
+  Take note of the **Epoch config address** displayed in the output:
+
+```arduino
+Epoch config address: YourEpochConfigAddressHere
+```
+
+This address is required for adding new epochs and interacting with the program.
+
+### Adding an Epoch
+
+To add an epoch, use the `add-epoch` command, passing the `epochConfig` address as an argument:
+
+```bash
+yarn add-epoch <EpochConfigAddress>
+```
+
+Replace `<EpochConfigAddress>` with the actual address from the backfill step.
+This command:
+
+- Reads the current `epochIndex` from the `epochConfig` account.
+
+- Derives the PDA for the new epoch.
+
+- Creates and initializes the new epoch account on the Solana network.
+
+## Specifying the Network
+
+By default, the SDK interacts with the Solana `devnet` network. You can change the network by setting the `SOLANA_CLUSTER` environment variable. The supported networks are:
+
+- **devnet** (default)
+
+- **testnet**
+
+- **mainnet-beta**
+
+### Using Scripts on Different Networks
+
+To run scripts on a different network, set the `SOLANA_CLUSTER` variable before the command:**Example: Backfilling epochs on testnet**
+
+```bash
+SOLANA_CLUSTER=testnet yarn backfill
+```
+
+**Example: Adding an epoch on mainnet-beta**
+
+```bash
+SOLANA_CLUSTER=mainnet-beta yarn add-epoch <EpochConfigAddress>
+```
+
+### Deploying on Different Networks
+
+To deploy the contract on networks other than devnet, you need to adjust the `Anchor.toml` configuration and specify the network during deployment.
+
+**Step 1**: Update `Anchor.toml`, replace the `[programs.devnet]` section with the network you want to deploy to:
+
+For **testnet** :
+
+```toml
+[programs.testnet]
+reclaim = "YourProgramIDHere"
+
+[provider]
+cluster = "testnet"
+```
+
+For **mainnet-beta** :
+
+```toml
+[programs.mainnet]
+reclaim = "YourProgramIDHere"
+
+[provider]
+cluster = "mainnet"
+```
+
+**Step 2: Deploy the Program** Use the `--provider.cluster` option with `anchor deploy`:
+
+```bash
+anchor deploy --provider.cluster testnet --program-name reclaim --program-keypair program-keypairs/reclaim-program-keypair.json
+```
+
+Replace `testnet` with `mainnet` for mainnet-beta.
+
+**Note** : Ensure that you have sufficient funds in your wallet on the target network to cover deployment costs.
+
+</Steps>
+
+By following this documentation, you should be able to set up your environment, deploy the Reclaim smart contract, and interact with it on the Solana blockchain.

@@ -1,0 +1,141 @@
+---
+title: Best Practices
+description: Welcome to our best practices guide! Following these recommendations will help you use the Reclaim Protocol JavaScript SDK securely and efficiently in your applications.
+---
+
+## Security Best Practices
+
+### 1. Protect Your Application Secret
+
+<Callout type="warning">
+  Never expose your Application Secret in client-side code or public repositories. This is crucial for maintaining the security of your application.
+</Callout>
+
+- Store your `APP_SECRET` securely on your server using secure key management systems
+- Use environment variables to manage sensitive information like `APP_ID` and `APP_SECRET`
+- Implement secure rotation policies for your secrets
+- Consider using secret management services like AWS Secrets Manager or HashiCorp Vault
+
+### 2. Use HTTPS
+
+Always use HTTPS for all communications to ensure end-to-end encryption:
+- Configure SSL/TLS certificates properly
+- Enable HSTS (HTTP Strict Transport Security)
+- Regularly update your SSL certificates
+- Use modern TLS versions (1.2 or higher)
+
+### 3. Implement Rate Limiting
+
+Protect your API endpoints with comprehensive rate limiting:
+- Set appropriate request limits per IP/user
+- Implement exponential backoff for repeated requests
+- Use token bucket or sliding window algorithms
+- Monitor and log rate limit violations
+
+## Implementation Best Practices
+
+### 1. Implement Proper Error Handling
+
+Build robust error handling mechanisms:
+```javascript
+try {
+  // Your verification logic
+} catch (error) {
+  if (error.name === 'ValidationError') {
+    // Handle validation errors
+  } else if (error.name === 'NetworkError') {
+    // Handle network issues
+  } else {
+    // Handle unexpected errors
+  }
+}
+```
+
+### 2. Keep the SDK Updated
+
+<Callout type="info">
+  Regularly update the SDK to ensure you have the latest features and security improvements.
+</Callout>
+
+Update the SDK using npm:
+```bash
+npm update @reclaimprotocol/js-sdk
+```
+
+Set up automated dependency updates using tools like Dependabot or Renovate.
+
+## Performance Best Practices
+
+### 1. Optimize API Calls
+
+Implement efficient API usage patterns:
+- Cache frequently accessed data
+- Batch related API calls where possible
+- Implement retry mechanisms with exponential backoff
+- Use connection pooling for database operations
+
+### 2. Use Asynchronous Operations
+
+Leverage asynchronous programming effectively:
+- Implement Promise-based operations
+- Use async/await for better readability
+- Handle concurrent operations efficiently
+- Avoid blocking operations in critical paths
+
+## Testing and Monitoring
+
+### 1. Implement Comprehensive Testing
+
+Establish a robust testing strategy:
+- Unit tests for individual components
+- Integration tests for SDK interactions
+- End-to-end tests for complete workflows
+- Performance tests for load handling
+- Security tests for vulnerability checking
+
+### 2. Monitor SDK Usage
+
+Implement comprehensive monitoring:
+- Track key performance metrics
+- Set up alerting for critical issues
+- Monitor error rates and latency
+- Use logging for debugging and auditing
+
+<Callout type="info">
+  Implement structured logging and use APM (Application Performance Monitoring) tools to track SDK performance effectively.
+</Callout>
+
+## User Experience Best Practices
+
+### 1. Provide Clear Instructions
+
+Create an intuitive user experience:
+- Use clear, concise language
+- Provide step-by-step guidance
+- Include progress indicators
+- Offer contextual help where needed
+
+### 2. Implement Graceful Fallbacks
+
+Design resilient user flows:
+- Provide clear error messages
+- Offer retry options
+- Implement offline capabilities where possible
+- Create alternative verification paths
+
+### 3. Optimize Loading States
+
+Enhance perceived performance:
+- Use skeleton screens for loading states
+- Implement progressive loading
+- Show meaningful progress indicators
+- Provide estimated completion times
+
+## Additional Resources
+
+- [Reclaim Protocol Documentation](https://docs.reclaimprotocol.org)
+- [Security Guidelines](https://docs.reclaimprotocol.org/security)
+- [API Reference](https://docs.reclaimprotocol.org/api)
+- [Community Forums](https://community.reclaimprotocol.org)
+
+By following these enhanced best practices, you'll create secure, efficient, and user-friendly applications with the Reclaim Protocol JavaScript SDK. For additional support, join our community channels or contact our technical support team.

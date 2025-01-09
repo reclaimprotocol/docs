@@ -1,0 +1,445 @@
+---
+title: Quickstart
+description: Publish On-Chain with Reclaim Contract on Mina
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+## Pre-requisite
+
+At this stage, we assume that you are familiar with the steps at [ReactJs](/js/frontend-example).
+
+Before diving into this walkthrough, ensure you're familiar with the basic concepts of zkApps on the Mina Protocol and have a compatible wallet installed. We'll guide you through setting up your environment, deploying the smart contract, and running the frontend application.
+
+### Setting Up Your Wallet
+
+1. **Install Auro Wallet**: Download and install the [Auro Wallet extension](https://www.aurowallet.com/) for your browser.
+
+2. **Switch to Mina Devnet**:
+
+   - Open the Auro Wallet extension.
+   - Click on the network selector (usually at the top of the extension window).
+   - Select **"Devnet"** from the list of networks.
+
+3. **Fund Your Wallet**:
+   - Visit the [Mina Faucet](https://faucet.minaprotocol.com/) to obtain testnet MINA tokens.
+   - Enter your public key from Auro Wallet.
+   - Select **"Devnet"** as the network.
+   - Click **"Submit"** to request funds.
+
+### Accessing the Code
+
+Clone the repositories for both the smart contract and the frontend:
+
+- **Reclaim Contract Repository**: [GitLab Link](https://gitlab.reclaimprotocol.org/integrations/onchain/mina-sdk.git)
+- **Frontend Example**: [GitLab Link](https://gitlab.reclaimprotocol.org/starterpacks/reclaim-mina-example.git)
+
+## Contract Deployment
+
+If you don't need to modify the smart contract, you can skip these steps and use our already deployed contract on the [Mina Devnet](https://minascan.io/devnet/account/B62qo2bG8whoeYT3dsRBH1k4ErWzMBWQYWP8xSvMKeHUdaYY3ApUb6p/txs) . However, to understand the full process or deploy your own version, follow the instructions below.
+
+### Overview of the Verification Process
+
+The smart contract performs the following steps during proof verification:
+
+1. **Signature Validation**: Checks that the proof contains valid signatures.
+2. **Hash Comparison**: Hashes the provided ClaimInfo and compares it to the identifierField in the claim to ensure integrity.
+3. **Witness Verification**: Validates the signed witnesses against a Merkle root stored on-chain.
+4. **Duplicate Prevention**: Ensures no duplicate signatures exist among the witnesses.
+
+<Steps>
+### Clone the zkApp Contract Repository
+
+Start by cloning the smart contract repository and navigating to the project directory.
+
+```bash copy
+git clone https://gitlab.reclaimprotocol.org/integrations/onchain/mina-sdk.git
+cd mina-sdk
+```
+
+### Install Dependencies
+
+```bash
+npm install
+```
+
+### Configure the Deployment
+
+Run the zkApp CLI configuration command to set up your deployment settings.
+
+```bash
+zk config
+```
+
+**Configuration Prompts**:
+
+- **Deploy Alias Name**: `devnet`
+- **Target Network Kind**: `Testnet`
+- **Mina GraphQL API URL**: `https://api.minascan.io/node/devnet/v1/graphql`
+- **Transaction Fee**: `0.1`
+
+When prompted for the fee payer account:
+
+- **Select**: `Create a new fee payer key pair`
+- **Alias for Fee Payer Account**: `deploy-account`
+
+**Note**: The private key will be stored in plain text on your computer. Do not use an account that holds significant funds.
+
+### Fund Your Fee Payer Account
+
+After configuration, fund your fee payer account:
+
+1. Copy your fee payer public key from the CLI output.
+2. Visit the [Mina Faucet](https://faucet.minaprotocol.com/).
+3. Enter your fee payer public key.
+4. Select **"Devnet"** as the network.
+5. Click **"Submit"** to request funds.
+
+Wait a few minutes for the transaction to be included in a block.
+
+### Compile the Smart Contract
+
+Compile your smart contract using the following command:
+
+```bash
+npm run build
+```
+
+### Deploy the zkApp
+
+Deploy your smart contract to the Mina Devnet:
+
+```bash
+zk deploy
+```
+
+When prompted, select the deploy alias you created earlier (`devnet`).
+
+**Confirm Deployment Details**:
+
+Review the details provided by the CLI and type `yes` to confirm.
+
+### Verify Deployment
+
+After deployment, you'll receive a transaction hash. Visit the Mina block explorer to verify your smart contract:
+
+- **Devnet Explorer**: [Minascan Devnet Explorer](https://minascan.io/devnet/home)
+
+</Steps>
+
+## Frontend Development
+
+<Steps>
+
+### Cloning the frontend repo.
+
+```bash
+git clone https://gitlab.reclaimprotocol.org/starterpacks/reclaim-mina-example.git
+
+cd reclaim-mina-example
+```
+
+### Install Dependencies
+
+Install the necessary npm packages:
+
+```bash
+npm install
+```
+
+### Configure the Frontend Application
+
+Open `app/page.tsx` in your code editor and update the following variables:
+
+1. **Contract Address**:
+
+   Replace the placeholder zkApp contract address with your own if you deployed your contract.
+
+   ```tsx
+   // app/page.tsx
+   const ZKAPP_ADDRESS = "REPLACE_WITH_YOUR_CONTRACT_ADDRESS";
+   ```
+
+2. **Reclaim Protocol Credentials**:
+
+   Replace the example `APP_ID`, `APP_SECRET`, and `PROVIDER_ID` with your actual credentials.
+
+   ```tsx
+   // app/page.tsx
+   const APP_ID = "REPLACE_WITH_YOUR_APP_ID"; // Replace with your App ID
+   const APP_SECRET = "REPLACE_WITH_YOUR_APP_SECRET"; // Replace with your App Secret
+   const PROVIDER_ID = "REPLACE_WITH_YOUR_PROVIDER_ID"; // Replace with your Provider ID
+   ```
+
+### Code Overview (`app/page.tsx`)
+
+This file contains the main frontend logic, including initializing the Reclaim proof request, handling user interactions, and connecting to the zkApp worker.
+
+**Key Sections**:
+
+- **Setup and Initialization**:
+
+  ```tsx
+  // app/page.tsx
+
+  useEffect(() => {
+    const setup = async () => {
+      try {
+        if (!hasBeenSetup) {
+          displayStep("Loading web worker...");
+          const zkappWorkerClient = new ZkappWorkerClient();
+          setZkappWorkerClient(zkappWorkerClient);
+          await new Promise((resolve) => setTimeout(resolve, 5000));
+          displayStep("Done loading web worker");
+
+          await zkappWorkerClient.setActiveInstanceToDevnet();
+
+          const mina = (window as any).mina;
+          if (mina == null) {
+            setHasWallet(false);
+            displayStep("Wallet not found.");
+            return;
+          }
+
+          const publicKeyBase58: string = (await mina.requestAccounts())[0];
+          setPublicKeyBase58(publicKeyBase58);
+          displayStep(`Using key:${publicKeyBase58}`);
+
+          displayStep("Checking if fee payer account exists...");
+          const res = await zkappWorkerClient.fetchAccount(publicKeyBase58);
+          const accountExists = res.error === null;
+          setAccountExists(accountExists);
+
+          await zkappWorkerClient.loadContract();
+
+          displayStep("Compiling zkApp...");
+          await zkappWorkerClient.compileContract();
+          displayStep("zkApp compiled");
+
+          await zkappWorkerClient.initZkappInstance(ZKAPP_ADDRESS);
+
+          displayStep("Getting Number of Proofs...");
+          await zkappWorkerClient.fetchAccount(ZKAPP_ADDRESS);
+          const currentProofNum = await zkappWorkerClient.getProofNum();
+          setcurrentProofNum(currentProofNum);
+          console.log(`Current Proof Num in zkApp: ${currentProofNum}`);
+
+          async function initializeReclaim() {
+            const APP_ID = "0x6E0338a6D8594101Ea9e13840449242015d71B19"; // This is an example App Id Replace it with your App Id.
+            const APP_SECRET =
+              "0x1e0d6a6548b72286d747b4ac9f2ad6b07eba8ad6a99cb1191890ea3f77fae48f"; // This is an example App Secret Replace it with your App Secret.
+            const PROVIDER_ID = "6d3f6753-7ee6-49ee-a545-62f1b1822ae5"; // This is GitHub Provider Id Replace it with the provider id you want to use.
+
+            const proofRequest = await ReclaimProofRequest.init(
+              APP_ID,
+              APP_SECRET,
+              PROVIDER_ID
+            );
+            setReclaimProofRequest(proofRequest);
+          }
+          console.log("Initlizing Reclaim...");
+          initializeReclaim();
+          setHasBeenSetup(true);
+          setHasWallet(true);
+          setDisplayText("");
+        }
+      } catch (error: any) {
+        displayStep(`Error during setup: ${error.message}`);
+      }
+    };
+
+    setup();
+  }, []);
+  ```
+
+- **Generating the Verification Request**:
+
+  ```tsx
+  // app/page.tsx
+
+  async function generateVerificationRequest() {
+    setLoading(true);
+    if (!reclaimProofRequest) {
+      console.error("Reclaim Proof Request not initialized");
+      return;
+    }
+
+    reclaimProofRequest.addContext(
+      `user's address`,
+      "for acmecorp.com on 1st january"
+    );
+
+    const url = await reclaimProofRequest.getRequestUrl();
+    setUrl(url);
+
+    const status = reclaimProofRequest.getStatusUrl();
+    setStatusUrl(status);
+
+    setLoading(false);
+
+    await reclaimProofRequest.startSession({
+      onSuccess: (proof: Proof) => {
+        console.log("Verification success", proof);
+        setRProof(proof);
+        setReady(true);
+      },
+      onFailure: (error: Error) => {
+        console.error("Verification failed", error);
+        setLoading(false);
+      },
+    });
+  }
+  ```
+
+- **Sending the Transaction**:
+
+  ```tsx
+  // app/page.tsx
+  const onSendTransaction = async (proof: Proof) => {
+    setCreatingTransaction(true);
+    displayStep("Creating a transaction...");
+    console.log("publicKeyBase58 sending to worker", publicKeyBase58);
+    await zkappWorkerClient!.fetchAccount(publicKeyBase58);
+    await zkappWorkerClient!.createTransaction(proof);
+    displayStep("Creating proof...");
+    await zkappWorkerClient!.proveUpdateTransaction();
+    displayStep("Requesting send transaction...");
+    const transactionJSON = await zkappWorkerClient!.getTransactionJSON();
+    displayStep("Getting transaction JSON...");
+    const { hash } = await (window as any).mina.sendTransaction({
+      transaction: transactionJSON,
+      feePayer: {
+        fee: transactionFee,
+        memo: "",
+      },
+    });
+    const transactionLink = `https://minascan.io/devnet/tx/${hash}`;
+    setTransactionLink(transactionLink);
+    setDisplayText(transactionLink);
+    setCreatingTransaction(true);
+  };
+  ```
+
+### Code Overview (`app/zkappWorker.ts`)
+
+This file handles the interaction with the zkApp smart contract in a web worker environment.
+
+**Key Sections**:
+
+- **Configuring the Network**:
+
+  ```tsx
+  // app/zkappWorker.ts
+  async setActiveInstanceToDevnet() {
+    const Network = Mina.Network(
+      "https://api.minascan.io/node/devnet/v1/graphql"
+    );
+    console.log("Devnet network instance configured");
+    Mina.setActiveInstance(Network);
+  },
+
+  ```
+
+- **Loading the contract and initlizing the Zkapp Instanc**:
+
+  ```tsx
+  // app/zkappWorker.ts
+
+  async loadContract() {
+  const { Reclaim } = await import("../components/abi/src/Reclaim");
+  state.AddInstance = Reclaim;
+  },
+  async compileContract() {
+  await state.AddInstance!.compile();
+  },
+  async fetchAccount(publicKey58: string) {
+  const publicKey = PublicKey.fromBase58(publicKey58);
+  return fetchAccount({ publicKey });
+  },
+  async initZkappInstance(publicKey58: string) {
+  const publicKey = PublicKey.fromBase58(publicKey58);
+  state.zkappInstance = new state.AddInstance!(publicKey);
+  },
+  ```
+
+- **Getting number of Proofs has already been verified on in the ZKapp**:
+
+  ```tsx
+  // app/zkappWorker.ts
+
+    async getProofNum() {
+    const currentNum = await state.zkappInstance!.proofNum.get();
+    return JSON.stringify(currentNum.toJSON());
+  },
+
+  ```
+
+- **Reconstructing the Proof and the transaction**:
+
+```tsx
+  // app/zkappWorker.ts
+
+async createTransaction(proofData: Proof) {
+console.log("Worker: Creating transaction...");
+
+    // Helper function to convert hex strings to Fields
+    function hexToField(hexString: string): Field {
+      if (!hexString.startsWith("0x")) {
+        hexString = "0x" + hexString;
+      }
+      return Field(BigInt(hexString));
+    }
+
+    // Reconstruct ClaimInfo
+    const claimInfo = new ClaimInfo({
+      provider: proofData.claimData.provider,
+      parameters: proofData.claimData.parameters,
+      context: proofData.claimData.context,
+    });
+
+    // Rest of the Proof Reconstructing logic
+
+      const rProof = new RProof({
+      claimInfo: claimInfo,
+      signedClaim: signedClaim,
+    });
+
+    // Create the transaction using rProof
+    state.transaction = await Mina.transaction(async () => {
+      await state.zkappInstance!.verifyProof(rProof);
+    });
+
+    console.log("Worker: Transaction created.");
+
+},
+
+```
+
+### Running the Frontend Application
+
+Start the development server:
+
+```bash
+npm run dev
+```
+
+### Interacting with the Application
+
+1. **Connect Your Wallet**:
+   - Open the application in your browser (`http://localhost:3000`).
+   - Auro Wallet will prompt you to connect. Approve the connection.
+2. **Generate Claim QR Code**:
+   - Click on **"Create Claim QR Code"**.
+   - A QR code will appear on the screen.
+3. **Scan QR Code with Your Phone**:
+   - Use your phone to scan the QR code.
+   - Complete the verification process as prompted.
+4. **Verify Proof on Mina Network**:
+   - After successful verification, a **"Verify Proof"** button will appear.
+   - Click on **"Verify Proof"**.
+   - Approve the transaction in Auro Wallet when prompted.
+5. **View Transaction**:
+   - Once the transaction is processed, a link to view it on the Mina block explorer will appear.
+   - Click on **"View transaction"** to see the details.
+
+</Steps>

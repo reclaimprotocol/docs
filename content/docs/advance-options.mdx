@@ -1,0 +1,632 @@
+---
+title: Advance Options
+description: This guide provides detailed information on advanced configuration options for the Reclaim Protocol SDK across multiple platforms. These options allow you to customize and enhance your integration for specific use cases.
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+
+<Callout type="info">
+  Before exploring advanced options, ensure you're familiar with the Basic Usage guide for your platform. 
+  All advanced configurations should be set before calling `getRequestUrl()`. These options work for both frontend and backend implementations.
+</Callout>
+
+## Advanced Options
+
+### Adding Context
+
+Use the `addContext` method to include additional information in your proof request. This context helps identify and differentiate between various proof requests in the resulting proof object.
+
+<Tabs items={['JavaScript', 'React Native', 'Flutter', 'Python']}>
+  <Tab>
+    ```javascript
+    const reclaimProofRequest = await ReclaimProofRequest.init(
+      'YOUR_RECLAIM_APP_ID',
+      'YOUR_RECLAIM_APP_SECRET',
+      'YOUR_PROVIDER_ID'
+    )
+
+    reclaimProofRequest.addContext('0x1234567890abcdef', 'User registration proof')
+
+    const requestUrl = await reclaimProofRequest.getRequestUrl()
+    ```
+  </Tab>
+  <Tab>
+    ```javascript
+    const reclaimProofRequest = await ReclaimProofRequest.init(
+      'YOUR_RECLAIM_APP_ID',
+      'YOUR_RECLAIM_APP_SECRET',
+      'YOUR_PROVIDER_ID'
+    )
+
+    reclaimProofRequest.addContext('0x1234567890abcdef', 'User registration proof')
+
+    const requestUrl = await reclaimProofRequest.getRequestUrl()
+    ```
+  </Tab>
+  <Tab>
+    ```dart
+    final reclaimProofRequest = await ReclaimProofRequest.init(
+      'YOUR_RECLAIM_APP_ID',
+      'YOUR_RECLAIM_APP_SECRET',
+      'YOUR_PROVIDER_ID'
+    );
+
+    reclaimProofRequest.addContext('0x1234567890abcdef', 'User registration proof');
+
+    final requestUrl = await reclaimProofRequest.getRequestUrl();
+    ```
+  </Tab>
+  <Tab>
+    ```python
+    from reclaim_python_sdk import ReclaimProofRequest
+
+    reclaim_proof_request = await ReclaimProofRequest.init(
+        'YOUR_RECLAIM_APP_ID',
+        'YOUR_RECLAIM_APP_SECRET', 
+        'YOUR_PROVIDER_ID'
+    )
+
+    reclaim_proof_request.add_context('0x1234567890abcdef', 'User registration proof')
+
+    request_url = await reclaim_proof_request.get_request_url()
+    ```
+  </Tab>
+</Tabs>
+
+- `contextId`: Unique hex address identifier (string)
+- `Context message`: Descriptive information about the proof request (string)
+
+<Callout type="info">
+  Context provides valuable metadata about your proof request's purpose or origin. This is particularly helpful when managing multiple proof types. The contextId must be a valid hex address (starting with '0x' and containing only 0-9 and a-f).
+</Callout>
+
+### Setting Parameters
+
+The `setParams` method lets you define specific conditions for proof generation, enabling selective triggering and manual verification workflows.
+
+<Tabs items={['JavaScript', 'React Native', 'Flutter', 'Python']}>
+  <Tab>
+    ```javascript
+    const reclaimProofRequest = await ReclaimProofRequest.init(
+      'YOUR_RECLAIM_APP_ID',
+      'YOUR_RECLAIM_APP_SECRET',
+      'YOUR_PROVIDER_ID'
+    )
+
+    reclaimProofRequest.setParams({ // Params value must be a string
+      minConnections: '500', 
+      industry: 'Technology'
+    })
+
+    const requestUrl = await reclaimProofRequest.getRequestUrl()
+    ```
+  </Tab>
+  <Tab>
+    ```javascript
+    const reclaimProofRequest = await ReclaimProofRequest.init(
+      'YOUR_RECLAIM_APP_ID',
+      'YOUR_RECLAIM_APP_SECRET',
+      'YOUR_PROVIDER_ID'
+    )
+
+    reclaimProofRequest.setParams({ // Params value must be a string
+      minConnections: '500', 
+      industry: 'Technology'
+    })
+
+    const requestUrl = await reclaimProofRequest.getRequestUrl()
+    ```
+  </Tab>
+  <Tab>
+    ```dart
+    final reclaimProofRequest = await ReclaimProofRequest.init(
+      'YOUR_RECLAIM_APP_ID',
+      'YOUR_RECLAIM_APP_SECRET',
+      'YOUR_PROVIDER_ID'
+    );
+
+    reclaimProofRequest.setParams({ // Params value must be a string
+      'minConnections': '500', 
+      'industry': 'Technology'
+    });
+
+    final requestUrl = await reclaimProofRequest.getRequestUrl();
+    ```
+  </Tab>
+  <Tab>
+    ```python
+    from reclaim_python_sdk import ReclaimProofRequest
+
+    reclaim_proof_request = await ReclaimProofRequest.init(
+        'YOUR_RECLAIM_APP_ID',
+        'YOUR_RECLAIM_APP_SECRET',
+        'YOUR_PROVIDER_ID'
+    )
+
+    reclaim_proof_request.set_params({
+        'minConnections': '500',
+        'industry': 'Technology'
+    })
+
+    request_url = await reclaim_proof_request.get_request_url()
+    ```
+  </Tab>
+</Tabs>
+
+<Callout type="info">
+  Use parameters judiciously. Proof generation will fail if the actual data doesn't meet the specified parameters. Ensure your parameters are both achievable and relevant to your proof request.
+</Callout>
+
+### Custom Redirect URL
+
+<Tabs items={['JavaScript', 'React Native', 'Flutter', 'Python']}>
+  <Tab>
+The `setRedirectUrl` method allows you to specify a custom URL where users will be redirected after the verification process.
+    ```javascript
+    const reclaimProofRequest = await ReclaimProofRequest.init(
+      'YOUR_RECLAIM_APP_ID',
+      'YOUR_RECLAIM_APP_SECRET',
+      'YOUR_PROVIDER_ID'
+    )
+
+    reclaimProofRequest.setRedirectUrl('https://your-app.com/verification-complete')
+
+    const requestUrl = await reclaimProofRequest.getRequestUrl()
+    ```
+    <Callout type="info">
+  This enhances user experience by seamlessly guiding users back to your application after proof generation. Ensure the redirect URL is prepared to handle post-verification logic.
+</Callout>
+  </Tab>
+  <Tab>
+  The `setRedirectUrl` method allows you to specify a custom URL where users will be redirected after the verification process. You can use this to set up a deep link to your app, ensuring a seamless return to your application after proof generation.
+    ```javascript
+    const reclaimProofRequest = await ReclaimProofRequest.init(
+      'YOUR_RECLAIM_APP_ID',
+      'YOUR_RECLAIM_APP_SECRET',
+      'YOUR_PROVIDER_ID'
+    )
+
+    reclaimProofRequest.setRedirectUrl('https://your-app.com/verification-complete')
+
+    const requestUrl = await reclaimProofRequest.getRequestUrl()
+    ```
+     <Callout type="tip">
+  To set up deep linking in your Flutter app:
+  1. Configure your app to handle the custom URL scheme (e.g., 'yourapp://')
+  2. Set up a route in your app to handle the '/verification-complete' path
+  3. Process any additional data passed through the deep link as needed
+
+    For a complete guide on deep linking in React Native, see: [Deep Linking in React Native](https://reactnavigation.org/docs/deep-linking/)
+    </Callout>
+
+   
+  </Tab>
+  <Tab>
+  The `setRedirectUrl` method allows you to specify a custom URL where users will be redirected after the verification process. You can use this to set up a deep link to your app, ensuring a seamless return to your application after proof generation.
+    ```dart
+    final reclaimProofRequest = await ReclaimProofRequest.init(
+      'YOUR_RECLAIM_APP_ID',
+      'YOUR_RECLAIM_APP_SECRET',
+      'YOUR_PROVIDER_ID'
+    );
+
+    reclaimProofRequest.setRedirectUrl('https://your-app.com/verification-complete');
+
+    final requestUrl = await reclaimProofRequest.getRequestUrl();
+    ```
+
+<Callout type="tip">
+    Setting Up Deep Linking in Your Flutter App
+
+  Follow these steps to implement deep linking functionality:
+
+  1. Configure Custom URL Scheme
+    - Define a unique URL scheme for your app (example: 'yourapp://')
+    - This allows your app to respond when users click links with your custom scheme
+
+  2. Implement Route Handler
+    - Create a dedicated route to handle the '/verification-complete' path
+    - This route will be triggered when users access your app through deep links
+
+  3. Handle Deep Link Data
+    - Extract and process any parameters or data passed through the deep link
+    - Use this data to navigate users to the appropriate screen or perform specific actions
+
+  For detailed implementation instructions and best practices, refer to the official Flutter documentation:
+  [Deep Linking in Flutter](https://docs.flutter.dev/ui/navigation/deep-linking)
+
+  Note: Deep linking enables seamless navigation from external sources directly to specific screens within your app.
+</Callout>
+
+  </Tab>
+  <Tab>
+    ```python
+    from reclaim_python_sdk.proof_request import ReclaimProofRequest
+
+    reclaim_proof_request = await ReclaimProofRequest.init(
+        'YOUR_RECLAIM_APP_ID',
+        'YOUR_RECLAIM_APP_SECRET',
+        'YOUR_PROVIDER_ID'
+    )
+
+    reclaim_proof_request.set_redirect_url('https://your-app.com/verification-complete')
+
+    request_url = await reclaim_proof_request.get_request_url()
+    ```
+  </Tab>
+</Tabs>
+
+### Custom Callback URL
+
+The `setAppCallbackUrl` method allows you to specify a custom API endpoint where proofs will be sent upon successful generation.
+
+<Tabs items={['JavaScript', 'React Native', 'Flutter', 'Python']}>
+  <Tab>
+    ```javascript
+    const reclaimProofRequest = await ReclaimProofRequest.init(
+      'YOUR_RECLAIM_APP_ID',
+      'YOUR_RECLAIM_APP_SECRET',
+      'YOUR_PROVIDER_ID'
+    )
+
+    reclaimProofRequest.setAppCallbackUrl('https://your-api.com/receive-proofs')
+
+    const requestUrl = await reclaimProofRequest.getRequestUrl()
+    ```
+
+  Parameters for `setAppCallbackUrl`:
+    - `URL`: The URL of the API endpoint where proofs will be sent.
+    - `jsonProofResponse` (Optional): By default, it is set to `false`. When set to `false`, the proof is returned as a url encoded message in the response. When set to `true`, the proof is returned as a JSON object in the response.
+
+  </Tab>
+  <Tab>
+    ```javascript
+    const reclaimProofRequest = await ReclaimProofRequest.init(
+      'YOUR_RECLAIM_APP_ID',
+      'YOUR_RECLAIM_APP_SECRET',
+      'YOUR_PROVIDER_ID'
+    )
+
+    reclaimProofRequest.setAppCallbackUrl('https://your-api.com/receive-proofs')
+
+    const requestUrl = await reclaimProofRequest.getRequestUrl()
+    ```
+  </Tab>
+  <Tab>
+    ```dart
+    final reclaimProofRequest = await ReclaimProofRequest.init(
+      'YOUR_RECLAIM_APP_ID',
+      'YOUR_RECLAIM_APP_SECRET',
+      'YOUR_PROVIDER_ID'
+    );
+
+    reclaimProofRequest.setAppCallbackUrl('https://your-api.com/receive-proofs');
+
+    final requestUrl = await reclaimProofRequest.getRequestUrl();
+    ```
+  </Tab>
+  <Tab>
+    ```python
+    from reclaim_python_sdk.proof_request import ReclaimProofRequest
+
+    reclaim_proof_request = await ReclaimProofRequest.init(
+        'YOUR_RECLAIM_APP_ID',
+        'YOUR_RECLAIM_APP_SECRET',
+        'YOUR_PROVIDER_ID'
+    )
+
+    reclaim_proof_request.set_app_callback_url('https://your-api.com/receive-proofs')
+
+    request_url = await reclaim_proof_request.get_request_url()
+    ```
+  </Tab>
+</Tabs>
+
+<Callout type="info">
+  This method is particularly useful for backend implementations. It allows you to receive proofs directly without polling the status URL. Ensure your endpoint is secure and can handle incoming proof data. Make sure to proper middleware to parse the proof object in the response. Eg. `express.text({ type: '*/*', limit: '50mb' })` in express.js.
+</Callout>
+
+### Exporting and Importing SDK Configuration
+
+The SDK provides methods to export and import the entire configuration as a JSON string. This allows for flexible usage across different parts of your application.
+
+<Tabs items={['JavaScript', 'React Native', 'Flutter', 'Python']}>
+  <Tab>
+    ```javascript
+    // Export configuration
+    const reclaimProofRequest = await ReclaimProofRequest.init(
+      'YOUR_RECLAIM_APP_ID',
+      'YOUR_RECLAIM_APP_SECRET',
+      'YOUR_PROVIDER_ID'
+    )
+
+    const reclaimProofRequestConfig = reclaimProofRequest.toJsonString()
+
+    // On a different service or application import the configuration
+    const reclaimProofRequest = await ReclaimProofRequest.fromJsonString(reclaimProofRequestConfig)
+    const requestUrl = await reclaimProofRequest.getRequestUrl()
+    ```
+  </Tab>
+  <Tab>
+    ```javascript
+    // Export configuration
+    const reclaimProofRequest = await ReclaimProofRequest.init(
+      'YOUR_RECLAIM_APP_ID',
+      'YOUR_RECLAIM_APP_SECRET',
+      'YOUR_PROVIDER_ID'
+    )
+
+    const reclaimProofRequestConfig = reclaimProofRequest.toJsonString()
+
+    // On a different service or application import the configuration
+    const reclaimProofRequest = await ReclaimProofRequest.fromJsonString(reclaimProofRequestConfig)
+    const requestUrl = await reclaimProofRequest.getRequestUrl()
+    ```
+  </Tab>
+  <Tab>
+    ```dart
+    // Export configuration
+    final reclaimProofRequest = await ReclaimProofRequest.init(
+      'YOUR_RECLAIM_APP_ID',
+      'YOUR_RECLAIM_APP_SECRET',
+      'YOUR_PROVIDER_ID'
+    );
+
+    final reclaimProofRequestConfig = reclaimProofRequest.toJsonString();
+
+    // On a different service or application import the configuration
+    final reclaimProofRequest = await ReclaimProofRequest.fromJsonString(reclaimProofRequestConfig);
+    final requestUrl = await reclaimProofRequest.getRequestUrl();
+    ```
+  </Tab>
+  <Tab>
+    ```python
+    # Export configuration
+    reclaim_proof_request = await ReclaimProofRequest.init(
+        'YOUR_RECLAIM_APP_ID',
+        'YOUR_RECLAIM_APP_SECRET',
+        'YOUR_PROVIDER_ID'
+    )
+
+    reclaim_proof_request_config = reclaim_proof_request.to_json_string()
+
+    # On a different service or application import the configuration
+    reclaim_proof_request = await ReclaimProofRequest.from_json_string(reclaim_proof_request_config)
+    request_url = await reclaim_proof_request.get_request_url()
+    ```
+  </Tab>
+</Tabs>
+
+<Callout type="info">
+  This feature is particularly useful when you need to initialize the SDK in one part of your application (e.g., frontend) and use it in another (e.g., backend). It provides a seamless way to transfer the configuration.
+</Callout>
+
+### Verifying Proof Signatures
+
+The SDK provides a method to verify the cryptographic signatures of proofs to ensure their authenticity. This is particularly useful when receiving proofs from users or application sources.
+
+<Tabs items={['JavaScript', 'React Native', 'Flutter', 'Python', 'Rust']}>
+  <Tab>
+    ```javascript
+    import { ReclaimProofRequest, verifyProof } from 'reclaim-sdk'
+
+    // make sure proofObject is of type Proof Object
+    const isValid = await verifyProof(proofObject)
+    if (isValid) {
+      console.log('Proof is valid!')
+    } else {
+      console.log('Invalid proof - signature verification failed')
+    }
+    ```
+  </Tab>
+  <Tab>
+    ```javascript
+    import { ReclaimProofRequest, verifyProof } from 'reclaim-sdk'
+
+    // make sure proofObject is of type Proof Object
+    const isValid = await verifyProof(proofObject)
+    if (isValid) {
+      console.log('Proof is valid!')
+    } else {
+      console.log('Invalid proof - signature verification failed') 
+    }
+    ```
+  </Tab>
+  <Tab>
+    ```dart
+    import 'package:reclaim_sdk/reclaim.dart';
+
+    // make sure proofObject is of type Proof Object
+    final isValid = await verifyProof(proofObject);
+    if (isValid) {
+      print('Proof is valid!');
+    } else {
+      print('Invalid proof - signature verification failed');
+    }
+    ```
+  </Tab>
+  <Tab>
+    ```python
+    from reclaim_python_sdk import ReclaimProofRequest, verify_proof, Proof
+
+    # make sure proof_object is of type Proof Object
+    proof_object = Proof.from_json(proof_json_object)
+    is_valid = await verify_proof(proof_object)
+    if is_valid:
+        print('Proof is valid!')
+    else:
+        print('Invalid proof - signature verification failed')
+    ```
+  </Tab>
+  <Tab>
+
+    <Callout type="info" title="Note">
+      The reclaim-rust-sdk crate is currently in development and only supports verify proof for now.
+    </Callout>
+
+    Install the reclaim-rust-sdk crate in your project.
+
+    ```bash
+    cargo add reclaim-rust-sdk@=0.1.0
+    cargo add serde_json@=1.0.0
+    ```
+
+    Add the following to your `Cargo.toml` file:
+
+    ```toml
+    [dependencies]
+    reclaim-rust-sdk = "0.1.0"
+    serde_json = "1.0.0"
+    ```
+
+    ```rust
+    use reclaim_rust_sdk::verify_proof;
+    use serde_json::json;
+
+    let proof: reclaim_rust_sdk::Proof = serde_json::from_value(proof_json).unwrap();
+
+    let is_valid = verify_proof(&proof);
+    if is_valid {
+        println!("✅ Proof is valid!");
+    } else {
+        println!("❌ Invalid proof - signature verification failed");
+    }
+    ```
+  </Tab>
+</Tabs>
+
+<Callout type="info">
+  The `verifyProof` method checks the cryptographic signatures in the proof against the attestor's public key to ensure the proof hasn't been tampered with. Always verify proofs before accepting them as valid, especially when receiving them from different application sources.
+</Callout>
+
+
+
+### Initialization Options
+
+When initializing the SDK, you can pass additional options to customize its behavior:
+
+<Tabs items={['JavaScript', 'React Native', 'Flutter', 'Python']}>
+  <Tab>
+    ```javascript
+    const proofRequest = await ReclaimProofRequest.init(
+      'YOUR_RECLAIM_APP_ID',
+      'YOUR_RECLAIM_APP_SECRET',
+      'YOUR_PROVIDER_ID',
+      { log: true }
+    )
+    ```
+  </Tab>
+  <Tab>
+    ```javascript
+    const proofRequest = await ReclaimProofRequest.init(
+      'YOUR_RECLAIM_APP_ID',
+      'YOUR_RECLAIM_APP_SECRET',
+      'YOUR_PROVIDER_ID',
+      { useAppClip: true, log: true }
+    )
+    ```
+
+    - `useAppClip`: When set to `true`, the SDK will give an App Clip url(for ios) and instant app url(for android) when calling `getRequestUrl()` which allows to open the reclaim verifier app directly from your application.
+  </Tab>
+  <Tab>
+    ```dart
+    import 'package:reclaim_sdk/utils/types.dart';
+    import 'package:reclaim_sdk/reclaim.dart';
+ 
+    final proofRequest = await ReclaimProofRequest.init(
+      'YOUR_RECLAIM_APP_ID', 
+      'YOUR_RECLAIM_APP_SECRET', 
+      'YOUR_PROVIDER_ID', 
+      ProofRequestOptions(useAppClip: true, log: true)
+    );
+    ```
+
+    - `useAppClip`: When set to `true`, the SDK will give an App Clip url(for ios) and instant app url(for android) when calling `getRequestUrl()` which allows to open the reclaim verifier app directly from your application.
+  </Tab>
+  <Tab>
+    ```python
+    from reclaim_python_sdk.proof_request import ReclaimProofRequest
+
+    proof_request = await ReclaimProofRequest.init(
+        'YOUR_RECLAIM_APP_ID',
+        'YOUR_RECLAIM_APP_SECRET',
+        'YOUR_PROVIDER_ID',
+        options={'log': True}
+    )
+    ```
+
+    - `log`: When set to `true`, enables detailed logging for debugging purposes.
+  </Tab>
+</Tabs>
+
+- `log`: When set to `true`, enables detailed logging for debugging purposes.
+
+<Callout type="tip">
+  Use this option to enhance debugging capabilities in your application. The logging option is particularly useful during development and testing phases.
+</Callout>
+
+
+## Understanding the Proof Structure
+
+When using any Reclaim SDK (JavaScript, React Native, Flutter), a proof is generated and returned upon successful verification. This proof contains several key components that provide detailed information about the verification process. Below is a generic structure of a proof:
+
+```json
+{
+  "identifier": "unique_identifier_for_proof", // string
+  "claimData": {
+    "provider": "provider_type", // string
+    "parameters": "verified_data_from_website", // stringified JSON object
+    "owner": "owner_address", // string
+    "timestampS": "timestamp_of_proof_generation", // int
+    "context": "additional_context_information", // stringified JSON object
+    "epoch": "epoch_number" // int
+  },
+  "signatures": [
+    "signature_of_proof" // string
+  ],
+  "witnesses": [
+    {
+      "id": "witness_id", // string
+      "url": "witness_url" // string
+    }
+  ],
+  // publicData is optional and only available if provider supports it else it will be empty
+  "publicData": {} // stringified JSON object
+}
+```
+
+### Key Components:
+
+- **identifier**: A unique identifier for the proof.
+- **claimData**: Contains detailed information about the claim, including:
+  - **provider**: The type of provider used for verification.
+  - **parameters**: The parameters used during the verification process.
+  - **owner**: The address of the owner of the proof.
+  - **timestampS**: The timestamp when the proof was generated.
+  - **context**: Any additional context information related to the proof.
+  - **epoch**: The epoch number indicating the version or state of the proof.
+- **signatures**: A list of signatures that validate the proof.
+- **witnesses**: Information about witnesses that observed the proof generation, including their ID and URL.
+- **publicData**: Any public data associated with the proof.
+
+This proof is typically received in the `onSuccess` callback of `startVerificationSession` method when using the default `callbackUrl`. However, if you have set a custom `callbackUrl`, you will receive this proof at your specified API endpoint.
+
+
+## Best Practices for Advanced Configuration
+
+1. **Security**: Always prioritize security when configuring callbacks and parameters. Use HTTPS for all URLs and avoid passing sensitive data in parameters.
+
+2. **Error Handling**: Implement robust error handling for all advanced configurations, especially when dealing with callbacks and redirects.
+
+3. **Testing**: Thoroughly test your advanced configurations in a staging environment before deploying to production.
+
+4. **Documentation**: Maintain clear documentation of your custom configurations, especially when using context or custom parameters.
+
+<Callout type="info">
+  Remember, while these advanced configurations offer more flexibility, they also require careful implementation to ensure security and reliability.
+</Callout>
+
+By leveraging these advanced configuration options, you can create a more tailored and robust integration of the Reclaim Protocol into your application. If you have any questions about these advanced features, don't hesitate to reach out to our support team or community forums.
+
+Happy coding with Reclaim Protocol!
+

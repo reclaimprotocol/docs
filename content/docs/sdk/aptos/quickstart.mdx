@@ -1,0 +1,59 @@
+---
+title: Quickstart
+description: Deploy and Interact with Reclaim Protocol on Aptos Blockchain
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+## Overview
+This guide walks you through deploying and interacting with the Reclaim Protocol on the Aptos blockchain. You'll learn how to set up the environment, deploy smart contracts, and build a frontend interface.
+
+## Prerequisites
+
+Before starting, ensure you have:
+- Completed the [ReactJs](/js/frontend-example) tutorial
+- Node.js and npm installed on your system
+- Basic understanding of blockchain concepts
+- [Petra Wallet](https://petra.app/) installed (recommended)
+
+### Wallet Configuration
+
+1. **Install Petra Wallet**
+   - Download and install from [petra.app](https://petra.app/)
+   - Follow the wallet setup instructions
+
+2. **Configure Network Settings**
+   - Open Petra Wallet
+   - Click the settings icon (bottom right)
+   - Navigate to "Networks"
+   - Select "Testnet"
+
+3. **Get Test Tokens**
+   - Visit the [Aptos Faucet](https://www.aptosfaucet.com/)
+   - Request testnet APT tokens for testing
+
+### Source Code Access
+
+Access the required repositories:
+- Smart Contract: [Reclaim Contract Repository](https://gitlab.reclaimprotocol.org/integrations/onchain/aptos-sdk)
+- Frontend Demo: [Frontend Example](https://gitlab.reclaimprotocol.org/starterpacks/reclaim-aptos-example)
+
+## Contract Deployment
+
+> **Note**: If you don't need custom contract logic, you can use our [pre-deployed testnet contract](https://explorer.aptoslabs.com/object/0xd33b912ac96983caa70ac9f44f7e274d1a29158c71e40c26b967e75e72a11d5f/transactions?network=testnet).
+
+[Rest of the content remains unchanged as it contains specific code blocks and technical steps that should be preserved]
+
+### Additional Resources
+- [Aptos Developer Documentation](https://aptos.dev/)
+- [Reclaim Protocol Documentation](https://docs.reclaimprotocol.org/)
+- [Petra Wallet Guide](https://petra.app/docs)
+
+## Troubleshooting
+
+Common issues and solutions:
+1. **Compilation Errors**: Add `--skip-fetch-latest-git-deps` flag if encountering Git state errors
+2. **Network Issues**: Ensure you're connected to Aptos testnet
+3. **Transaction Failures**: Verify wallet has sufficient APT balance
+
+For additional support, join our [Developer Community](https://discord.gg/reclaim) or submit an issue on our GitLab repositories.

@@ -1,0 +1,30 @@
+---
+title: zkFetch SDK
+description: _fetch, but with a zkproof_
+---
+
+zkFetch allows you to securely fetch remote resources over HTTPS endpoints, providing a proof of correct execution that can be verified by third parties. This ensures that sensitive operations, such as using private API keys, are performed correctly without exposing confidential information.
+
+## Overview
+
+You can integrate Reclaim into your backend using zkFetch SDK
+
+### Flows
+
+#### Integrating zkFetch 
+
+The workflow is as follows:
+
+1. **Initiate Request:** The user calls zkFetch, providing options such as URL, method, and headers.
+2. **Fetch and Generate Proof:** zkFetch performs the fetch operation and generates a proof
+3. **Verify and Transform Proof:** The proof is verified using `verifySignedProof` and transformed with the `transform` method 
+
+
+## When to Use zkFetch
+
+zkFetch is recommended for fetching public data where the integrity and authenticity of the data need to be verified without exposing any sensitive information. Use zkFetch in scenarios such as:
+
+- Ideal when data is publicly available
+- Perfect when you have the auth token and endpoint
+
+

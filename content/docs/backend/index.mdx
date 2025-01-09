@@ -1,0 +1,97 @@
+---
+title: Backend Flow
+description: Welcome to the Reclaim Protocol JavaScript SDK for backend Node.js applications! This SDK helps you implement Reclaim in your server-side applications, allowing users to prove their credentials from other websites without sharing sensitive information.
+---
+
+## Reclaim Protocol JavaScript SDK for Backend
+
+### Overview
+The Reclaim Protocol JavaScript SDK enables Node.js backend applications to verify user credentials from external websites while maintaining privacy and security. This documentation guides you through implementation, from basic setup to advanced features.
+
+## Getting Started
+
+### Prerequisites
+- Node.js environment
+- Basic understanding of authentication flows
+- npm or yarn package manager
+
+### Quick Start Guide
+
+1. [Installation Guide](./backend/installation)
+   - Complete setup instructions for your Node.js project
+
+2. [Basic Implementation](./backend/backend-example)
+   - Step-by-step guide with practical examples
+
+## Understanding the Flow
+
+The Reclaim verification process follows these key steps:
+
+1. **Initial Request**
+   - User initiates credential verification
+   - Backend prepares verification parameters
+
+2. **Configuration Setup**
+   ```javascript
+   // Server creates configuration object
+   const reclaimProofRequestConfig = {
+     // Configuration parameters
+   };
+   ```
+
+3. **Frontend Integration**
+   - Backend transmits configuration to frontend
+   - Frontend initializes SDK with received parameters
+
+4. **User Authentication**
+   - User accesses generated verification URL
+   - Authenticates with target platform (e.g., Amazon.com)
+
+5. **Proof Processing**
+   - Proof generation on user device
+   - Secure submission to your server
+   - Backend verification and response
+
+## Benefits of Backend Implementation
+
+### Security
+- Server-side operation security
+- Protected sensitive data handling
+- Robust verification processes
+
+### Scalability
+- Efficient multi-user management
+- High-volume request handling
+- Resource optimization
+
+### Integration
+- Seamless authentication system integration
+- Flexible data management
+- Custom workflow implementation
+
+## Advanced Features
+
+### Extended Capabilities
+- [Advanced Configuration Guide](../advance-configurations/advance-options)
+  - Detailed configuration options
+  - Custom implementation scenarios
+  - Performance optimization
+
+### Best Practices
+- [Implementation Guidelines](./backend/best-practices)
+  - Security recommendations
+  - Performance optimization
+  - Error handling strategies
+
+## Support and Resources
+
+### Community Support
+- [Telegram Community](https://t.me/protocolreclaim)
+- [Official Website](https://reclaimprotocol.org)
+
+### Stay Updated
+- [Twitter Updates](https://twitter.com/reclaimprotocol)
+- [GitHub Repository](https://github.com/reclaimprotocol/reclaim-js-sdk/)
+
+## Next Steps
+Start with the installation guide and progress through the documentation based on your implementation needs. For specific questions or advanced use cases, reach out to our community support channels.

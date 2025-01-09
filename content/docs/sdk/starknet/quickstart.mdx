@@ -1,0 +1,329 @@
+---
+title: Quickstart
+description: Publish on-chain with Reclaim contract on Starknet
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+## Pre-requisite
+
+At this stage, we assume that you are familiar with the steps at [ReactJs](/js/frontend-example).
+
+For this walkthrough, you'll need a compatible wallet to interact with the frontend interface. We recommend using either [Braavos](https://braavos.app/download-braavos-wallet/) or [Argent X](https://www.argent.xyz/download-argent).
+
+### Setting Up Your Wallet
+
+1. **Install Braavos or Argent X**: Choose and install either wallet extension from the provided links.
+2. **Switch to Starknet Sepolia Network**:
+
+   - **Braavos**:
+     - Click on the settings icon in the top left corner.
+     - Navigate to the "Networks" section.
+     - Select "Starknet Sepolia".
+   - **Argent X**:
+     - Click on the settings icon in the top right corner.
+     - Choose "Sepolia" from the network options.
+
+3. **Fund Your Wallet**: Ensure your wallet is funded with ETH on the Sepolia Testnet. You can obtain testnet ETH from the [Starknet Faucet](https://starknet-faucet.vercel.app/).
+
+### Accessing the Code
+
+The code for this walkthrough is available on GitLab:
+
+- [Reclaim Contract Repository](https://gitlab.reclaimprotocol.org/integrations/onchain/starknet-sdk)
+- [Frontend Example](https://gitlab.reclaimprotocol.org/starterpacks/reclaim-starknet-example)
+
+## Contract Deployment
+
+If you don't need to add more checks and logic to on-chain contract, You can skip those steps and use our already deployed contract on the [Sepolia Testnet](https://sepolia.starkscan.co/contract/0x0765f3f940f7c59288b522a44ac0eeba82f8bf71dd03e265d2c9ba3521466b4e) or [Mainnet](https://starkscan.co/contract/0x020a963b35ab831e46ea20d774dab2357ee10f04b2fd17d6978d3c907b72b0e4).
+
+**Note**: in this walkthrough we will be using Sepolia Testnet, but you can always replace `--network=sepolia` with `--network=mainnet`
+
+<Steps>
+### Clone the Starknet contract sdk repo.
+To get started, clone the Starknet SDK repository and navigate to the project directory.
+
+```bash copy
+git clone https://gitlab.reclaimprotocol.org/integrations/onchain/starknet-sdk.git
+cd starknet-sdk
+```
+
+### Setting up your environment
+
+To interact with Starknet and compile Cairo code, several tools need to be installed. If you already have these tools configured, you can skip to step 3.
+
+Refer to the [Starknet documentation](https://docs.starknet.io/quick-start/environment-setup/) for detailed instructions on setting up your environment. Follow these steps:
+
+1. Install Starkli.
+2. Set environment variables for Starkli.
+3. Install Scarb.
+
+Next, set up your account by following the steps in the [Starknet account setup guide](https://docs.starknet.io/quick-start/set-up-an-account/):
+
+1. Create an account.
+2. Deploy the account.
+
+### Build the smart contract
+
+Compile the smart contract using Scarb.
+
+```bash copy
+scarb build
+```
+
+### Run Tests
+
+Run the tests to ensure everything is functioning correctly.
+
+```bash copy
+scarb test
+```
+
+### Declaring the smart contract
+
+Declare the smart contract on Starknet Sepolia. Replace `<NAME>` with the actual name of the compiled contract in the `target/dev/` directory.
+
+```bash copy
+starkli declare target/dev/<NAME>.json --network=sepolia --compiler-version=2.7.1
+```
+
+### Deploy
+
+Deploy the contract using your Starknet Sepolia account. Replace `<CLASS_HASH>` with the output obtained from the previous step when declaring the smart contract. For `<CONSTRUCTOR_INPUTS>`, provide the address of the account that will be the contract owner.
+
+```bash copy
+starkli deploy \
+    <CLASS_HASH> \
+    <CONSTRUCTOR_INPUTS> \
+    --network=sepolia
+```
+
+### Add Epoch
+
+To add an epoch, ensure you are using the account set as the owner of the contract. Replace `<CONTRACT_ADDRESS>` with your actual contract address.
+
+```bash copy
+starkli invoke \
+    <CONTRACT_ADDRESS> \
+    add_new_epoch \
+   <Array Length> <Low Value> <High Value> 1\
+    --network=sepolia
+```
+
+**Note:** The `add_new_epoch` function accepts a list of witnesses, represented in Cairo as `Array<u256>`. To send this list, you must pass the array length as the first parameter, followed by the low and high values.<br/>
+For example, to add an epoch, replace the placeholders with this values:
+
+```bash copy
+starkli invoke \
+    <CONTRACT ADDRESS> \
+    add_new_epoch \
+   1 0x2368eadf65bfbc5aec98d8e5443a9072 0x24489757 1\
+    --network=sepolia
+```
+
+</Steps>
+
+## Frontend Development
+
+<Steps>
+
+### Cloning the frontend repo.
+
+```bash
+git clone https://gitlab.reclaimprotocol.org/starterpacks/reclaim-starknet-example.git
+
+cd reclaim-starknet-example
+
+npm install
+```
+
+### Code discovery (src/App.tsx).
+
+We will submit the proof on chain once we get the `onSuccessCallback`. Fill in your Reclaim credentials marked with `//TODO`s.
+
+```js copy showLineNumbers {17, 22, 33}
+import React, { useState } from "react";
+import Header from "./components/Header";
+import { Reclaim } from "@reclaimprotocol/js-sdk";
+import QRCode from "react-qr-code";
+import { Button } from "./components/ui/Button";
+import VerifyProof from "./verify-proof";
+import { ClipLoader } from "react-spinners";
+import { useAccount } from "@starknet-react/core";
+
+function App() {
+  const [url, setUrl] = useState("");
+  const [ready, setReady] = useState(false);
+  const [proof, setProof] = useState({});
+  const [loading, setLoading] = useState(false);
+  const { account } = useAccount();
+
+  const APP_ID = "0x408edDD2dF298C2F5df1E2eDE2eBF1278A96Ee45"; //TODO: replace with your applicationId
+  const reclaimClient = new Reclaim.ProofRequest(APP_ID);
+
+  async function generateVerificationRequest() {
+    setLoading(true);
+    const providerId = "1bba104c-f7e3-4b58-8b42-f8c0346cdeab"; //TODO: replace with your provider ids you had selected while creating the application
+
+    reclaimClient.addContext(
+      `user's address`,
+      "for acmecorp.com on 1st january"
+    );
+
+    await reclaimClient.buildProofRequest(providerId, true, "V2Linking");
+
+    reclaimClient.setSignature(
+      await reclaimClient.generateSignature(
+        "0x5bdaf747ad9333898a0d9cb613f499d0b00164d7b8230628cf7ffa30fd323372" //TODO : replace with your APP_SECRET
+      )
+    );
+
+    const { requestUrl, statusUrl } =
+      await reclaimClient.createVerificationRequest();
+
+    setUrl(requestUrl);
+    setLoading(false);
+
+    await reclaimClient.startSession({
+      onSuccessCallback: (proofs) => {
+        console.log("Verification success", proofs);
+        setProof(proofs[0]);
+        setReady(true);
+      },
+      onFailureCallback: (error) => {
+        console.error("Verification failed", error);
+        setLoading(false);
+      },
+    });
+  }
+
+  return (
+    <main className="flex flex-col items-center justify-center min-h-screen gap-12">
+      <Header />
+
+      {!account && (
+        <p className="text-red-500 font-semibold text-xl">
+          Please connect your wallet to create a claim QR code.
+        </p>
+      )}
+
+      <div className="flex flex-row gap-12">
+        {account && !url && !loading && (
+          <Button onClick={generateVerificationRequest}>
+            Create Claim QrCode
+          </Button>
+        )}
+        {loading && <ClipLoader color="#4A90E2" size={50} />} {url &&
+          !ready && <QRCode value={url} />}
+        {ready && <VerifyProof proof={proof} />}{" "}
+      </div>
+    </main>
+  );
+}
+
+export default App;
+```
+
+### Code discovery (src/verify-proof.jsx).
+
+If you deployed your own version of the contract, you will need to update the contract address.
+
+```js copy showLineNumbers {25}
+import { useState, useEffect, useMemo } from "react";
+import { Reclaim } from "@reclaimprotocol/js-sdk";
+import { Button } from "./components/ui/Button";
+import { useAccount } from "@starknet-react/core";
+import transformProof from "./utils/transformProof";
+import { RpcProvider, Contract, Account, ec, json } from "starknet";
+import { ClipLoader } from "react-spinners";
+
+export default function VerifyProof(props: any) {
+  const { account } = useAccount();
+  const [proof, setProof] = useState({});
+  const [verified, setVerified] = useState(false);
+  const [error, setError] = (useState < string) | (null > null);
+  const [loading, setLoading] = useState(false);
+  const [transactionHash, setTransactionHash] =
+    (useState < string) | (null > null);
+
+  const handleVerifyProof = async () => {
+    try {
+      setLoading(true);
+      const provider = new RpcProvider({
+        nodeUrl: "https://starknet-sepolia.public.blastapi.io",
+      });
+      const reclaimAddress =
+        "0x0765f3f940f7c59288b522a44ac0eeba82f8bf71dd03e265d2c9ba3521466b4e"; //TODO: Replace with your contract address
+
+      const { abi: reclaimAbi } = await provider.getClassAt(reclaimAddress);
+      if (reclaimAbi === undefined) {
+        throw new Error("no abi.");
+      }
+      const ReclaimContract = new Contract(
+        reclaimAbi,
+        reclaimAddress,
+        provider
+      );
+      // @ts-ignore
+      ReclaimContract.connect(account);
+      const myCall = ReclaimContract.populate("verify_proof", proof);
+      const res = await ReclaimContract.verify_proof(myCall.calldata);
+
+      let hash = await provider.waitForTransaction(res.transaction_hash);
+      setLoading(false);
+      // @ts-ignore
+      setTransactionHash(hash.transaction_hash);
+      setVerified(true);
+      console.log("hash", hash);
+    } catch (error) {
+      console.error("Verification failed:", error);
+      setLoading(false);
+      setError("Verification failed. Please try again.");
+      setVerified(false);
+    }
+  };
+
+  useEffect(() => {
+    const transformedProof = transformProof(props.proof);
+    setProof(transformedProof);
+  }, [props.proof]);
+
+  return (
+    <div>
+      {!loading && !verified && (
+        <Button onClick={handleVerifyProof}>Verify Proof</Button>
+      )}
+      {loading && <ClipLoader color="#4A90E2" size={50} />}
+      {verified && transactionHash && (
+        <div className="flex flex-col text-center">
+          <p className="text-green-500 font-semibold">
+            Verification completed.
+          </p>
+          <a
+            href={`https://sepolia.starkscan.co/tx/${transactionHash}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-400"
+          >
+            See Transaction on the Explorer
+          </a>
+        </div>
+      )}
+      {error && <p className="text-red-500 font-semibold">{error}</p>}
+    </div>
+  );
+}
+```
+
+### Submitting the proof.
+
+```bash
+npm run dev
+```
+
+- First, You will need to connect your wallet (Make sure you are on Sepolia network).
+- Then, After requesting a proof from Reclaim and performing the verification on your end, a verify proof button will appear on the screen.
+- Finally, Clicking on the `Verify Proof` button will send a transaction.
+- You can check the transaction on the explorer by clicking on `See Transaction on the Explorer` button.
+
+</Steps>

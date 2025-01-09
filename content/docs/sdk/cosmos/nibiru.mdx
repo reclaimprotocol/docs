@@ -1,0 +1,184 @@
+---
+title: Cosmos SDK - NibiJS
+description: Publish on chain using CosmWasm
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+## Pre-requisite
+At this stage, we assume that you are familiar with the steps at [ReactJs](/js/frontend-example).
+
+We will be using [Keplr](https://www.keplr.app/) as a wallet to interact with the frontend interface. Make sure that you have it installed and funded with [testnet Nibi](https://app.nibiru.fi/faucet).
+
+You can access the code of this walkthrough on Gitlab:
+ - [CosmWasm contract](https://gitlab.reclaimprotocol.org/starterpacks/nibiru-client-contract).
+ - [React client](https://gitlab.reclaimprotocol.org/starterpacks/nibiru-client-frontend).
+
+## Contract deployment
+<Steps>
+### Clone the client contract repo.
+
+This [Nibiru contract](https://gitlab.reclaimprotocol.org/starterpacks/nibiru-client-contract) serves as a client to our Reclaim contract. It instantiates Reclaim's contract, handles proofs, and verifies them.
+
+```bash copy
+git clone https://gitlab.reclaimprotocol.org/starterpacks/nibiru-client-contract
+make build
+```
+
+### Add your wallet information.
+
+As stated in the README, add your wallet credentials to your ```node/.env```.
+
+```bash copy
+MNEMONIC= // Your mnemonic
+```
+
+### Deploy and verify a proof.
+
+In the ```node``` directory, run ```npm run start```, you can upload the contract, instantiate it, and verify a Reclaim proof on it.
+Run the script and take a note of your contract address, we will be using it later.
+
+![verify2](/verify2.png)
+</Steps>
+
+## React client development
+<Steps>
+
+### Cloning the frontend repo.
+
+```bash
+git clone https://gitlab.reclaimprotocol.org/starterpacks/nibiru-client-frontend
+
+cd nibiru-client-frontend
+
+npm install
+```
+
+### Code discovery (App.js). 
+
+We will submit the proof on chain once we get the `onSuccessCallback`. Fill in your Reclaim credentials marked with ```//TODO```s.
+
+```js copy showLineNumbers {37-42}
+import './App.css'
+import { Reclaim } from '@reclaimprotocol/js-sdk'
+import { useState } from 'react'
+import VerifyProof from './VerifyProof'
+import ConnectButton from './ConnectButton'
+
+function App() {
+  const [url, setUrl] = useState('')
+  const [ready, setReady] = useState(false);
+  const [proof, setProof] = useState({});
+
+  const reclaimClient = new Reclaim.ProofRequest('') //TODO: replace with your applicationId
+ 
+  async function generateVerificationRequest() {
+    const providerId = '' //TODO: replace with your provider ids you had selected while creating the application
+    const APP_SECRET = "" //TODO : replace with your APP_SECRET
+ 
+    await reclaimClient.addContext(
+      (`user's address`),
+      ('for acmecorp.com on 1st january')
+    )
+ 
+    await reclaimClient.buildProofRequest(providerId)
+ 
+    reclaimClient.setSignature(
+      await reclaimClient.generateSignature(
+        APP_SECRET 
+      )
+    )
+ 
+    const { requestUrl, statusUrl } =
+      await reclaimClient.createVerificationRequest()
+ 
+    setUrl(requestUrl)
+
+    await reclaimClient.startSession({
+      onSuccessCallback: proof => {
+        console.log('Verification success', proof)
+        setReady(true);
+        setProof(proof[0]);
+        // Your business logic here
+      },
+      onFailureCallback: error => {
+        console.error('Verification failed', error)
+        // Your business logic here to handle the error
+      }
+    })
+  }
+ 
+  return (
+    <div className='App'>
+      <ConnectButton/>
+      <button onClick={() => generateVerificationRequest()}>
+        Generate Verification Request
+      </button>
+      <button onClick={() => window.open(url, '_blank')}>Open link</button>
+      {ready && <VerifyProof proof={proof}></VerifyProof>}
+    </div>
+  )
+}
+ 
+export default App
+```
+
+### Code discovery (src/nibiJs/nibijsFunctions.js).
+
+Replace with your own Reclaim client contract's address.
+
+```js copy showLineNumbers {4}
+import { useContext } from "react";
+import { NibijsContext } from "./nibijsContext";
+
+// Uncomment for mainnet
+// let contractAddress = "nibi1d7ffxpewty3zd0lq39l9rxc2wtmgv8j3gsg3qf5yglzewqp84mkqlttmme";
+
+let contractAddress = "nibi1l0yhggdxmvkcjd9a304gkel770rkyl2vy272q58seyp5sys7486spversq";
+ 
+const NibijsFunctions = () => {
+  const { nibijs, nibiAddress } = useContext(NibijsContext);
+ 
+  let verify_proof = async (proof) => {
+ 
+    let tx = await nibijs.wasmClient.execute(
+      nibiAddress,
+      contractAddress,
+      {
+        verify_proof: {
+          proof: proof,
+        },
+      },
+      "auto"
+    );
+ 
+    console.log(tx);
+  };
+ 
+  return {
+    verify_proof
+  };
+};
+ 
+export { NibijsFunctions };
+ 
+```
+
+### Submitting the proof.
+
+```bash
+npm run build
+
+npm run start
+```
+After requesting a proof from Reclaim and performing the verification on your end, a verify proof button will appear on the screen.
+Make sure your Keplr is connected, click the button, a wallet pop-up will show prompting you to submit.
+
+![screen2](/screen2.png)
+
+
+![keplr2](/keplr2.png)
+
+Now your proof will get approved on-chain, here is the sample [transaction](https://explorer.nibiru.fi/nibiru-testnet-1/tx/5633F992530ED9919282BB4FF7568579D30C45B665CEBB2192394E2970FFB16D) from the screenshot above.
+</Steps>
+
