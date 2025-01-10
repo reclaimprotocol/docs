@@ -1,3 +1,4 @@
 {
-    "title": "JS SDK (For Backend)"
+    "title": "JS SDK (For Backend)",
+    "pages": ["installation", "best-practices", "backend-example"]
 }
