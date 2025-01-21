@@ -14,7 +14,7 @@ This guide outlines the best practices for implementing Reclaim Protocol in your
 ## Protect Your Application Secret
 
 <Tabs items={['JavaScript', 'Python']}>
-  <Tabs.Tab>
+  <Tab>
     ```javascript
     // Store secrets securely
     const APP_SECRET = process.env.RECLAIM_APP_SECRET;
@@ -26,8 +26,8 @@ This guide outlines the best practices for implementing Reclaim Protocol in your
       throw new Error('Invalid proof');
     }
     ```
-  </Tabs.Tab>
-  <Tabs.Tab>
+  </Tab>
+  <Tab>
     ```python
     # Store secrets securely
     APP_SECRET = os.environ.get("RECLAIM_APP_SECRET")
@@ -38,7 +38,7 @@ This guide outlines the best practices for implementing Reclaim Protocol in your
     if not is_valid:
         raise ValueError("Invalid proof")
     ```
-  </Tabs.Tab>
+  </Tab>
 </Tabs>
 
 <Callout type="warning">
@@ -51,7 +51,7 @@ This guide outlines the best practices for implementing Reclaim Protocol in your
 ## Error Handling
 
 <Tabs items={['JavaScript', 'Python']}>
-  <Tabs.Tab>
+  <Tab>
     ```javascript
     try {
       const reclaimProof = await ReclaimProofRequest.init(APP_ID, APP_SECRET);
@@ -62,8 +62,8 @@ This guide outlines the best practices for implementing Reclaim Protocol in your
       throw new Error('Service temporarily unavailable');
     }
     ```
-  </Tabs.Tab>
-  <Tabs.Tab>
+  </Tab>
+  <Tab>
     ```python
     try:
         reclaim_proof = await ReclaimProofRequest.init(APP_ID, APP_SECRET)
@@ -73,7 +73,7 @@ This guide outlines the best practices for implementing Reclaim Protocol in your
         # Implement proper error reporting
         raise HTTPException(status_code=503, detail="Service temporarily unavailable")
     ```
-  </Tabs.Tab>
+  </Tab>
 </Tabs>
 
 1. **Graceful Error Handling**: Implement proper error handling for all SDK operations.
@@ -83,7 +83,7 @@ This guide outlines the best practices for implementing Reclaim Protocol in your
 ## Performance Optimization
 
 <Tabs items={['JavaScript', 'Python']}>
-  <Tabs.Tab>
+  <Tab>
     ```javascript
     // Cache initialization where appropriate
     let reclaimProofRequest;
@@ -95,8 +95,8 @@ This guide outlines the best practices for implementing Reclaim Protocol in your
       return reclaimProofRequest;
     }
     ```
-  </Tabs.Tab>
-  <Tabs.Tab>
+  </Tab>
+  <Tab>
     ```python
     # Cache initialization where appropriate
     reclaim_proof_request = None
@@ -107,7 +107,7 @@ This guide outlines the best practices for implementing Reclaim Protocol in your
             reclaim_proof_request = await ReclaimProofRequest.init(APP_ID, APP_SECRET)
         return reclaim_proof_request
     ```
-  </Tabs.Tab>
+  </Tab>
 </Tabs>
 
 1. **Request Caching**: Cache proof request configurations when appropriate.

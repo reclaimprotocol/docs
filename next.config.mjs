@@ -47,7 +47,7 @@ const config = {
     },
     {
       source: '/zkfetch',
-      destination: '/sdk/zkfetch',
+      destination: '/zkfetch',
       permanent: true
     },
     {

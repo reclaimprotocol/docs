@@ -14,7 +14,7 @@ This example demonstrates how to create a simple backend that works with the Rec
 ### 1. Set up the project
 
 <Tabs items={['JavaScript (Express)', 'Python (FastAPI)']}>
-  <Tabs.Tab>
+  <Tab value="JavaScript (Express)">
     First, create a new directory for your backend project and initialize it:
 
     ```bash
@@ -23,8 +23,8 @@ This example demonstrates how to create a simple backend that works with the Rec
     npm init -y
     npm install express @reclaimprotocol/js-sdk
     ```
-  </Tabs.Tab>
-  <Tabs.Tab>
+  </Tab>
+  <Tab value="Python (FastAPI)">
     First, create a new directory and set up a Python virtual environment:
 
     ```bash
@@ -34,13 +34,13 @@ This example demonstrates how to create a simple backend that works with the Rec
     source venv/bin/activate  # On Windows: venv\Scripts\activate
     pip install fastapi uvicorn reclaim-python-sdk==0.1.5
     ```
-  </Tabs.Tab>
+  </Tab>
 </Tabs>
 
 ### 2. Create the server file
 
 <Tabs items={['JavaScript (Express)', 'Python (FastAPI)']}>
-  <Tabs.Tab>
+  <Tab value="JavaScript (Express)">
     Create a new file named `server.js` and add the following code:
 
     ```javascript
@@ -94,12 +94,8 @@ This example demonstrates how to create a simple backend that works with the Rec
       console.log(`Server running at http://localhost:${port}`)
     })
     ```
-
-    <Callout type="warning">
-  Do not use the `express.urlencoded()` middleware as it will conflict with the `express.text()` middleware above. The proof object sent to the callback URL needs to be parsed as text, otherwise it won't be processed correctly.
-</Callout>
-  </Tabs.Tab>
-  <Tabs.Tab>
+  </Tab>
+  <Tab value="Python (FastAPI)">
     Create a new file named `main.py` and add the following code:
 
     ```python
@@ -157,22 +153,26 @@ This example demonstrates how to create a simple backend that works with the Rec
     if __name__ == "__main__":
         uvicorn.run(app, host="0.0.0.0", port=3000)
     ```
-  </Tabs.Tab>
+  </Tab>
 </Tabs>
+
+<Callout type="warning">
+  Do not use the `express.urlencoded()` middleware as it will conflict with the `express.text()` middleware above. The proof object sent to the callback URL needs to be parsed as text, otherwise it won't be processed correctly.
+</Callout>
 
 For detailed information about the `proof` object received in the `/receive-proofs` endpoint, refer to the Advance Configuration [Proof Structure](../advance-configurations/advance-options#understanding-the-proof-structure) section.
 
 ### 3. Run the server
 
 <Tabs items={['JavaScript (Express)', 'Python (FastAPI)']}>
-  <Tabs.Tab>
+  <Tab value="JavaScript (Express)">
     Start your Express server:
 
     ```bash
     node server.js
     ```
-  </Tabs.Tab>
-  <Tabs.Tab>
+  </Tab>
+  <Tab value="Python (FastAPI)">
     Start your FastAPI server:
 
     ```bash
@@ -183,7 +183,7 @@ For detailed information about the `proof` object received in the `/receive-proo
     ```bash
     uvicorn main:app --reload --port 3000
     ```
-  </Tabs.Tab>
+  </Tab>
 </Tabs>
 
 ## Understanding the `reclaimProofRequestConfig`
@@ -237,7 +237,7 @@ You can use this configuration to initialize the Reclaim SDK in various client p
 
 
 <Tabs items={ ['JavaScript', 'React Native', 'Flutter']}>
-  <Tab>
+  <Tab value="Javscript">
     ```javascript
     import { ReclaimProofRequest } from '@reclaimprotocol/js-sdk';
 
@@ -247,7 +247,7 @@ You can use this configuration to initialize the Reclaim SDK in various client p
     const reclaimProofRequest = await ReclaimProofRequest.fromJsonString(jsonData.reclaimProofRequestConfig);
     ```
   </Tab>
-  <Tab>
+  <Tab value="React Native">
     ```javascript
     import { ReclaimProofRequest } from '@reclaimprotocol/reactnative-sdk';
 
@@ -257,7 +257,7 @@ You can use this configuration to initialize the Reclaim SDK in various client p
     const reclaimProofRequest = await ReclaimProofRequest.fromJsonString(jsonData.reclaimProofRequestConfig);
     ```
   </Tab>
-  <Tab>
+  <Tab value="Flutter">
     ```dart
     import 'package:reclaim_sdk/reclaim.dart';
 
