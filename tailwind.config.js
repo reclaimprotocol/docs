@@ -10,4 +10,18 @@ export default {
     './node_modules/fumadocs-ui/dist/**/*.js',
   ],
   presets: [createPreset()],
+  theme: {
+    extend: {
+      fontSize: {
+        base: '1rem',
+        sm: '0.787rem',
+        lg: '1.012rem',
+        xl: '1.125rem',
+        '2xl': '1.35rem',
+        '3xl': '1.687rem',
+        '4xl': '2.025rem',
+        '5xl': '2.7rem', 
+      },
+    },
+  },
 };
