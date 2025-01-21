@@ -1,4 +1,4 @@
 {
     "title": "JS SDK (For Frontend)",
-    "pages": ["installation", "frontend-example", "fullstack-example", "best-practices"]
+    "pages": ["installation", "best-practices", "frontend-example", "fullstack-example"]
 }
