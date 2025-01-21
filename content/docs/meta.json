@@ -1,4 +1,4 @@
 {
     "root": true,
-    "pages": ["index","js", "backend", "flutter", "react-native", "sdk", "apis", "oauth", "advance-options"]
+    "pages": ["index","js", "backend", "flutter", "react-native", "zkfetch", "sdk", "apis", "oauth", "advance-options"]
 }
