@@ -46,11 +46,6 @@ const config = {
       permanent: true
     },
     {
-      source: '/zkfetch',
-      destination: '/zkfetch',
-      permanent: true
-    },
-    {
       source: '/security',
       destination: '/',
       permanent: true
