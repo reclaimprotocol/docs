@@ -68,8 +68,25 @@ class _ReclaimExampleState extends State<ReclaimExample> {
       // For custom callback URL, the proof is a just a string message suggesting the proof is successfully sent and the user should check their backend for the proof
       proofDataValue = proof;
     } else {
-      proofDataValue =
-          'Extracted data: ${proof.claimData.context}\n\nFull proof: ${proof.toString()}';
+      if (proof is List) {
+      /* 
+        when using provider with multiple proofs, we get an array of proofs
+        we need to extract the claim data from each proof in a variable and then add it to the proofDataValue
+      */
+        var allProofs = '';
+        for (var proof in proof) {
+          allProofs += '${proof.claimData.context}\n\n';
+        }
+        proofDataValue =
+            'Extracted data: $allProofs\n\nFull proof: ${proof.toString()}';
+      } else {
+        /* 
+          when using provider with a single proof, we get a single proof object
+          we need to extract the claim data from the proof object and then add it to the proofDataValue
+        */
+        proofDataValue =
+            'Extracted data: ${proof.claimData.context}\n\nFull proof: ${proof.toString()}';
+      }
     }
     setState(() {
       _status = 'Proof received!';
