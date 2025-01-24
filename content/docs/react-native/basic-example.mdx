@@ -100,7 +100,13 @@ function ReclaimDemo() {
                 console.log('SDK Message:', proofs);
               } else if (typeof proofs !== 'string') {
                 // Handle default callback URL response
-                console.log('Proof received:', proofs?.claimData.context);
+                if (Array.isArray(proof)) {
+                  // when using provider with multiple proofs, we get an array of proofs
+                  console.log('Proof received:', JSON.stringify(proof.map(p => p.claimData.context)));
+                } else {
+                  // when using provider with a single proof, we get a single proof object
+                  console.log('Proof received:', JSON.stringify(proof.claimData.context));
+                }
               }
               setStatus('Proof received!');
             }

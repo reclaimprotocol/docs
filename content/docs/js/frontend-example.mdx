@@ -57,8 +57,15 @@ function ReclaimDemo() {
             setProofs([proofs]);
           } else if (typeof proofs !== 'string') {
             // When using the default callback url, we get a proof object in the response
-            console.log('Verification success', proofs?.claimData.context);
-            setProofs(proofs);
+            if (Array.isArray(proofs)) {
+              // when using provider with multiple proofs, we get an array of proofs
+              console.log('Verification success', JSON.stringify(proofs.map(p => p.claimData.context)));
+              setProofs(proofs);
+            } else {
+              // when using provider with a single proof, we get a single proof object
+              console.log('Verification success', proofs?.claimData.context);
+              setProofs(proofs);
+            }
           }
         }
         // Add your success logic here, such as:
