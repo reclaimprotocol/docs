@@ -1,0 +1,119 @@
+---
+title: Programmatic Navigation
+description: Understanding Programmatic Navigation in Providers
+---
+
+# Programmatic Navigation
+
+## Overview
+
+Programmatic navigation uses DOM manipulation to automate user interactions on web pages. In Reclaim, this is particularly important for proof generation - the API needs specific data that can only be accessed on certain pages.
+
+### Why Use Programmatic Navigation?
+
+When generating proofs, the API response must match specific key pointers defined during provider creation. For example, with a Twitter username proof:
+
+- The user must reach their profile page
+- Twitter's API needs to fetch the profile information
+
+## Implementation Example
+
+Here's a code snippet that automatically navigates to a user's Twitter profile:
+
+```js
+const pageCheck = () => {
+  // Check if on Twitter home page
+  if (
+    window.location.href?.includes('https://x.com/home') ||
+    window.location.href?.includes('https://twitter.com/home')
+  ) {
+    // Click profile icon to open menu
+    document.querySelector('button[data-testid="DashButton_ProfileIcon_Link"]').click();
+
+    // Wait briefly, then click profile link
+    setTimeout(() => {
+      document.querySelector('a.css-175oi2r.r-16y2uox.r-dnmrzs.r-o7ynqc.r-6416eg.r-1ny4l3l.r-1loqt21').click();
+    }, 200);
+  }
+};
+
+// Check URL every 500ms
+setInterval(pageCheck, 500);
+```
+
+You can test this by pasting it into your browser console (works for mobile view).
+
+## Code Breakdown
+
+1. **pageCheck Function**
+
+   - Checks current URL
+   - Automates navigation to profile page
+   - Simulates necessary click events
+
+2. **URL Verification**
+
+   - Checks for both `twitter.com/home` and `x.com/home`
+   - Uses optional chaining for safety
+
+3. **Click Simulation**
+
+   - First click: Opens profile menu
+   - Second click: Navigates to profile page
+   - 200ms delay between clicks ensures proper loading
+
+4. **Continuous Checking**
+   - Runs every 500ms
+   - Ensures navigation happens as soon as possible
+
+## Important Considerations
+
+⚠️ **Warning**: This approach is sensitive to DOM changes. Twitter's HTML structure may update, potentially breaking the selectors. Regular maintenance is required to ensure continued functionality.
+
+**Alternative Approaches**:
+
+- XPath selectors
+- Different timing intervals
+- Custom event listeners
+
+The core concept remains the same: using JavaScript to manipulate the DOM and automate navigation.
+
+## Finding DOM Elements
+
+### Using Browser Developer Tools
+
+1. **Open Developer Tools**
+
+   - Right-click on the element you want to target
+   - Select "Inspect Element" (or press F12)
+   - The element will be highlighted in the Elements panel
+
+2. **Finding Unique Selectors**
+   - Right-click on the highlighted element in the Elements panel
+   - Select "Copy" and then choose:
+     - "Copy selector" for CSS selectors
+     - "Copy XPath" for XPath selectors
+
+### Best Practices for Selecting Elements
+
+```js
+// ✅ Good: Using data-testid (most stable)
+document.querySelector('[data-testid="profile-button"]');
+
+// ✅ Good: Using specific IDs
+document.getElementById('profile-link');
+
+// ⚠️ Caution: Using classes (may change frequently)
+document.querySelector('.profile-button-class');
+
+// ❌ Avoid: Complex CSS selectors (very fragile)
+document.querySelector('div > span.menu-item:nth-child(2)');
+```
+
+### Tips for Reliable Selectors
+
+- Look for `data-testid` attributes first - these are typically stable
+- Use IDs when available - they're unique and reliable
+- Avoid relying on class names alone - they often change with styling updates
+- Test your selectors across different states (logged in/out, different themes)
+- Consider mobile vs desktop layouts when selecting elements

@@ -1,0 +1,25 @@
+---
+title: Security Risks
+---
+
+**Security Risks of Using Third-Party Providers with JS Injections**
+
+When using providers that include JavaScript injections, especially those created by third parties, it's important to be cautious about security. Here are the key risks to be aware of:
+
+**Risk of Malicious Code**
+
+JavaScript injections have full access to the webpage's DOM and can:
+
+- Read sensitive information (passwords, tokens, personal data)
+- Send data to external servers
+- Modify page content and behavior
+- Access browser storage (cookies, localStorage)
+
+**Best Practices**
+
+- Always review the injection code before using a third-party provider
+- Never paste JavaScript code from untrusted sources
+- Verify the provider's reputation and source
+- Test the provider in a safe environment before using in production
+
+> **Warning**: While we review providers before publishing, you should always verify the code yourself when using community-built providers with JS injections. Your application's security is your responsibility.
