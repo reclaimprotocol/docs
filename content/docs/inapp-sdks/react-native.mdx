@@ -162,9 +162,11 @@ try {
 }
 ```
 
-This exception also contains the inner error that can be used to get more details about the occurred exception.
+This error also contains `sessionId`, `reason`, and `innerError` that can be used to get more details about the occurred error.
 
 ```js
+error.sessionId
+error.reason
 error.innerError
 ```
 
