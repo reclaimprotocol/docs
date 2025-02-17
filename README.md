@@ -4,15 +4,19 @@
     </div>
 </div>
 
+## Prerequisites
+```bash copy
+npm install -g pnpm
+```
+
 ## Install the packages
 ```bash copy
-npm i
-
+pnpm i
 ```
 
 ## Run the project
 ```bash copy
-npm run dev
+pnpm run dev
 ```
 
 ## Contributing to Our Project
