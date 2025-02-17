@@ -1,0 +1,11 @@
+{
+    "title": "Reclaim InApp SDKs",
+    "pages": [
+        "android",
+        "ios",
+        "react-native",
+        "ionic-capacitor",
+        "flutter",
+        "react-native-expo"
+    ]
+}
