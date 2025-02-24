@@ -1,4 +1,5 @@
 import { remarkMermaid } from '@theguild/remark-mermaid';
+import { remarkInstall } from 'fumadocs-docgen';
 import { defineDocs, defineConfig } from 'fumadocs-mdx/config';
 
 export const { docs, meta } = defineDocs({
@@ -7,6 +8,6 @@ export const { docs, meta } = defineDocs({
 
 export default defineConfig({
   mdxOptions: {
-    remarkPlugins: [remarkMermaid],
+    remarkPlugins: [remarkMermaid, remarkInstall],
   },
 });
