@@ -3,35 +3,31 @@ title: React Native SDK
 description: This SDK allows you to integrate Reclaim's in-app verification process into your React Native application.
 ---
 
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+
 ## Prerequisites
 
 - A [Reclaim account](https://dev.reclaimprotocol.org/explore) where you've created an app and have the app id, app secret.
 - A provider id that you've added to your app in [Reclaim Devtools](https://dev.reclaimprotocol.org/explore).
 
+Note:
+- This SDK may not be compatible with React Native [Frameworks](https://reactnative.dev/architecture/glossary#react-native-framework) like Expo. 
+- To learn more about React Native apps without a framework, refer to the [React Native documentation](https://reactnative.dev/docs/getting-started-without-a-framework).
+
 ## Example
 
-- See the [Reclaim Example - React Native](example/README.md) for a complete example of how to use the SDK in a React Native application.
+- See the [Reclaim Example - React Native](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/tree/main/example) for a complete example of how to use the SDK in a React Native application.
 
 ## Installation
 
-```sh
+```package-install
 npm install @reclaimprotocol/inapp-rn-sdk
 ```
 
-Note: This package is not published to npm registry. Will be published soon. For now, you can install it from git source.
+#### Alternative: Install from git source
 
-### Install from git source (alternative)
-
-#### NPM
-
-```sh
+```package-install
 npm install git+https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk.git
-```
-
-#### Yarn
-
-```sh
-yarn add git+https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk.git
 ```
 
 ## Setup
@@ -52,7 +48,8 @@ Add the following to your `android/app/src/main/AndroidManifest.xml` file under 
 
 add the following to the end of settings.gradle:
 
-```groovy
+<Tabs items={['Groovy', 'Kotlin']}>
+```groovy tabs="Groovy"
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
     String flutterStorageUrl = System.env.FLUTTER_STORAGE_BASE_URL ?: "https://storage.googleapis.com"
@@ -70,12 +67,30 @@ dependencyResolutionManagement {
 }
 ```
 
-(Ignore if already added in settings.gradle from above)
+```kotlin tabs="Kotlin"
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+    val flutterStorageUrl = System.env.FLUTTER_STORAGE_BASE_URL ?: "https://storage.googleapis.com"
+    val reclaimStorageUrl = System.env.RECLAIM_STORAGE_BASE_URL ?: "https://reclaim-inapp-sdk.s3.ap-south-1.amazonaws.com/android/0.1.2/repo"
+    repositories {
+        google()
+        mavenCentral()
+        maven("$reclaimStorageUrl")
+        maven("$flutterStorageUrl/download.flutter.io")
+    }
+}
+```
+</Tabs>
+
+(Ignore if already added in `settings.gradle` from above)
 or alternatively add the following repositories to the relevant repositories block:
 
-```groovy
+
+<Tabs items={['Groovy', 'Kotlin']}>
+```groovy tabs="Groovy"
 String flutterStorageUrl = System.env.FLUTTER_STORAGE_BASE_URL ?: "https://storage.googleapis.com"
 String reclaimStorageUrl = System.env.RECLAIM_STORAGE_BASE_URL ?: "https://reclaim-inapp-sdk.s3.ap-south-1.amazonaws.com/android/0.1.2/repo"
+// ...
 maven {
     url "$reclaimStorageUrl"
 }
@@ -84,42 +99,54 @@ maven {
 }
 ```
 
-Some projects may require you to add the repositories to the root `build.gradle` file or your app-level `build.gradle` file's allprojects section.
+```kotlin tabs="Kotlin"
+val flutterStorageUrl = System.env.FLUTTER_STORAGE_BASE_URL ?: "https://storage.googleapis.com"
+val reclaimStorageUrl = System.env.RECLAIM_STORAGE_BASE_URL ?: "https://reclaim-inapp-sdk.s3.ap-south-1.amazonaws.com/android/0.1.2/repo"
+// ...
+maven("$reclaimStorageUrl")
+maven("$flutterStorageUrl/download.flutter.io")
+```
+</Tabs>
 
 ### iOS Setup
 
-1. Make sure to define a global platform for your project in your `Podfile` with version 13.0 or higher.
-
-```
-platform :ios, '13.0'
-```
-2. Add the following to your `Podfile`:
-
-- From a specific tag (recommended):
+1. Make sure to have a platform declaration for your project in your `Podfile` with version 13.0 or higher.
 
 ```ruby
-pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :tag => '0.1.2'
+platform :ios, '13.0' # or platform :ios, min_ios_version_supported
 ```
 
-- or from git HEAD (Alternative):
+Ignore if you already have this declaration in your `Podfile`.
 
-```ruby
+2. Add the following to your `Podfile` to override SDK dependency:
+
+- You can override the version of dependency when you wish to use a specific version of the SDK.
+- You can add a declaration in your `Podfile` to install the SDK from cocoapods, or from a specific git tag, head, commit, or branch.
+
+<Tabs items={['Cocoapods (Recommended)', 'Git Tag', 'Git Head', 'Git Commit', 'Git Branch']}>
+```ruby tabs="Cocoapods (Recommended)"
+# Cocoapods is the recommended way to install the SDK.
+pod 'ReclaimInAppSdk', '~> 0.1.4'
+```
+
+```ruby tabs="Git Tag"
+pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :tag => '0.1.4'
+```
+
+```ruby tabs="Git Head"
 pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git'
 ```
 
-- or from a specific commit (Alternative):
-
-```ruby
-pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :commit => '184d41628026768feb703dc7bb9a3d913c6b271e'
+```ruby tabs="Git Commit"
+pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :commit => 'a488eaa2279318f4836ead105e5ecce6fb6a0481'
 ```
 
-- or from a specific branch (Alternative):
-
-```ruby
+```ruby tabs="Git Branch"
 pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :branch => 'main'
 ```
+</Tabs>
 
-2. After adding the dependency, your podfile may look like this:
+- After adding the dependency, your podfile may look like this:
 
 ```ruby
 platform :ios, '13.0'
@@ -135,7 +162,7 @@ target 'InappRnSdkExample' do
   )
 
   # This is the line you need to add to your podfile.
-  pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :tag => '0.1.2'
+  pod 'ReclaimInAppSdk', '~> 0.1.4'
 
   pre_install do |installer|
     system("cd ../../ && npx bob build --target codegen")
@@ -144,11 +171,18 @@ target 'InappRnSdkExample' do
   # ... rest of the podfile. (removed for brevity)
 ```
 
+3. Run `pod install` inside the ios/ directory of your project.
+
+```bash
+cd ios/
+pod install
+```
+
 #### Fixing performance issues on IOS physical devices
 
 Your app performance will be severely impacted when you run debug executable on a physical device. Fixing this requires a simple change in your Xcode project xcscheme.
 
-#### Method 1: Update Environment Variables for XCScheme (Recommended) 
+##### Method 1: Update Environment Variables for XCScheme (Recommended) 
 1. Open your iOS project (*.xcworkspace) in Xcode.
 2. Click on the project target.
 3. Click on the **Scheme** dropdown.
@@ -167,7 +201,7 @@ Your app performance will be severely impacted when you run debug executable on 
 8. Click on the **Close** button in the dialog and build the project.
 9. Run the app on a physical device.
 
-#### Method 2: Disable "Debug executable"
+##### Method 2: Disable "Debug executable"
 
 This method is **not recommended** but could be useful if you don't want to add environment variables to the xcscheme.
 
