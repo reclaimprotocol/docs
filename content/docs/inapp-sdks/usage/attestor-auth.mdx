@@ -66,7 +66,7 @@ await reclaimVerification.setOverrides({
     featureOptions: {
         // overridden attestor browser rpc url
         attestorBrowserRpcUrl: 'https://myattestor.example.org/browser-rpc',
-        // other required options (removed for brevity)
+        // other overrides (removed for brevity)
     },
 });
 
@@ -94,9 +94,102 @@ await reclaimVerification.setVerificationOptions({
 ```
 
 ```kotlin tabs="Kotlin"
+ReclaimVerification.setOverrides(
+    context = context,
+    featureOptions = ReclaimOverrides.FeatureOptions(
+        // overridden attestor browser rpc url
+        attestorBrowserRpcUrl = "https://myattestor.example.org/browser-rpc"
+        // other overrides (removed for brevity)
+    )
+) { result ->
+    result
+        .onSuccess {
+            Log.d("MainActivity", "Reclaim Overrides set")
+        }
+        .onFailure { e ->
+            Log.e("MainActivity", "Could not set overrides", e)
+        }
+}
+
+ReclaimVerification.setVerificationOptions(
+    context = context,
+    options = ReclaimVerification.VerificationOptions(
+    attestorAuthRequestProvider = object : ReclaimVerification.VerificationOptions.AttestorAuthRequestProvider {
+        override fun fetchAttestorAuthenticationRequest(
+            reclaimHttpProvider: Map<Any?, Any?>,
+            callback: (Result<String>) -> Unit
+        ) {
+            // sample attestor auth request
+            callback(Result.success("""
+            {
+                "data": {
+                    "createdAt": 1741648166,
+                    "expiresAt": 1741649066,
+                    "id": "optional-user-id",
+                    "hostWhitelist": [
+                    "github.com",
+                    "example.com"
+                    ]
+                },
+                "signature": {
+                    "type": "uint8array",
+                    "value": "gSCbBMZSdNJjrxGUTPoERj5S8jtkwQEnGWmmMXx+j3wrd7pspRkfhE96DauFQTVcp+ErB7zWaBDAWwThOu4Fkxw="
+                }
+            }     
+            """.trimIndent()))
+        }
+    }
+    )
+) { result ->
+    result
+        .onSuccess {
+            Log.d("MainActivity", "Reclaim Verification options set")
+        }
+        .onFailure { e ->
+            Log.e("MainActivity", "Could not set verification options", e)
+        }
+}
 ```
 
 ```swift tabs="Swift"
+// This is how you may be using a different attestor with overrides
+try await ReclaimVerification.setOverrides(
+    featureOptions: .init(
+        // overridden attestor browser rpc url
+        attestorBrowserRpcUrl: "https://myattestor.example.org/browser-rpc"
+        // other overrides (removed for brevity)
+    )
+)
+
+class AttestorAuthRequestProviderImpl : ReclaimVerification.VerificationOptions.AttestorAuthRequestProvider {
+    func fetchAttestorAuthenticationRequest(
+        reclaimHttpProvider: [AnyHashable?: (any Sendable)?],
+        completion: @escaping (Result<String, any Error>) -> Void
+    ) {
+        // sample attestor auth request
+        completion(.success("""
+        {
+            "data": {
+                "createdAt": 1741648166,
+                "expiresAt": 1741649066,
+                "id": "optional-user-id",
+                "hostWhitelist": [
+                "github.com",
+                "example.com"
+                ]
+            },
+            "signature": {
+                "type": "uint8array",
+                "value": "gSCbBMZSdNJjrxGUTPoERj5S8jtkwQEnGWmmMXx+j3wrd7pspRkfhE96DauFQTVcp+ErB7zWaBDAWwThOu4Fkxw="
+            }
+        }
+        """))
+    }
+}
+
+try await ReclaimVerification.setVerificationOptions(options: .init(
+    attestorAuthRequestProvider: AttestorAuthRequestProviderImpl()
+))
 ```
 
 </Tabs>
