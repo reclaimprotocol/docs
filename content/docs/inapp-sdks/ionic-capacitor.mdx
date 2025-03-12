@@ -372,8 +372,9 @@ error.innerError
 
 ### Overriding SDK Config
 
+You can customize the verification flow by overriding default SDK configuration with `reclaimVerification.setOverrides`.
+
 ```js
-// Advanced Usage: Use ReclaimVerification.setOverrides for overriding sdk
 reclaimVerification.setOverrides({
   appInfo: {
     appName: "Overridden Example",
@@ -382,6 +383,8 @@ reclaimVerification.setOverrides({
   // .. other overrides
 })
 ```
+
+Read more about overrides in [Reclaim InApp SDK Documentation | Overrides](./usage/overrides)
 
 ## Contributing
 

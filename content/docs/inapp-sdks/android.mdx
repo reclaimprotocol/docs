@@ -133,3 +133,32 @@ The returned result `ReclaimVerification.ResultHandler.onResponse` in is a `Recl
 If the verification is cancelled or failed, the handler's `ReclaimVerification.ResultHandler.onException` method is called with a `ReclaimVerification.ReclaimVerificationException` object.
 
 For a complete example, see the [Reclaim Compose Example - Android](https://github.com/reclaimprotocol/reclaim-inapp-android-sdk/tree/main/example/README.md).
+
+## Advanced Usage
+
+### Overriding SDK Config
+
+You can customize the verification flow by overriding default SDK configuration with `ReclaimVerification.setOverrides`.
+
+```kotlin
+fun setOverrides() {
+    ReclaimVerification.setOverrides(
+        context = context,
+        appInfo = ReclaimOverrides.ReclaimAppInfo(
+            appName = "Overridden Example",
+            appImageUrl = "https://placehold.co/400x400/png"
+        )
+        // Add other overrides here
+    ) { result ->
+        result
+            .onSuccess {
+                Log.d("MainActivity", "Reclaim Overrides set")
+            }
+            .onFailure { e ->
+                Log.e("MainActivity", "Could not set overrides", e)
+            }
+    }
+}
+```
+
+Read more about overrides in [Reclaim InApp SDK Documentation | Overrides](./usage/overrides)
