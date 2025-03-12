@@ -1,0 +1,102 @@
+---
+title: Attestor Authentication
+description: Reclaim Protocol's InApp SDKs setup when using an attestor with authentication
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+
+# Get Started
+
+A private attestor can have authentication enabled which blocks all un-authenticated connections and can also be used to limit the hosts that can be connected to. InApp SDKs can be configured to use another attestor and include an auth request in the claim sent to this attestor.
+
+Read more about [attestors's authentication here](https://github.com/reclaimprotocol/attestor-core/blob/main/docs/run-server.md#enabling-authentication).
+
+## Basic Usage
+
+An auth request can be created anywhere, even on your server. JS library @reclaimprotocol/attestor-core from npm can be used for creating an auth request.
+
+```typescript
+import { createAuthRequest, B64_JSON_REPLACER } from '@reclaimprotocol/attestor-core'
+
+// this can happen on another server, on the client or anywhere you'd
+// like
+const authRequest = await createAuthRequest(
+    {
+        // optional user ID -- to identify the user
+        // all logs on the backend will be tagged with thiss
+        id: 'optional-user-id',
+        // only allow the user to tunnel requests to one of
+        // these hosts
+        hostWhitelist: ['github.com', 'example.com']
+    },
+    keyPairs.privateKey
+)
+const yourAttestorAuthRequest = JSON.stringify(
+    authRequest, 
+    B64_JSON_REPLACER, 
+    2
+)
+console.info({ yourAttestorAuthRequest });
+```
+
+An auth request looks like this:
+
+```json
+{
+    "data": {
+        "userId": "optional-user-id",
+        "hostWhitelist": ["api.abcd.xyz"]
+    },
+    "signature": {
+        "type": "uint8array",
+        "value": "base64-encoded-signature"
+    }
+}
+```
+
+This can be used in the `setVerificationOptions` method of the InApp SDK, which allows you to set a callback for providing an auth request to attestor.
+
+
+<Tabs items={['Typescript', 'Kotlin', 'Swift']}>
+```typescript tabs="Typescript"
+const reclaimVerification = new ReclaimVerification();
+
+// This is how you may be using a different attestor with overrides
+await reclaimVerification.setOverrides({
+    featureOptions: {
+        // overriden attestor browser rpc url
+        attestorBrowserRpcUrl: 'https://myattestor.example.org/browser-rpc',
+        // other required options (removed for brevity)
+    },
+});
+
+// Provide a callback to provide attestor auth request.
+await reclaimVerification.setVerificationOptions({
+    fetchAttestorAuthenticationRequest: async (providerInformationJsonString: string) => {
+        // sample attestor auth request
+        return JSON.stringify({
+            "data": {
+                "createdAt": 1741648166,
+                "expiresAt": 1741649066,
+                "id": "optional-user-id",
+                "hostWhitelist": [
+                "github.com",
+                "example.com"
+                ]
+            },
+            "signature": {
+                "type": "uint8array",
+                "value": "gSCbBMZSdNJjrxGUTPoERj5S8jtkwQEnGWmmMXx+j3wrd7pspRkfhE96DauFQTVcp+ErB7zWaBDAWwThOu4Fkxw="
+            }
+        });
+    },
+});
+```
+
+```kotlin tabs="Kotlin"
+```
+
+```swift tabs="Swift"
+```
+
+</Tabs>
