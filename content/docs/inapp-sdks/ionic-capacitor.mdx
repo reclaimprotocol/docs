@@ -5,6 +5,7 @@ description: Reclaim Protocol's Capacitor SDK for ZK proof generations for reque
 
 import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 import { BadgeGroup } from '@/app/components/badge';
+import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
 
 # Get Started
 
@@ -89,6 +90,7 @@ dependencyResolutionManagement {
     }
 }
 ```
+
 </Tabs>
 
 (Ignore if already added in `settings.gradle` from above)
@@ -115,6 +117,7 @@ val reclaimStorageUrl = System.env.RECLAIM_STORAGE_BASE_URL ?: "https://reclaim-
 maven("$reclaimStorageUrl")
 maven("$flutterStorageUrl/download.flutter.io")
 ```
+
 </Tabs>
 
 ### iOS Setup
@@ -153,6 +156,7 @@ pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp
 ```ruby tabs="Git Branch"
 pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :branch => 'main'
 ```
+
 </Tabs>
 
 - After adding the dependency, your podfile may look like this:
@@ -235,18 +239,20 @@ class PatchedViewController: CAPBridgeViewController {
 
 Your app performance will be severely impacted when you run debug executable on a physical device. Fixing this requires a simple change in your Xcode project xcscheme.
 
-##### Method 1: Update Environment Variables for XCScheme (Recommended) 
-1. Open your iOS project (*.xcworkspace) in Xcode.
+<Accordions>
+<Accordion title="Method 1: Update Environment Variables for XCScheme (Recommended)">
+
+1. Open your project in Xcode.
 2. Click on the project target.
 3. Click on the **Scheme** dropdown.
 
-<img src="https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk/blob/83f23570a47828d011b713679852053acdba89c1/Screenshots/Install/10.png?raw=true" alt="Edit current xcscheme in Xcode" width="500" />
+<img src="https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk/raw/53a19f88c8d90df485a60dc20190f740cd9fd108/Screenshots/Install/10.png" alt="Edit current xcscheme in Xcode" width="500" />
 
 4. Click on the **Edit Scheme** button.
 5. Click on the **Run** tab.
 6. Click on the **Arguments** tab and check the **Environment Variables** section.
 
-<img src="https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk/blob/83f23570a47828d011b713679852053acdba89c1/Screenshots/Install/12.png?raw=true" alt="Enable Debug executable in Xcode" width="500" />
+<img src="https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk/raw/53a19f88c8d90df485a60dc20190f740cd9fd108/Screenshots/Install/12.png" alt="Enable Debug executable in Xcode" width="500" />
 
 7. Add the following environment variable:
     - Key: `GODEBUG`
@@ -254,21 +260,25 @@ Your app performance will be severely impacted when you run debug executable on 
 8. Click on the **Close** button in the dialog and build the project.
 9. Run the app on a physical device.
 
-##### Method 2: Disable "Debug executable"
+</Accordion>
+<Accordion title="Method 2: Disable 'Debug executable'">
 
 This method is **not recommended** but could be useful if you don't want to add environment variables to the xcscheme.
 
-1. Open your iOS project (*.xcworkspace) in Xcode.
+1. Open your project in Xcode.
 2. Click on the project target.
 3. Click on the **Scheme** dropdown.
 
-<img src="https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk/blob/83f23570a47828d011b713679852053acdba89c1/Screenshots/Install/10.png?raw=true" alt="Edit current xcscheme in Xcode" width="500" />
+<img src="https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk/raw/53a19f88c8d90df485a60dc20190f740cd9fd108/Screenshots/Install/10.png" alt="Edit current xcscheme in Xcode" width="500" />
 
 4. Click on the **Edit Scheme** button.
 5. Click on the **Run** tab.
 6. Uncheck the **Debug executable** checkbox.
 
-<img src="https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk/blob/83f23570a47828d011b713679852053acdba89c1/Screenshots/Install/11.png?raw=true" alt="Enable Debug executable in Xcode" width="500" />
+<img src="https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk/raw/53a19f88c8d90df485a60dc20190f740cd9fd108/Screenshots/Install/11.png" alt="Enable Debug executable in Xcode" width="500" />
+
+</Accordion>
+</Accordions>
 
 ## Usage
 

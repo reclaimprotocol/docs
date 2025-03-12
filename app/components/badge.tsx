@@ -5,8 +5,7 @@ export type BadgeProps = { href: string, imgSrc: string, alt: string }
 export function Badge({ href, imgSrc, alt }: BadgeProps) {
     return (
         <a href={href} rel="noreferrer noopener" target="_blank">
-            <img alt={alt} loading="lazy" decoding="async" data-nimg="1" style={{ color: 'transparent' }} src={imgSrc}>
-            </img>
+            <img alt={alt} loading="lazy" decoding="async" data-nimg="1" style={{ color: 'transparent' }} src={imgSrc} />
         </a>
     )
 }
