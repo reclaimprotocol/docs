@@ -9,7 +9,7 @@ import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 
 A private attestor can have authentication enabled which blocks all un-authenticated connections and can also be used to limit the hosts that can be connected to. InApp SDKs can be configured to use another attestor and include an auth request in the claim sent to this attestor.
 
-Read more about [attestors's authentication here](https://github.com/reclaimprotocol/attestor-core/blob/main/docs/run-server.md#enabling-authentication).
+Read more about [attestors authentication here](https://github.com/reclaimprotocol/attestor-core/blob/main/docs/run-server.md#enabling-authentication).
 
 ## Basic Usage
 
@@ -23,7 +23,7 @@ import { createAuthRequest, B64_JSON_REPLACER } from '@reclaimprotocol/attestor-
 const authRequest = await createAuthRequest(
     {
         // optional user ID -- to identify the user
-        // all logs on the backend will be tagged with thiss
+        // all logs on the backend will be tagged with this
         id: 'optional-user-id',
         // only allow the user to tunnel requests to one of
         // these hosts
@@ -54,7 +54,7 @@ An auth request looks like this:
 }
 ```
 
-This can be used in the `setVerificationOptions` method of the InApp SDK, which allows you to set a callback for providing an auth request to attestor.
+This can be used in the `setVerificationOptions` method of the InApp SDK, which allows you to set a callback for providing an auth request to the attestor.
 
 
 <Tabs items={['Typescript', 'Kotlin', 'Swift']}>
@@ -64,7 +64,7 @@ const reclaimVerification = new ReclaimVerification();
 // This is how you may be using a different attestor with overrides
 await reclaimVerification.setOverrides({
     featureOptions: {
-        // overriden attestor browser rpc url
+        // overridden attestor browser rpc url
         attestorBrowserRpcUrl: 'https://myattestor.example.org/browser-rpc',
         // other required options (removed for brevity)
     },
