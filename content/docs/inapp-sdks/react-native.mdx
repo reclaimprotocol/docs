@@ -1,9 +1,21 @@
 ---
 title: React Native SDK
-description: This SDK allows you to integrate Reclaim's in-app verification process into your React Native application.
+description: Reclaim Protocol's InApp React Native SDK for ZK proof generations for requests with an in-app experience of web verification
 ---
 
 import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { BadgeGroup } from '@/app/components/badge';
+import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
+
+# Get Started
+
+<BadgeGroup badges={[
+    { href: 'https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk', imgSrc: 'https://img.shields.io/github/v/tag/reclaimprotocol/reclaim-inapp-reactnative-sdk.svg', alt: 'Reclaim React Native SDK' },
+    { href: 'https://docs.reclaimprotocol.org/inapp-sdks/react-native', imgSrc: 'https://img.shields.io/badge/read_the-docs-blue.svg', alt: 'Documentation' },
+    { href: 'https://www.npmjs.com/package/@reclaimprotocol/inapp-rn-sdk', imgSrc: 'https://img.shields.io/npm/v/%40reclaimprotocol%2Finapp-rn-sdk.svg', alt: 'NPM Version' },
+]} />
+
+This SDK allows you to integrate Reclaim's in-app verification process into your React Native application.
 
 ## Prerequisites
 
@@ -16,7 +28,7 @@ Note:
 
 ## Example
 
-- See the [Reclaim Example - React Native](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/tree/main/example) for a complete example of how to use the SDK in a React Native application.
+- See the [Reclaim Example - React Native](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/tree/main/samples/example_new_arch) for a complete example of how to use the SDK in a React Native application.
 
 ## Installation
 
@@ -53,7 +65,7 @@ add the following to the end of settings.gradle:
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
     String flutterStorageUrl = System.env.FLUTTER_STORAGE_BASE_URL ?: "https://storage.googleapis.com"
-    String reclaimStorageUrl = System.env.RECLAIM_STORAGE_BASE_URL ?: "https://reclaim-inapp-sdk.s3.ap-south-1.amazonaws.com/android/0.1.2/repo"
+    String reclaimStorageUrl = System.env.RECLAIM_STORAGE_BASE_URL ?: "https://reclaim-inapp-sdk.s3.ap-south-1.amazonaws.com/android/0.3.0/repo"
     repositories {
         google()
         mavenCentral()
@@ -71,7 +83,7 @@ dependencyResolutionManagement {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
     val flutterStorageUrl = System.env.FLUTTER_STORAGE_BASE_URL ?: "https://storage.googleapis.com"
-    val reclaimStorageUrl = System.env.RECLAIM_STORAGE_BASE_URL ?: "https://reclaim-inapp-sdk.s3.ap-south-1.amazonaws.com/android/0.1.2/repo"
+    val reclaimStorageUrl = System.env.RECLAIM_STORAGE_BASE_URL ?: "https://reclaim-inapp-sdk.s3.ap-south-1.amazonaws.com/android/0.3.0/repo"
     repositories {
         google()
         mavenCentral()
@@ -80,6 +92,7 @@ dependencyResolutionManagement {
     }
 }
 ```
+
 </Tabs>
 
 (Ignore if already added in `settings.gradle` from above)
@@ -89,7 +102,7 @@ or alternatively add the following repositories to the relevant repositories blo
 <Tabs items={['Groovy', 'Kotlin']}>
 ```groovy tabs="Groovy"
 String flutterStorageUrl = System.env.FLUTTER_STORAGE_BASE_URL ?: "https://storage.googleapis.com"
-String reclaimStorageUrl = System.env.RECLAIM_STORAGE_BASE_URL ?: "https://reclaim-inapp-sdk.s3.ap-south-1.amazonaws.com/android/0.1.2/repo"
+String reclaimStorageUrl = System.env.RECLAIM_STORAGE_BASE_URL ?: "https://reclaim-inapp-sdk.s3.ap-south-1.amazonaws.com/android/0.3.0/repo"
 // ...
 maven {
     url "$reclaimStorageUrl"
@@ -101,11 +114,12 @@ maven {
 
 ```kotlin tabs="Kotlin"
 val flutterStorageUrl = System.env.FLUTTER_STORAGE_BASE_URL ?: "https://storage.googleapis.com"
-val reclaimStorageUrl = System.env.RECLAIM_STORAGE_BASE_URL ?: "https://reclaim-inapp-sdk.s3.ap-south-1.amazonaws.com/android/0.1.2/repo"
+val reclaimStorageUrl = System.env.RECLAIM_STORAGE_BASE_URL ?: "https://reclaim-inapp-sdk.s3.ap-south-1.amazonaws.com/android/0.3.0/repo"
 // ...
 maven("$reclaimStorageUrl")
 maven("$flutterStorageUrl/download.flutter.io")
 ```
+
 </Tabs>
 
 ### iOS Setup
@@ -126,11 +140,11 @@ Ignore if you already have this declaration in your `Podfile`.
 <Tabs items={['Cocoapods (Recommended)', 'Git Tag', 'Git Head', 'Git Commit', 'Git Branch']}>
 ```ruby tabs="Cocoapods (Recommended)"
 # Cocoapods is the recommended way to install the SDK.
-pod 'ReclaimInAppSdk', '~> 0.1.4'
+pod 'ReclaimInAppSdk', '~> 0.3.0'
 ```
 
 ```ruby tabs="Git Tag"
-pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :tag => '0.1.4'
+pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :tag => '0.3.0'
 ```
 
 ```ruby tabs="Git Head"
@@ -138,12 +152,13 @@ pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp
 ```
 
 ```ruby tabs="Git Commit"
-pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :commit => 'a488eaa2279318f4836ead105e5ecce6fb6a0481'
+pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :commit => '027e18b8b2365fd935e9e8585e31fa886c3af6ee'
 ```
 
 ```ruby tabs="Git Branch"
 pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :branch => 'main'
 ```
+
 </Tabs>
 
 - After adding the dependency, your podfile may look like this:
@@ -161,8 +176,8 @@ target 'InappRnSdkExample' do
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
-  # This is the line you need to add to your podfile.
-  pod 'ReclaimInAppSdk', '~> 0.1.4'
+  # This is the line that you may need to add in your podfile.
+  pod 'ReclaimInAppSdk', '~> 0.3.0'
 
   pre_install do |installer|
     system("cd ../../ && npx bob build --target codegen")
@@ -171,9 +186,9 @@ target 'InappRnSdkExample' do
   # ... rest of the podfile. (removed for brevity)
 ```
 
-3. Run `pod install` inside the ios/ directory of your project.
+3. Run `pod install` inside the `ios/` directory of your project.
 
-```bash
+```sh
 cd ios/
 pod install
 ```
@@ -182,18 +197,20 @@ pod install
 
 Your app performance will be severely impacted when you run debug executable on a physical device. Fixing this requires a simple change in your Xcode project xcscheme.
 
-##### Method 1: Update Environment Variables for XCScheme (Recommended) 
-1. Open your iOS project (*.xcworkspace) in Xcode.
+<Accordions>
+<Accordion title="Method 1: Update Environment Variables for XCScheme (Recommended)">
+
+1. Open your project in Xcode.
 2. Click on the project target.
 3. Click on the **Scheme** dropdown.
 
-<img src="https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk/blob/83f23570a47828d011b713679852053acdba89c1/Screenshots/Install/10.png?raw=true" alt="Edit current xcscheme in Xcode" width="500" />
+<img src="https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk/raw/53a19f88c8d90df485a60dc20190f740cd9fd108/Screenshots/Install/10.png" alt="Edit current xcscheme in Xcode" width="500" />
 
 4. Click on the **Edit Scheme** button.
 5. Click on the **Run** tab.
 6. Click on the **Arguments** tab and check the **Environment Variables** section.
 
-<img src="https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk/blob/83f23570a47828d011b713679852053acdba89c1/Screenshots/Install/12.png?raw=true" alt="Enable Debug executable in Xcode" width="500" />
+<img src="https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk/raw/53a19f88c8d90df485a60dc20190f740cd9fd108/Screenshots/Install/12.png" alt="Enable Debug executable in Xcode" width="500" />
 
 7. Add the following environment variable:
     - Key: `GODEBUG`
@@ -201,21 +218,25 @@ Your app performance will be severely impacted when you run debug executable on 
 8. Click on the **Close** button in the dialog and build the project.
 9. Run the app on a physical device.
 
-##### Method 2: Disable "Debug executable"
+</Accordion>
+<Accordion title="Method 2: Disable 'Debug executable'">
 
 This method is **not recommended** but could be useful if you don't want to add environment variables to the xcscheme.
 
-1. Open your iOS project (*.xcworkspace) in Xcode.
+1. Open your project in Xcode.
 2. Click on the project target.
 3. Click on the **Scheme** dropdown.
 
-<img src="https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk/blob/83f23570a47828d011b713679852053acdba89c1/Screenshots/Install/10.png?raw=true" alt="Edit current xcscheme in Xcode" width="500" />
+<img src="https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk/raw/53a19f88c8d90df485a60dc20190f740cd9fd108/Screenshots/Install/10.png" alt="Edit current xcscheme in Xcode" width="500" />
 
 4. Click on the **Edit Scheme** button.
 5. Click on the **Run** tab.
 6. Uncheck the **Debug executable** checkbox.
 
-<img src="https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk/blob/83f23570a47828d011b713679852053acdba89c1/Screenshots/Install/11.png?raw=true" alt="Enable Debug executable in Xcode" width="500" />
+<img src="https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk/raw/53a19f88c8d90df485a60dc20190f740cd9fd108/Screenshots/Install/11.png" alt="Enable Debug executable in Xcode" width="500" />
+
+</Accordion>
+</Accordions>
 
 ## Usage
 
@@ -243,11 +264,11 @@ const verificationResult = await reclaimVerification.startVerification({
 });
 ```
 
-The returned result is a [ReclaimVerificationApi.Response] object. This object contains a response that has proofs, exception, and the sessionId if the verification is successful.
+The returned result is a [ReclaimVerification.Response] object. This object contains a response that has proofs, exception, and the sessionId if the verification is successful.
 
 ### Exception Handling
 
-If the verification ends with an exception, the exception is thrown as a [ReclaimVerificationApi.ReclaimVerificationException] object.
+If the verification ends with an exception, the exception is thrown as a [ReclaimVerification.ReclaimVerificationException] object.
 
 Following is an example of how to handle the exception using [error.type]:
 
@@ -255,27 +276,27 @@ Following is an example of how to handle the exception using [error.type]:
 try {
   // ... start verification
 } catch (error) {
-  if (error instanceof ReclaimVerificationApi.ReclaimVerificationException) {
+  if (error instanceof ReclaimVerification.ReclaimVerificationException) {
     switch (error.type) {
-      case ReclaimVerificationApi.ExceptionType.Cancelled:
+      case ReclaimVerification.ExceptionType.Cancelled:
         Snackbar.show({
           text: 'Verification cancelled',
           duration: Snackbar.LENGTH_LONG,
         });
         break;
-      case ReclaimVerificationApi.ExceptionType.Dismissed:
+      case ReclaimVerification.ExceptionType.Dismissed:
         Snackbar.show({
           text: 'Verification dismissed',
           duration: Snackbar.LENGTH_LONG,
         });
         break;
-      case ReclaimVerificationApi.ExceptionType.SessionExpired:
+      case ReclaimVerification.ExceptionType.SessionExpired:
         Snackbar.show({
           text: 'Verification session expired',
           duration: Snackbar.LENGTH_LONG,
         });
         break;
-      case ReclaimVerificationApi.ExceptionType.Failed:
+      case ReclaimVerification.ExceptionType.Failed:
       default:
         Snackbar.show({
           text: 'Verification failed',
@@ -299,22 +320,29 @@ error.reason
 error.innerError
 ```
 
+## Migration
+
+- Migration steps for [0.3.1](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/migration.md#031)
+- Migration steps for [0.3.0](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/migration.md#030)
+- Migration steps for [0.2.1](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/migration.md#021)
+
 ## Advanced Usage
 
 ### Overriding SDK Config
 
+You can customize the verification flow by overriding the default SDK configuration with `reclaimVerification.setOverrides`.
+
 ```js
-// Advanced Usage: Use ReclaimVerification.setOverrides for overriding sdk
 reclaimVerification.setOverrides({
   appInfo: {
-    appName: "Overriden Example",
+    appName: "Overridden Example",
     appImageUrl: "https://placehold.co/400x400/png"
   }
   // .. other overrides
 })
 ```
 
-Note: Overriding again will clear previous overrides
+Read more about overrides in [Reclaim InApp SDK Documentation | Overrides](./usage/overrides)
 
 ## Contributing
 

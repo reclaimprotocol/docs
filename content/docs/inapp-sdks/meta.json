@@ -6,6 +6,7 @@
         "react-native",
         "ionic-capacitor",
         "flutter",
-        "react-native-expo"
+        "react-native-expo",
+        "usage"
     ]
 }
