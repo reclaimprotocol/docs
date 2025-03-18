@@ -132,6 +132,7 @@ Ignore if you already have this declaration in your `Podfile`.
 
 2. Add the following to your `Podfile` to override SDK dependency:
 
+- This step is only required when facing issues with the resolved pod dependency.
 - You can override the version of dependency when you wish to use a specific version of the SDK.
 - You can add a declaration in your `Podfile` to install the SDK from cocoapods, or from a specific git tag, head, commit, or branch.
 
@@ -192,7 +193,10 @@ There are open issues on both capacitor and golang's issue tracker to dicuss thi
 * https://github.com/ionic-team/capacitor/issues/7844
 * https://github.com/golang/go/issues/58225
 
-A workaround is available to fix this issue and requires a custom view controller to be used in ios.
+A simple workaround is available to fix this issue and requires a custom view controller to be used in ios.
+
+<Accordions>
+<Accordion title="Steps for fixing runtime routing issue on iOS">
 
 1. First, create a PatchedViewController.swift file by [opening Xcode](https://capacitorjs.com/docs/ios#opening-the-ios-project), right-clicking on the **App** group (under the App target), selecting **New File from Template** from the context menu, choosing **Cocoa Touch Class** in the window, set the **Subclass of:** to UIViewController in the next screen, and save the file.
 
@@ -234,6 +238,9 @@ class PatchedViewController: CAPBridgeViewController {
     }
 }
 ```
+
+</Accordion>
+</Accordions>
 
 #### Fixing performance issues on IOS physical devices
 

@@ -4,6 +4,7 @@ description: Instructions on how to override the default configuration of Reclai
 ---
 
 import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
 
 # Get Started
 
@@ -52,8 +53,113 @@ provider: {
 }
 ```
 
-- The JSON string or url must point to a valid provider configuration that follows the [provider schema](schemas/provider.schema).
-- Examples of provider configurations can be found in the `https://api.reclaimprotocol.org/api/providers/${provider_id}` http api. For example, [Devtool's Http Api for Github Username Provider](https://api.reclaimprotocol.org/api/providers/6d3f6753-7ee6-49ee-a545-62f1b1822ae5). Please note: These examples are structured differently. The provider configuration is nested under a 'providers' key, rather than being a root object. Therefore, they cannot be used as direct parameters for provider overrides in this SDK.
+- The JSON string or url must point to a valid provider configuration that follows the [provider schema](#provider-schema).
+
+#### Provider Schema
+
+The Schema of Reclaim HTTP Provider used by Reclaim Protocol's InApp SDKs
+
+<Accordions>
+<Accordion title="Schema">
+```prisma
+model HttpProvider {
+  id                      String                              @id
+  httpProviderId          String                              @unique
+  name                    String
+  logoUrl                 String
+  # The url that the user will be redirected to when verification starts.
+  url                     String
+  urlType                 urlType?
+  method                  RequestMethodType                   @default(GET)
+  body                    String?
+  # The url that is likely the login url address of the website used by the provider.
+  loginUrl                String
+  customInjection         String?
+  bodySniff               BodySniff?
+  userAgent               UserAgentSettings?
+  geoLocation             String?
+  matchType               String?                             @default("greedy")
+  injectionType           InjectionType                       @default(MSWJS)
+  disableRequestReplay    Boolean                             @default(false)
+  providerHash            String?
+  additionalClientOptions AdditionalClientOptions?
+  verificationType        VerificationType?                   @default(WITNESS)
+  expectedPageUrl         String?
+  pageTitle               String?
+  requestData             RequestData[]
+}
+
+type AdditionalClientOptions {
+  supportedProtocolVersions TLSVersion[]
+}
+
+enum TLSVersion {
+  TLS1_2
+  TLS1_3
+}
+
+enum InjectionType {
+  MSWJS
+  NONE
+}
+
+type BodySniff {
+  enabled  Boolean?
+  regex    String?
+  template String?
+}
+
+type UserAgentSettings {
+  ios     String?
+  android String?
+}
+
+enum urlType {
+  REGEX
+  CONSTANT
+  TEMPLATE
+}
+
+type RequestData {
+  url                String
+  expectedPageUrl    String?
+  urlType            urlType
+  method             RequestMethodType
+  responseMatches    ResponseMatch[]
+  responseRedactions ResponseRedaction[]
+  bodySniff          BodySniff?
+  # A unique hash of the request data
+  requestHash        String
+}
+
+enum RequestMethodType {
+  GET
+  POST
+}
+
+type ResponseMatch {
+  value       String
+  type        String
+  invert      Boolean @default(false)
+  description String?
+}
+
+type ResponseRedaction {
+  xPath    String?
+  jsonPath String?
+  regex    String?
+  hash     String?
+}
+```
+
+</Accordion>
+</Accordions>
+
+Examples of provider schema can be found as provider configurations in the `https://api.reclaimprotocol.org/api/providers/${provider_id}` http api. For example, [Devtool's Http Api for Github Username Provider](https://api.reclaimprotocol.org/api/providers/6d3f6753-7ee6-49ee-a545-62f1b1822ae5). 
+
+Note:
+- These examples have a different structure where the provider configuration is nested under a 'providers' key, rather than being the root object. Therefore, the `https://api.reclaimprotocol.org/api/providers/${provider_id}` http apis cannot be used as direct parameters for provider overrides by url in this SDK.
+- For use with `jsonString`, provider the value of the 'providers' key in the `jsonString` parameter.
 
 ### Logging Configuration
 
