@@ -1,11 +1,11 @@
 ---
 title: Reclaim Protocol Attestors
-description: Expanding the Reclaim protocol with multi-attestor verification, economic incentives, and anonymity.
+description: Reclaim Decentralization Overview
 ---
 
 # Decentralizing Reclaim
 
-The foundational Reclaim protocol relies on trusted Attestors to sign and verify data Claims. However, this introduces a single point of trust vulnerability, as the Attestor's honesty is paramount. To mitigate this, we are expanding the protocol through decentralization, focusing on:
+Expanding the Reclaim protocol with multi-attestor verification, economic incentives, and anonymity.
 
 ## Multi-Attestor Verification Mechanism
 
@@ -43,7 +43,7 @@ The Reclaim protocol introduces a novel approach using "attestor" nodes to proxy
 ### How It Works
 
 1.  **Proxied API Request:**
-    * The user initiates an API request to a service like Gmail, routed through an attestor node.
+    * The user initiates an API request to a service, routed through an attestor node.
     * The attestor observes the traffic flow.
 2.  **Sensitive Data Protection:**
     * The protocol allows users to conceal sensitive data, such as passwords or API secrets (e.g., `{secret-token}`), from the attestor.
@@ -54,9 +54,6 @@ The Reclaim protocol introduces a novel approach using "attestor" nodes to proxy
 5.  **Trustless Proof:**
     * This signed claim serves as verifiable proof of data access, without revealing the user's sensitive information.
 
-### Example: Proving Gmail Access
-
-Using Reclaim, you can prove access to your Gmail account without sharing your password or screenshots. The attestor verifies the communication with Google's servers, ensuring the validity of your claim.
 
 ### Trust and Decentralization
 
