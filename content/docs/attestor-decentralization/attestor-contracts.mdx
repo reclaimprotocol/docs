@@ -7,7 +7,7 @@ import { Tab, Tabs } from "fumadocs-ui/components/tabs";
 
 # Reclaim Protocol: Decentralized Architecture and Incentives
 
-The Reclaim protocol's decentralized architecture relies on smart contracts and a network of Attestor nodes to ensure secure and trustless data verification.
+The Reclaim protocol's decentralized architecture relies on smart contracts and a network of Attestor nodes to ensure secure and trustless data verification. Contracts are already deployed to Moca chain.
 
 ## Core Smart Contracts
 
@@ -27,16 +27,22 @@ The Reclaim protocol's decentralized architecture relies on smart contracts and 
 
 1.  **Claim Task Request:**
     * The user submits a "create claim task" request to the Task Contract via the Reclaim SDK.
+
 2.  **Attestor Selection:**
     * The Task Contract randomly selects Attestors and returns them to the SDK.
+
 3.  **zkTLS Protocol Execution:**
     * The Reclaim SDK establishes connections with the selected Attestors to execute the zkTLS protocol.
+
 4.  **Proof Submission:**
     * Each Attestor returns a Proof to the SDK and submits it to the Task Contract.
+
 5.  **Proof Consensus:**
     * The Task Contract achieves Proof consensus based on the 51% rule.
+
 6.  **Final Proof Packaging:**
     * The SDK packages all Proofs and submits the final Proof to the Task Contract.
+
 7.  **Proof Verification and Storage:**
     * The Task Contract verifies the Proof and stores the result upon successful validation.
 
@@ -47,7 +53,8 @@ The Reclaim protocol's decentralized architecture relies on smart contracts and 
 
 ## Try It
 
-Contract can be found on [Github](https://github.com/reclaimprotocol/attestor-contracts).
+Contracts can be found on [Github](https://github.com/reclaimprotocol/attestor-contracts).
+
 ### Admin setup
 
 If you wish to try things beforehand, try the following upon cloning and installing packages.
@@ -73,6 +80,7 @@ Alternatively, you can try out an e2e [example](https://github.com/reclaimprotoc
 
 2.  **Populate your `.env`, varibales are filled for you, you just need to add you private key:**
     * `PRIVATE_KEY=`
+
 3. **Run the script:**
     * `node index.js`
 
