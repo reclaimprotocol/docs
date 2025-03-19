@@ -1,0 +1,71 @@
+---
+title: Reclaim Protocol Attestors
+description: Expanding the Reclaim protocol with multi-attestor verification, economic incentives, and anonymity.
+---
+
+# Decentralizing Reclaim
+
+The foundational Reclaim protocol relies on trusted Attestors to sign and verify data Claims. However, this introduces a single point of trust vulnerability, as the Attestor's honesty is paramount. To mitigate this, we are expanding the protocol through decentralization, focusing on:
+
+## Multi-Attestor Verification Mechanism
+
+* **Problem:** Relying on a single Attestor creates a single point of failure and trust.
+* **Solution:** Implement a system where each Claim is verified by multiple independent Attestors.
+* **Benefit:** Significantly reduces the risk of fraudulent claims by requiring consensus among multiple parties.
+
+## Economic Incentives and Penalty Mechanisms
+
+* **Problem:** Ensuring Attestor honesty requires more than just trust.
+* **Solution:** Introduce economic incentives and penalty mechanisms through:
+    * **Token Staking:** Attestors stake tokens as collateral, which can be slashed for dishonest behavior.
+    * **Transaction Fees:** Attestors earn fees for verifying Claims, incentivizing participation.
+    * **Penalty Mechanisms:** Automated detection and punishment of anomalous behavior.
+* **Benefit:** Creates a self-regulating system that promotes honest participation and discourages malicious actions.
+
+## Ensuring Anonymity
+
+* **Problem:** Linking multiple credentials of a user can compromise their privacy.
+* **Solution:** Implement measures to guarantee that user credentials remain unlinked, preventing third parties from inferring identities through on-chain data.
+* **Benefit:** Protects user privacy and prevents unauthorized tracking of their activity.
+
+## Key Decentralization Goals
+
+* **Enhanced Security:** Multi-attestor verification strengthens the reliability of Claims.
+* **Increased Trust:** Economic incentives and penalties foster a trustworthy ecosystem.
+* **Improved Privacy:** Anonymity measures safeguard user data.
+
+By implementing these decentralization strategies, we are building a more robust, secure, and private Reclaim protocol, capable of scaling and serving a wider range of use cases.
+
+## The Reclaim Solution: Secure API Attestation
+
+The Reclaim protocol introduces a novel approach using "attestor" nodes to proxy API requests, enabling verifiable data claims.
+
+### How It Works
+
+1.  **Proxied API Request:**
+    * The user initiates an API request to a service like Gmail, routed through an attestor node.
+    * The attestor observes the traffic flow.
+2.  **Sensitive Data Protection:**
+    * The protocol allows users to conceal sensitive data, such as passwords or API secrets (e.g., `{secret-token}`), from the attestor.
+3.  **Response Verification:**
+    * The attestor verifies that the response from the service (e.g., Google's servers) matches the user's claimed response.
+4.  **Signed Claim:**
+    * Upon successful verification, the attestor signs a "claim" attesting to the user's access to the specified data (e.g., the email address).
+5.  **Trustless Proof:**
+    * This signed claim serves as verifiable proof of data access, without revealing the user's sensitive information.
+
+### Example: Proving Gmail Access
+
+Using Reclaim, you can prove access to your Gmail account without sharing your password or screenshots. The attestor verifies the communication with Google's servers, ensuring the validity of your claim.
+
+### Trust and Decentralization
+
+While the protocol requires trusting the attestor, this risk is mitigated through decentralization. By establishing a decentralized attestor network, the protocol reduces the potential for collusion and enhances overall security.
+
+## Key Benefits
+
+* **Privacy:** Sensitive information remains protected.
+* **Verifiability:** Claims are cryptographically signed and verifiable.
+* **Trustlessness:** Enables secure data utilization in trustless environments.
+* **Decentralization:** Mitigates risks associated with centralized attestors.
+
