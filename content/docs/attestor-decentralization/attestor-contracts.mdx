@@ -46,3 +46,36 @@ The Reclaim protocol's decentralized architecture relies on smart contracts and 
 * After the unbonding period, the remaining $MOCA tokens are calculated and returned to the Attestor’s account, accounting for potential slashing risks.
 
 ## Try It
+
+Contract can be found on [Github](https://github.com/reclaimprotocol/attestor-contracts).
+### Admin setup
+
+If you wish to try things beforehand, try the following upon cloning and installing packages.
+
+1.  **Populate your `.env`:**
+    * `PRIVATE_KEY=`
+
+2.  **Run the deploy script:**
+    * `npx hardhat deploy --network $YOUR_NETWORK`
+
+3.  **Create a task request:**
+    * `npx hardhat create-task-request --network $YOUR_NETWORK`
+
+4.  **Verify a mock proof for a specific task:**
+    * `npx hardhat verify --id $YOUR_ID --network $YOUR_NETWORK`
+
+### zkFetch Example
+
+Alternatively, you can try out an e2e [example](https://github.com/reclaimprotocol/attestor-contracts/tree/main/example) that showcases the complete proof lifecycle.
+
+1.  **Change directory into /example and install packages:**
+    * `npm install`
+
+2.  **Populate your `.env`, varibales are filled for you, you just need to add you private key:**
+    * `PRIVATE_KEY=`
+3. **Run the script:**
+    * `node index.js`
+
+### Register Attestor
+
+If you wish the join the quorum with your attestor, do [contact us](https://t.me/protocolreclaim).
