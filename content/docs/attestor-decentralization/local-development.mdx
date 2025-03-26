@@ -21,7 +21,7 @@ The workflow is as follows:
     - `git clone https://github.com/reclaimprotocol/attestor-core.git`
 2. **Install packages:** 
     - `npm i`
-3. **Create an `.env.producation` with at least the `PRIVATE_KEY` variable populated**
+3. **Create an `.env.producation` with at least the `PRIVATE_KEY` variable populated:**
     - `PRIVATE_KEY=0x...`
 4. **Start the server:**
     - `NODE_ENV=production npm run start --env-file=.env.production -- src/scripts/start-server`
@@ -91,7 +91,7 @@ const createClaim = async () =>
       cookieStr: "",
       authorisationHeader: "",
     },
-    ownerPrivateKey: "", // Replace with you attestor's private key
+    ownerPrivateKey: "", // Replace with your private key
     client:
     {
       url: "", // Replace with your attestor's host url

@@ -35,15 +35,12 @@ The Reclaim protocol's decentralized architecture relies on smart contracts and 
     * The Reclaim SDK establishes connections with the selected Attestors to execute the zkTLS protocol.
 
 4.  **Proof Submission:**
-    * Each Attestor returns a Proof to the SDK and submits it to the Task Contract.
+    * Each Attestor returns a Proof to the SDK, Proofs then are submitted to the Task Contract.
 
 5.  **Proof Consensus:**
     * The Task Contract achieves Proof consensus based on the 51% rule.
 
-6.  **Final Proof Packaging:**
-    * The SDK packages all Proofs and submits the final Proof to the Task Contract.
-
-7.  **Proof Verification and Storage:**
+6.  **Proof Verification and Storage:**
     * The Task Contract verifies the Proof and stores the result upon successful validation.
 
 ## Unstaking
@@ -60,7 +57,7 @@ Contracts can be found on [Github](https://github.com/reclaimprotocol/attestor-c
 If you wish to try things beforehand, try the following upon cloning and installing packages.
 
 1.  **Populate your `.env`:**
-    * `PRIVATE_KEY=`
+    * `PRIVATE_KEY=0x..`
 
 2.  **Run the deploy script:**
     * `npx hardhat deploy --network $YOUR_NETWORK`
@@ -68,17 +65,30 @@ If you wish to try things beforehand, try the following upon cloning and install
 3.  **Create a task request:**
     * `npx hardhat create-task-request --network $YOUR_NETWORK`
 
-4.  **Verify a mock proof for a specific task:**
-    * `npx hardhat verify --id $YOUR_ID --network $YOUR_NETWORK`
+### Attestor Example 
 
-### zkFetch Example
+The [example](https://github.com/reclaimprotocol/attestor-contracts/tree/main/examples/attestor) showcases the complete proof lifecycle. 
 
-Alternatively, you can try out an e2e [example](https://github.com/reclaimprotocol/attestor-contracts/tree/main/example) that showcases the complete proof lifecycle.
-
-1.  **Change directory into /example and install packages:**
+1.  **Change directory into /examples/attestor and install packages:**
     * `npm install`
 
-2.  **Populate your `.env`, varibales are filled for you, you just need to add you private key:**
+2.  **Populate your `.env`, varibales are filled for you, you just need to add you private key (without the `0x` prefix):**
+    * `PRIVATE_KEY=`
+
+3.  **Download zk files:**
+    * `node node_modules/@reclaimprotocol/zk-symmetric-crypto/lib/scripts/download-files`
+
+4. **Run the script:**
+    * `node index.js`
+
+### zkFetch Example - Outdated
+
+Alternatively, you can try out an e2e [example](https://github.com/reclaimprotocol/attestor-contracts/tree/main/examples/zkfetch). This example echoes a previous deployment, but we kept it still for demonstration purposes.
+
+1.  **Change directory into /examples/zkfetch and install packages:**
+    * `npm install`
+
+2.  **Populate your `.env`, add you private key (without the `0x` prefix):**
     * `PRIVATE_KEY=`
 
 3. **Run the script:**
