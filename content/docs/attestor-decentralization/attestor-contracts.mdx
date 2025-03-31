@@ -7,7 +7,7 @@ import { Tab, Tabs } from "fumadocs-ui/components/tabs";
 
 # Reclaim Protocol: Decentralized Architecture and Incentives
 
-The Reclaim protocol's decentralized architecture relies on smart contracts and a network of Attestor nodes to ensure secure and trustless data verification. Contracts are already deployed to Moca chain.
+The Reclaim protocol's decentralized architecture relies on smart contracts and a network of Attestor nodes to ensure secure and trustless data verification.
 
 ## Core Smart Contracts
 
@@ -15,11 +15,10 @@ The Reclaim protocol's decentralized architecture relies on smart contracts and 
     * Responsible for creating Claim Tasks and achieving Claim consensus.
 * **Governance Contract:**
     * Manages Attestor nodes, providing staking, rewards, and penalty mechanisms.
-    * Optionally, collects staked $MOCA tokens from Attestors and distributes earnings based on staking ratios and service quality.
 
 ## Attestor Registration & Staking
 
-* Attestors must stake a minimum number of $MOCA tokens in the Governance Contract.
+* Attestors must stake a minimum number tokens in the Governance Contract.
 * Rewards are distributed based on the staking ratio.
 * Attestors must maintain online availability.
 
@@ -46,7 +45,7 @@ The Reclaim protocol's decentralized architecture relies on smart contracts and 
 ## Unstaking
 
 * Upon an unstaking request, the system initiates an undelegation process with a chain-defined unbonding period (e.g., 21 days).
-* After the unbonding period, the remaining $MOCA tokens are calculated and returned to the Attestor’s account, accounting for potential slashing risks.
+* After the unbonding period, the remaining tokens are calculated and returned to the Attestor’s account, accounting for potential slashing risks.
 
 ## Try It
 
