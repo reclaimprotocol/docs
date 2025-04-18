@@ -1,0 +1,38 @@
+---
+title: AI Agent
+description: AI Agent
+---
+
+## Verification AI Agent
+
+### Overview
+
+The Verification AI Agent is a powerful tool that handles email verification for employment, education, and other verification purposes. This agent integrates with the Agent-to-Agent (A2A) protocol, allowing it to communicate with host AI agents and provide a seamless verification experience.
+
+### Key Features
+
+- **A2A Protocol Integration**: Seamlessly communicates with host AI agents
+- **Remote Verification**: Processes verification requests through natural language queries
+- **Push Notifications**: Provides real-time status updates on the verification requests
+- **Dynamic Verification Support**: Identifies and supports various verification types (employment, education, social, etc.) based on user queries
+
+### How it works
+
+Verification AI Agent processes verification requests through the A2A protocol:
+
+1. It sends email containing verification links to the specified address
+
+2. Returns verification results to the host agent once the verification is complete in real-time using push notifications
+
+3. The host agent can also check the status of the verification request using either the email or name of the verifying user
+
+The agent provides several custom tools that can be called by host agents:
+
+- **send_verification_email**: Send verification email to a user
+- **check_verification_status_by_email**: Check verification status by email
+- **check_verification_status_by_name**: Check verification status by name
+- **push_notification_support**: Support push notifications for status updates to avoid polling
+
+
+
+

@@ -1,0 +1,54 @@
+---
+title: Quickstart
+description: Quickstart
+---
+
+# Verification AI Agent Quickstart
+
+The Verification AI Agent is already deployed and ready to use through host AI agents that implement the A2A protocol. No setup is required to use the verification functionality.
+
+The Verification AI Agent is deployed on the following url:
+
+```
+https://agent.reclaimprotocol.org/
+```
+
+## Host Agent Integration
+
+1. Clone the [Host CLI Agent](https://github.com/google/A2A/tree/main/samples/python/hosts/cli)
+2. Run the CLI Agent:
+```bash
+uv run hosts/cli --agent https://agent.reclaimprotocol.org
+```
+
+<Callout type="warning">
+⚠️ Note: Push notifications are not enabled by default on the client. You need to set `use_push_notifications=True` and configure a push notification receiver server `push_notification_receiver=<your-push-notification-receiver-server-url>` in your client code to receive all push notifications on the client side.
+</Callout>
+```bash
+uv run hosts/cli --agent https://agent.reclaimprotocol.org --use_push_notifications True --push_notification_receiver <your-push-notification-receiver-server-url>
+```
+
+## Using the Verification Agent
+
+1. In the CLI Host Agent, request verification by providing:
+   - Email address
+   - Field to verify (e.g., "employment", "education")
+
+   Example:
+   ```
+   - send verification email to user@example.com for Github username verification
+   - send verification email to user@example.com for employment verification
+   ```
+
+2. The Verification Agent will process your request and send a verification email to the provided email address.
+
+3. The host agent can check the status of the verification request using either the email or name of the verifying user or get real time updates using push notifications
+
+## Supported Features
+- Sending verification emails
+- Checking verification status
+- Push notification support for status updates
+
+
+
+*For more information on the A2A protocol docs [A2A Protocol](https://google.github.io/A2A/#/).*
