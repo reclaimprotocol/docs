@@ -21,7 +21,7 @@ The Verification AI Agent is a powerful tool that handles email verification for
 
 - **A2A Protocol Integration**: Seamlessly communicates with host AI agents
 - **Remote Verification**: Processes verification requests through natural language queries
-- **Push Notifications**: Provides real-time status updates on the verification requests
+- **Push Notifications**: Provides real-time status updates on the verification requests and sends a push notification to the host agent
 - **Dynamic Verification Support**: Identifies and supports various verification types (employment, education, social, etc.) based on user queries
 
 ### How it works
@@ -34,12 +34,32 @@ Verification AI Agent processes verification requests through the A2A protocol:
 
 3. The host agent can also check the status of the verification request using either the email or name of the verifying user
 
-The agent provides several custom tools that can be called by host agents:
+### Supported Tools
 
-- **send_verification_email**: Send verification email to a user
-- **check_verification_status_by_email**: Check verification status by email
-- **check_verification_status_by_name**: Check verification status by name
-- **push_notification_support**: Support push notifications for status updates to avoid polling
+The Verification AI Agent provides these tools for seamless integration:
+
+#### Send Verification Email
+- Sends a verification email to the specified address with a secure verification link. Required fields are `email` and `verification_field`.
+- In the below example, the host agent is sending a verification email to the user with the email `joe@gmail.com` and the verification field is `github username`.
+![Send Verification Email](/images/ai-agent/send-verification.png)
+
+
+#### Check Verification Status
+- Checks the current status of the latest verification request using the recipient's email. Required fields are `email`.
+- In the below example, the host agent is checking the status of the latest verification request for the user with the email `joe@gmail.com`.
+![Check Verification Status](/images/ai-agent/check-status.png)
+
+
+#### Check Verification Status By Verification ID
+- Checks the current status of the latest verification request using the verification ID. Required fields are `verification_id`.
+- In the below example, the host agent is checking the status of the latest verification request for the verification ID `542c85dc14`.
+![Check Verification Status](/images/ai-agent/check-status-by-id.png)
+
+
+#### Get Verification ID
+- Retrieves the latest verification ID for a specific email address. Required fields are `email`.
+- In the below example, the host agent is getting the latest verification ID for the user with the email `joe@gmail.com`.
+![Get Verification ID](/images/ai-agent/get-verification-id.png)
 
 
 
