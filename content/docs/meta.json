@@ -1,4 +1,19 @@
 {
-    "root": true,
-    "pages": ["index","js", "fullstack", "backend", "flutter", "react-native", "zkfetch", "inapp-sdks", "sdk", "attestor-decentralization", "advance-options", "ai-agent", "hackathon"]
+  "root": true,
+  "pages": [
+    "index",
+    "js",
+    "fullstack",
+    "backend",
+    "flutter",
+    "react-native",
+    "zkfetch",
+    "inapp-sdks",
+    "sdk",
+    "attestor-decentralization",
+    "advance-options",
+    "ai-agent",
+    "hackathon",
+    "understanding-the-tech"
+  ]
 }
