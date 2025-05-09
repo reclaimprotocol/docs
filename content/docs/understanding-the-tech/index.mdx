@@ -1,0 +1,131 @@
+---
+title: Understanding the Tech
+description: Understanding the Tech
+---
+
+# Understanding the Tech
+
+Reclaim (YC W21) is one of the largest companies building on Verifiability and one of the most important question we get is "What's happening under the hood?"
+
+### Technical Architecture
+
+Reclaim Protocol uses **proofs** to verify that shared data comes directly from the intended website and remains unaltered.
+
+- The user interacts with an attestor, which logs encrypted data sent through a secure tunnel to the target server.
+- Sensitive information is protected using TLS and zero-knowledge proofs. Once the data exchange is complete, the user creates a **claim**, a structured record of the interaction and submits it to the attestor.
+- The attestor validates the claim by decrypting only the necessary data portions, verifying its integrity, and signing the claim.
+- This signed claim proves that the user accessed the resource without revealing sensitive details such as login credentials and access tokens.
+
+We have also bought together a White-boarding Playlist made by [Madhavan (Maddy) Malolan](https://x.com/madhavanmalolan), Co-Founder of Reclaim that'll take you from zero to zkHttps or you can read this [Non-Technical Overview](https://blog.reclaimprotocol.org/posts/reclaim-explained) by Maxwell Allman, PhD at Stanford.
+
+<iframe
+  className="w-full aspect-video rounded-lg"
+  src="https://www.youtube.com/embed/MFyFuSGswqQ?si=R7-Gp_gTc3ElzU1t"
+  title="1/ Basics of Encryption"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+  allowFullScreen
+/>
+
+## How is this not a Web Scraping Tool?
+
+Web scraping tools, such as those using automated browser environments like Puppeteer, often operate by mimicking user behaviour. They achieve this in two potentially dangerous ways:
+
+1. **Session Hijacking via Cookies**: By obtaining a user's session cookies, these tools can impersonate the user without requiring login credentials.
+2. **Plaintext Credential Collection**: Some tools request users to provide their usernames and passwords directly, often in plaintext form.
+
+Both methods pose significant security and privacy risks, granting the scraper complete control over the user's account. This level of access can lead to several malicious activities, including:
+
+- **Data Theft**: Extracting sensitive information that the user intended to keep private.
+- **Unauthorized Account Changes**: Altering account settings, locking users out, or making purchases without consent.
+- **Exploitation**: Using the account to impersonate the user for further phishing or fraudulent activities.
+
+Such practices are extremely dangerous, leaving users vulnerable to privacy violations, financial loss, and unauthorized access to their personal accounts.
+
+## Is the Attestor a proxy? Can it see the HTTP traffic between the client and the server?
+
+An attestor operates as an **opaque proxy** by facilitating communication between the client device and the target HTTPS server while ensuring complete privacy of the exchanged data. Here's how it works in the context of TLS (Transport Layer Security) to guarantee the attestor cannot access any user data:
+
+1. **End-to-End Encryption with TLS**:
+
+   The communication between the client device and the HTTPS server is encrypted using TLS. This encryption ensures that only the client device and the target server have the keys to decrypt the data. The attestor handles the encrypted traffic but cannot access the TLS private keys, making it impossible to decrypt or view the data.
+
+2. **Pass-Through TLS Traffic**:
+
+   As an opaque proxy, the attestor does not terminate the TLS session. Unlike a traditional proxy, which decrypts traffic to inspect or modify it, an opaque proxy simply forwards the encrypted packets between the client and the server. This approach maintains the integrity and confidentiality of the communication.
+
+3. **SSL/TLS Certificate Validation**:
+
+   While the attestor cannot view the data, it can perform security checks, such as verifying the server's SSL/TLS certificate. This ensures the client connects to a legitimate server and protects against man-in-the-middle attacks. The attestor ensures the server's certificate matches the expected domain and is issued by a trusted Certificate Authority (CA).
+
+4. **Cryptographic Proofs**:
+
+   In the proof generation process, the attestor can include cryptographic evidence that confirms it has not tampered with the traffic. It can validate and pass along signatures or hashes to demonstrate the integrity of the session without requiring access to the plaintext data.
+
+5. **Keyless Operation**:
+
+   The attestor operates without access to session keys or private keys used in the TLS handshake. The Diffie-Hellman key exchange (used in modern TLS) ensures that the encryption keys cannot be derived even if the attestor observes the handshake process.
+
+6. **Compliance with Privacy Standards**:
+
+   By design, the opaque proxy architecture aligns with privacy principles. It ensures compliance with security best practices by maintaining end-to-end encryption and refraining from logging or decrypting sensitive user data.
+
+This architecture allows the attestor to play a crucial role in securing the communication (e.g., by validating certificates or preventing malicious activity) without compromising the confidentiality or privacy of the user's data.
+
+## What is a Reclaim Verifier App? Is it like a website?
+
+The Reclaim Verifier App is a native mobile application that generates and shares proofs. What makes it unique is its seamless accessibility through **App Clips** (iOS) or **Instant Apps** (Android), which allow users to use the verifier app's functionality without needing to download or install it from the App Store or Play Store. Instead, users can simply open a URL to launch the app instantly, eliminating the traditional friction of downloading a complete application.
+
+Despite its lightweight nature, the Reclaim Verifier App includes all the necessary features for proof generation and sharing, delivering a complete user experience within this compact, mini-app environment. By embedding all functionality within this instant format, the app simplifies the user experience and removes the usual steps associated with app store installations.
+
+App Clips and Instant Apps also go through the same rigorous approval, distribution, and security checks as regular apps. This ensures that the verifier app adheres to the same high privacy, security, and reliability standards as any native application. With this design, the Reclaim Verifier App provides a fast, secure, and hassle-free way for users to engage with the verification process - no downloads, no delays, just instant access.
+
+## What is a Reclaim Data Provider?
+
+A **data provider** in Reclaim's context is a structured set of instructions that guides the attestor through formatting requests and validating responses to prove a specific claim. For instance, a "google-login" provider might verify ownership of a Google account by validating a response from Google's servers.
+
+### **Key Components:**
+
+1. **Provider Structure**:
+
+   Each provider consists of:
+
+   - **Public Parameters**: Schema defining user-supplied data, such as email addresses, used in requests.
+   - **Secret Parameters**: Schema for sensitive authentication details, like access tokens, hidden from the attestor.
+
+2. **Provider Functionality** :
+   - **Request Construction**:
+     Providers define how to create API requests securely.
+     **Example**: For a "google-login" provider, the request might include the email address (public parameter) and access token (secret parameter) to validate ownership of a Google account.
+   - **Response Redaction**:
+     Sensitive portions of the server's response are redacted before sharing with the attestor.
+     **Example**: The provider could redact everything except the verified email address for an API returning user details.
+   - **Validation**:
+     The attestor validates the response against the defined rules to ensure the claim's authenticity.
+     **Example**: If verifying a birth date, the attestor might confirm the response includes a matching regex for a date format (e.g., YYYY-MM-DD).
+3. **Adding New Providers**:
+
+   Developers can use the [Reclaim DevTool](https://dev.reclaimprotocol.org/) to create providers without manually managing schema files or generating types. This tool streamlines the setup process for both public and secret parameters, ensuring correctness and consistency.
+
+_tldr; Reclaim Protocol prioritises user privacy and data security. By employing cryptographic proofs, secure communication channels, and trusted intermediaries, Reclaim Protocol empowers users to reclaim their data with confidence. This FAQ aims to address shared security concerns. If you have any further questions, please don't hesitate to contact Reclaim Protocol._
+
+### [**Security Framework**](http://localhost:3000/#security-framework)
+
+Our security infrastructure ensures:
+
+- End-to-end data encryption via TLS protocol
+- Zero visibility to third parties (including Reclaim Protocol)
+- Protected data transfer between users and websites
+- Regular third-party security audits ([View Latest Audit](https://blog.reclaimprotocol.org/posts/chacha-circuit-audit))
+
+Additional Security Resources:
+
+- [Cryptography Attack Prevention](https://blog.reclaimprotocol.org/posts/fake-key-reveal)
+- [Cryptographic Proof Integrity](https://blog.reclaimprotocol.org/posts/honey-pot)
+
+### Community Support
+
+Join our developer community:
+
+- Get direct support from our development team
+- Connect with other builders
+- Join our [Telegram group](https://t.me/protocolreclaim) for real-time assistance
