@@ -9,9 +9,8 @@ import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 
 This guide outlines the best practices for implementing Reclaim Protocol in your backend applications, covering both JavaScript and Python implementations.
 
-## Security Best Practices
-
 ## Protect Your Application Secret
+It's always recommended to store your `APPLICATION_SECRET` securely on your backend
 
 <Tabs items={['JavaScript', 'Python']}>
   <Tab>
@@ -46,78 +45,7 @@ This guide outlines the best practices for implementing Reclaim Protocol in your
 </Callout>
 
 1. Store your `APP_SECRET` securely using environment variables.
-2. Use a package like `dotenv` to manage your environment variables:
+2. Use a package like `dotenv` to manage your environment variables.
 
-## Error Handling
-
-<Tabs items={['JavaScript', 'Python']}>
-  <Tab>
-    ```javascript
-    try {
-      const reclaimProof = await ReclaimProofRequest.init(APP_ID, APP_SECRET);
-      // ... handle success
-    } catch (error) {
-      console.error('Initialization failed:', error);
-      // Implement proper error reporting
-      throw new Error('Service temporarily unavailable');
-    }
-    ```
-  </Tab>
-  <Tab>
-    ```python
-    try:
-        reclaim_proof = await ReclaimProofRequest.init(APP_ID, APP_SECRET)
-        # ... handle success
-    except Exception as error:
-        logging.error(f"Initialization failed: {error}")
-        # Implement proper error reporting
-        raise HTTPException(status_code=503, detail="Service temporarily unavailable")
-    ```
-  </Tab>
-</Tabs>
-
-1. **Graceful Error Handling**: Implement proper error handling for all SDK operations.
-2. **Logging**: Log errors for debugging while keeping sensitive information secure.
-3. **User-Friendly Messages**: Return appropriate error messages to clients.
-
-## Performance Optimization
-
-<Tabs items={['JavaScript', 'Python']}>
-  <Tab>
-    ```javascript
-    // Cache initialization where appropriate
-    let reclaimProofRequest;
-    
-    async function getOrCreateProofRequest() {
-      if (!reclaimProofRequest) {
-        reclaimProofRequest = await ReclaimProofRequest.init(APP_ID, APP_SECRET);
-      }
-      return reclaimProofRequest;
-    }
-    ```
-  </Tab>
-  <Tab>
-    ```python
-    # Cache initialization where appropriate
-    reclaim_proof_request = None
-    
-    async def get_or_create_proof_request():
-        global reclaim_proof_request
-        if not reclaim_proof_request:
-            reclaim_proof_request = await ReclaimProofRequest.init(APP_ID, APP_SECRET)
-        return reclaim_proof_request
-    ```
-  </Tab>
-</Tabs>
-
-1. **Request Caching**: Cache proof request configurations when appropriate.
-2. **Connection Pooling**: Use connection pooling for database operations.
-3. **Async Operations**: Utilize async/await for better performance.
-
-## Monitoring and Logging
-
-1. **Metrics**: Track success rates, response times, and error rates.
-2. **Alerts**: Set up alerts for unusual patterns or high error rates.
-3. **Logging**: Implement structured logging for better debugging.
 
 Remember to always refer to the latest SDK documentation for specific version requirements and updates.

@@ -1,11 +1,7 @@
 ---
-title: Backend Flow
-description: Welcome to the Reclaim Protocol JavaScript SDK for backend Node.js applications! This SDK helps you implement Reclaim in your server-side applications, allowing users to prove their credentials from other websites without sharing sensitive information.
+title: Reclaim Protocol Backend SDKs
+description: This documentation helps you initiate a proof and verify the user-generated proof on the backend. This is the most secure way to request verifications.
 ---
-
-# Reclaim Protocol Backend SDKs
-
-Welcome to the Reclaim Protocol backend SDKs documentation! These SDKs help you implement Reclaim in your server-side applications, allowing users to prove their credentials from other websites without sharing sensitive information.
 
 ## Available SDKs
 
@@ -13,9 +9,17 @@ Reclaim Protocol offers two backend SDKs:
 - JavaScript SDK for Node.js applications
 - Python SDK for Python applications
 
-## Quick Start for Beginners
+## Understanding the flow
+1. Initiate a Proof Request. To initiate, you need an application ID, an application secret and a provider ID. All of which you can obtain from [the Reclaim Dev Tool](https://dev.reclaimprotocol.org).
+2. Set meta data in the Proof Request.
+  a. Callback Url - where the proof, once generated, is sent
+  b. Context - any additional information you want to be sent back to you in the proof
+3. Send the Proof Request to the frontend. See how to use ProofRequest to optimally build your UI [here](/js/fullstack-example).
+4. Accept the actual proof on the callback url set above.
+5. Verify the proof that has been submitted, and then continue with your business logic.
 
-New to Reclaim? Here's how to get started with the backend implementation:
+
+## Next steps
 
 1. [Installation](./backend/installation)
    Learn how to set up either the JavaScript or Python SDK in your project.
@@ -23,53 +27,3 @@ New to Reclaim? Here's how to get started with the backend implementation:
 2. [Backend Example](./backend/backend-example)
    Understand the basic flow of using the SDKs in a backend environment.
 
-## How It Works
-
-Here's a simplified flow of how Reclaim works in a typical backend application:
-
-1. **User Request**: A user requests to prove their credentials.
-2. **Backend Configuration**: Your server creates a `reclaimProofRequestConfig` object with the necessary parameters.
-3. **Config Transmission**: The server sends the `reclaimProofRequestConfig` to the frontend.
-4. **Frontend Initialization**: The frontend initializes the Reclaim SDK using the received `reclaimProofRequestConfig`.
-5. **Request URL Generation**: The frontend generates a request URL using the initialized SDK.
-6. **User Interaction**: The user visits the request URL and logs into the target website (e.g., Amazon.com).
-7. **Proof Generation**: A proof is created on the user's device.
-8. **Proof Submission**: The user submits the proof to your server.
-9. **Verification**: Your server verifies the proof and takes appropriate action.
-
-## Why Use Backend Implementation?
-
-Using Reclaim in your backend offers several advantages:
-
-- **Enhanced Security**: Keep sensitive operations server-side.
-- **Custom Authentication**: Integrate with your existing auth system.
-- **Scalability**: Handle multiple users and requests efficiently.
-- **Data Management**: Store and process proofs securely on your server.
-
-## Advanced Topics
-
-Ready to dive deeper? Explore these advanced features:
-
-- [Advance Options](../advance-options/advance-options)
-   Tailor the SDK to your specific backend needs.
-
-- [Best Practices](./backend/best-practices)
-   Optimize your Reclaim integration with our recommended approaches for backend implementations.
-
-## Need Help?
-
-We're here to support you:
-
-- Join our [Telegram community](https://t.me/protocolreclaim)
-- Visit our [Website](https://reclaimprotocol.org)
-
-## Stay Connected
-
-Keep up with the latest Reclaim developments:
-
-- Follow us on [Twitter](https://twitter.com/reclaimprotocol)
-- Star our repositories:
-  - [JavaScript SDK](https://github.com/reclaimprotocol/reclaim-js-sdk/)
-  - [Python SDK](https://github.com/reclaimprotocol/reclaim-python-sdk/)
-
-We're excited to see what you'll create with the Reclaim Protocol SDKs in your backend applications. Happy building!
