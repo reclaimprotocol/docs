@@ -1,43 +1,24 @@
 ---
-title: Example
-description: This example demonstrates how to create a simple Express.js backend that works with the Reclaim Protocol. The backend will handle generating the configuration for the SDK and receiving proofs.
+title: Backend Example
+description: This example will help you get started with a basic backend implementation to start proof requests and verify proofs.
 ---
 
 import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 
-# Backend Example
-
-This example demonstrates how to create a simple backend that works with the Reclaim Protocol. The backend will handle generating the configuration for the SDK and receiving proofs.
-
 ## Step-by-Step Implementation
 
-### 1. Set up the project
+### 1. Install the SDK
+Make sure you have installed the SDKs by following the instructions on the [Installation page](./installation).
 
-<Tabs items={['JavaScript (Express)', 'Python (FastAPI)']}>
-  <Tab value="JavaScript (Express)">
-    First, create a new directory for your backend project and initialize it:
+### 2. Prepare your variables
+- You will need to have the `APPLICATION_ID` and `APPLICATION_SECRET` from dev.reclaimprotocol.org.
+- You will also need to add providers to your application, keep the `PROVIDER_ID` handy too. 
+- The providers you add to the application, will be the providers you will be able to ask the user to generate a proof for.
+- Make sure you add to your [Application from the dev tool](https://dev.reclaimprotocol.org/my-applications/).
 
-    ```bash
-    mkdir reclaim-backend-demo
-    cd reclaim-backend-demo
-    npm init -y
-    npm install express @reclaimprotocol/js-sdk
-    ```
-  </Tab>
-  <Tab value="Python (FastAPI)">
-    First, create a new directory and set up a Python virtual environment:
+### 3. Create the Proof Request generator endpoint
+This endpoint defines what proof you are requesting from the user.
 
-    ```bash
-    mkdir reclaim-backend-demo
-    cd reclaim-backend-demo
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    pip install fastapi uvicorn reclaim-python-sdk==0.1.5
-    ```
-  </Tab>
-</Tabs>
-
-### 2. Create the server file
 
 <Tabs items={['JavaScript (Express)', 'Python (FastAPI)']}>
   <Tab value="JavaScript (Express)">
@@ -55,13 +36,14 @@ This example demonstrates how to create a simple backend that works with the Rec
 
     // Route to generate SDK configuration
     app.get('/reclaim/generate-config', async (req, res) => {
-      const APP_ID = 'YOUR_APPLICATION_ID'
+      const APP_ID = 'YOUR_APPLICATION_ID' 
       const APP_SECRET = 'YOUR_APPLICATION_SECRET'
-      const PROVIDER_ID = 'YOUR_PROVIDER_ID'
+      const PROVIDER_ID = 'YOUR_PROVIDER_ID' 
 
       try {
         const reclaimProofRequest = await ReclaimProofRequest.init(APP_ID, APP_SECRET, PROVIDER_ID)
         
+        // we will be defining this endpoint in the next step
         reclaimProofRequest.setAppCallbackUrl('https://your-backend.com/receive-proofs')
         
         const reclaimProofRequestConfig = reclaimProofRequest.toJsonString()
@@ -73,27 +55,17 @@ This example demonstrates how to create a simple backend that works with the Rec
       }
     })
 
-    // Route to receive proofs
-    app.post('/receive-proofs', async (req, res) => {
-      // decode the urlencoded proof object
-      const decodedBody = decodeURIComponent(req.body);
-      const proof = JSON.parse(decodedBody);
-
-      // Verify the proof using the SDK verifyProof function
-      const result = await verifyProof(proof)
-      if (!result) {
-        return res.status(400).json({ error: 'Invalid proofs data' });
-      }
-
-      console.log('Received proofs:', proof)
-      // Process the proofs here
-      return res.sendStatus(200)
-    })
-
     app.listen(port, () => {
       console.log(`Server running at http://localhost:${port}`)
     })
     ```
+    <Callout type="warning">
+      Do not use the `express.urlencoded()` middleware as it will conflict with the `express.text()` middleware above. The proof object sent to the callback URL needs to be parsed as text, otherwise it won't be processed correctly.
+    </Callout>
+
+    
+
+
   </Tab>
   <Tab value="Python (FastAPI)">
     Create a new file named `main.py` and add the following code:
@@ -116,6 +88,7 @@ This example demonstrates how to create a simple backend that works with the Rec
         try:
             reclaim_proof_request = await ReclaimProofRequest.init(APP_ID, APP_SECRET, PROVIDER_ID)
             
+            // we will be defining this endpoint in the next step
             reclaim_proof_request.set_app_callback_url("https://your-backend.com/receive-proofs")
             
             reclaim_proof_request_config = reclaim_proof_request.to_json_string()
@@ -125,6 +98,57 @@ This example demonstrates how to create a simple backend that works with the Rec
             print(f"Error generating request config: {error}")
             return {"error": "Failed to generate request config"}, 500
 
+
+    if __name__ == "__main__":
+        uvicorn.run(app, host="0.0.0.0", port=3000)
+    ```
+
+  </Tab>
+</Tabs>
+
+
+### 4. Add the Receive Proof endpoint to verify the proofs
+This endpoint will be called once the user generates the proof. Here is where we must verify the submitted proof and execute business logic accordingly.
+<Tabs items={['JavaScript (Express)', 'Python (FastAPI)']}>
+  <Tab value="JavaScript (Express)">
+    Add this function to your `server.js`
+    ```javascript
+
+    // Route to receive proofs
+    app.post('/receive-proofs', async (req, res) => {
+      // decode the urlencoded proof object; see below if not using express middlewares for decoding
+      const decodedBody = decodeURIComponent(req.body);
+      const proof = JSON.parse(decodedBody);
+
+      // Verify the proof using the SDK verifyProof function
+      const result = await verifyProof(proof)
+      if (!result) {
+        return res.status(400).json({ error: 'Invalid proofs data' });
+      }
+
+      console.log('Received proofs:', proof)
+      // Process the proofs here
+      return res.sendStatus(200)
+    })
+
+    ```
+    <Callout type="warning">
+      If not using a middleware to parse the body, be sure to parse the body manually, like so: 
+      ```
+        const body = {};
+        for (const [key, value] of formData.entries()) {
+          body[key] = value;
+        }
+        console.log('Processed body:', body);
+
+        const parsedBody = JSON.parse(Object.keys(body)[0]);
+      ```
+    </Callout>
+
+  </Tab>
+  <Tab value="Python (FastAPI)">
+    Add this to your `main.py`
+    ```python
     # Route to receive proofs
     @app.post("/receive-proofs")
     async def receive_proofs(request: Request):
@@ -149,16 +173,9 @@ This example demonstrates how to create a simple backend that works with the Rec
 
 
         return {"status": "success"}
-
-    if __name__ == "__main__":
-        uvicorn.run(app, host="0.0.0.0", port=3000)
     ```
   </Tab>
 </Tabs>
-
-<Callout type="warning">
-  Do not use the `express.urlencoded()` middleware as it will conflict with the `express.text()` middleware above. The proof object sent to the callback URL needs to be parsed as text, otherwise it won't be processed correctly.
-</Callout>
 
 For detailed information about the `proof` object received in the `/receive-proofs` endpoint, refer to the [Proof Structure](../advance-options/advance-options#understanding-the-proof-structure) section.
 
@@ -186,87 +203,7 @@ For detailed information about the `proof` object received in the `/receive-proo
   </Tab>
 </Tabs>
 
-## Understanding the `reclaimProofRequestConfig`
-
-The `reclaimProofRequestConfig` is a JSON string that contains all the necessary information for initializing the Reclaim SDK on the client-side. Here's an example of what the response from the `/reclaim/generate-config` endpoint might look like:
-
-```json
-{
-  "reclaimProofRequestConfig": "{
-    \"applicationId\": \"<APPLICATION_ID>\",
-    \"providerId\": \"<PROVIDER_ID>\",
-    \"sessionId\": \"<SESSION_ID>\",
-    \"context\": {
-      \"contextAddress\": \"<CONTEXT_ADDRESS>\",
-      \"contextMessage\": \"<CONTEXT_MESSAGE>\"
-    },
-    \"requestedProof\": {
-      \"url\": \"<PROOF_URL>\",
-      \"parameters\": {
-        \"<PARAM1>\": \"\",
-        \"<PARAM2>\": \"\"
-      }
-    },
-    \"appCallbackUrl\": \"<CALLBACK_URL>\",
-    \"signature\": \"<SIGNATURE>\",
-    \"timeStamp\": \"<TIMESTAMP>\"
-  }"
-}
-```
-
-Let's break down the structure of the `reclaimProofRequestConfig`:
-
-- `applicationId`: Your unique application identifier.
-- `providerId`: The ID of the provider you're using.
-- `sessionId`: A unique identifier for this particular proof request session.
-- `context`: 
-  - `contextAddress`: The address associated with the context (often set to "0x0").
-  - `contextMessage`: A custom message providing context for the proof request.
-- `requestedProof`:
-  - `url`: The URL from which the proof will be generated.
-  - `parameters`: Key-value pairs of parameters required for the proof.
-- `appCallbackUrl`: The URL where the proofs will be sent after generation.
-- `signature`: A cryptographic signature ensuring the integrity of the request.
-- `timeStamp`: The timestamp when the configuration was generated.
-
-When you receive this response from your backend, you'll need to use the `reclaimProofRequestConfig` string to initialize the Reclaim SDK in your client application.
-
-## Using the Configuration in Client Applications
-
-You can use this configuration to initialize the Reclaim SDK in various client platforms:
+### 4. Display the Proof Request to the user
+You can now display the Proof Request to the user, by following the [Fullstack Example here](/js/fullstack-example#2-frontend-implementation)
 
 
-<Tabs items={ ['JavaScript', 'React Native', 'Flutter']}>
-  <Tab value="Javscript">
-    ```javascript
-    import { ReclaimProofRequest } from '@reclaimprotocol/js-sdk';
-
-    // Fetch the config from your backend
-    const response = await fetch('http://your-backend.com/reclaim/generate-config');
-    const jsonData = await response.json();
-    const reclaimProofRequest = await ReclaimProofRequest.fromJsonString(jsonData.reclaimProofRequestConfig);
-    ```
-  </Tab>
-  <Tab value="React Native">
-    ```javascript
-    import { ReclaimProofRequest } from '@reclaimprotocol/reactnative-sdk';
-
-    // Fetch the config from your backend
-    const response = await fetch('http://your-backend.com/reclaim/generate-config');
-    const jsonData = await response.json();
-    const reclaimProofRequest = await ReclaimProofRequest.fromJsonString(jsonData.reclaimProofRequestConfig);
-    ```
-  </Tab>
-  <Tab value="Flutter">
-    ```dart
-    import 'package:reclaim_sdk/reclaim.dart';
-
-    // Fetch the config from your backend
-    final response = await http.get(Uri.parse('http://your-backend.com/reclaim/generate-config'));
-    final jsonData = json.decode(response.body);
-    final reclaimProofRequest = await ReclaimProofRequest.fromJsonString(jsonData['reclaimProofRequestConfig']);
-    ```
-  </Tab>
-</Tabs>
-
-By using this approach, you keep sensitive information like your `APP_SECRET` on the server-side while still allowing your client applications to utilize all the SDK features securely.
