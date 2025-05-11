@@ -2,6 +2,7 @@
     "title": "Usage",
     "pages": [
         "intro",
+        "verification-options",
         "attestor-auth",
         "overrides"
     ]

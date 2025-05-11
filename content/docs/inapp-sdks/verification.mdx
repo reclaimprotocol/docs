@@ -1,0 +1,18 @@
+---
+title: Backend Verification
+description: Learn how to create session and verify with Reclaim Backend SDKs
+---
+
+As best practice, we **strongly** recommend verifying proofs generated from client-side SDKs with a [Reclaim Protocol Backend SDK](http://localhost:3000/backend/installation). 
+
+## Step-by-Step Guide
+
+### 1. Install the SDK
+
+Make sure you have installed the SDKs by following the instructions on the [Installation page](./../backend/installation).
+
+### 2. Prepare your variables
+- You will need to have the `APPLICATION_ID` and `APPLICATION_SECRET` from dev.reclaimprotocol.org.
+- You will also need to add providers to your application, keep the `PROVIDER_ID` handy too. 
+- The providers you add to the application, will be the providers you will be able to ask the user to generate a proof for.
+- Make sure you add to your [Application from the dev tool](https://dev.reclaimprotocol.org/my-applications/).
