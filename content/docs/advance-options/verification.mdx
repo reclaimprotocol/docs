@@ -1,0 +1,122 @@
+---
+title: Backend Verification
+description: Learn how to create session and verify with Reclaim Backend SDKs
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+
+As best practice, we **strongly** recommend verifying proofs generated from client-side SDKs with a [Reclaim Protocol Backend SDK](http://localhost:3000/backend/installation). 
+
+## Step-by-Step Guide
+
+### 1. Install the SDK
+
+Make sure you have installed the SDKs by following the instructions on the [Installation page](./../backend/installation).
+
+### 2. Prepare your variables
+- You will need to have the `APPLICATION_ID` and `APPLICATION_SECRET` from dev.reclaimprotocol.org.
+- You will also need to add providers to your application, keep the `PROVIDER_ID` handy too. 
+- The providers you add to the application, will be the providers you will be able to ask the user to generate a proof for.
+- Make sure you add to your [Application from the dev tool](https://dev.reclaimprotocol.org/my-applications/).
+
+### 3. Get request URL from Backend SDK
+
+- Set the `useAppClip` option to `true` when initializing proof request: `ReclaimProofRequest.init`.
+- Get the `request_url` by calling `getRequestUrl` method on proof request object.
+
+```js
+import { ReclaimProofRequest } from '@reclaimprotocol/js-sdk';
+
+app.get('/reclaim/request', async (req: any, res: any) => {
+    try {
+        const reclaimProofRequest = await ReclaimProofRequest.init(APPLICATION_ID, APPLICATION_SECRET, PROVIDER_ID, { useAppClip: true })
+
+        const request_url = await reclaimProofRequest.getRequestUrl()
+
+        return res.json({ request_url })
+    } catch (error) {
+        console.error('Error generating request config:', error)
+        return res.status(500).json({ error: 'Failed to generate request config' })
+    }
+});
+```
+
+### 4. Generate proof on client mobile
+
+- Your native mobile application should use the `request_url` from the backend and start verification with this url.
+
+<Tabs items={['Swift', 'Kotlin', 'JavaScript']}>
+  <Tab value="Swift">
+
+Start verification with `request_url` using the following sample code:
+
+```swift
+let result = try await ReclaimVerification.startVerification(.url(requestUrl))
+```
+
+Send `result.proofs` to the backend for verification and further processing
+
+  </Tab>
+  <Tab value="Kotlin">
+
+Start verification with `request_url` using the following sample code:
+
+```kotlin
+ReclaimVerification.startVerificationFromUrl(
+    context = context,
+    requestUrl = requestUrl,
+    handler = object : ReclaimVerification.ResultHandler {
+        override fun onException(exception: ReclaimVerification.ReclaimVerificationException) {
+            // <Omitted for brevity>
+        }
+
+        override fun onResponse(response: ReclaimVerification.Response) {
+            Log.d("MainActivity", response.toString())
+            // response.proofs
+        }
+    }
+)
+```
+
+Send the `response.proofs`, that was received in handler's `onResponse` method, to the backend for verification and further processing
+
+  </Tab>
+  <Tab value="JavaScript">
+
+Start verification with `request_url` using the following sample code:
+
+```js
+const sdk = new ReclaimVerification();
+// `startVerificationFromUrl` will be added to sdk in an upcoming update.
+// For now, access it from `sdk.platform`.
+const result = await sdk.platform.startVerificationFromUrl(requestUrl);
+```
+
+Send `result.proofs` to the backend for verification and further processing
+
+  </Tab>
+</Tabs>
+
+### 5. Verify proofs at backend
+
+- Mobile application (client) should send the proof to your backend for verification and then processing.
+- Use `verifyProof` from the reclaim backend sdk for verifying the proof received from the client.
+
+```js
+import { verifyProof } from '@reclaimprotocol/js-sdk';
+
+app.post('/reclaim/verify', async (req: any, res: any) => {
+    try {
+        const data = req.body; // json object/array as body
+        const is_valid = await verifyProof(data);
+
+        if (is_valid) {
+            return res.json({ is_valid: is_valid })
+        }
+        return res.status(400).json({ is_valid: is_valid })
+    } catch (error) {
+        console.error('Error verifying proof:', error)
+        return res.status(500).json({ error: 'Failed to verify proof' })
+    }
+})
+```
