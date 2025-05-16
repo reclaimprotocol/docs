@@ -1,4 +1,7 @@
 {
-    "title": "React Native SDK",
-    "pages": ["installation", "best-practices", "basic-example", "fullstack-example"]
+  "title": "React Native SDK",
+  "pages": [
+    "installation",
+    "usage"
+  ]
 }

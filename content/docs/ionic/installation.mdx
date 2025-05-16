@@ -1,6 +1,6 @@
 ---
 title: Installation
-description: This SDK allows Reclaim Protocol to be triggered from your app, without changing context.
+description: Reclaim Protocol's Capacitor SDK 
 ---
 
 import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
@@ -8,34 +8,31 @@ import { BadgeGroup } from '@/app/components/badge';
 import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
 
 <BadgeGroup badges={[
-    { href: 'https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk', imgSrc: 'https://img.shields.io/github/v/tag/reclaimprotocol/reclaim-inapp-reactnative-sdk.svg', alt: 'Reclaim React Native SDK' },
-    { href: 'https://docs.reclaimprotocol.org/inapp-sdks/react-native', imgSrc: 'https://img.shields.io/badge/read_the-docs-blue.svg', alt: 'Documentation' },
-    { href: 'https://www.npmjs.com/package/@reclaimprotocol/inapp-rn-sdk', imgSrc: 'https://img.shields.io/npm/v/%40reclaimprotocol%2Finapp-rn-sdk.svg', alt: 'NPM Version' },
+    { href: 'https://github.com/reclaimprotocol/reclaim-inapp-capacitor-sdk', imgSrc: 'https://img.shields.io/github/v/tag/reclaimprotocol/reclaim-inapp-capacitor-sdk.svg', alt: 'Reclaim Capacitor SDK' },
+    { href: 'https://docs.reclaimprotocol.org/inapp-sdks/ionic-capacitor', imgSrc: 'https://img.shields.io/badge/read_the-docs-blue.svg', alt: 'Documentation' },
+    { href: 'https://www.npmjs.com/package/@reclaimprotocol/inapp-capacitor-sdk', imgSrc: 'https://img.shields.io/npm/v/%40reclaimprotocol%2Finapp-capacitor-sdk.svg', alt: 'NPM Version' },
 ]} />
 
+## Prerequisites
 
-Note:
-- This SDK may not be compatible with React Native [Frameworks](https://reactnative.dev/architecture/glossary#react-native-framework) like Expo. 
-- To learn more about React Native apps without a framework, refer to the [React Native documentation](https://reactnative.dev/docs/getting-started-without-a-framework).
-
-## Example
-
-- See the [Reclaim Example - React Native](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/tree/main/samples/example_new_arch) for a complete example of how to use the SDK in a React Native application.
+- A [Reclaim account](https://dev.reclaimprotocol.org/explore) where you've created an app and have the app id, app secret.
+- A provider id that you've added to your app in [Reclaim Devtools](https://dev.reclaimprotocol.org/explore).
 
 ## Get an API Key
 Setup your project using the [Get API Key guide](/api-key).
 
-
 ## Installation
 
 ```package-install
-npm install @reclaimprotocol/inapp-rn-sdk
+npm install @reclaimprotocol/inapp-capacitor-sdk
+npx cap sync
 ```
 
 #### Alternative: Install from git source
 
 ```package-install
-npm install git+https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk.git
+npm install git+https://github.com/reclaimprotocol/reclaim-inapp-capacitor-sdk.git
+npx cap sync
 ```
 
 ## Setup
@@ -165,22 +162,13 @@ platform :ios, '13.0'
 
 # ... some podfile content (removed for brevity)
 
-target 'InappRnSdkExample' do
-  config = use_native_modules!
-
-  use_react_native!(
-    :path => config[:reactNativePath],
-    :app_path => "#{Pod::Config.instance.installation_root}/.."
-  )
-
+target 'App' do
+  capacitor_pods
+  # Add your Pods here
   # This is the line that you may need to add in your podfile.
   pod 'ReclaimInAppSdk', '~> 0.3.0'
-
-  pre_install do |installer|
-    system("cd ../../ && npx bob build --target codegen")
-  end
-
-  # ... rest of the podfile. (removed for brevity)
+end
+# ... rest of the podfile. (removed for brevity)
 ```
 
 3. Run `pod install` inside the `ios/` directory of your project.
@@ -189,6 +177,65 @@ target 'InappRnSdkExample' do
 cd ios/
 pod install
 ```
+
+#### Fixing runtime routing issue on iOS
+
+This library uses a golang static library. Use of this has raised an issue in capacitor's swift router, causing the app to crash on startup with error message: **Error: The file "public" couldn't be opened.**
+
+<img src="https://github.com/reclaimprotocol/reclaim-inapp-capacitor-sdk/blob/main/screenshots/ios_crash.png?raw=true" alt="iOS crash" width="500" />
+
+There are open issues on both capacitor and golang's issue tracker to dicuss this problem:
+* https://github.com/ionic-team/capacitor/issues/7844
+* https://github.com/golang/go/issues/58225
+
+A simple workaround is available to fix this issue and requires a custom view controller to be used in ios.
+
+<Accordions>
+<Accordion title="Steps for fixing runtime routing issue on iOS">
+
+1. First, create a PatchedViewController.swift file by [opening Xcode](https://capacitorjs.com/docs/ios#opening-the-ios-project), right-clicking on the **App** group (under the App target), selecting **New File from Template** from the context menu, choosing **Cocoa Touch Class** in the window, set the **Subclass of:** to UIViewController in the next screen, and save the file.
+
+<img src="https://github.com/reclaimprotocol/reclaim-inapp-capacitor-sdk/blob/main/screenshots/1.png?raw=true" alt="New File from Template in Xcode" width="300" />
+<img src="https://github.com/reclaimprotocol/reclaim-inapp-capacitor-sdk/blob/main/screenshots/2.png?raw=true" alt="Selecting a Cocoa Touch Class" width="500" />
+<img src="https://github.com/reclaimprotocol/reclaim-inapp-capacitor-sdk/blob/main/screenshots/3.png?raw=true" alt="Creating a new Swift file" width="500" />
+
+2. Next, select the `Main.storyboard` file in the Project Navigator, select the **Bridge View Controller** in the **Bridge View Controller Scene**, select the **Identity Inspector** on the right, and change the name of the custom class to `PatchedViewController`.
+
+<img src="https://github.com/reclaimprotocol/reclaim-inapp-capacitor-sdk/blob/main/screenshots/4.png?raw=true" alt="Opening Identity Inspector for Main.storyboard" width="500" />
+<img src="https://github.com/reclaimprotocol/reclaim-inapp-capacitor-sdk/blob/main/screenshots/5.png?raw=true" alt="Selecting PatchedViewController" width="500" />
+
+3. Finally, select the `PatchedViewController.swift` file in the Project Navigator and edit it to paste the following code:
+
+```swift
+import UIKit
+import Capacitor
+
+public struct PatchedRouter: Router {
+    public init() {}
+    public var basePath: String = ""
+    public func route(for path: String) -> String {
+        // FIX: Never pass an empty string here
+        let pathUrl = URL(fileURLWithPath: path.isEmpty ? "/" : path)
+
+        // If there's no path extension it also means the path is empty or a SPA route
+        if pathUrl.pathExtension.isEmpty {
+            return basePath + "/index.html"
+        }
+
+        return basePath + path
+    }
+}
+
+class PatchedViewController: CAPBridgeViewController {
+    // Passing our own router to fix the issue about go chdir on ios init issue
+    override open func router() -> any Router {
+        PatchedRouter()
+    }
+}
+```
+
+</Accordion>
+</Accordions>
 
 #### Fixing performance issues on IOS physical devices
 
@@ -234,12 +281,3 @@ This method is **not recommended** but could be useful if you don't want to add 
 
 </Accordion>
 </Accordions>
-
-
-## Contributing
-
-See the [contributing guide](CONTRIBUTING.md) to learn how to contribute to the repository and the development workflow.
-
-## License
-
-MIT

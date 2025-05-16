@@ -1,0 +1,94 @@
+---
+title: Usage
+description: This SDK allows Reclaim Protocol to be triggered from your app, without changing context.
+---
+
+
+To use Reclaim InApp Sdk in your project, follow these steps:
+
+1. Import the `@reclaimprotocol/inapp-rn-sdk` package in your project file.
+
+```js
+import { ReclaimVerification } from '@reclaimprotocol/inapp-rn-sdk';
+```
+
+2. Initialize the `ReclaimVerification` class to create an instance.
+
+```js
+const reclaimVerification = new ReclaimVerification();
+```
+
+3. Start the verification flow by providing the app id, secret and provider id.
+
+```js
+const verificationResult = await reclaimVerification.startVerification({
+    appId: config.REACT_APP_RECLAIM_APP_ID ?? '',
+    secret: config.REACT_APP_RECLAIM_APP_SECRET ?? '',
+    providerId: providerId,
+});
+```
+
+The returned result is a [ReclaimVerification.Response] object. This object contains a response that has proofs, exception, and the sessionId if the verification is successful.
+
+### Exception Handling
+
+If the verification ends with an exception, the exception is thrown as a [ReclaimVerification.ReclaimVerificationException] object.
+
+Following is an example of how to handle the exception using [error.type]:
+
+```js
+try {
+  // ... start verification
+} catch (error) {
+  if (error instanceof ReclaimVerification.ReclaimVerificationException) {
+    switch (error.type) {
+      case ReclaimVerification.ExceptionType.Cancelled:
+        Snackbar.show({
+          text: 'Verification cancelled',
+          duration: Snackbar.LENGTH_LONG,
+        });
+        break;
+      case ReclaimVerification.ExceptionType.Dismissed:
+        Snackbar.show({
+          text: 'Verification dismissed',
+          duration: Snackbar.LENGTH_LONG,
+        });
+        break;
+      case ReclaimVerification.ExceptionType.SessionExpired:
+        Snackbar.show({
+          text: 'Verification session expired',
+          duration: Snackbar.LENGTH_LONG,
+        });
+        break;
+      case ReclaimVerification.ExceptionType.Failed:
+      default:
+        Snackbar.show({
+          text: 'Verification failed',
+          duration: Snackbar.LENGTH_LONG,
+        });
+    }
+  } else {
+    Snackbar.show({
+      text: error instanceof Error ? error.message : 'An unknown verification error occurred',
+      duration: Snackbar.LENGTH_LONG,
+    });
+  }
+}
+```
+
+This error also contains `sessionId`, `reason`, and `innerError` that can be used to get more details about the occurred error.
+
+```js
+error.sessionId
+error.reason
+error.innerError
+```
+
+## Migration
+
+- Migration steps for [0.3.1](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/migration.md#031)
+- Migration steps for [0.3.0](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/migration.md#030)
+- Migration steps for [0.2.1](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/migration.md#021)
+
+## Advanced Usage
+You can check out available functions in the SDK in the [Advance Options guide](/advance-options/advance-options)

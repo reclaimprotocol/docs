@@ -2,18 +2,19 @@
   "root": true,
   "pages": [
     "index",
-    "js",
-    "fullstack",
-    "backend",
-    "flutter",
+    "api-key",
+    "web",
     "react-native",
+    "ios-swift",
+    "android-kotlin",
+    "flutter",
+    "ionic",
+    "react-native-expo",
+    "onchain",
     "zkfetch",
-    "inapp-sdks",
-    "sdk",
-    "attestor-decentralization",
-    "advance-options",
     "ai-agent",
-    "hackathon",
+    "advance-options",
+    "attestor-decentralization",
     "understanding-the-tech"
   ]
 }

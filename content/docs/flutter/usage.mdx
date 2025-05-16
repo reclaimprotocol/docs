@@ -1,45 +1,7 @@
 ---
-title: Installation
+title: Usage
 description: Flutter SDK for Reclaim Protocol
 ---
-
-<Callout type="info">
-The Reclaim Protocol SDK for Flutter (android & iOS) applications is ready and available upon request. Contact our team to discuss implementation details.
-</Callout>
-
-A Flutter SDK for integrating Reclaim's verification system directly into your Flutter applications. This SDK allows you to verify user credentials and generate proofs in-app.
-
-## Features
-
-- In-app verification flow
-- Customizable verification options
-- ZK Proof generation
-- Compatible when using Flutter "Add to App modules" in your native applications
-
-## Prerequisites
-
-- An Android application source code (Support for Android 5.0 or later).
-- An Android device or emulator running Android 5.0 or later.
-- A Reclaim account where you've created an app and have the app id, app secret.
-- A provider id that you've added to your app in Reclaim Devtools.
-
-## Get an API Key
-Setup your project using the [Get API Key guide](/api-key).
-
-## Installation
-
-Add the following to your `pubspec.yaml`:
-
-```yaml
-dependencies:
-  reclaim_inapp_flutter_sdk: ^latest_version
-```
-
-
-## Usage
-
-### Basic Setup
-
 1. Import the SDK in your Dart file:
 
 ```dart
@@ -116,11 +78,6 @@ void main() async {
   runApp(MyApp());
 }
 ```
-
-## Example
-
-Check out the [example](example/lib/main.dart) for a complete implementation.
-
 ## Environment Variables
 
 The SDK requires the following environment variables:
@@ -134,8 +91,6 @@ You can provide these values using:
 - Dart Define Env file: `--dart-define-from-file=./.env`
 - Hardcoded values (not recommended for production)
 
-### Stay Updated
+## Example
 
-- Join our [Telegram community](https://t.me/protocolreclaim)
-- Follow [@reclaimprotocol](https://twitter.com/reclaimprotocol) on Twitter
-- Watch our [GitHub repository](https://github.com/reclaimprotocol)
+Check out the [example](example/lib/main.dart) for a complete implementation.
