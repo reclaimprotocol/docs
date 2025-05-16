@@ -48,7 +48,6 @@ const getVerificationReq = async () => {
 
     // Step 2: Initialize the ReclaimProofRequest with the received configuration
     const reclaimProofRequest = await ReclaimProofRequest.fromJsonString(reclaimProofRequestConfig);
-    setRequestUrl(requestUrl);
 
     // Step 3: Generate the request URL for the verification process
     const requestUrl = await reclaimProofRequest.getRequestUrl();
@@ -56,7 +55,7 @@ const getVerificationReq = async () => {
     // Step 4: Start the verification session
     await reclaimProofRequest.startSession({
       onSuccess: (proofs) => {
-        console.log("successfully created proof", proof);
+        console.log("successfully created proof", proofs);
         // Handle successful verification 
       },
       onError: (error) => {

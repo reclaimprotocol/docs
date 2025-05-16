@@ -81,7 +81,7 @@ If you are deploying this on localhost, be sure to use [ngrok](https://ngrok.com
     from urllib.parse import unquote
 
     app = FastAPI()
-    BASE_URL = "https://your-domain.com"; // if using ngrok, provide the ngrok base url
+    BASE_URL = "https://your-domain.com"; # if using ngrok, provide the ngrok base url
 
     # Route to generate SDK configuration
     @app.get("/generate-config")
