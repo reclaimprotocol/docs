@@ -1,6 +1,6 @@
 ---
-title: iOS SDK
-description: Reclaim Protocol's InApp iOS SDK for ZK proof generations for requests with an in-app experience of web verification
+title: Installation
+description: Integrate Reclaim Protocol into iOS Native Applications.
 ---
 
 import { BadgeGroup } from '@/app/components/badge';
@@ -27,10 +27,9 @@ This SDK allows you to integrate Reclaim's in-app verification process into your
 - A Reclaim account where you've created an app and have the app id, app secret.
 - A provider id that you've added to your app in Reclaim Devtools.
 
-## Example
+## Get an API Key
+Setup your project using the [Get API Key guide](/api-key).
 
-- See the [Reclaim Example - SwiftUI](https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk/blob/53a19f88c8d90df485a60dc20190f740cd9fd108/Examples/SwiftUIExample/README.md) for a complete example of how to use the SDK in a SwiftUI application.
-- See the [Reclaim Example - SwiftUI with CocoaPods](https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk/blob/main/Examples/SwiftUIWithPodExample/README.md) for a complete example of how to use the SDK in a SwiftUI application with CocoaPods.
 
 ## Installation
 
@@ -219,113 +218,3 @@ This method is **not recommended** but could be useful if you don't want to add 
 
 </Accordion>
 </Accordions>
-
-### 3. Use ReclaimInAppSdk in your project
-
-To use ReclaimInAppSdk in your project, follow these steps:
-
-1. Import the ReclaimInAppSdk module into your Swift file.
-
-```swift
-import ReclaimInAppSdk
-```
-
-2. Create a request object.
-
-```swift
-let request = ReclaimVerification.Request.params(
-    try .init(
-        /// You can use the appId and secret from Reclaim Devtools to create a request.
-        /// Providing appId and secret here in this initializer is optional. 
-        /// If you don't provide it, the SDK will use the appId and secret from the Info.plist file.
-        // appId: "YOUR_APP_ID_FROM_RECLAIM_DEVTOOLS",
-        // secret: "YOUR_APP_SECRET_FROM_RECLAIM_DEVTOOLS",
-        /// This is the provider id that you've added to your app in Reclaim Devtools.
-        /// The verification flow will use the provider information fetch by this provider id.
-        providerId: providerId
-    )
-)
-```
-
-More ways to create a request object are available in the `ReclaimVerification.Request.*` apis.
-
-3. Start the verification flow.
-
-```swift
-// This is the function that starts the verification flow.
-// This may fail if device screen is getting shared.
-let result = try await ReclaimVerification.startVerification(request)
-```
-
-The returned result is a `ReclaimVerification.Response` object. This object contains a response that has proofs, exception, and the sessionId if the verification is successful.
-
-If the verification is cancelled or failed, the result will contain an exception.
-
-You can use the `ReclaimVerification.Response` object to get the proof, exception, and sessionId.
-
-```swift
-let proof = result.response.proofs
-let exception = result.response.exception
-let sessionId = result.response.sessionId
-```
-
-If the verification is successful, the proof will contain the data that you need to store in your database.
-
-If the verification is cancelled or failed, the exception will contain the error details.
-
-In the above apis, `ReclaimVerification.Request.*`, `ReclaimVerification.startVerification` or `ReclaimVerification.startVerificationFromUrl` can also throw an error. The error can be one of the following:
-
-- `ReclaimVerificationError.cancelled`: The verification was cancelled by the user.
-- `ReclaimVerificationError.dismissed`: The verification was dismissed by the sdk.
-- `ReclaimVerificationError.failed(let error)`: The verification failed due to an error.
-- `ReclaimVerificationError.sessionExpired`: The verification session expired.
-
-You can handle the error by using a `do-catch` block. For example:
-
-```swift
-do {
-    let result = try await ReclaimVerification.startVerification(request)
-} catch ReclaimVerificationError.cancelled {
-    print("Verification cancelled")
-} catch ReclaimVerificationError.dismissed {
-    print("Verification dismissed")
-}
-```
-
-For a complete example, see the [Reclaim Example - SwiftUI](https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk/blob/53a19f88c8d90df485a60dc20190f740cd9fd108/Examples/SwiftUIExample/SwiftUIExample/ContentView.swift).
-
-## Advanced Usage
-
-### Overriding SDK Config
-
-You can customize the verification flow by overriding the default SDK configuration with `ReclaimVerification.setOverrides`.
-
-```swift
-func setOverrides() {
-    Task { @MainActor in
-        do {
-            try await ReclaimVerification.setOverrides(
-                appInfo: ReclaimOverrides.ReclaimAppInfo(
-                    appName: "Overridden Example",
-                    appImageUrl: "https://placehold.co/400x400/png"
-                )
-                // Add other overrides here
-            )
-        } catch {
-            print("unexpected failure error details: \(error)")
-            showAlert(message: "Could not set overrides")
-        }
-    }
-}
-```
-
-Read more about overrides in [Reclaim InApp SDK Documentation | Overrides](./usage/overrides)
-
-## Upgrading
-
-To upgrade to a new version of the Reclaim InApp SDK, follow these steps:
-
-1. Make sure you have the latest version of the Reclaim InApp SDK. Currently the latest version is `v0.3.0`. 
-1. Incase of any problems: remove package, clear build, restart Xcode, and add package again.
-
-Migration guides will be available when a new version with API changes is released. 

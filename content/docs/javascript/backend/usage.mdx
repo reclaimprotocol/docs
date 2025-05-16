@@ -1,5 +1,5 @@
 ---
-title: Backend Example
+title: Usage
 description: This example will help you get started with a basic backend implementation to start proof requests and verify proofs.
 ---
 
@@ -19,6 +19,8 @@ Make sure you have installed the SDKs by following the instructions on the [Inst
 ### 3. Create the Proof Request generator endpoint
 This endpoint defines what proof you are requesting from the user.
 
+If you are deploying this on localhost, be sure to use [ngrok](https://ngrok.com) to make your server accessible over the internet.
+
 
 <Tabs items={['JavaScript (Express)', 'Python (FastAPI)']}>
   <Tab value="JavaScript (Express)">
@@ -34,8 +36,10 @@ This endpoint defines what proof you are requesting from the user.
     app.use(express.json())
     app.use(express.text({ type: '*/*', limit: '50mb' })) // This is to parse the urlencoded proof object that is returned to the callback url
 
+    const BASE_URL = "https://your-domain.com"; // if using ngrok, provide the ngrok base url
+
     // Route to generate SDK configuration
-    app.get('/reclaim/generate-config', async (req, res) => {
+    app.get('/generate-config', async (req, res) => {
       const APP_ID = 'YOUR_APPLICATION_ID' 
       const APP_SECRET = 'YOUR_APPLICATION_SECRET'
       const PROVIDER_ID = 'YOUR_PROVIDER_ID' 
@@ -44,7 +48,7 @@ This endpoint defines what proof you are requesting from the user.
         const reclaimProofRequest = await ReclaimProofRequest.init(APP_ID, APP_SECRET, PROVIDER_ID)
         
         // we will be defining this endpoint in the next step
-        reclaimProofRequest.setAppCallbackUrl('https://your-backend.com/receive-proofs')
+        reclaimProofRequest.setAppCallbackUrl(BASE_URL+'/receive-proofs')
         
         const reclaimProofRequestConfig = reclaimProofRequest.toJsonString()
 
@@ -77,9 +81,10 @@ This endpoint defines what proof you are requesting from the user.
     from urllib.parse import unquote
 
     app = FastAPI()
+    BASE_URL = "https://your-domain.com"; // if using ngrok, provide the ngrok base url
 
     # Route to generate SDK configuration
-    @app.get("/reclaim/generate-config")
+    @app.get("/generate-config")
     async def generate_config():
         APP_ID = "YOUR_APPLICATION_ID"
         APP_SECRET = "YOUR_APPLICATION_SECRET"
@@ -89,7 +94,7 @@ This endpoint defines what proof you are requesting from the user.
             reclaim_proof_request = await ReclaimProofRequest.init(APP_ID, APP_SECRET, PROVIDER_ID)
             
             // we will be defining this endpoint in the next step
-            reclaim_proof_request.set_app_callback_url("https://your-backend.com/receive-proofs")
+            reclaim_proof_request.set_app_callback_url(BASE_URL+"/receive-proofs")
             
             reclaim_proof_request_config = reclaim_proof_request.to_json_string()
 

@@ -1,0 +1,179 @@
+---
+title: Fullstack Usage
+description: This guide demonstrates how to integrate the Reclaim Protocol JavaScript SDK into a fullstack application securely. We'll cover both the backend and frontend implementations.
+---
+
+## Video Walkthrough
+
+<iframe
+  className="w-full aspect-video rounded-lg"
+  src="https://www.youtube.com/embed/vtGwNUP8nWw?si=oOU-Q6WLZqRQtEHd"
+  title="About Reclaim Protocol"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+  allowFullScreen
+/>
+
+## Prerequisites
+- Install the React libraries using the [Installation guide](./installation)
+- Get the `APPLICATION_ID`, `APPLICATION_SECRET` and `PROVIDER_ID` using the [API Key guide](/api-key)
+
+## Implementation Guide
+
+### 1. Backend Implementation
+
+For a detailed backend implementation using Node.js and Express, please refer to the [Backend guide](./backend).
+
+If you are deploying on localhost, be sure to use [ngrok](https://ngrok.com) to make it visible on a public url. 
+
+This guide will assume the backend has been deployed.
+
+### 2. Frontend Implementation
+
+Here's a step-by-step implementation showing how to initialize and use the Reclaim SDK in your frontend application:
+
+Setup the variables and imports.
+```javascript
+import { ReclaimProofRequest } from '@reclaimprotocol/js-sdk';
+const BASE_URL = "https://your-domain.com"; //if using ngrok, use the ngrok base url here
+```
+
+Create the function to create verification request, that calls the backend
+```javascript
+const getVerificationReq = async () => {
+
+  try {
+    // Step 1: Fetch the configuration from your backend
+    const response = await fetch(BASE_URL+'/generate-config');
+    const { reclaimProofRequestConfig } = await response.json();
+
+    // Step 2: Initialize the ReclaimProofRequest with the received configuration
+    const reclaimProofRequest = await ReclaimProofRequest.fromJsonString(reclaimProofRequestConfig);
+    setRequestUrl(requestUrl);
+
+    // Step 3: Generate the request URL for the verification process
+    const requestUrl = await reclaimProofRequest.getRequestUrl();
+
+    // Step 4: Start the verification session
+    await reclaimProofRequest.startSession({
+      onSuccess: (proofs) => {
+        console.log("successfully created proof", proof);
+        // Handle successful verification 
+      },
+      onError: (error) => {
+        console.error('Verification failed', error);
+        // Handle verification failure 
+      },
+    });
+
+    console.log('Request URL:', requestUrl);
+  } catch (error) {
+    console.error('Error initializing Reclaim:', error);
+    // Handle initialization error (e.g., show error message)
+  }
+  return requestUrl;
+}
+
+```
+
+Initialize the request when appropriate, e.g. on page loads
+```javascript
+  useEffect(() => {
+    initializeReclaim().then(requestUrl => {
+      setRequestUrl(requestUrl);
+    })
+  }, [])
+```
+
+Once `requestUrl` is set, display the QR or button for user to initiate verification.
+```
+    <>
+      <button onClick={getVerificationReq}>Get Verification Request</button>
+      {/* Display QR code when URL is available */}
+      {requestUrl && (
+        <div style={{ margin: '20px 0' }}>
+          <QRCode value={requestUrl} />
+          <br />
+          <a href={requestUrl}>Open Link</a>
+        </div>
+      )}
+      {proofs && (
+        <div>
+          <h2>Verification Successful!</h2>
+          <pre>{JSON.stringify(proofs, null, 2)}</pre>
+        </div>
+      )}
+    </>
+
+```
+
+### All put together
+```javascript
+import { useState } from 'react';
+import QRCode from 'react-qr-code';
+import { ReclaimProofRequest } from '@reclaimprotocol/js-sdk';
+
+const BASE_URL = "https://your-domain.com"; //if using ngrok, use the ngrok base url here
+
+
+function ReclaimDemo() {
+  // State to store the verification request URL
+  // request URL is what triggers the AppClip/InstantApp
+  const [requestUrl, setRequestUrl] = useState('');
+  const [proofs, setProofs] = useState([]);
+
+const getVerificationReq = async () => {
+
+  try {
+    // Step 1: Fetch the configuration from your backend
+    const response = await fetch(BASE_URL+'/generate-config');
+    const { reclaimProofRequestConfig } = await response.json();
+
+    // Step 2: Initialize the ReclaimProofRequest with the received configuration
+    const reclaimProofRequest = await ReclaimProofRequest.fromJsonString(reclaimProofRequestConfig);
+
+    // Step 3: Generate the request URL for the verification process
+    const requestUrl = await reclaimProofRequest.getRequestUrl();
+    setRequestUrl(requestUrl);
+
+    // Step 4: Start the verification session
+    await reclaimProofRequest.startSession({
+      onSuccess: (proofs) => {
+        console.log("successfully created proof", proof);
+        // Handle successful verification 
+      },
+      onError: (error) => {
+        console.error('Verification failed', error);
+        // Handle verification failure 
+      },
+    });
+
+    console.log('Request URL:', requestUrl);
+  } catch (error) {
+    console.error('Error initializing Reclaim:', error);
+    // Handle initialization error (e.g., show error message)
+  }
+}
+
+  return (
+    <>
+      <button onClick={getVerificationReq}>Get Verification Request</button>
+      {/* Display QR code when URL is available */}
+      {requestUrl && (
+        <div style={{ margin: '20px 0' }}>
+          <QRCode value={requestUrl} />
+          <br />
+          <a href={requestUrl}>Open Link</a>
+        </div>
+      )}
+      {proofs && (
+        <div>
+          <h2>Verification Successful!</h2>
+          <pre>{JSON.stringify(proofs, null, 2)}</pre>
+        </div>
+      )}
+    </>
+  );
+}
+
+export default ReclaimDemo;
+```

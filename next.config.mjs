@@ -26,11 +26,6 @@ const config = {
       permanent: true
     },
     {
-      source: '/js/backend',
-      destination: '/backend',
-      permanent: true
-    },
-    {
       source: '/solidity/supported-networks',
       destination: '/sdk/solidity/supported-networks',
       permanent: true
@@ -38,11 +33,6 @@ const config = {
     {
       source: '/install',
       destination: '/#getting-started',
-      permanent: true
-    },
-    {
-      source: '/js/frontend',
-      destination: '/js/installation',
       permanent: true
     },
     {

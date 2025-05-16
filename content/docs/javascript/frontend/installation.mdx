@@ -38,22 +38,7 @@ Using yarn:
 yarn add @reclaimprotocol/js-sdk
 ```
 
-### 2. Verify Installation
-
-Confirm the installation by:
-
-1. Checking your `package.json` dependencies:
-```json
-{
-  "dependencies": {
-    "@reclaimprotocol/js-sdk": "^x.x.x"  // Version number will vary
-  }
-}
-```
-
-2. Ensuring the SDK files are in your `node_modules` directory
-
-### 3. Using the SDK
+### 2. Using the SDK
 
 Import the SDK into your application using either ES modules or CommonJS syntax:
 
@@ -66,19 +51,8 @@ For CommonJS environments:
 const { ReclaimProofRequest } = require('@reclaimprotocol/js-sdk');
 ```
 
-### Troubleshooting
+## Get an API Key
+Setup your project using the [Get API Key guide](/api-key).
 
-If you encounter installation issues:
-
-- Ensure your Node.js and npm versions are compatible and follow the [Prerequisites](#prerequisites) section
-- Clear your package manager's cache by running `npm cache clean --force` or `yarn cache clean` and try reinstalling
-- Join our [Telegram community](https://t.me/protocolreclaim) for direct support
-
-### Explore
-
-- [Frontend Implementation](./frontend-example): Guide for basic frontend implementation with React
-- [Fullstack Implementation](./fullstack-example): Guide for fullstack implementation with Node.js and React
-- [Advance Options](../advance-options/advance-options): Helps you customize SDK settings
-
-Happy coding with Reclaim Protocol!
-
+## Integrate into your project
+You can integrate into your frontend using the [Quickstart guide](./quickstart) or [Fullstack guide](./fullstack)
