@@ -1,4 +1,8 @@
 {
     "title": "Flutter SDK",
+<<<<<<< HEAD
     "pages": ["installation", "usage"]
+=======
+    "pages": ["installation", "flutter-example", "fullstack-example", "best-practices"]
+>>>>>>> main
 }
