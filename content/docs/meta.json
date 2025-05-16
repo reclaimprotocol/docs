@@ -10,12 +10,11 @@
     "flutter",
     "ionic",
     "react-native-expo",
+    "onchain",
     "zkfetch",
-    "inapp-sdks",
-    "sdk",
-    "attestor-decentralization",
-    "advance-options",
     "ai-agent",
+    "advance-options",
+    "attestor-decentralization",
     "understanding-the-tech"
   ]
 }

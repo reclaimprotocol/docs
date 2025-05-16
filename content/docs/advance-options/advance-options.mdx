@@ -258,7 +258,7 @@ The `setRedirectUrl` method allows you to specify a custom URL where users will 
     const requestUrl = await reclaimProofRequest.getRequestUrl()
     ```
      <Callout type="tip">
-  To set up deep linking in your Flutter app:
+  To set up deep linking in your RN app:
   1. Configure your app to handle the custom URL scheme (e.g., 'yourapp://')
   2. Set up a route in your app to handle the '/verification-complete' path
   3. Process any additional data passed through the deep link as needed
@@ -595,39 +595,4 @@ When using any Reclaim SDK (JavaScript, React Native, Flutter), a proof is gener
   "publicData": {} // stringified JSON object
 }
 ```
-
-### Key Components:
-
-- **identifier**: A unique identifier for the proof.
-- **claimData**: Contains detailed information about the claim, including:
-  - **provider**: The type of provider used for verification.
-  - **parameters**: The parameters used during the verification process.
-  - **owner**: The address of the owner of the proof.
-  - **timestampS**: The timestamp when the proof was generated.
-  - **context**: Any additional context information related to the proof.
-  - **epoch**: The epoch number indicating the version or state of the proof.
-- **signatures**: A list of signatures that validate the proof.
-- **witnesses**: Information about witnesses that observed the proof generation, including their ID and URL.
-- **publicData**: Any public data associated with the proof.
-
-This proof is typically received in the `onSuccess` callback of `startVerificationSession` method when using the default `callbackUrl`. However, if you have set a custom `callbackUrl`, you will receive this proof at your specified API endpoint.
-
-
-## Best Practices for SDK Advanced Options
-
-1. **Security**: Always prioritize security when configuring callbacks and parameters. Use HTTPS for all URLs and avoid passing sensitive data in parameters.
-
-2. **Error Handling**: Implement robust error handling for all advanced options, especially when dealing with callbacks and redirects.
-
-3. **Testing**: Thoroughly test your advanced options in a staging environment before deploying to production.
-
-4. **Documentation**: Maintain clear documentation of your custom configurations, especially when using context or custom parameters.
-
-<Callout type="info">
-  Remember, while these advanced options offer more flexibility, they also require careful implementation to ensure security and reliability.
-</Callout>
-
-By leveraging these advanced options, you can create a more tailored and robust integration of the Reclaim Protocol into your application. If you have any questions about these advanced features, don't hesitate to reach out to our support team or community forums.
-
-Happy coding with Reclaim Protocol!
 
