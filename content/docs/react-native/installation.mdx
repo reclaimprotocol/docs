@@ -61,7 +61,7 @@ add the following to the end of settings.gradle:
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
     String flutterStorageUrl = System.env.FLUTTER_STORAGE_BASE_URL ?: "https://storage.googleapis.com"
-    String reclaimStorageUrl = System.env.RECLAIM_STORAGE_BASE_URL ?: "https://reclaim-inapp-sdk.s3.ap-south-1.amazonaws.com/android/0.3.0/repo"
+    String reclaimStorageUrl = System.env.RECLAIM_STORAGE_BASE_URL ?: "https://reclaim-inapp-sdk.s3.ap-south-1.amazonaws.com/android/repo"
     repositories {
         google()
         mavenCentral()
@@ -79,7 +79,7 @@ dependencyResolutionManagement {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
     val flutterStorageUrl = System.env.FLUTTER_STORAGE_BASE_URL ?: "https://storage.googleapis.com"
-    val reclaimStorageUrl = System.env.RECLAIM_STORAGE_BASE_URL ?: "https://reclaim-inapp-sdk.s3.ap-south-1.amazonaws.com/android/0.3.0/repo"
+    val reclaimStorageUrl = System.env.RECLAIM_STORAGE_BASE_URL ?: "https://reclaim-inapp-sdk.s3.ap-south-1.amazonaws.com/android/repo"
     repositories {
         google()
         mavenCentral()
@@ -98,7 +98,7 @@ or alternatively add the following repositories to the relevant repositories blo
 <Tabs items={['Groovy', 'Kotlin']}>
 ```groovy tabs="Groovy"
 String flutterStorageUrl = System.env.FLUTTER_STORAGE_BASE_URL ?: "https://storage.googleapis.com"
-String reclaimStorageUrl = System.env.RECLAIM_STORAGE_BASE_URL ?: "https://reclaim-inapp-sdk.s3.ap-south-1.amazonaws.com/android/0.3.0/repo"
+String reclaimStorageUrl = System.env.RECLAIM_STORAGE_BASE_URL ?: "https://reclaim-inapp-sdk.s3.ap-south-1.amazonaws.com/android/repo"
 // ...
 maven {
     url "$reclaimStorageUrl"
@@ -110,7 +110,7 @@ maven {
 
 ```kotlin tabs="Kotlin"
 val flutterStorageUrl = System.env.FLUTTER_STORAGE_BASE_URL ?: "https://storage.googleapis.com"
-val reclaimStorageUrl = System.env.RECLAIM_STORAGE_BASE_URL ?: "https://reclaim-inapp-sdk.s3.ap-south-1.amazonaws.com/android/0.3.0/repo"
+val reclaimStorageUrl = System.env.RECLAIM_STORAGE_BASE_URL ?: "https://reclaim-inapp-sdk.s3.ap-south-1.amazonaws.com/android/repo"
 // ...
 maven("$reclaimStorageUrl")
 maven("$flutterStorageUrl/download.flutter.io")
@@ -137,11 +137,11 @@ Ignore if you already have this declaration in your `Podfile`.
 <Tabs items={['Cocoapods (Recommended)', 'Git Tag', 'Git Head', 'Git Commit', 'Git Branch']}>
 ```ruby tabs="Cocoapods (Recommended)"
 # Cocoapods is the recommended way to install the SDK.
-pod 'ReclaimInAppSdk', '~> 0.3.0'
+pod 'ReclaimInAppSdk', '~> 0.6.0'
 ```
 
 ```ruby tabs="Git Tag"
-pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :tag => '0.3.0'
+pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :tag => '0.6.0'
 ```
 
 ```ruby tabs="Git Head"
@@ -149,7 +149,7 @@ pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp
 ```
 
 ```ruby tabs="Git Commit"
-pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :commit => '027e18b8b2365fd935e9e8585e31fa886c3af6ee'
+pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :commit => 'eeb5a5484a5927217065e5c988fab8201cb2db2e'
 ```
 
 ```ruby tabs="Git Branch"
@@ -174,7 +174,7 @@ target 'InappRnSdkExample' do
   )
 
   # This is the line that you may need to add in your podfile.
-  pod 'ReclaimInAppSdk', '~> 0.3.0'
+  pod 'ReclaimInAppSdk', '~> 0.6.0'
 
   pre_install do |installer|
     system("cd ../../ && npx bob build --target codegen")
