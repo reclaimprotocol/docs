@@ -1,3 +1,4 @@
 {
-    "title": "ZK Fetch"
+    "title": "ZK Fetch",
+    "pages": ["quickstart", "cardano"]
 }
