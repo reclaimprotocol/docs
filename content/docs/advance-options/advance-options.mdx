@@ -7,7 +7,7 @@ import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 
 <Callout type="info">
   Before exploring advanced options, ensure you're familiar with the Basic Usage guide for your platform. 
-  All advanced options should be set before calling `getRequestUrl()`. These options work for both frontend and backend implementations.
+  All advanced options should be set before calling `getRequestUrl()` or `triggerReclaimFlow()`. These options work for both frontend and backend implementations.
 </Callout>
 
 ## Advanced Options
@@ -16,47 +16,25 @@ import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 
 When initializing the SDK, you can pass additional options to customize its behavior:
 
-<Tabs items={['JavaScript', 'React Native', 'Flutter', 'Python']}>
+<Tabs items={['JavaScript', 'Python']}>
   <Tab>
     ```javascript
     const proofRequest = await ReclaimProofRequest.init(
       'YOUR_RECLAIM_APP_ID',
       'YOUR_RECLAIM_APP_SECRET',
       'YOUR_PROVIDER_ID',
-      { useAppClip: true, device: "ios", log: true }
+      { 
+        useAppClip: true, 
+        log: true,
+        useBrowserExtension: true,
+        extensionID: 'custom-extension-id'
+      }
     )
     ```
     - `useAppClip`: When set to `true`, the SDK will give an App Clip url when calling `getRequestUrl()` which allows to open the reclaim verifier app directly from your application.
-    - `device`: When set to `ios` the appClip url will be generated for ios and when set to `android` the appClip url will be generated for android devices. By default it is set to `android`.
     - `log`: When set to `true`, enables detailed logging for debugging purposes.
-  </Tab>
-  <Tab>
-    ```javascript
-    const proofRequest = await ReclaimProofRequest.init(
-      'YOUR_RECLAIM_APP_ID',
-      'YOUR_RECLAIM_APP_SECRET',
-      'YOUR_PROVIDER_ID',
-      { useAppClip: true, log: true }
-    )
-    ```
-    - `useAppClip`: When set to `true`, the SDK will give an App Clip url(for ios) and instant app url(for android) when calling `getRequestUrl()` which allows to open the reclaim verifier app directly from your application.
-    - `log`: When set to `true`, enables detailed logging for debugging purposes.
-
-  </Tab>
-  <Tab>
-    ```dart
-    import 'package:reclaim_sdk/utils/types.dart';
-    import 'package:reclaim_sdk/reclaim.dart';
- 
-    final proofRequest = await ReclaimProofRequest.init(
-      'YOUR_RECLAIM_APP_ID', 
-      'YOUR_RECLAIM_APP_SECRET', 
-      'YOUR_PROVIDER_ID', 
-      ProofRequestOptions(useAppClip: true, log: true)
-    );
-    ```
-    - `useAppClip`: When set to `true`, the SDK will give an App Clip url(for ios) and instant app url(for android) when calling `getRequestUrl()` which allows to open the reclaim verifier app directly from your application.
-    - `log`: When set to `true`, enables detailed logging for debugging purposes.
+    - `useBrowserExtension`: When set to `true` (default), enables browser extension support for seamless desktop verification.
+    - `extensionID`: Custom extension identifier if using a different browser extension.
   </Tab>
   <Tab>
     ```python
@@ -73,11 +51,72 @@ When initializing the SDK, you can pass additional options to customize its beha
   </Tab>
 </Tabs>
 
-
 <Callout type="tip">
   Use this option to enhance debugging capabilities in your application. The logging option is particularly useful during development and testing phases.
 </Callout>
 
+
+
+### Checking Extension Availability
+
+<Tabs items={['JavaScript']}>
+  <Tab>
+    ```javascript
+    const reclaimProofRequest = await ReclaimProofRequest.init(
+      'YOUR_RECLAIM_APP_ID',
+      'YOUR_RECLAIM_APP_SECRET',
+      'YOUR_PROVIDER_ID'
+    )
+
+    // Check if browser extension is available
+    const isExtensionAvailable = await reclaimProofRequest.isBrowserExtensionAvailable()
+    
+    if (isExtensionAvailable) {
+      console.log('Reclaim browser extension is installed')
+      // Extension will be used automatically with triggerReclaimFlow()
+    } else {
+      console.log('Browser extension not available, will use QR code flow')
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Modal Customization
+
+When the QR code modal is displayed (fallback on desktop), you can customize its appearance and behavior:
+
+<Tabs items={['JavaScript']}>
+  <Tab>
+    ```javascript
+    const reclaimProofRequest = await ReclaimProofRequest.init(
+      'YOUR_RECLAIM_APP_ID',
+      'YOUR_RECLAIM_APP_SECRET',
+      'YOUR_PROVIDER_ID'
+    )
+
+    // Customize modal appearance before triggering flow
+    reclaimProofRequest.setModalOptions({
+      title: 'Verify Your Account',
+      description: 'Scan the QR code with your mobile device or install our browser extension',
+      darkTheme: false, // Enable dark theme (default: false)
+      extensionUrl: 'https://chrome.google.com/webstore/detail/reclaim' // Custom extension URL
+    })
+
+    // Trigger the verification flow with custom modal
+    await reclaimProofRequest.triggerReclaimFlow()
+    ```
+  </Tab>
+</Tabs>
+
+**Modal Options:**
+- `title`: Custom title for the modal dialog
+- `description`: Custom description text shown to users
+- `darkTheme`: Boolean to enable dark theme styling
+- `extensionUrl`: Custom URL for browser extension download/installation
+
+<Callout type="tip">
+  Modal customization allows you to maintain brand consistency and provide clear instructions to your users about the verification process.
+</Callout>
 
 ### Adding Context
 
@@ -94,7 +133,10 @@ Use the `addContext` method to include additional information in your proof requ
 
     reclaimProofRequest.addContext('0x1234567890abcdef', 'User registration proof')
 
+    // Works with both traditional and streamlined flows
     const requestUrl = await reclaimProofRequest.getRequestUrl()
+    // OR
+    await reclaimProofRequest.triggerReclaimFlow()
     ```
   </Tab>
   <Tab>
@@ -165,6 +207,9 @@ The `setParams` method lets you define specific conditions for proof generation,
       industry: 'Technology'
     })
 
+    // Works with both flows
+    await reclaimProofRequest.triggerReclaimFlow()
+    // OR
     const requestUrl = await reclaimProofRequest.getRequestUrl()
     ```
   </Tab>
@@ -238,10 +283,13 @@ The `setRedirectUrl` method allows you to specify a custom URL where users will 
 
     reclaimProofRequest.setRedirectUrl('https://your-app.com/verification-complete')
 
+    // Works with both traditional and streamlined flows
+    await reclaimProofRequest.triggerReclaimFlow()
+    // OR
     const requestUrl = await reclaimProofRequest.getRequestUrl()
     ```
     <Callout type="info">
-  This enhances user experience by seamlessly guiding users back to your application after proof generation. Ensure the redirect URL is prepared to handle post-verification logic.
+  This enhances user experience by seamlessly guiding users back to your application after proof generation. Ensure the redirect URL is prepared to handle post-verification logic. Works seamlessly with the streamlined `triggerReclaimFlow()` method.
 </Callout>
   </Tab>
   <Tab>
@@ -338,6 +386,9 @@ The `setAppCallbackUrl` method allows you to specify a custom API endpoint where
 
     reclaimProofRequest.setAppCallbackUrl('https://your-api.com/receive-proofs')
 
+    // Works with both flows - proofs sent to callback regardless of method
+    await reclaimProofRequest.triggerReclaimFlow()
+    // OR
     const requestUrl = await reclaimProofRequest.getRequestUrl()
     ```
 
@@ -390,7 +441,7 @@ The `setAppCallbackUrl` method allows you to specify a custom API endpoint where
 </Tabs>
 
 <Callout type="info">
-  This method is particularly useful for backend implementations. It allows you to receive proofs directly without polling the status URL. Ensure your endpoint is secure and can handle incoming proof data. Make sure to proper middleware to parse the proof object in the response. Eg. `express.text({ type: '*/*', limit: '50mb' })` in express.js.
+  This method is particularly useful for backend implementations. It allows you to receive proofs directly without polling the status URL. Ensure your endpoint is secure and can handle incoming proof data. Make sure to proper middleware to parse the proof object in the response. Eg. `express.text({ type: '*/*', limit: '50mb' })` in express.js. Works with both traditional and streamlined verification flows.
 </Callout>
 
 ### Exporting and Importing SDK Configuration
@@ -411,6 +462,10 @@ The SDK provides methods to export and import the entire configuration as a JSON
 
     // On a different service or application import the configuration
     const reclaimProofRequest = await ReclaimProofRequest.fromJsonString(reclaimProofRequestConfig)
+    
+    // Use with either flow method
+    await reclaimProofRequest.triggerReclaimFlow()
+    // OR
     const requestUrl = await reclaimProofRequest.getRequestUrl()
     ```
   </Tab>
@@ -465,7 +520,7 @@ The SDK provides methods to export and import the entire configuration as a JSON
 </Tabs>
 
 <Callout type="info">
-  This feature is particularly useful when you need to initialize the SDK in one part of your application (e.g., frontend) and use it in another (e.g., backend). It provides a seamless way to transfer the configuration.
+  This feature is particularly useful when you need to initialize the SDK in one part of your application (e.g., frontend) and use it in another (e.g., backend). It provides a seamless way to transfer the configuration. The exported configuration maintains all settings including modal customization and browser extension preferences.
 </Callout>
 
 ### Verifying Proof Signatures
@@ -563,9 +618,8 @@ The SDK provides a method to verify the cryptographic signatures of proofs to en
 </Tabs>
 
 <Callout type="info">
-  The `verifyProof` method checks the cryptographic signatures in the proof against the attestor's public key to ensure the proof hasn't been tampered with. Always verify proofs before accepting them as valid, especially when receiving them from different application sources.
+  The `verifyProof` method checks the cryptographic signatures in the proof against the attestor's public key to ensure the proof hasn't been tampered with. Always verify proofs before accepting them as valid, especially when receiving them from different application sources. This verification works regardless of whether the proof was generated using traditional or streamlined flows.
 </Callout>
-
 
 ## Understanding the Proof Structure
 

@@ -7,7 +7,107 @@ description: This is the fastest way to get an prototype running and experience 
 - Install the React libraries using the [Installation guide](./installation)
 - Get the `APPLICATION_ID`, `APPLICATION_SECRET` and `PROVIDER_ID` using the [API Key guide](/api-key)
 
-## Implementation Guide
+## Streamlined Implementation with triggerReclaimFlow (Recommended)
+
+The Reclaim SDK now provides a simplified `triggerReclaimFlow()` method that automatically handles the verification process across different platforms and devices. This method intelligently chooses the best verification method based on the user's environment.
+
+```javascript
+import { useState } from 'react';
+import { ReclaimProofRequest } from '@reclaimprotocol/js-sdk';
+
+function ReclaimDemo() {
+  const [proofs, setProofs] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleVerification = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Your credentials from the Reclaim Protocol Developer Portal
+      const APP_ID = 'YOUR_APPLICATION_ID';
+      const APP_SECRET = 'YOUR_APPLICATION_SECRET';
+      const PROVIDER_ID = 'YOUR_PROVIDER_ID';
+
+      // Initialize the Reclaim SDK with your credentials
+      const reclaimProofRequest = await ReclaimProofRequest.init(APP_ID, APP_SECRET, PROVIDER_ID);
+
+      // Trigger the verification flow automatically
+      // This method detects the user's platform and provides the optimal experience:
+      // - Browser extension for desktop users (if installed)
+      // - QR code modal for desktop users (fallback)
+      // - Native app clips for mobile users
+      await reclaimProofRequest.triggerReclaimFlow();
+
+      // Start listening for proof submissions
+      await reclaimProofRequest.startSession({
+        onSuccess: (proofs) => {
+          console.log('Verification successful:', proofs);
+          setProofs(proofs);
+          setIsLoading(false);
+        },
+        onError: (error) => {
+          console.error('Verification failed', error);
+          setIsLoading(false);
+        },
+      });
+    } catch (error) {
+      console.error('Error starting verification:', error);
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <>
+      <button onClick={handleVerification} disabled={isLoading}>
+        {isLoading ? 'Verifying...' : 'Start Verification'}
+      </button>
+      
+      {proofs && (
+        <div>
+          <h2>Verification Successful!</h2>
+          <pre>{JSON.stringify(proofs, null, 2)}</pre>
+        </div>
+      )}
+    </>
+  );
+}
+
+export default ReclaimDemo;
+```
+
+### How triggerReclaimFlow() Works
+
+The `triggerReclaimFlow()` method automatically detects the user's environment and chooses the optimal verification method:
+
+#### On Desktop Browsers:
+1. **Browser Extension First**: If the Reclaim browser extension is installed, it uses the extension for seamless in-browser verification.
+2. **QR Code Modal Fallback**: If the extension is not available, it automatically displays a QR code modal for mobile scanning.
+
+#### On Mobile Devices:
+1. **iOS Devices**: Automatically redirects to the Reclaim App Clip for native iOS verification.
+2. **Android Devices**: Automatically redirects to the Reclaim Instant App for native Android verification.
+
+### Browser Extension Support
+
+You can also manually check for browser extension availability and customize the QR code modal:
+
+```javascript
+// Check if browser extension is available
+const isExtensionAvailable = await reclaimProofRequest.isBrowserExtensionAvailable();
+console.log('Extension available:', isExtensionAvailable);
+
+// Customize modal appearance (optional)
+reclaimProofRequest.setModalOptions({
+  title: 'Verify Your Account',
+  description: 'Scan the QR code with your mobile device or install our browser extension',
+  darkTheme: false,
+  extensionUrl: 'https://chrome.google.com/webstore/detail/reclaim'
+});
+```
+
+## Traditional Implementation Guide
+
+For more control over the verification flow, you can use the traditional approach:
 
 ```javascript
 import { useState } from 'react';
@@ -41,6 +141,7 @@ function ReclaimDemo() {
         // - Updating UI to show verification success
         // - Storing verification status
         // - Redirecting to another page
+        setProofs(proofs);
       },
       // Called if there's an error during verification
       onError: (error) => {
@@ -79,4 +180,4 @@ export default ReclaimDemo;
 ```
 
 ## Get production Ready
-For production usecases, you might want to make sure that the proofs are sent directly to your backend - so that the use doesn't have an opportunity to tamper with the data. For that implement the [Backend](../backend) and follow the [Fullstack guide](./fullstack)
+For production usecases, you might want to make sure that the proofs are sent directly to your backend - so that the user doesn't have an opportunity to tamper with the data. For that implement the [Backend](../backend) and follow the [Fullstack guide](./fullstack)
