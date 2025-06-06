@@ -17,11 +17,9 @@ description: This guide demonstrates how to integrate the Reclaim Protocol JavaS
 - Install the React libraries using the [Installation guide](./installation)
 - Get the `APPLICATION_ID`, `APPLICATION_SECRET` and `PROVIDER_ID` using the [API Key guide](/api-key)
 
-## Implementation Guide
-
 ### 1. Backend Implementation
 
-For a detailed backend implementation using Node.js and Express, please refer to the [Backend guide](./backend).
+For a detailed backend implementation using Node.js/Python , please refer to the [Backend guide](../backend).
 
 If you are deploying on localhost, be sure to use [ngrok](https://ngrok.com) to make it visible on a public url. 
 
@@ -29,9 +27,17 @@ This guide will assume the backend has been deployed.
 
 ### 2. Frontend Implementation
 
-### Streamlined Implementation with triggerReclaimFlow (Recommended)
+There are two ways to implement the Reclaim Protocol on your frontend.
 
-The modern approach uses the `triggerReclaimFlow()` method which automatically handles platform detection and provides the optimal user experience. Here's how to integrate it with your backend:
+- Using the `triggerReclaimFlow()` method (Recommended)
+- Using the `getRequestUrl()` method
+
+### Using the `triggerReclaimFlow()` method (Recommended)
+
+This method automatically detects the user's environment and chooses the best verification method for the user.
+- Browser extension for desktop users (if installed)
+- QR code popup for desktop users (if extension is not installed)
+- AppClip/InstantApp redirection for mobile users
 
 ```javascript
 import { useState } from 'react';
@@ -39,7 +45,7 @@ import { ReclaimProofRequest } from '@reclaimprotocol/js-sdk';
 
 const BASE_URL = "https://your-domain.com"; // if using ngrok, use the ngrok base url here
 
-function ReclaimDemo() {
+function StartReclaimVerification() {
   const [proofs, setProofs] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -99,16 +105,12 @@ function ReclaimDemo() {
   );
 }
 
-export default ReclaimDemo;
+export default StartReclaimVerification;
 ```
 
-### Customizing the Modal (Optional)
+### Using the `getRequestUrl()` method
 
-You can customize the modal appearance and behavior using the `setModalOptions()` method. Check out the [advanced configuration options](./quickstart#advanced-configuration-options) for more details.
-
-### Traditional Implementation Guide
-
-For more control over the verification flow, you can use the traditional approach:
+This method generates a verification request URL that user needs to visit to start the session.
 
 ```javascript
 const getVerificationReq = async () => {
@@ -176,4 +178,9 @@ Once `requestUrl` is set, display the QR or button for user to initiate verifica
     </>
 
 ```
+
+
+To further customize the verification flow and UI, you can use the [Web SDK advanced options](../../advance-options/web-sdk)
+
+
 
