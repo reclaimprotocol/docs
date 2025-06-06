@@ -1,17 +1,18 @@
 ---
 title: Web SDK
-description: Integrate Reclaim Protocol into your webapp using the NodeJS and React SDKs.
+description: Integrate Reclaim Protocol into your webapp using our JS and Python SDKs.
 ---
 
 
-## Understanding how the WebSDKs workflow
+## Understanding the WebSDKs workflow
 
 ### Steps involved
-1. A verification link is created on the frontend and displayed for the user to tap/scan QR code.
-2. The user opens the above verification link and completes the verification using the Reclaim Protocol [AppClip](https://developer.apple.com/app-clips/)/[InstantApp](https://developer.android.com/topic/google-play-instant). The verification must be done using a mobile phone. No app install is required.
-3. Once the user completes the verification on the AppClip/InstantApp, they will be prompted to redirect back to your webapp
-4. The webapp polls the status of the verification and continues business logic, once the verification has been marked as complete.
+1. A verification session is created on the frontend and displayed to the user to tap/scan QR code.
+2. The user starts the session and completes the verification using the Reclaim Protocol [AppClip](https://developer.apple.com/app-clips/)/[InstantApp](https://developer.android.com/topic/google-play-instant). The verification must be done using a mobile phone. No app install is required.
+3. Once the user completes the verification, they will be prompted to redirect back to your webapp.
+4. The webapp polls the status of the verification session and continues business logic, once the verification has been marked as complete.
+5. The backend will verify the proof and return the result to the frontend.
 
 ### What you need to implement
-1. [Frontend](./frontend) application using React
-2. [Backend](./backend) application to process the verification securely
+1. [Frontend](./web/frontend) application using React
+2. [Backend](./web/backend) application to process the verification securely using NodeJS/Python

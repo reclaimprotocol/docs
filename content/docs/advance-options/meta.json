@@ -1,0 +1,4 @@
+{
+    "title": "Advanced Options",
+    "pages": ["attestor-auth", "verification", "overrides","verification-options","verification-status","web-sdk","js-injections"]
+}
