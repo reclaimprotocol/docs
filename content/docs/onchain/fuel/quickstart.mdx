@@ -1,0 +1,66 @@
+---
+title: Quickstart
+description: Publish on chain using fuels
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+## Pre-requisite
+
+You can access the code on Github, it is a monorepo holding both contract and frontend code:
+
+- [Fuel SDK](https://github.com/reclaimprotocol/fuel-sdk-onchain-integration).
+
+You need to have `forc` and Fuel wallet (or another) installed to continue this guide. Fuel docs provide a comprehensive [quickstart](https://docs.fuel.network/guides/user-quickstart/).  
+
+## Contract 
+
+You can skip this part if you wish to verify on our [deployed contract](https://app-testnet.fuel.network/contract/0x236d2b425f64c7424fa44f5d6eb555e411b618653b160bb9bc4525f18d029b06/transactions) with address `0x236d2b425f64c7424fa44f5d6eb555e411b618653b160bb9bc4525f18d029b06`.
+
+<Steps>
+### Clone the client contract repo.
+
+```bash copy
+git https://github.com/reclaimprotocol/fuel-sdk-onchain-integration
+cd fuel-sdk-onchain-integration
+forc build
+```
+
+### Deploy the contract.
+
+Deploy to Fuel network and instantiate the contract.
+
+```bash copy
+forc deploy --testnet
+```
+
+Save the contract address, it is the only contract-specific metadata to be used in the frontend client.
+
+
+</Steps>
+
+
+## Client development
+<Steps>
+
+### Cloning the frontend repo.
+
+Change directory to `/frontend`:
+
+```bash
+cd frontend
+npm i --legacy-peer-deps
+```
+
+### Submitting the proof.
+
+```bash
+npm run dev
+```
+After requesting a proof from Reclaim and performing the verification on your end, a verify proof button will appear on the screen.
+Make sure your wallet is connected, click the button, a wallet pop-up will show prompting you to submit. 
+
+
+
+</Steps>
+
