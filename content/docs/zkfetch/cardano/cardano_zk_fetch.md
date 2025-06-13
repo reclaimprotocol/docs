@@ -37,6 +37,62 @@ zkFetch for Cardano enables developers to fetch data from external APIs with cry
     - On-chain data provides immutable record of proof existence
     - Extracted parameters are publicly accessible via transaction metadata
 
+## Quickstart
+
+If you prefer to quickly try the integration, this section is for you. First, make sure you have [Node.js](https://nodejs.org/en) and [Deno](https://docs.deno.com/runtime/getting_started/installation/) installed.
+
+### Step 1: Clone repository and install packages:
+
+```sh
+git clone https://github.com/reclaimprotocol/zkfetch-cardano-example.git
+cd zkfetch-cardano-example
+npm i
+```
+
+### Step 2: Create a wallet and fund it:
+
+```sh
+deno run -A --unstable createWallet.ts
+```
+
+Details will be written to `addressDetails.json`, you can get Preprod funds from the [faucet](https://docs.cardano.org/cardano-testnets/tools/faucet).
+
+### Step 3: Request a proof with zkFetch:
+
+```sh
+node requestProof.js
+```
+
+The proof will be written to `proof.json`.
+
+### Step 4: Send transaction to Preprod:
+
+```sh
+deno run -A --unstable --node-modules-dir=manual sendTransaction.ts
+```
+
+Proof identifier and extracted parameters will be included in the transaction's [metadata](https://preprod.cexplorer.io/tx/c36ba27f9124ec345b3a54bde3212aef834f91e203d2c8bf32a2f1f474ac5b4f/metadata#data).
+
+## Testing
+
+Run all tests with:
+
+```sh
+npm run test:all
+```
+
+Also, you can test wallet creation separately with:
+
+```sh
+npm run test:deno
+```
+
+Or proof requesting with:
+
+```sh
+npm run test:node
+```
+
 ## Prerequisites and Setup
 
 ### System Requirements
