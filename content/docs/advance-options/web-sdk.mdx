@@ -487,7 +487,12 @@ This is applicable only when using `triggerReclaimFlow` method.
       title: 'Verify Your Account',
       description: 'Scan the QR code with your mobile device or install our browser extension',
       darkTheme: false, // Enable dark theme (default: false)
-      extensionUrl: 'https://chrome.google.com/webstore/detail/reclaim' // Your extension download url
+      extensionUrl: 'https://chrome.google.com/webstore/detail/reclaim', // Your extension download url
+      showExtensionInstallButton: true, // Show extension install button (default: true)
+      modalPopupTimer: 1, // Modal popup timer in minutes (default: 1)
+      onClose: () => {
+        console.log('Modal closed')
+      } // Callback function to be called when modal is closed
     })
 
     // Trigger the verification flow with custom modal
@@ -497,10 +502,15 @@ This is applicable only when using `triggerReclaimFlow` method.
 </Tabs>
 
 **Modal Options:**
+Note: All the options are optional and can be used individually.
 - `title`: Custom title for the modal dialog
 - `description`: Custom description text shown to users
 - `darkTheme` (Default: `false`): Boolean to enable dark theme styling
 - `extensionUrl`: Custom URL to install/download the browser extension
+- `showExtensionInstallButton` (Default: `true`): Show extension install button
+- `modalPopupTimer` (Default: `1`): Modal popup timer in minutes
+- `onClose` (Default: `undefined`): Callback function that can be called when modal is closed for custom logic
+
 
 
 ## Options to get various Session Details
