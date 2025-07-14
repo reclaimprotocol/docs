@@ -23,7 +23,8 @@ The `init` method allows you to pass additional options to customize the SDK's b
         useAppClip: true, // default: true
         log: true, // default: false
         useBrowserExtension: true, // default: true
-        extensionID: 'custom-extension-id' // default: 'reclaim-extension'
+        extensionID: 'custom-extension-id', // default: 'reclaim-extension'
+        providerVersion: '1.0.0'
       }
     )
     ```
@@ -31,6 +32,7 @@ The `init` method allows you to pass additional options to customize the SDK's b
     - `log` (Default: `false`): When set to `true`, enables detailed logging for debugging purposes.
     - `useBrowserExtension` (Default: `true`): This option enables the use of reclaim browser extension for desktop users. When extension is not installed, the SDK will fallback to QR code flow.
     - `extensionID` (Default: `reclaim-extension`): Unique extension identifier if using a custom reclaim browser extension.
+    - `providerVersion`: Version of the data provider. This is needed if you are using a specific version of the data provider.
   </Tab>
   <Tab>
     ```python
@@ -41,10 +43,11 @@ The `init` method allows you to pass additional options to customize the SDK's b
         'YOUR_RECLAIM_APP_SECRET',
         'YOUR_PROVIDER_ID',
         # optional fields
-        options={'log': True} # default: False
+        options={'log': True, 'provider_version': '1.0.0'} # default: False
     )
     ```
     - `log`: When set to `true`, enables detailed logging for debugging purposes.
+    - `provider_version`: Version of the data provider. This is needed if you are using a specific version of the data provider.
   </Tab>
 </Tabs>
 
@@ -507,11 +510,32 @@ Note: All the options are optional and can be used individually.
 - `description`: Custom description text shown to users
 - `darkTheme` (Default: `false`): Boolean to enable dark theme styling
 - `extensionUrl`: Custom URL to install/download the browser extension
-- `showExtensionInstallButton` (Default: `true`): Show extension install button
+- `showExtensionInstallButton` (Default: `false`): Show extension install button
 - `modalPopupTimer` (Default: `1`): Modal popup timer in minutes
 - `onClose` (Default: `undefined`): Callback function that can be called when modal is closed for custom logic
 
+### closeModal()
 
+You can use `closeModal` method to manually close the modal popup. This is applicable only when using `triggerReclaimFlow` method.
+
+<Tabs items={['JavaScript']}>
+  <Tab>
+    ```javascript
+    const reclaimProofRequest = await ReclaimProofRequest.init(
+      'YOUR_RECLAIM_APP_ID',
+      'YOUR_RECLAIM_APP_SECRET',
+      'YOUR_PROVIDER_ID'
+    )
+
+
+    // Trigger the verification flow with custom modal
+    await reclaimProofRequest.triggerReclaimFlow()
+
+    // Close the modal popup
+    reclaimProofRequest.closeModal()
+    ```
+  </Tab>
+</Tabs>
 
 ## Options to get various Session Details
 
