@@ -51,6 +51,54 @@ The `init` method allows you to pass additional options to customize the SDK's b
   </Tab>
 </Tabs>
 
+### Provider Versioning (optional)
+
+The Reclaim SDK supports semantic versioning for all providers, allowing you to optionally lock to specific versions and avoid unexpected schema changes during integration. Specifying a provider version is optional—if you do not provide one, the SDK will use the latest available version by default.
+
+#### Key Features
+
+- **Semantic Versioning**: All providers follow `MAJOR.MINOR.PATCH` format (e.g., `1.0.0`).
+- **Automated Versioning**: Provider changes automatically bump the version based on impact.
+
+#### Version Matching in SDK
+
+The SDK supports flexible version targeting:
+
+- **Exact version**: `'1.0.0'`
+- **Range operators**: `'>=1.0.0'`, `<2.0.0'`, etc.
+- **Tilde (~) range**: `'~1.2.0'` resolves to the latest patch version in the `1.2.x` range.
+
+#### Example
+
+
+<Tabs items={['JavaScript', 'Python']}>
+  <Tab>
+    ```javascript
+    const proofRequest = await ReclaimProofRequest.init(
+      'YOUR_RECLAIM_APP_ID',
+      'YOUR_RECLAIM_APP_SECRET',
+      'YOUR_PROVIDER_ID',
+      {
+        providerVersion: '1.0.0' // locks to specific schema version
+      }
+    )
+    ```
+  </Tab>
+  <Tab>
+  ```python
+  from reclaim_python_sdk.proof_request import ReclaimProofRequest
+
+  proof_request = await ReclaimProofRequest.init(
+      'YOUR_RECLAIM_APP_ID',
+      'YOUR_RECLAIM_APP_SECRET',
+      'YOUR_PROVIDER_ID',
+      # optional fields
+      options={'provider_version': '1.0.0'} # locks to specific schema version
+  )
+  ```
+  </Tab>
+</Tabs>
+
 ### setAppCallbackUrl()
 
 The `setAppCallbackUrl` method allows you to specify a custom API endpoint where verification credentials(proofs) will be sent upon successful generation.

@@ -1,6 +1,6 @@
 ---
 title: Installation
-description: Welcome to the first step in integrating Reclaim Protocol into your React Native Expo project! This guide will walk you through the installation process and help you get started quickly.
+description: Welcome to the first step in integrating Reclaim Protocol's InApp SDK into your React Native Expo project! This guide will walk you through the installation process and help you get started quickly.
 ---
 
 ## Prerequisites
@@ -23,17 +23,17 @@ Navigate to your React Native Expo project's root directory and execute one of t
 
 Using npm:
 ```bash
-npm install @reclaimprotocol/reactnative-sdk
+npm install @reclaimprotocol/inapp-rn-sdk
 ```
 
 Using yarn:
 ```bash
-yarn add @reclaimprotocol/reactnative-sdk
+yarn add @reclaimprotocol/inapp-rn-sdk
 ```
 
 Using Expo CLI:
 ```bash
-npx expo install @reclaimprotocol/reactnative-sdk
+npx expo install @reclaimprotocol/inapp-rn-sdk
 ```
 
 ### 2. Expo Configuration
@@ -107,7 +107,7 @@ Replace `your-app-scheme`, `your-domain.com`, and package identifiers with your 
 
 Now that you've installed the SDK successfully, you can:
 
-1. Follow the [Usage](./usage) guide to create your first proof request
+1. Follow the [Usage](./usage) guide to create your first verification request
 2. Explore [Advance Options](../advance-options/web-sdk) for customization
 
 ### Troubleshooting
@@ -128,4 +128,8 @@ eas build --profile development --platform all --clear-cache
 
 <Callout type="tip">
 Keep your SDK and Expo SDK versions up to date by regularly checking for updates using `npx expo install --fix`.
+</Callout>
+
+<Callout type="warning">
+**Compatibility Notice**: Please be aware of a known incompatibility between ReclaimInAppSdk and the `expo-dev-client` package on the iOS platform. When both packages are present in your iOS application, critical network requests from ReclaimInAppSdk may fail with a request timeout error. We recommend temporarily removing expo-dev-client from your project when you need to test or use ReclaimInAppSdk functionality on iOS.
 </Callout>
