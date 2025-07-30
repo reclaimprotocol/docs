@@ -1,0 +1,131 @@
+---
+title: Stellar
+description: Guide for using zkFetch with Stellar blockchain data and services
+---
+
+import { Step, Steps } from "fumadocs-ui/components/steps";
+
+## Pre-requisite
+
+You can access the code on Github:
+
+- [zkFetch Stellar Example](https://github.com/reclaimprotocol/zkfetch-stellar-example).
+
+You will need a valid Stellar account seed phrase. Make sure you have enough funds to sign and send transactions. [Freighter](https://www.freighter.app/) wallet is a convenient option.
+
+## Code Exploration
+
+<Steps>
+
+### /src/requestProof.js
+
+This is the core part of the process, this code snippet shows how to fetch the latest XML price from CoinGecko's API in the form of a Reclaim proof. Once a proof is fetched, it gets written to `/src/proof.json`.
+
+```js copy
+// Example URL to fetch the data from
+const url =
+  "https://api.coingecko.com/api/v3/simple/price?ids=stellar&vs_currencies=usd";
+
+// Generate the proof
+const proof = await reclaimClient.zkFetch(
+  url,
+  { method: "GET" },
+  {
+    responseMatches: [
+      {
+        type: "regex",
+        value: '\\{"stellar":\\{"usd":(?<price>[\\d\\.]+)\\}\\}',
+      },
+    ],
+  }
+);
+```
+
+### /src/utils.js
+
+A couple of Reclaim-specific methods for parsing proofs.
+
+```js copy
+
+// Returns the ECDSA signature recovery ID
+export const getRecId = (signature) => {
+  ...
+}
+
+// Removes the `0x` prefix from signature
+export const formatSignature = (signature) => {
+  ...
+}
+
+// Serializes the claim
+export const getSerializedClaim = (proof) => {
+  ...
+}
+
+// Returns the Keccak256 hash of the prefixed original message
+export const getHash = (serializedClaim) => {
+  ...
+}
+```
+
+### /src/verifyProof.js
+
+The main script, it builds, signs, and sends the verification transaction to the network.
+
+```js copy
+const tx = txBuilder
+  .addOperation(
+    contract.call(
+      FUNCTION_NAME,
+      ...[
+        StellarSdk.nativeToScVal(message, { type: "bytes" }),
+        StellarSdk.nativeToScVal(signature, { type: "bytes" }),
+        StellarSdk.nativeToScVal(recId, { type: "u32" }),
+      ]
+    )
+  )
+  .setTimeout(StellarSdk.TimeoutInfinite)
+  .build();
+```
+
+</Steps>
+
+## Try it
+
+<Steps>
+
+### Clone the repo
+
+```bash
+git clone https://github.com/reclaimprotocol/zkfetch-stellar-example.git
+
+cd zkfetch-stellar-example
+
+npm install
+```
+
+### Download ZK files
+These are crucial for proof requesting, a device should have them locally to request Reclaim proofs.
+
+```bash copy
+node node_modules/@reclaimprotocol/zk-symmetric-crypto/lib/scripts/download-files 
+```
+
+### Add your seed phrase
+Add the secret phrase of your signing account to `.env`.
+```bash 
+SEEDPHRASE=
+```
+
+### Request a proof
+Change directory into `/src` and run:
+```bash
+node requestProof
+```
+
+### Verify the proof
+Once you have the proof in `proof.json`, run the following to verify on-chain:
+```bash
+node verifyProof
+```
+</Steps>
