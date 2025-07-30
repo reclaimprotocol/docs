@@ -1,5 +1,5 @@
 ---
-title: Cardano zkFetch Integration
+title: Cardano 
 description: Guide for using zkFetch with Cardano blockchain data and services
 ---
 
