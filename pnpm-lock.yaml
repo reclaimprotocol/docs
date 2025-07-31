@@ -10,25 +10,25 @@ dependencies:
     version: 0.2.0(react@19.1.0)
   '@vercel/analytics':
     specifier: ^1.4.1
-    version: 1.5.0(next@15.2.3)(react@19.1.0)
+    version: 1.5.0(next@15.2.4)(react@19.1.0)
   fumadocs-core:
     specifier: 14.6.1
-    version: 14.6.1(@types/react@19.1.8)(next@15.2.3)(react-dom@19.1.0)(react@19.1.0)
+    version: 14.6.1(@types/react@19.1.8)(next@15.2.4)(react-dom@19.1.0)(react@19.1.0)
   fumadocs-docgen:
     specifier: 2.1.0
     version: 2.1.0
   fumadocs-mdx:
     specifier: 11.7.1
-    version: 11.7.1(acorn@8.15.0)(fumadocs-core@14.6.1)(next@15.2.3)(react@19.1.0)
+    version: 11.7.1(acorn@8.15.0)(fumadocs-core@14.6.1)(next@15.2.4)(react@19.1.0)
   fumadocs-ui:
     specifier: 14.6.1
-    version: 14.6.1(@types/react-dom@19.1.6)(@types/react@19.1.8)(next@15.2.3)(react-dom@19.1.0)(react@19.1.0)(tailwindcss@3.4.17)
+    version: 14.6.1(@types/react-dom@19.1.6)(@types/react@19.1.8)(next@15.2.4)(react-dom@19.1.0)(react@19.1.0)(tailwindcss@3.4.17)
   lucide-react:
     specifier: ^0.469.0
     version: 0.469.0(react@19.1.0)
   next:
-    specifier: 15.2.3
-    version: 15.2.3(react-dom@19.1.0)(react@19.1.0)
+    specifier: 15.2.4
+    version: 15.2.4(react-dom@19.1.0)(react@19.1.0)
   react:
     specifier: ^19.0.0
     version: 19.1.0
@@ -741,8 +741,8 @@ packages:
       '@tybys/wasm-util': 0.10.0
     optional: true
 
-  /@next/env@15.2.3:
-    resolution: {integrity: sha512-a26KnbW9DFEUsSxAxKBORR/uD9THoYoKbkpFywMN/AFvboTt94b8+g/07T8J6ACsdLag8/PDU60ov4rPxRAixw==}
+  /@next/env@15.2.4:
+    resolution: {integrity: sha512-+SFtMgoiYP3WoSswuNmxJOCwi06TdWE733D+WPjpXIe4LXGULwEaofiiAy6kbS0+XjM5xF5n3lKuBwN2SnqD9g==}
     dev: false
 
   /@next/eslint-plugin-next@15.1.0:
@@ -751,8 +751,8 @@ packages:
       fast-glob: 3.3.1
     dev: true
 
-  /@next/swc-darwin-arm64@15.2.3:
-    resolution: {integrity: sha512-uaBhA8aLbXLqwjnsHSkxs353WrRgQgiFjduDpc7YXEU0B54IKx3vU+cxQlYwPCyC8uYEEX7THhtQQsfHnvv8dw==}
+  /@next/swc-darwin-arm64@15.2.4:
+    resolution: {integrity: sha512-1AnMfs655ipJEDC/FHkSr0r3lXBgpqKo4K1kiwfUf3iE68rDFXZ1TtHdMvf7D0hMItgDZ7Vuq3JgNMbt/+3bYw==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [darwin]
@@ -760,8 +760,8 @@ packages:
     dev: false
     optional: true
 
-  /@next/swc-darwin-x64@15.2.3:
-    resolution: {integrity: sha512-pVwKvJ4Zk7h+4hwhqOUuMx7Ib02u3gDX3HXPKIShBi9JlYllI0nU6TWLbPT94dt7FSi6mSBhfc2JrHViwqbOdw==}
+  /@next/swc-darwin-x64@15.2.4:
+    resolution: {integrity: sha512-3qK2zb5EwCwxnO2HeO+TRqCubeI/NgCe+kL5dTJlPldV/uwCnUgC7VbEzgmxbfrkbjehL4H9BPztWOEtsoMwew==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [darwin]
@@ -769,8 +769,8 @@ packages:
     dev: false
     optional: true
 
-  /@next/swc-linux-arm64-gnu@15.2.3:
-    resolution: {integrity: sha512-50ibWdn2RuFFkOEUmo9NCcQbbV9ViQOrUfG48zHBCONciHjaUKtHcYFiCwBVuzD08fzvzkWuuZkd4AqbvKO7UQ==}
+  /@next/swc-linux-arm64-gnu@15.2.4:
+    resolution: {integrity: sha512-HFN6GKUcrTWvem8AZN7tT95zPb0GUGv9v0d0iyuTb303vbXkkbHDp/DxufB04jNVD+IN9yHy7y/6Mqq0h0YVaQ==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
@@ -778,8 +778,8 @@ packages:
     dev: false
     optional: true
 
-  /@next/swc-linux-arm64-musl@15.2.3:
-    resolution: {integrity: sha512-2gAPA7P652D3HzR4cLyAuVYwYqjG0mt/3pHSWTCyKZq/N/dJcUAEoNQMyUmwTZWCJRKofB+JPuDVP2aD8w2J6Q==}
+  /@next/swc-linux-arm64-musl@15.2.4:
+    resolution: {integrity: sha512-Oioa0SORWLwi35/kVB8aCk5Uq+5/ZIumMK1kJV+jSdazFm2NzPDztsefzdmzzpx5oGCJ6FkUC7vkaUseNTStNA==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
@@ -787,8 +787,8 @@ packages:
     dev: false
     optional: true
 
-  /@next/swc-linux-x64-gnu@15.2.3:
-    resolution: {integrity: sha512-ODSKvrdMgAJOVU4qElflYy1KSZRM3M45JVbeZu42TINCMG3anp7YCBn80RkISV6bhzKwcUqLBAmOiWkaGtBA9w==}
+  /@next/swc-linux-x64-gnu@15.2.4:
+    resolution: {integrity: sha512-yb5WTRaHdkgOqFOZiu6rHV1fAEK0flVpaIN2HB6kxHVSy/dIajWbThS7qON3W9/SNOH2JWkVCyulgGYekMePuw==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
@@ -796,8 +796,8 @@ packages:
     dev: false
     optional: true
 
-  /@next/swc-linux-x64-musl@15.2.3:
-    resolution: {integrity: sha512-ZR9kLwCWrlYxwEoytqPi1jhPd1TlsSJWAc+H/CJHmHkf2nD92MQpSRIURR1iNgA/kuFSdxB8xIPt4p/T78kwsg==}
+  /@next/swc-linux-x64-musl@15.2.4:
+    resolution: {integrity: sha512-Dcdv/ix6srhkM25fgXiyOieFUkz+fOYkHlydWCtB0xMST6X9XYI3yPDKBZt1xuhOytONsIFJFB08xXYsxUwJLw==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
@@ -805,8 +805,8 @@ packages:
     dev: false
     optional: true
 
-  /@next/swc-win32-arm64-msvc@15.2.3:
-    resolution: {integrity: sha512-+G2FrDcfm2YDbhDiObDU/qPriWeiz/9cRR0yMWJeTLGGX6/x8oryO3tt7HhodA1vZ8r2ddJPCjtLcpaVl7TE2Q==}
+  /@next/swc-win32-arm64-msvc@15.2.4:
+    resolution: {integrity: sha512-dW0i7eukvDxtIhCYkMrZNQfNicPDExt2jPb9AZPpL7cfyUo7QSNl1DjsHjmmKp6qNAqUESyT8YFl/Aw91cNJJg==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [win32]
@@ -814,8 +814,8 @@ packages:
     dev: false
     optional: true
 
-  /@next/swc-win32-x64-msvc@15.2.3:
-    resolution: {integrity: sha512-gHYS9tc+G2W0ZC8rBL+H6RdtXIyk40uLiaos0yj5US85FNhbFEndMA2nW3z47nzOWiSvXTZ5kBClc3rD0zJg0w==}
+  /@next/swc-win32-x64-msvc@15.2.4:
+    resolution: {integrity: sha512-SbnWkJmkS7Xl3kre8SdMF6F/XDh1DTFEhp0jRTj/uB8iPKoU2bb2NDfcu+iifv1+mxQEd1g2vvSxcZbXSKyWiQ==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [win32]
@@ -2286,7 +2286,7 @@ packages:
     dev: true
     optional: true
 
-  /@vercel/analytics@1.5.0(next@15.2.3)(react@19.1.0):
+  /@vercel/analytics@1.5.0(next@15.2.4)(react@19.1.0):
     resolution: {integrity: sha512-MYsBzfPki4gthY5HnYN7jgInhAZ7Ac1cYDoRWFomwGHWEX7odTEzbtg9kf/QSo7XEsEAqlQugA6gJ2WS2DEa3g==}
     peerDependencies:
       '@remix-run/react': ^2
@@ -2312,7 +2312,7 @@ packages:
       vue-router:
         optional: true
     dependencies:
-      next: 15.2.3(react-dom@19.1.0)(react@19.1.0)
+      next: 15.2.4(react-dom@19.1.0)(react@19.1.0)
       react: 19.1.0
     dev: false
 
@@ -3908,7 +3908,7 @@ packages:
     requiresBuild: true
     optional: true
 
-  /fumadocs-core@14.6.1(@types/react@19.1.8)(next@15.2.3)(react-dom@19.1.0)(react@19.1.0):
+  /fumadocs-core@14.6.1(@types/react@19.1.8)(next@15.2.4)(react-dom@19.1.0)(react@19.1.0):
     resolution: {integrity: sha512-vFXEpZL+/vIFbmQNBOEdby4iNVue19yHCCDjeLdcjHFC6zk4f2cQUBhATomGMe5JkltVCoCSmih0GXHLp2QDpA==}
     peerDependencies:
       '@oramacloud/client': 1.x.x || 2.x.x
@@ -3936,7 +3936,7 @@ packages:
       hast-util-to-jsx-runtime: 2.3.6
       image-size: 1.2.1
       negotiator: 1.0.0
-      next: 15.2.3(react-dom@19.1.0)(react@19.1.0)
+      next: 15.2.4(react-dom@19.1.0)(react@19.1.0)
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
       react-remove-scroll: 2.7.1(@types/react@19.1.8)(react@19.1.0)
@@ -3961,7 +3961,7 @@ packages:
       zod: 3.25.76
     dev: false
 
-  /fumadocs-mdx@11.7.1(acorn@8.15.0)(fumadocs-core@14.6.1)(next@15.2.3)(react@19.1.0):
+  /fumadocs-mdx@11.7.1(acorn@8.15.0)(fumadocs-core@14.6.1)(next@15.2.4)(react@19.1.0):
     resolution: {integrity: sha512-zY2s3OP0XsNhayp1ac3Qz/xSZLdfjFE3zCCt+LDlwAfRwlpP8WdwfUNsPzZSnnXYigLl0oEQNuL+SF4ZgXctfQ==}
     hasBin: true
     peerDependencies:
@@ -3985,10 +3985,10 @@ packages:
       chokidar: 4.0.3
       esbuild: 0.25.8
       estree-util-value-to-estree: 3.4.0
-      fumadocs-core: 14.6.1(@types/react@19.1.8)(next@15.2.3)(react-dom@19.1.0)(react@19.1.0)
+      fumadocs-core: 14.6.1(@types/react@19.1.8)(next@15.2.4)(react-dom@19.1.0)(react@19.1.0)
       js-yaml: 4.1.0
       lru-cache: 11.1.0
-      next: 15.2.3(react-dom@19.1.0)(react@19.1.0)
+      next: 15.2.4(react-dom@19.1.0)(react@19.1.0)
       picocolors: 1.1.1
       react: 19.1.0
       tinyexec: 1.0.1
@@ -4000,7 +4000,7 @@ packages:
       - supports-color
     dev: false
 
-  /fumadocs-ui@14.6.1(@types/react-dom@19.1.6)(@types/react@19.1.8)(next@15.2.3)(react-dom@19.1.0)(react@19.1.0)(tailwindcss@3.4.17):
+  /fumadocs-ui@14.6.1(@types/react-dom@19.1.6)(@types/react@19.1.8)(next@15.2.4)(react-dom@19.1.0)(react@19.1.0)(tailwindcss@3.4.17):
     resolution: {integrity: sha512-yPI49cNgzZeDG0VnU1JG1Yodzn134UmNaE4HrDUL4v39ExMb/ZCFjUs6rRnNc5meY9CW0lv9JtWuTwHR0mBwuQ==}
     peerDependencies:
       next: 14.x.x || 15.x.x
@@ -4021,10 +4021,10 @@ packages:
       '@radix-ui/react-slot': 1.2.3(@types/react@19.1.8)(react@19.1.0)
       '@radix-ui/react-tabs': 1.1.12(@types/react-dom@19.1.6)(@types/react@19.1.8)(react-dom@19.1.0)(react@19.1.0)
       class-variance-authority: 0.7.1
-      fumadocs-core: 14.6.1(@types/react@19.1.8)(next@15.2.3)(react-dom@19.1.0)(react@19.1.0)
+      fumadocs-core: 14.6.1(@types/react@19.1.8)(next@15.2.4)(react-dom@19.1.0)(react@19.1.0)
       lodash.merge: 4.6.2
       lucide-react: 0.468.0(react@19.1.0)
-      next: 15.2.3(react-dom@19.1.0)(react@19.1.0)
+      next: 15.2.4(react-dom@19.1.0)(react@19.1.0)
       next-themes: 0.4.6(react-dom@19.1.0)(react@19.1.0)
       postcss-selector-parser: 7.1.0
       react: 19.1.0
@@ -5442,8 +5442,8 @@ packages:
       react-dom: 19.1.0(react@19.1.0)
     dev: false
 
-  /next@15.2.3(react-dom@19.1.0)(react@19.1.0):
-    resolution: {integrity: sha512-x6eDkZxk2rPpu46E1ZVUWIBhYCLszmUY6fvHBFcbzJ9dD+qRX6vcHusaqqDlnY+VngKzKbAiG2iRCkPbmi8f7w==}
+  /next@15.2.4(react-dom@19.1.0)(react@19.1.0):
+    resolution: {integrity: sha512-VwL+LAaPSxEkd3lU2xWbgEOtrM8oedmyhBqaVNmgKB+GvZlCy9rgaEc+y2on0wv+l0oSFqLtYD6dcC1eAedUaQ==}
     engines: {node: ^18.18.0 || ^19.8.0 || >= 20.0.0}
     hasBin: true
     peerDependencies:
@@ -5463,7 +5463,7 @@ packages:
       sass:
         optional: true
     dependencies:
-      '@next/env': 15.2.3
+      '@next/env': 15.2.4
       '@swc/counter': 0.1.3
       '@swc/helpers': 0.5.15
       busboy: 1.6.0
@@ -5473,14 +5473,14 @@ packages:
       react-dom: 19.1.0(react@19.1.0)
       styled-jsx: 5.1.6(react@19.1.0)
     optionalDependencies:
-      '@next/swc-darwin-arm64': 15.2.3
-      '@next/swc-darwin-x64': 15.2.3
-      '@next/swc-linux-arm64-gnu': 15.2.3
-      '@next/swc-linux-arm64-musl': 15.2.3
-      '@next/swc-linux-x64-gnu': 15.2.3
-      '@next/swc-linux-x64-musl': 15.2.3
-      '@next/swc-win32-arm64-msvc': 15.2.3
-      '@next/swc-win32-x64-msvc': 15.2.3
+      '@next/swc-darwin-arm64': 15.2.4
+      '@next/swc-darwin-x64': 15.2.4
+      '@next/swc-linux-arm64-gnu': 15.2.4
+      '@next/swc-linux-arm64-musl': 15.2.4
+      '@next/swc-linux-x64-gnu': 15.2.4
+      '@next/swc-linux-x64-musl': 15.2.4
+      '@next/swc-win32-arm64-msvc': 15.2.4
+      '@next/swc-win32-x64-msvc': 15.2.4
       sharp: 0.33.5
     transitivePeerDependencies:
       - '@babel/core'
