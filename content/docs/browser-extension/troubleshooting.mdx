@@ -1,0 +1,654 @@
+---
+title: Troubleshooting
+description: Common issues and solutions for the Reclaim Browser Extension SDK
+---
+
+## Quick Diagnostic Checklist
+
+Before diving into specific issues, run through this checklist:
+
+### Extension Integration
+
+- ✅ Manifest configuration is complete with all required fields
+- ✅ CSP includes `'wasm-unsafe-eval'` directive
+- ✅ All SDK resources are listed in `web_accessible_resources`
+- ✅ Content script is registered (static or dynamic)
+- ✅ Background script initializes the SDK
+- ✅ Extension is loaded and active in `chrome://extensions`
+- ✅ No errors in service worker console
+
+### Web Integration
+
+- ✅ SDK is installed in your web project
+- ✅ Extension ID is correct for your environment
+- ✅ Extension is installed and active
+- ✅ HTTPS is used (if in production)
+- ✅ Backend API endpoints are accessible (if using server config)
+- ✅ CORS is configured correctly (if using server config)
+
+## Common Issues
+
+### Installation Issues
+
+#### Asset Setup Script Fails
+
+**Symptoms**: Running `npm run reclaim-extension-setup` produces errors
+
+**Possible Causes**:
+1. Incorrect `--public-dir` path
+2. Missing `public` directory
+3. File permission issues
+
+**Solutions**:
+
+```bash
+# Verify public directory exists
+ls -la public/
+
+# Create if missing
+mkdir -p public
+
+# Run setup with correct path
+npm run reclaim-extension-setup
+
+# For custom public directory
+npm run reclaim-extension-setup -- --public-dir=dist
+```
+
+#### SDK Assets Not Copied
+
+**Symptoms**: Build fails because SDK files are missing
+
+**Solutions**:
+
+1. Verify the setup script ran successfully:
+```bash
+ls -la public/reclaim-browser-extension-sdk/
+```
+
+2. Check for build tool configuration issues:
+```javascript
+// vite.config.js - ensure publicDir is set
+export default {
+  publicDir: 'public'
+}
+```
+
+3. Manually verify file existence before build:
+```json
+{
+  "scripts": {
+    "prebuild": "npm run reclaim-extension-setup",
+    "build": "vite build"
+  }
+}
+```
+
+### Manifest Configuration Issues
+
+#### CSP Violations
+
+**Symptoms**: Console errors like:
+```
+Refused to execute inline script because it violates CSP
+Failed to load WebAssembly module
+```
+
+**Solution**: Update your CSP in `manifest.json`:
+
+```json
+{
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'; worker-src 'self';"
+  }
+}
+```
+
+<Callout type="info">
+**Important**: The `'wasm-unsafe-eval'` directive is **required** for WebAssembly. Don't remove it.
+</Callout>
+
+#### Permission Denied Errors
+
+**Symptoms**: Extension can't create offscreen documents or access cookies
+
+**Solution**: Add required permissions to `manifest.json`:
+
+```json
+{
+  "permissions": [
+    "offscreen",
+    "cookies"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ]
+}
+```
+
+#### Resources Not Accessible
+
+**Symptoms**: Console errors:
+```
+Failed to load resource: net::ERR_FILE_NOT_FOUND
+denying load of chrome-extension://...
+```
+
+**Solution**: Add all SDK resources to `web_accessible_resources`:
+
+```json
+{
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "reclaim-browser-extension-sdk/offscreen/offscreen.html",
+        "reclaim-browser-extension-sdk/offscreen/offscreen.bundle.js",
+        "reclaim-browser-extension-sdk/interceptor/network-interceptor.bundle.js",
+        "reclaim-browser-extension-sdk/interceptor/injection-scripts.bundle.js",
+        "reclaim-browser-extension-sdk/content/components/reclaim-provider-verification-popup.css",
+        "reclaim-browser-extension-sdk/content/components/reclaim-provider-verification-popup.html"
+      ],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
+```
+
+### Background Script Issues
+
+#### Service Worker Not Starting
+
+**Symptoms**: Background initialization doesn't run, no console logs
+
+**Debugging Steps**:
+
+1. Check service worker console:
+   - Go to `chrome://extensions`
+   - Click "service worker" link under your extension
+   - Look for errors
+
+2. Verify syntax in background script:
+```bash
+# Check for syntax errors
+npx eslint background.js
+```
+
+3. Add error handling:
+```javascript
+try {
+  reclaimExtensionSDK.initializeBackground();
+  console.log("✅ SDK initialized");
+} catch (error) {
+  console.error("❌ Initialization failed:", error);
+}
+```
+
+#### Service Worker Repeatedly Restarting
+
+**Symptoms**: Initialization logs appear multiple times
+
+**This is normal behavior**: Chrome terminates inactive service workers. Ensure you reinitialize on restart:
+
+```javascript
+chrome.runtime.onStartup.addListener(() => {
+  reclaimExtensionSDK.initializeBackground();
+});
+
+chrome.runtime.onInstalled.addListener(() => {
+  reclaimExtensionSDK.initializeBackground();
+});
+```
+
+### Content Script Issues
+
+#### Content Script Not Injecting
+
+**Symptoms**: Verification doesn't work on web pages
+
+**Debugging**:
+
+1. Check if content script is loaded:
+```javascript
+// In page console
+console.log("SDK Content Script:", typeof window.__RECLAIM_SDK__ !== 'undefined');
+```
+
+2. Verify manifest registration:
+```json
+{
+  "content_scripts": [
+    {
+      "js": ["reclaim-browser-extension-sdk/content/content.bundle.js"],
+      "matches": ["<all_urls>"],
+      "run_at": "document_start"  // Must be document_start!
+    }
+  ]
+}
+```
+
+3. For dynamic registration, check if registered:
+```javascript
+chrome.scripting.getRegisteredContentScripts().then(scripts => {
+  console.log("Registered scripts:", scripts);
+});
+```
+
+**Common Mistakes**:
+- ❌ Using `run_at: "document_end"` - won't work
+- ❌ Missing from `matches` array
+- ❌ Wrong file path in `js` array
+
+#### Content Script Loading But Not Working
+
+**Symptoms**: Script loads but verification fails
+
+**Solutions**:
+
+1. Ensure `host_permissions` includes the target domain:
+```json
+{
+  "host_permissions": ["<all_urls>"]
+}
+```
+
+2. Check for conflicts with page scripts:
+```json
+{
+  "content_scripts": [
+    {
+      // ...
+      "world": "ISOLATED"  // Recommended
+    }
+  ]
+}
+```
+
+### Verification Issues
+
+#### Verification Never Starts
+
+**Symptoms**: `startVerification()` called but nothing happens
+
+**Debugging**:
+
+1. Check console for errors in both:
+   - Extension popup/page
+   - Background service worker
+   - Web page (for web integration)
+
+2. Verify API credentials:
+```javascript
+console.log("APP_ID:", APP_ID);
+console.log("APP_SECRET length:", APP_SECRET?.length);
+console.log("Provider ID:", providerId);
+```
+
+3. Check initialization:
+```javascript
+try {
+  const request = await reclaimExtensionSDK.init(APP_ID, APP_SECRET, providerId);
+  console.log("✅ Request created:", request);
+} catch (error) {
+  console.error("❌ Init failed:", error);
+}
+```
+
+#### Verification Starts But Never Completes
+
+**Symptoms**: Provider window opens but `completed` event never fires
+
+**Possible Causes**:
+1. User didn't complete provider authentication
+2. Network interception failed
+3. Offscreen document error
+
+**Debugging**:
+
+1. Check offscreen document console:
+```javascript
+// In service worker console
+chrome.offscreen.createDocument({
+  url: 'reclaim-browser-extension-sdk/offscreen/offscreen.html',
+  reasons: ['WORKERS'],
+  justification: 'Debug proof generation'
+}).then(() => {
+  console.log("Offscreen document created");
+}).catch(err => {
+  console.error("Offscreen creation failed:", err);
+});
+```
+
+2. Monitor all events:
+```javascript
+const request = await reclaimExtensionSDK.init(...);
+
+request.on("started", (data) => console.log("STARTED:", data));
+request.on("completed", (data) => console.log("COMPLETED:", data));
+request.on("error", (data) => console.error("ERROR:", data));
+```
+
+3. Check provider tab:
+   - Did it open correctly?
+   - Did user complete authentication?
+   - Are there errors in provider tab console?
+
+#### Proofs Are Empty or Invalid
+
+**Symptoms**: `completed` event fires but proofs are empty or malformed
+
+**Solutions**:
+
+1. Verify provider configuration:
+```javascript
+// Check provider ID is valid
+const validProviders = ["google-login", "twitter-profile", "github-login"];
+if (!validProviders.includes(providerId)) {
+  console.error("Invalid provider:", providerId);
+}
+```
+
+2. Check API credentials are correct:
+   - Wrong credentials may produce empty proofs
+   - Verify on [Reclaim Developer Portal](https://dev.reclaimprotocol.org)
+
+3. Validate proofs structure:
+```javascript
+request.on("completed", (proofs) => {
+  console.log("Proof structure:", {
+    hasClaimData: !!proofs?.claimData,
+    hasSignedClaim: !!proofs?.signedClaim,
+    provider: proofs?.claimData?.provider
+  });
+});
+```
+
+### Web Integration Issues
+
+#### Extension Not Detected
+
+**Symptoms**: `isExtensionInstalled()` returns `false` despite extension being installed
+
+**Solutions**:
+
+1. Verify extension ID:
+```javascript
+const EXTENSION_ID = "your-extension-id-here";
+console.log("Checking for extension:", EXTENSION_ID);
+
+const installed = await reclaimExtensionSDK.isExtensionInstalled({
+  extensionID: EXTENSION_ID
+});
+console.log("Installed:", installed);
+```
+
+2. Check extension ID matches:
+   - Development vs production IDs are different
+   - Get ID from `chrome://extensions` (enable Developer mode)
+
+3. Ensure extension has proper permissions:
+```json
+{
+  "externally_connectable": {
+    "matches": ["<all_urls>"]
+  }
+}
+```
+
+#### Communication Fails Between Page and Extension
+
+**Symptoms**: Initialization succeeds but verification doesn't start
+
+**Debugging**:
+
+1. Check content script is loaded on the page:
+```javascript
+// In page console
+window.addEventListener('message', (event) => {
+  console.log('Message received:', event.data);
+});
+```
+
+2. Verify CORS for server config:
+```javascript
+// Backend
+app.use(cors({
+  origin: process.env.ALLOWED_ORIGINS.split(','),
+  credentials: true
+}));
+```
+
+3. Check for CSP blocking communication:
+```html
+<!-- In your web page -->
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'self'; connect-src 'self' chrome-extension://*">
+```
+
+### Build Tool Issues
+
+#### Vite Re-bundling SDK Assets
+
+**Symptoms**: Build errors related to SDK bundles
+
+**Solution**: Ensure assets are in public directory and not imported:
+
+```javascript
+// ❌ Don't do this
+import contentScript from '@reclaimprotocol/browser-extension-sdk/content/content.bundle.js';
+
+// ✅ Reference from public directory via manifest
+{
+  "content_scripts": [
+    {
+      "js": ["reclaim-browser-extension-sdk/content/content.bundle.js"]
+    }
+  ]
+}
+```
+
+#### Create React App (CRA) Issues
+
+**Symptoms**: Build fails or SDK doesn't work after build
+
+**Solutions**:
+
+1. Verify public folder structure:
+```bash
+public/
+├── reclaim-browser-extension-sdk/
+│   ├── content/
+│   ├── offscreen/
+│   └── interceptor/
+└── manifest.json
+```
+
+2. Use correct paths in manifest:
+```json
+{
+  "content_scripts": [
+    {
+      "js": ["reclaim-browser-extension-sdk/content/content.bundle.js"]
+      // NOT: "public/reclaim-browser-extension-sdk/..."
+    }
+  ]
+}
+```
+
+### Environment Variable Issues
+
+#### Variables Not Loading
+
+**Symptoms**: `undefined` values for environment variables
+
+**Solutions**:
+
+1. Check variable prefix:
+```javascript
+// Vite
+import.meta.env.VITE_RECLAIM_APP_ID  // ✅
+process.env.VITE_RECLAIM_APP_ID      // ❌
+
+// CRA
+process.env.REACT_APP_RECLAIM_APP_ID // ✅
+import.meta.env.REACT_APP_...        // ❌
+```
+
+2. Restart dev server after changing `.env`:
+```bash
+# Stop server (Ctrl+C)
+npm run dev
+```
+
+3. Verify `.env` file location:
+```bash
+# Should be in project root
+ls -la .env.local
+```
+
+## Debugging Tools
+
+### Enable Debug Mode
+
+Create a debug utility:
+
+```javascript
+const DEBUG = import.meta.env.MODE === 'development';
+
+export const debug = {
+  log: (...args) => DEBUG && console.log('[DEBUG]', ...args),
+  error: (...args) => DEBUG && console.error('[ERROR]', ...args),
+  warn: (...args) => DEBUG && console.warn('[WARN]', ...args)
+};
+
+// Usage
+debug.log('Initializing SDK with', { APP_ID, providerId });
+```
+
+### Log All SDK Events
+
+```javascript
+const request = await reclaimExtensionSDK.init(...);
+
+['started', 'completed', 'error'].forEach(eventName => {
+  request.on(eventName, (data) => {
+    console.log(`[${eventName.toUpperCase()}]`, {
+      timestamp: new Date().toISOString(),
+      data
+    });
+  });
+});
+```
+
+### Check Extension State
+
+```javascript
+// In extension background
+chrome.management.getSelf((info) => {
+  console.log('Extension info:', {
+    enabled: info.enabled,
+    version: info.version,
+    permissions: info.permissions
+  });
+});
+```
+
+## Performance Issues
+
+### Slow Proof Generation
+
+**Symptoms**: Verification takes a long time
+
+**Possible Causes**:
+1. WebAssembly not loading properly
+2. Offscreen document not created
+3. Network issues
+
+**Solutions**:
+
+1. Verify WASM loading:
+```javascript
+// Check CSP allows WASM
+console.log(document.querySelector('meta[http-equiv="Content-Security-Policy"]'));
+```
+
+2. Monitor offscreen document:
+```javascript
+// Log offscreen creation
+chrome.offscreen.createDocument(...).then(() => {
+  console.log('⏱️ Offscreen created at', Date.now());
+});
+```
+
+### Extension Slowing Down Browser
+
+**Symptoms**: Browser becomes sluggish
+
+**Solution**: Check for memory leaks:
+
+```javascript
+// Cleanup after verification
+request.on("completed", (proofs) => {
+  // Process proofs
+  handleProofs(proofs);
+
+  // Clear references
+  request = null;
+});
+
+request.on("error", (error) => {
+  // Handle error
+  handleError(error);
+
+  // Clear references
+  request = null;
+});
+```
+
+## Getting Help
+
+If you've tried everything and still have issues:
+
+1. **Check Console Logs**:
+   - Extension popup console
+   - Background service worker console
+   - Web page console (for web integration)
+   - Provider tab console
+
+2. **Gather Information**:
+   - Extension version
+   - Browser version
+   - SDK version
+   - Error messages
+   - Steps to reproduce
+
+3. **Test in Isolation**:
+   - Create a minimal reproduction
+   - Test with basic credentials
+   - Try different providers
+
+4. **Community Support**:
+   - [GitHub Issues](https://github.com/reclaimprotocol/reclaim-browser-extension-sdk/issues)
+   - [Discord Community](https://discord.gg/reclaim) (if available)
+   - [Documentation](https://docs.reclaimprotocol.org)
+
+## Prevention Checklist
+
+Before deploying:
+
+- ✅ Tested in both development and production builds
+- ✅ Verified all environment variables are set
+- ✅ Tested extension installation flow
+- ✅ Implemented proper error handling
+- ✅ Added user-friendly error messages
+- ✅ Tested with multiple providers
+- ✅ Verified proof validation on backend
+- ✅ Tested edge cases (cancellation, timeout, etc.)
+- ✅ Checked for memory leaks
+- ✅ Reviewed console for warnings
+
+## Additional Resources
+
+- [Extension Integration Guide](/browser-extension/extension-integration)
+- [Web Integration Guide](/browser-extension/web-integration)
+- [Chrome Extension Documentation](https://developer.chrome.com/docs/extensions/)
+- [Manifest V3 Migration](https://developer.chrome.com/docs/extensions/mv3/intro/)

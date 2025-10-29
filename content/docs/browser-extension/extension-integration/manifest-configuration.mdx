@@ -1,0 +1,352 @@
+---
+title: Manifest Configuration
+description: Configure Chrome Manifest V3 settings for Reclaim Browser Extension SDK
+---
+
+## Overview
+
+Your Chrome extension's `manifest.json` file requires specific configuration to enable the Reclaim SDK's features. This guide explains each required setting and why it's needed.
+
+## Complete Manifest Configuration
+
+Here's a complete example of the required manifest configuration:
+
+```json
+{
+  "manifest_version": 3,
+  "name": "Your Extension Name",
+  "version": "1.0.0",
+  "description": "Your extension description",
+
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'; worker-src 'self';"
+  },
+
+  "permissions": [
+    "offscreen",
+    "cookies",
+    "scripting"
+  ],
+
+  "host_permissions": [
+    "<all_urls>"
+  ],
+
+  "background": {
+    "service_worker": "background.js"
+  },
+
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "reclaim-browser-extension-sdk/offscreen/offscreen.html",
+        "reclaim-browser-extension-sdk/offscreen/offscreen.bundle.js",
+        "reclaim-browser-extension-sdk/interceptor/network-interceptor.bundle.js",
+        "reclaim-browser-extension-sdk/interceptor/injection-scripts.bundle.js",
+        "reclaim-browser-extension-sdk/content/components/reclaim-provider-verification-popup.css",
+        "reclaim-browser-extension-sdk/content/components/reclaim-provider-verification-popup.html"
+      ],
+      "matches": ["<all_urls>"]
+    }
+  ],
+
+  "content_scripts": [
+    {
+      "js": ["reclaim-browser-extension-sdk/content/content.bundle.js"],
+      "matches": ["<all_urls>"],
+      "run_at": "document_start"
+    }
+  ]
+}
+```
+
+## Configuration Sections Explained
+
+### 1. Content Security Policy (CSP)
+
+```json
+"content_security_policy": {
+  "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'; worker-src 'self';"
+}
+```
+
+**Purpose**: Defines security rules for scripts running in your extension pages (popup, options, etc.).
+
+#### Directives Breakdown
+
+**`script-src 'self' 'wasm-unsafe-eval'`**
+- `'self'`: Only allow scripts from your extension package
+- `'wasm-unsafe-eval'`: **Critical** - Enables WebAssembly instantiation required for cryptographic proof generation
+
+<Callout type="warning">
+**Why `wasm-unsafe-eval`?** WebAssembly requires dynamic code execution, which Manifest V3 restricts by default. This directive is the approved way to enable WASM in Chrome extensions. Despite the "unsafe" name, it's necessary and considered acceptable for WASM use cases.
+</Callout>
+
+**`object-src 'self'`**
+- Restricts embedded objects (like `<object>`, `<embed>`) to your extension
+- Prevents loading external plugins or content
+
+**`worker-src 'self'`**
+- Allows Web Workers from your extension
+- Used internally by the SDK for background processing
+
+<Callout type="info">
+**Security Note**: These CSP settings maintain security while enabling required functionality. The SDK only uses these capabilities for legitimate cryptographic operations.
+</Callout>
+
+### 2. Permissions
+
+```json
+"permissions": [
+  "offscreen",
+  "cookies",
+  "scripting"
+]
+```
+
+**Purpose**: Grants specific Chrome extension APIs to your extension.
+
+#### Permission Details
+
+**`offscreen`**
+- **What**: Allows creation of offscreen documents (hidden web pages)
+- **Why**: Required for WebAssembly execution in Manifest V3's service worker architecture
+- **Usage**: SDK creates an offscreen document to run proof generation without blocking the UI
+- **Security**: Offscreen documents are isolated and can't be accessed by web pages
+
+**`cookies`**
+- **What**: Access to browser cookies for specific domains
+- **Why**: Many providers use cookies for authentication state
+- **Usage**: SDK reads provider cookies during verification to maintain authentication
+- **Security**: Only accessed for domains the user explicitly interacts with during verification
+
+**`scripting`**
+- **What**: Allows programmatic injection of JavaScript code into web pages
+- **Why**: Required for dynamic content script registration and advanced verification features
+- **Usage**: SDK uses this to:
+  - **Replay page fetches**: Re-fetch the current page to capture fresh network data during verification
+  - **Run custom injections**: Execute provider-specific JavaScript code for data extraction
+  - **Dynamic script registration**: Register content scripts programmatically
+- **Security**: Scripts are only injected during active verification flows on provider domains
+
+<Callout type="info">
+**Why Scripting Permission?** The SDK needs to inject code into provider pages to replay network requests (using XHR) and run custom extraction logic. This enables the SDK to capture authentication data and verification proofs even on pages with strict CSP policies.
+</Callout>
+
+### 3. Host Permissions
+
+```json
+"host_permissions": [
+  "<all_urls>"
+]
+```
+
+**Purpose**: Grants access to all URLs for content script injection and network monitoring.
+
+**Why `<all_urls>`?**
+- Provider verification can happen on any website (Google, Twitter, GitHub, etc.)
+- The SDK needs to inject content scripts into provider domains
+- Network interception works across different provider domains
+
+**Security Implications**:
+- This is a broad permission that users will see during installation
+- Only used for domains during active verification flows
+- No data collection or monitoring outside verification contexts
+
+<Callout type="warning">
+**User Trust**: Be transparent about this permission in your extension's description. Explain that it's required for provider verification and only active during user-initiated flows.
+</Callout>
+
+**Alternative Approach** (More Restrictive):
+If you know specific providers you'll support, you can list them explicitly:
+
+```json
+"host_permissions": [
+  "https://accounts.google.com/*",
+  "https://twitter.com/*",
+  "https://github.com/*"
+  // Add other provider domains...
+]
+```
+
+However, this limits flexibility and requires manifest updates for new providers.
+
+### 4. Background Service Worker
+
+```json
+"background": {
+  "service_worker": "background.js"
+}
+```
+
+**Purpose**: Defines your extension's background script using Manifest V3's service worker model.
+
+**What Happens Here**:
+- SDK initialization occurs in this file
+- Manages offscreen document lifecycle
+- Handles message routing between extension components
+- Coordinates verification flow orchestration
+
+**Service Worker vs. Background Page**:
+- Manifest V3 requires service workers (no persistent background pages)
+- Service workers can be suspended when inactive (SDK handles this)
+- Must initialize SDK on each service worker activation
+
+### 5. Web-Accessible Resources
+
+```json
+"web_accessible_resources": [
+  {
+    "resources": [
+      "reclaim-browser-extension-sdk/offscreen/offscreen.html",
+      "reclaim-browser-extension-sdk/offscreen/offscreen.bundle.js",
+      "reclaim-browser-extension-sdk/interceptor/network-interceptor.bundle.js",
+      "reclaim-browser-extension-sdk/interceptor/injection-scripts.bundle.js",
+      "reclaim-browser-extension-sdk/content/components/reclaim-provider-verification-popup.css",
+      "reclaim-browser-extension-sdk/content/components/reclaim-provider-verification-popup.html"
+    ],
+    "matches": ["<all_urls>"]
+  }
+]
+```
+
+**Purpose**: Makes SDK bundles accessible to web pages and extension contexts.
+
+#### Resource Breakdown
+
+**Offscreen Document** (`offscreen.html`, `offscreen.bundle.js`)
+- Runs WebAssembly for proof generation
+- Accessed by the background service worker
+- Isolated execution environment
+
+**Network Interceptor** (`network-interceptor.bundle.js`, `injection-scripts.bundle.js`)
+- Injected into provider tabs during verification
+- Monitors network requests for proof data
+- Captures authentication responses
+
+**UI Components** (`reclaim-provider-verification-popup.*`)
+- Popup interface shown during verification
+- Displays provider authentication progress
+- Handles user interactions
+
+**Why `"matches": ["<all_urls>"]`?**
+- Resources need to be accessible from any provider domain
+- Verification can occur on various websites
+- Restricting matches would break functionality
+
+<Callout type="info">
+**Build Process**: These paths assume you ran the asset setup script from the [Installation guide](/browser-extension/installation). The paths match the copied files in your public directory.
+</Callout>
+
+### 6. Content Scripts
+
+```json
+"content_scripts": [
+  {
+    "js": ["reclaim-browser-extension-sdk/content/content.bundle.js"],
+    "matches": ["<all_urls>"],
+    "run_at": "document_start"
+  }
+]
+```
+
+**Purpose**: Automatically injects the SDK's content script bridge into web pages.
+
+#### Configuration Details
+
+**`"js": ["reclaim-browser-extension-sdk/content/content.bundle.js"]`**
+- Path to the SDK's content script bundle
+- Acts as a communication bridge
+- Must be loaded before your extension's content scripts
+
+<Callout type="info">
+**Loading Multiple Scripts**: If you have your own content scripts, add them to this array:
+```json
+"js": [
+  "reclaim-browser-extension-sdk/content/content.bundle.js",
+  "your-content-script.js"
+]
+```
+The SDK script should be loaded first to establish the communication bridge.
+</Callout>
+
+**`"matches": ["<all_urls>"]`**
+- Injects the script on all web pages
+- Required because verification can happen on any provider domain
+- Script is lightweight and only activates during verification
+
+**`"run_at": "document_start"`**
+- Injects the script before the page's DOM is constructed
+- **Critical**: Ensures the script can intercept early page events
+- Must be `document_start` for proper functionality
+
+**Alternative**: `document_idle` or `document_end` will **not work properly** with the SDK.
+
+## Dynamic Content Script Registration (Optional)
+
+Instead of static manifest registration, you can register content scripts programmatically in your background service worker. This approach provides more control but requires the `"scripting"` permission.
+
+See the [Setup guide](/browser-extension/extension-integration/setup#dynamic-registration) for implementation details.
+
+## Validation Checklist
+
+After configuring your manifest, verify:
+
+- ✅ CSP includes `'wasm-unsafe-eval'` for WebAssembly
+- ✅ `offscreen` and `cookies` permissions are present
+- ✅ Host permissions include required provider domains
+- ✅ All SDK resources are listed in `web_accessible_resources`
+- ✅ Content script runs at `document_start`
+- ✅ Background service worker is defined
+- ✅ Manifest version is 3
+
+## Testing Your Configuration
+
+After updating your manifest:
+
+1. **Reload your extension** in Chrome:
+   - Navigate to `chrome://extensions`
+   - Enable "Developer mode"
+   - Click "Reload" on your extension
+
+2. **Check for errors**:
+   - Look for red error badges on your extension
+   - Open the service worker console for error messages
+   - Check the browser console on test pages
+
+3. **Verify permissions**:
+   - Click "Details" on your extension
+   - Review "Permissions" section
+   - Ensure all required permissions are granted
+
+## Common Issues
+
+### CSP Violations
+
+**Error**: `Refused to execute inline script because it violates CSP`
+
+**Solution**: Ensure `'wasm-unsafe-eval'` is in your CSP. Remove any inline scripts from your extension pages.
+
+### Missing Resources
+
+**Error**: `Failed to load resource: net::ERR_FILE_NOT_FOUND`
+
+**Solution**:
+1. Verify the asset setup script ran successfully
+2. Check that paths in `web_accessible_resources` match your public directory structure
+3. Rebuild your extension
+
+### Content Script Not Loading
+
+**Issue**: SDK functionality not working on web pages
+
+**Solution**:
+1. Confirm content script path in manifest is correct
+2. Verify `run_at` is set to `document_start`
+3. Check browser console for injection errors
+
+## Next Steps
+
+With your manifest configured, proceed to set up the background service worker:
+
+**[Set Up Background & Content Scripts →](/browser-extension/extension-integration/setup)**
