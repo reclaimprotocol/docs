@@ -1,0 +1,885 @@
+---
+title: Usage
+description: Implement Reclaim verification flows in your browser extension popup or panel
+---
+
+## Overview
+
+With the SDK initialized and configured, you can now implement verification flows in your extension's user interface. This guide covers implementing verification in popups, side panels, and handling the complete verification lifecycle.
+
+## Prerequisites
+
+Before implementing verification flows, ensure you have:
+
+- ✅ Completed [Manifest Configuration](/browser-extension/extension-integration/manifest-configuration)
+- ✅ Completed [Background Setup](/browser-extension/extension-integration/setup)
+- ✅ Obtained API credentials from the [API Key guide](/api-key)
+
+## Basic Popup Implementation
+
+### HTML Structure
+
+Create a simple popup interface (`popup.html`):
+
+```html
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Reclaim Verification</title>
+    <style>
+      body {
+        width: 350px;
+        padding: 20px;
+        font-family: system-ui, -apple-system, sans-serif;
+      }
+
+      .form-group {
+        margin-bottom: 15px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+        color: #333;
+      }
+
+      input {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+
+      button {
+        width: 100%;
+        padding: 10px;
+        background: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      button:hover {
+        background: #45a049;
+      }
+
+      button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+
+      .status {
+        margin-top: 15px;
+        padding: 10px;
+        border-radius: 4px;
+        font-size: 13px;
+      }
+
+      .status.info {
+        background: #e3f2fd;
+        color: #1976d2;
+      }
+
+      .status.success {
+        background: #e8f5e9;
+        color: #388e3c;
+      }
+
+      .status.error {
+        background: #ffebee;
+        color: #c62828;
+      }
+
+      pre {
+        background: #f5f5f5;
+        padding: 10px;
+        border-radius: 4px;
+        overflow-x: auto;
+        font-size: 11px;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Reclaim Verification</h2>
+
+    <div class="form-group">
+      <label for="appId">Application ID</label>
+      <input type="text" id="appId" value="YOUR_APPLICATION_ID" placeholder="Enter your Application ID" />
+    </div>
+
+    <div class="form-group">
+      <label for="appSecret">Application Secret</label>
+      <input type="password" id="appSecret" value="YOUR_APPLICATION_SECRET" placeholder="Enter your Application Secret" />
+    </div>
+
+    <div class="form-group">
+      <label for="providerId">Provider ID</label>
+      <input type="text" id="providerId" value="YOUR_PROVIDER_ID" placeholder="e.g., google-login" />
+    </div>
+
+    <button id="startBtn">Start Verification</button>
+
+    <div id="status"></div>
+    <pre id="output"></pre>
+
+    <script src="popup.js" type="module"></script>
+  </body>
+</html>
+```
+
+### JavaScript Implementation
+
+Create the popup logic (`popup.js`):
+
+```javascript
+import { reclaimExtensionSDK } from "@reclaimprotocol/browser-extension-sdk";
+
+// DOM elements
+const appIdInput = document.getElementById("appId");
+const appSecretInput = document.getElementById("appSecret");
+const providerIdInput = document.getElementById("providerId");
+const startBtn = document.getElementById("startBtn");
+const statusDiv = document.getElementById("status");
+const outputPre = document.getElementById("output");
+
+// Helper functions
+function showStatus(message, type = "info") {
+  statusDiv.className = `status ${type}`;
+  statusDiv.textContent = message;
+  statusDiv.style.display = "block";
+}
+
+function showOutput(data) {
+  outputPre.textContent = JSON.stringify(data, null, 2);
+}
+
+function clearOutput() {
+  outputPre.textContent = "";
+  statusDiv.style.display = "none";
+}
+
+// Start verification
+startBtn.addEventListener("click", async () => {
+  // Get form values
+  const appId = appIdInput.value.trim();
+  const appSecret = appSecretInput.value.trim();
+  const providerId = providerIdInput.value.trim();
+
+  // Validate inputs
+  if (!appId || !appSecret || !providerId) {
+    showStatus("Please fill in all fields", "error");
+    return;
+  }
+
+  // Clear previous output
+  clearOutput();
+
+  // Disable button during verification
+  startBtn.disabled = true;
+  startBtn.textContent = "Initializing...";
+
+  try {
+    // Initialize verification request
+    showStatus("Initializing verification...", "info");
+
+    const request = await reclaimExtensionSDK.init(appId, appSecret, providerId);
+
+    // Configure the request (optional)
+    request.setAppCallbackUrl("https://your.server/receive-proofs");
+    request.setParams({ hello: "world" });
+    request.addContext("0x0", "popup demo");
+
+    console.log({ request });
+
+    // Set up event listeners
+    request.on("started", ({ sessionId }) => {
+      console.log("Verification started:", sessionId);
+      showStatus(`Verification started. Session: ${sessionId}`, "info");
+      startBtn.textContent = "Verifying...";
+    });
+
+    request.on("completed", (proofs) => {
+      console.log("Verification completed:", proofs);
+      showStatus("Verification completed successfully!", "success");
+      showOutput(proofs);
+      startBtn.disabled = false;
+      startBtn.textContent = "Start Verification";
+    });
+
+    request.on("error", (error) => {
+      console.error("Verification error:", error);
+      showStatus(`Error: ${error?.message || error}`, "error");
+      showOutput({ error: error?.message || String(error) });
+      startBtn.disabled = false;
+      startBtn.textContent = "Start Verification";
+    });
+
+    // Start the verification process
+    const proofs = await request.startVerification();
+    console.log("startVerification (promise)", proofs);
+
+    // Verification initialized successfully
+    showStatus("Verification request created. Waiting for user...", "info");
+  } catch (error) {
+    console.error("Initialization error:", error);
+    showStatus(`Failed to initialize: ${error?.message || String(error)}`, "error");
+    startBtn.disabled = false;
+    startBtn.textContent = "Start Verification";
+  }
+});
+```
+
+<Callout type="warning">
+  **Security Note**: Never store `appSecret` in `chrome.storage`. In production, generate verification requests server-side and only pass
+  the configuration to the client. The example above is for demonstration only.
+</Callout>
+
+## SDK API Reference
+
+### Initialization Methods
+
+#### `reclaimExtensionSDK.init()`
+
+Initialize a new verification request with credentials.
+
+```javascript
+const request = await reclaimExtensionSDK.init(appId, appSecret, providerId);
+```
+
+**Parameters**:
+
+- `appId` (string): Your application ID from Reclaim dashboard
+- `appSecret` (string): Your application secret (keep secure!)
+- `providerId` (string): ID of the provider to verify (e.g., `"google-login"`)
+
+**Returns**: Promise that resolves to a `ReclaimRequest` object
+
+---
+
+#### `reclaimExtensionSDK.fromConfig()`
+
+Initialize from a pre-generated configuration (recommended for production).
+
+```javascript
+const requestConfig = await fetchFromBackend(); // Get config from your server
+const request = reclaimExtensionSDK.fromConfig(requestConfig);
+```
+
+**Parameters**:
+
+- `requestConfig` (object): Configuration object from backend
+
+**Returns**: `ReclaimRequest` object
+
+**Use Case**: When using server-side request generation for better security
+
+---
+
+#### `reclaimExtensionSDK.getVersion()`
+
+Get the current version of the Reclaim Extension SDK.
+
+```javascript
+const version = reclaimExtensionSDK.getVersion();
+console.log("SDK Version:", version);
+```
+
+**Parameters**: None
+
+**Returns**: String containing the SDK version (e.g., `"1.0.0"`)
+
+**Use Case**:
+
+- Display SDK version in your application
+- Log version information for debugging
+- Check SDK version for compatibility
+
+---
+
+### Request Object Methods
+
+After calling `reclaimExtensionSDK.init()`, you receive a `request` object with these methods:
+
+#### `request.setAppCallbackUrl()`
+
+Set a callback URL where proofs will be sent automatically.
+
+```javascript
+request.setAppCallbackUrl("https://your.server/receive-proofs");
+```
+
+**Parameters**:
+
+- `url` (string): Your backend endpoint to receive proofs
+
+**Use Case**: Automatically send proofs to your server when verification completes
+
+---
+
+#### `request.setParams()`
+
+Add custom parameters to the verification request.
+
+```javascript
+request.setParams({
+  userId: "user123",
+  action: "login",
+  timestamp: Date.now(),
+});
+```
+
+**Parameters**:
+
+- `params` (object): Custom key-value pairs to include with the proof
+
+**Use Case**: Pass additional context or metadata with the verification
+
+---
+
+#### `request.addContext()`
+
+Add context information to the verification.
+
+```javascript
+request.addContext("0x0", "popup demo");
+```
+
+**Parameters**:
+
+- `address` (string): Context address or identifier
+- `message` (string): Context message or description
+
+**Use Case**: Add on-chain context or additional verification metadata
+
+---
+
+#### `request.startVerification()`
+
+Start the verification process and return a promise that resolves with proofs.
+
+```javascript
+const proofs = await request.startVerification();
+console.log("Verification complete:", proofs);
+```
+
+**Returns**: Promise that resolves with proof data when verification completes
+
+**Use Case**:
+
+- Get proofs via promise instead of event listeners
+- Use with async/await for cleaner code flow
+- Combine with event listeners for both immediate and async handling
+
+**Note**: You can use both the promise return value AND event listeners together. The `completed` event will fire, and the promise will resolve with the same proof data.
+
+---
+
+#### `request.on()`
+
+Register event listeners for verification lifecycle events.
+
+```javascript
+request.on("started", ({ sessionId }) => {
+  console.log("Verification started:", sessionId);
+});
+
+request.on("completed", (proofs) => {
+  console.log("Proofs received:", proofs);
+});
+
+request.on("error", (error) => {
+  console.error("Error:", error);
+});
+```
+
+**Parameters**:
+
+- `event` (string): Event name (`"started"`, `"completed"`, or `"error"`)
+- `callback` (function): Function to call when event fires
+
+**Available Events**: See [Event Handling](#event-handling) section below for details
+
+---
+
+### Complete Usage Example
+
+```javascript
+// Initialize the request
+const request = await reclaimExtensionSDK.init(appId, appSecret, providerId);
+
+// Configure the request
+request.setAppCallbackUrl("https://your.server/receive-proofs");
+request.setParams({ userId: "user123", action: "verify_email" });
+request.addContext("0x0", "email verification");
+
+// Set up event listeners
+request.on("started", ({ sessionId }) => {
+  console.log("Session started:", sessionId);
+});
+
+request.on("completed", (proofs) => {
+  console.log("Verification complete:", proofs);
+  // Send to backend, update UI, etc.
+});
+
+request.on("error", (error) => {
+  console.error("Verification failed:", error);
+});
+
+// Start verification (also returns a promise)
+const proofs = await request.startVerification();
+console.log("Got proofs via promise:", proofs);
+```
+
+## Event Handling
+
+The SDK uses an event-driven API. Here are all available events:
+
+### `started` Event
+
+Fired when verification session begins.
+
+```javascript
+request.on("started", ({ sessionId }) => {
+  console.log("Session started:", sessionId);
+  // Update UI to show verification in progress
+});
+```
+
+**Payload**:
+
+- `sessionId` (string): Unique identifier for this verification session
+
+**Use Cases**:
+
+- Show loading states
+- Track session for analytics
+- Store session ID for debugging
+
+### `completed` Event
+
+Fired when verification succeeds and proofs are generated.
+
+```javascript
+request.on("completed", (proofs) => {
+  console.log("Proofs received:", proofs);
+
+  // Send to your backend for validation
+  sendProofsToBackend(proofs);
+
+  // Update UI
+  showSuccessMessage();
+});
+```
+
+**Payload**:
+
+- `proofs` (object): Contains verification proofs and metadata
+
+**Typical Proof Structure**:
+
+```json
+{
+  "claimData": {
+    "provider": "google-login",
+    "context": "0x...",
+    "identifier": "user@example.com",
+    "parameters": "{...}"
+  },
+  "signedClaim": {
+    "claim": {...},
+    "signatures": ["0x..."]
+  }
+}
+```
+
+**Use Cases**:
+
+- Send proofs to backend for validation
+- Store proofs for later use
+- Display verification success to user
+- Update application state
+
+### `error` Event
+
+Fired when verification fails or is cancelled.
+
+```javascript
+request.on("error", (error) => {
+  console.error("Verification failed:", error);
+
+  if (error.message?.includes("cancelled")) {
+    // User cancelled verification
+    showCancelledMessage();
+  } else {
+    // Other errors
+    showErrorMessage(error.message);
+  }
+});
+```
+
+**Payload**:
+
+- `error` (Error | string): Error object or message
+
+**Common Error Types**:
+
+- User cancelled verification
+- Network errors
+- Invalid credentials
+- Session timeout
+- Provider authentication failed
+
+## Server-Side Configuration (Recommended for Production)
+
+<Callout type="warning">
+**🔒 Production Security Best Practice**
+
+For production deployments, **generate verification requests on your backend** instead of exposing credentials in your extension popup/panel.
+
+**Why this approach:**
+
+- ✅ **Keeps secrets secure** - `APP_ID` and `APP_SECRET` stay on your server
+- ✅ **Server-side validation** - You control who can request verification
+- ✅ **No credential exposure** - Users can't extract secrets from extension code
+- ✅ **Better security** - Add authentication, rate limiting, logging
+
+**What you'll use:**
+
+- Backend: `@reclaimprotocol/js-sdk` (different package with server-side features)
+- Extension: `@reclaimprotocol/browser-extension-sdk` (just receives config from backend)
+
+📖 **Full Backend Setup Guide**: [Backend Usage Documentation](/web/backend/usage#3-create-the-proof-request-generator-endpoint)
+
+</Callout>
+
+### Backend API Setup
+
+First, install the backend SDK on your server:
+
+```bash
+npm install @reclaimprotocol/js-sdk express cors dotenv
+```
+
+Create an Express.js server with verification endpoints:
+
+```javascript
+// server.js
+const express = require("express");
+const { ReclaimProofRequest } = require("@reclaimprotocol/js-sdk");
+const cors = require("cors");
+require("dotenv").config();
+
+const app = express();
+const PORT = process.env.PORT || 8000;
+
+// Middleware
+app.use(express.json());
+app.use(cors());
+app.use(express.text({ type: "*/*", limit: "50mb" })); // This is to parse the urlencoded proof object that is returned to the callback url
+
+// Generate verification request config
+app.post("/api/verification/create", async (req, res) => {
+  const { providerId } = req.body;
+
+  // Validate provider ID
+  if (!providerId) {
+    return res.status(400).json({ error: "Provider ID is required" });
+  }
+
+  // Optional: Add your authentication logic here
+  // if (!req.user) {
+  //   return res.status(401).json({ error: "Unauthorized" });
+  // }
+
+  try {
+    // Create request using server-side credentials (kept secure)
+    const reclaimProofRequest = await ReclaimProofRequest.init(
+      process.env.RECLAIM_APP_ID, // Never exposed to client
+      process.env.RECLAIM_APP_SECRET, // Kept secure on server
+      providerId
+    );
+
+    // Optional: Add custom parameters
+    reclaimProofRequest.setParams({
+      userId: req.user?.id || "anonymous",
+      timestamp: Date.now(),
+    });
+
+    // Generate config (no secrets included)
+    const reclaimProofRequestConfig = reclaimProofRequest.toJsonString();
+
+    // Return safe config to extension
+    res.json({ reclaimProofRequestConfig });
+  } catch (error) {
+    console.error("Error generating request config:", error);
+    res.status(500).json({ error: "Failed to generate request config" });
+  }
+});
+
+// Receive and validate proofs
+app.post("/api/verification/callback", async (req, res) => {
+  try {
+    // Decode the URL-encoded proof object
+    const decodedBody = decodeURIComponent(req.body);
+    const proof = JSON.parse(decodedBody);
+
+    console.log("Received proof:", proof);
+
+    // Optional: Verify the proof using the SDK
+    // const { verifyProof } = require("@reclaimprotocol/js-sdk");
+    // const isValid = await verifyProof(proof);
+    //
+    // if (!isValid) {
+    //   return res.status(400).json({ error: "Invalid proof" });
+    // }
+
+    // Process the proof (store in database, update user, etc.)
+    // await saveProofToDatabase(proof);
+
+    res.status(200).json({ success: true, message: "Proof received" });
+  } catch (error) {
+    console.error("Error processing proof:", error);
+    res.status(500).json({ error: "Failed to process proof" });
+  }
+});
+
+// Health check
+app.get("/health", (req, res) => {
+  res.json({ status: "OK", timestamp: new Date().toISOString() });
+});
+
+// Start server
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+```
+
+Create a `.env` file for your credentials:
+
+```bash
+RECLAIM_APP_ID=YOUR_APPLICATION_ID
+RECLAIM_APP_SECRET=YOUR_APPLICATION_SECRET
+PORT=8000
+```
+
+### Extension Popup/Panel Code
+
+```javascript
+import { reclaimExtensionSDK } from "@reclaimprotocol/browser-extension-sdk";
+
+async function startSecureVerification(providerId) {
+  try {
+    // Fetch config from YOUR backend (no secrets in extension)
+    const response = await fetch("http://localhost:8000/api/verification/create", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        // Optional: Add authentication
+        // Authorization: `Bearer ${getExtensionAuthToken()}`,
+      },
+      body: JSON.stringify({ providerId }),
+    });
+
+    if (!response.ok) throw new Error("Failed to create verification");
+
+    const { reclaimProofRequestConfig } = await response.json();
+
+    // Parse the JSON string config
+    const requestConfig = JSON.parse(reclaimProofRequestConfig);
+
+    // Initialize with backend config (no secrets in extension)
+    const request = reclaimExtensionSDK.fromConfig(requestConfig);
+
+    // Configure the request (optional)
+    request.setAppCallbackUrl("https://your.server/receive-proofs");
+    request.setParams({ userId: getCurrentUserId(), action: "verify" });
+    request.addContext("0x0", "production verification");
+
+    request.on("started", ({ sessionId }) => {
+      console.log("Verification started:", sessionId);
+    });
+
+    request.on("completed", async (proofs) => {
+      console.log("Verification completed:", proofs);
+      // Proofs are automatically sent to callback URL if configured
+      // Or manually send to backend for additional processing
+      await sendToBackend(proofs);
+    });
+
+    request.on("error", (error) => {
+      console.error("Verification failed:", error);
+    });
+
+    // Start verification
+    const proofs = await request.startVerification();
+    console.log("startVerification (promise)", proofs);
+  } catch (error) {
+    console.error("Failed to start verification:", error);
+  }
+}
+
+async function sendToBackend(proofs) {
+  // Optional: Send proofs to backend for additional processing
+  await fetch("http://localhost:8000/api/verification/callback", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(proofs),
+  });
+}
+```
+
+### Complete Flow
+
+```mermaid
+sequenceDiagram
+    participant Popup as Extension Popup
+    participant Backend as Your Backend
+    participant SDK as Browser Extension SDK
+
+    Popup->>Backend: POST /api/verification/create
+    Note over Backend: Uses @reclaimprotocol/js-sdk<br/>APP_SECRET stays secure
+    Backend->>Popup: Return requestConfig (no secrets)
+    Popup->>SDK: fromConfig(requestConfig)
+    SDK->>Popup: Verification complete (proofs)
+    Popup->>Backend: POST /api/verification/validate
+    Note over Backend: Validate proofs server-side
+    Backend->>Popup: Success response
+```
+
+<Callout type="info">
+**Benefits Summary:**
+- 🔐 Credentials never leave your server
+- ✅ You control authorization (who can verify)
+- 🛡️ Server validates proofs before accepting
+- 📊 Track usage, add rate limits, log events
+- 🚀 Update verification logic without extension updates
+
+See [Backend SDK Documentation](/web/backend/usage) for complete backend setup guide.
+
+</Callout>
+
+## Testing Your Implementation
+
+### Manual Testing
+
+1. **Load your extension** in Chrome:
+
+   ```
+   chrome://extensions → "Load unpacked" → Select your extension directory
+   ```
+
+2. **Open the popup** by clicking your extension icon
+
+3. **Enter credentials**:
+
+   - Application ID
+   - Application Secret
+   - Provider ID
+
+4. **Start verification** and follow the flow
+
+5. **Check console logs** in both popup and background:
+   - Popup console: Right-click popup → "Inspect"
+   - Background console: Extensions page → "service worker"
+
+### Debugging Tips
+
+**Check Network Requests**:
+
+```javascript
+request.on("started", () => {
+  chrome.devtools?.network?.onRequestFinished.addListener((request) => {
+    console.log("Network request:", request.request.url);
+  });
+});
+```
+
+**Log All Events**:
+
+```javascript
+const request = await reclaimExtensionSDK.init(appId, appSecret, providerId);
+
+["started", "completed", "error"].forEach((event) => {
+  request.on(event, (data) => {
+    console.log(`[${event.toUpperCase()}]`, data);
+  });
+});
+```
+
+## Common Issues
+
+### Verification Not Starting
+
+**Symptoms**: Button click doesn't trigger verification
+
+**Solutions**:
+
+1. Check browser console for errors
+2. Verify background script is initialized
+3. Ensure content script is loaded on pages
+4. Check API credentials are correct
+
+### Proofs Not Received
+
+**Symptoms**: `completed` event never fires
+
+**Solutions**:
+
+1. Check if user completed provider authentication
+2. Look for errors in service worker console
+3. Verify offscreen document is created successfully
+4. Check network connectivity
+
+### Multiple Verification Attempts
+
+**Issue**: Starting verification multiple times causes issues
+
+**Solution**: Track verification state and prevent concurrent attempts:
+
+```javascript
+let isVerifying = false;
+
+async function startVerification() {
+  if (isVerifying) {
+    showStatus("Verification already in progress", "info");
+    return;
+  }
+
+  isVerifying = true;
+
+  try {
+    const request = await reclaimExtensionSDK.init(...);
+
+    request.on("completed", () => {
+      isVerifying = false;
+      // Handle completion
+    });
+
+    request.on("error", () => {
+      isVerifying = false;
+      // Handle error
+    });
+
+  } catch (error) {
+    isVerifying = false;
+    // Handle initialization error
+  }
+}
+```
+
+## Next Steps
+
+You've successfully implemented verification in your extension! Consider:
+
+- **[Troubleshooting](/browser-extension/troubleshooting)** - Common issues and solutions
+- **[Web Integration](/browser-extension/web-integration)** - Learn about website integration
+- **Backend validation** - Implement server-side proof verification

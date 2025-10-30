@@ -4,16 +4,19 @@
     "index",
     "api-key",
     "web",
+    "browser-extension",
     "react-native",
     "ios-swift",
     "android-kotlin",
     "flutter",
     "ionic",
+    "oauth",
     "onchain",
     "zkfetch",
     "ai-agent",
     "advance-options",
     "attestor-decentralization",
-    "understanding-the-tech"
+    "understanding-the-tech",
+    "apis"
   ]
 }

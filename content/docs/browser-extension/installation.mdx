@@ -1,0 +1,114 @@
+---
+title: Installation
+description: Install the Browser Extension SDK and set up required assets for your project
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+
+## Prerequisites
+
+- **Node.js**: 14.x or later
+- **Package Manager**: npm 6.x+ or yarn 1.22.x+
+- **Project**: Browser extension or web project with `package.json`
+
+## Installation
+
+<Tabs items={['npm', 'yarn']}>
+```bash tab="npm"
+cd your-project-directory
+npm install @reclaimprotocol/browser-extension-sdk
+```
+
+```bash tab="yarn"
+cd your-project-directory
+yarn add @reclaimprotocol/browser-extension-sdk
+```
+</Tabs>
+
+## Asset Setup
+
+Add the asset setup script to your `package.json`:
+
+```json
+{
+  "scripts": {
+    "reclaim-extension-setup": "node node_modules/@reclaimprotocol/browser-extension-sdk/build/scripts/install-assets.js --public-dir=public"
+  }
+}
+```
+
+Run the setup script:
+
+```bash
+npm run reclaim-extension-setup
+```
+
+This copies pre-built SDK bundles to your public directory:
+
+```
+public/
+└── reclaim-browser-extension-sdk/
+    ├── content/
+    │   ├── content.bundle.js
+    │   └── components/
+    │       ├── reclaim-provider-verification-popup.css
+    │       └── reclaim-provider-verification-popup.html
+    ├── offscreen/
+    │   ├── offscreen.html
+    │   └── offscreen.bundle.js
+    └── interceptor/
+        ├── network-interceptor.bundle.js
+        └── injection-scripts.bundle.js
+```
+
+Verify installation:
+
+```bash
+ls -la public/reclaim-browser-extension-sdk/
+```
+
+## What Gets Installed
+
+**Content Script** (`content.bundle.js`)
+- Bridges communication between web pages and extension background
+- Injected into pages where verification is needed
+
+**Offscreen Document** (`offscreen.html`, `offscreen.bundle.js`)
+- Executes WebAssembly for cryptographic proof generation
+- Required for Manifest V3 service workers
+
+**Network Interceptor** (`network-interceptor.bundle.js`, `injection-scripts.bundle.js`)
+- Monitors network requests during provider verification
+- Captures data for proof generation
+
+**UI Components** (`reclaim-provider-verification-popup.*`)
+- Pre-styled popup for verification flow
+- Customizable through CSS
+
+<Callout type="warning">
+**Important**: Do not import SDK assets in your code. Reference them from the public directory via manifest configuration (covered in next steps).
+</Callout>
+
+## Troubleshooting
+
+**Assets not copying?**
+- Verify `--public-dir` path matches your project structure
+- Check file permissions on the public directory
+
+**Module not found?**
+```bash
+rm -rf node_modules package-lock.json && npm install
+```
+
+**Build errors?**
+- Ensure SDK assets are in `public/`, not imported in your code
+- Reference via manifest configuration (see next steps)
+
+## Next Steps
+
+Choose your integration path:
+
+- **[Extension Integration →](/browser-extension/extension-integration)** - Build a browser extension
+- **[Web Integration →](/browser-extension/web-integration)** - Integrate from a website
+
+Get your [API credentials →](/api-key) before proceeding.

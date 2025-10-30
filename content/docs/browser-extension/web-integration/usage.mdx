@@ -1,0 +1,821 @@
+---
+title: Usage
+description: Implement Reclaim verification flows in your web application
+---
+
+## Overview
+
+This guide demonstrates how to implement complete verification flows in your web application, including initialization, event handling, UI states, and error management.
+
+## Prerequisites
+
+- ✅ Completed [Installation](/browser-extension/installation)
+- ✅ Completed [Setup](/browser-extension/web-integration/setup)
+- ✅ Extension installed and extension ID configured
+- ✅ API credentials from [API Key guide](/api-key)
+
+## Basic Implementation
+
+### Simple Verification Flow
+
+The simplest implementation triggers verification and handles the result:
+
+```javascript
+import { reclaimExtensionSDK } from "@reclaimprotocol/browser-extension-sdk";
+
+const APP_ID = import.meta.env.VITE_RECLAIM_APP_ID;
+const APP_SECRET = import.meta.env.VITE_RECLAIM_APP_SECRET;
+const EXTENSION_ID = import.meta.env.VITE_RECLAIM_EXTENSION_ID;
+
+async function verifyUser(providerId) {
+  try {
+    // Initialize request
+    const request = await reclaimExtensionSDK.init(APP_ID, APP_SECRET, providerId, {
+      extensionID: EXTENSION_ID,
+    });
+
+    // Configure the request (optional)
+    request.setAppCallbackUrl("https://your.server/receive-proofs");
+    request.setParams({ userId: "user123", action: "login" });
+    request.addContext("0x0", "web verification");
+
+    console.log({ request });
+
+    // Handle events
+    request.on("started", ({ sessionId }) => {
+      console.log("🔄 Verification started:", sessionId);
+    });
+
+    request.on("completed", (proofs) => {
+      console.log("✅ Verification successful!");
+      console.log("Proofs:", proofs);
+      // Process proofs
+    });
+
+    request.on("error", (error) => {
+      console.error("❌ Verification failed:", error);
+      // Handle error
+    });
+
+    // Start verification (also returns a promise)
+    const proofs = await request.startVerification();
+    console.log("startVerification (promise)", proofs);
+  } catch (error) {
+    console.error("Failed to initialize:", error);
+  }
+}
+
+// Trigger verification
+verifyUser("google-login");
+```
+
+## SDK API Reference
+
+### Initialization Methods
+
+#### `reclaimExtensionSDK.init()`
+
+Initialize a new verification request with credentials.
+
+```javascript
+const request = await reclaimExtensionSDK.init(appId, appSecret, providerId, {
+  extensionID: EXTENSION_ID,
+});
+```
+
+**Parameters**:
+
+- `appId` (string): Your application ID from Reclaim dashboard
+- `appSecret` (string): Your application secret (keep secure!)
+- `providerId` (string): ID of the provider to verify (e.g., `"google-login"`)
+- `options` (object): Configuration options
+  - `extensionID` (string): Required - Browser extension ID
+
+**Returns**: Promise that resolves to a `ReclaimRequest` object
+
+---
+
+#### `reclaimExtensionSDK.fromConfig()`
+
+Initialize from a pre-generated configuration (recommended for production).
+
+```javascript
+const requestConfig = await fetchFromBackend(); // Get config from your server
+const request = reclaimExtensionSDK.fromConfig(requestConfig, {
+  extensionID: EXTENSION_ID,
+});
+```
+
+**Parameters**:
+
+- `requestConfig` (object): Configuration object from backend
+- `options` (object): Configuration options
+  - `extensionID` (string): Required - Browser extension ID
+
+**Returns**: `ReclaimRequest` object
+
+**Use Case**: When using server-side request generation for better security
+
+---
+
+#### `reclaimExtensionSDK.isExtensionInstalled()`
+
+Check if the Reclaim extension is installed in the user's browser.
+
+```javascript
+const isInstalled = await reclaimExtensionSDK.isExtensionInstalled({
+  extensionID: EXTENSION_ID,
+});
+```
+
+**Parameters**:
+
+- `options` (object): Configuration options
+  - `extensionID` (string): Required - Browser extension ID
+
+**Returns**: Promise that resolves to `true` if installed, `false` otherwise
+
+**Use Case**: Check extension status before starting verification to show appropriate UI
+
+---
+
+#### `reclaimExtensionSDK.getVersion()`
+
+Get the current version of the Reclaim Extension SDK.
+
+```javascript
+const version = reclaimExtensionSDK.getVersion();
+console.log("SDK Version:", version);
+```
+
+**Parameters**: None
+
+**Returns**: String containing the SDK version (e.g., `"1.0.0"`)
+
+**Use Case**:
+
+- Display SDK version in your application
+- Log version information for debugging
+- Check SDK version for compatibility
+
+---
+
+### Request Object Methods
+
+After calling `reclaimExtensionSDK.init()` or `fromConfig()`, you receive a `request` object with these methods:
+
+#### `request.setAppCallbackUrl()`
+
+Set a callback URL where proofs will be sent automatically.
+
+```javascript
+request.setAppCallbackUrl("https://your.server/receive-proofs");
+```
+
+**Parameters**:
+
+- `url` (string): Your backend endpoint to receive proofs
+
+**Use Case**: Automatically send proofs to your server when verification completes
+
+---
+
+#### `request.setParams()`
+
+Add custom parameters to the verification request.
+
+```javascript
+request.setParams({
+  userId: "user123",
+  action: "login",
+  timestamp: Date.now(),
+});
+```
+
+**Parameters**:
+
+- `params` (object): Custom key-value pairs to include with the proof
+
+**Use Case**: Pass additional context or metadata with the verification
+
+---
+
+#### `request.addContext()`
+
+Add context information to the verification.
+
+```javascript
+request.addContext("0x0", "web app verification");
+```
+
+**Parameters**:
+
+- `address` (string): Context address or identifier
+- `message` (string): Context message or description
+
+**Use Case**: Add on-chain context or additional verification metadata
+
+---
+
+#### `request.startVerification()`
+
+Start the verification process and return a promise that resolves with proofs.
+
+```javascript
+const proofs = await request.startVerification();
+console.log("Verification complete:", proofs);
+```
+
+**Returns**: Promise that resolves with proof data when verification completes
+
+**Use Case**:
+
+- Get proofs via promise instead of event listeners
+- Use with async/await for cleaner code flow
+- Combine with event listeners for both immediate and async handling
+
+**Note**: You can use both the promise return value AND event listeners together. The `completed` event will fire, and the promise will resolve with the same proof data.
+
+---
+
+#### `request.on()`
+
+Register event listeners for verification lifecycle events.
+
+```javascript
+request.on("started", ({ sessionId }) => {
+  console.log("Verification started:", sessionId);
+});
+
+request.on("completed", (proofs) => {
+  console.log("Proofs received:", proofs);
+});
+
+request.on("error", (error) => {
+  console.error("Error:", error);
+});
+```
+
+**Parameters**:
+
+- `event` (string): Event name (`"started"`, `"completed"`, or `"error"`)
+- `callback` (function): Function to call when event fires
+
+**Available Events**:
+
+- `started`: Fired when verification session begins (payload: `{ sessionId }`)
+- `completed`: Fired when verification succeeds (payload: `proofs` object)
+- `error`: Fired when verification fails or is cancelled (payload: `error` object/string)
+
+---
+
+### Complete Usage Example
+
+```javascript
+// Initialize the request
+const request = await reclaimExtensionSDK.init(APP_ID, APP_SECRET, "google-login", { extensionID: EXTENSION_ID });
+
+// Configure the request
+request.setAppCallbackUrl("https://your.server/receive-proofs");
+request.setParams({ userId: "user123", action: "verify_email" });
+request.addContext("0x0", "email verification");
+
+// Set up event listeners
+request.on("started", ({ sessionId }) => {
+  console.log("Session started:", sessionId);
+});
+
+request.on("completed", (proofs) => {
+  console.log("Verification complete:", proofs);
+  // Send to backend, update UI, etc.
+});
+
+request.on("error", (error) => {
+  console.error("Verification failed:", error);
+});
+
+// Start verification (also returns a promise)
+const proofs = await request.startVerification();
+console.log("Got proofs via promise:", proofs);
+```
+
+## React Implementation
+
+### Complete React Component
+
+Production-ready React component with full state management:
+
+```javascript
+import { useState, useEffect } from "react";
+import { reclaimExtensionSDK } from "@reclaimprotocol/browser-extension-sdk";
+
+function ReclaimVerification({ providerId = "google-login" }) {
+  const [state, setState] = useState({
+    extensionInstalled: null,
+    isVerifying: false,
+    proofs: null,
+    error: null,
+    sessionId: null,
+  });
+
+  const EXTENSION_ID = import.meta.env.VITE_RECLAIM_EXTENSION_ID;
+
+  // Check extension on mount
+  useEffect(() => {
+    checkExtension();
+  }, []);
+
+  const checkExtension = async () => {
+    try {
+      const installed = await reclaimExtensionSDK.isExtensionInstalled({
+        extensionID: EXTENSION_ID,
+      });
+      setState((prev) => ({ ...prev, extensionInstalled: installed }));
+    } catch (error) {
+      console.error("Extension check failed:", error);
+      setState((prev) => ({ ...prev, extensionInstalled: false }));
+    }
+  };
+
+  const startVerification = async () => {
+    setState((prev) => ({
+      ...prev,
+      isVerifying: true,
+      error: null,
+      proofs: null,
+    }));
+
+    try {
+      // Get config from server (production approach)
+      const config = await fetchServerConfig(providerId);
+
+      const request = reclaimExtensionSDK.fromConfig(config, {
+        extensionID: EXTENSION_ID,
+      });
+
+      // Configure the request (optional)
+      request.setAppCallbackUrl("https://your.server/receive-proofs");
+      request.setParams({ userId: "user123", action: "verify" });
+      request.addContext("0x0", "react app verification");
+
+      console.log({ request });
+
+      // Handle events
+      request.on("started", ({ sessionId }) => {
+        console.log("Session started:", sessionId);
+        setState((prev) => ({ ...prev, sessionId }));
+      });
+
+      request.on("completed", async (proofs) => {
+        console.log("Verification completed:", proofs);
+
+        // Validate on server
+        const validated = await validateOnServer(proofs);
+
+        if (validated) {
+          setState((prev) => ({
+            ...prev,
+            proofs,
+            isVerifying: false,
+            error: null,
+          }));
+        } else {
+          throw new Error("Server validation failed");
+        }
+      });
+
+      request.on("error", (error) => {
+        console.error("Verification error:", error);
+        setState((prev) => ({
+          ...prev,
+          error: error.message || String(error),
+          isVerifying: false,
+        }));
+      });
+
+      const proofs = await request.startVerification();
+      console.log("startVerification (promise)", proofs);
+    } catch (error) {
+      setState((prev) => ({
+        ...prev,
+        error: error.message || String(error),
+        isVerifying: false,
+      }));
+    }
+  };
+
+  // Render states
+  if (state.extensionInstalled === null) {
+    return (
+      <div className="reclaim-loading">
+        <p>Checking extension...</p>
+      </div>
+    );
+  }
+
+  if (!state.extensionInstalled) {
+    return (
+      <div className="reclaim-no-extension">
+        <h3>Extension Required</h3>
+        <p>Please install the Reclaim extension to continue.</p>
+        <a href="https://chrome.google.com/webstore" target="_blank" rel="noopener noreferrer" className="install-button">
+          Install Extension
+        </a>
+        <button onClick={checkExtension} className="check-button">
+          I've Installed It
+        </button>
+      </div>
+    );
+  }
+
+  if (state.proofs) {
+    return (
+      <div className="reclaim-success">
+        <h3>✅ Verification Successful!</h3>
+        <div className="proof-details">
+          <p>
+            <strong>Provider:</strong> {providerId}
+          </p>
+          <p>
+            <strong>Session:</strong> {state.sessionId}
+          </p>
+        </div>
+        <details>
+          <summary>View Proofs</summary>
+          <pre>{JSON.stringify(state.proofs, null, 2)}</pre>
+        </details>
+      </div>
+    );
+  }
+
+  return (
+    <div className="reclaim-verify">
+      <button onClick={startVerification} disabled={state.isVerifying} className="verify-button">
+        {state.isVerifying ? "Verifying..." : "Verify with Reclaim"}
+      </button>
+
+      {state.sessionId && <p className="session-info">Session: {state.sessionId}</p>}
+
+      {state.error && (
+        <div className="error-message">
+          <strong>Error:</strong> {state.error}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Helper functions
+async function fetchServerConfig(providerId) {
+  const response = await fetch("/api/verification/create", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ providerId }),
+  });
+
+  if (!response.ok) throw new Error("Failed to create verification");
+
+  const { requestConfig } = await response.json();
+  return requestConfig;
+}
+
+async function validateOnServer(proofs) {
+  const response = await fetch("/api/verification/validate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ proofs }),
+  });
+
+  const { verified } = await response.json();
+  return verified;
+}
+
+export default ReclaimVerification;
+```
+
+### CSS Styling
+
+```css
+/* styles.css */
+.reclaim-loading,
+.reclaim-no-extension,
+.reclaim-verify,
+.reclaim-success {
+  max-width: 500px;
+  margin: 20px auto;
+  padding: 20px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.verify-button,
+.install-button,
+.check-button {
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 500;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.verify-button {
+  background: #4caf50;
+  color: white;
+  width: 100%;
+}
+
+.verify-button:hover {
+  background: #45a049;
+}
+
+.verify-button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.install-button {
+  background: #2196f3;
+  color: white;
+  text-decoration: none;
+  display: inline-block;
+  margin-right: 10px;
+}
+
+.check-button {
+  background: #f5f5f5;
+  color: #333;
+}
+
+.error-message {
+  margin-top: 15px;
+  padding: 12px;
+  background: #ffebee;
+  color: #c62828;
+  border-radius: 4px;
+}
+
+.session-info {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #666;
+}
+
+.proof-details {
+  margin: 15px 0;
+  padding: 15px;
+  background: #f5f5f5;
+  border-radius: 4px;
+}
+
+details {
+  margin-top: 15px;
+}
+
+summary {
+  cursor: pointer;
+  font-weight: 500;
+  padding: 10px;
+  background: #f5f5f5;
+  border-radius: 4px;
+}
+
+pre {
+  background: #f5f5f5;
+  padding: 15px;
+  border-radius: 4px;
+  overflow-x: auto;
+  font-size: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+```
+
+## Custom Hook (React)
+
+Create a reusable hook for verification:
+
+```javascript
+// useReclaimVerification.js
+import { useState, useEffect, useCallback } from "react";
+import { reclaimExtensionSDK } from "@reclaimprotocol/browser-extension-sdk";
+
+export function useReclaimVerification(providerId) {
+  const [extensionInstalled, setExtensionInstalled] = useState(null);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [proofs, setProofs] = useState(null);
+  const [error, setError] = useState(null);
+  const [sessionId, setSessionId] = useState(null);
+
+  const EXTENSION_ID = import.meta.env.VITE_RECLAIM_EXTENSION_ID;
+
+  // Check extension installation
+  useEffect(() => {
+    const checkExtension = async () => {
+      try {
+        const installed = await reclaimExtensionSDK.isExtensionInstalled({
+          extensionID: EXTENSION_ID,
+        });
+        setExtensionInstalled(installed);
+      } catch (err) {
+        console.error("Extension check failed:", err);
+        setExtensionInstalled(false);
+      }
+    };
+
+    checkExtension();
+  }, []);
+
+  const startVerification = useCallback(async () => {
+    setIsVerifying(true);
+    setError(null);
+    setProofs(null);
+
+    try {
+      // Fetch config from server
+      const config = await fetchServerConfig(providerId);
+
+      const request = reclaimExtensionSDK.fromConfig(config, {
+        extensionID: EXTENSION_ID,
+      });
+
+      // Configure the request (optional)
+      request.setAppCallbackUrl("https://your.server/receive-proofs");
+      request.setParams({ userId: "user123", providerId });
+      request.addContext("0x0", "custom hook verification");
+
+      request.on("started", ({ sessionId: sid }) => {
+        setSessionId(sid);
+      });
+
+      request.on("completed", async (proofsData) => {
+        const validated = await validateOnServer(proofsData);
+
+        if (validated) {
+          setProofs(proofsData);
+          setIsVerifying(false);
+        } else {
+          throw new Error("Validation failed");
+        }
+      });
+
+      request.on("error", (err) => {
+        setError(err.message || String(err));
+        setIsVerifying(false);
+      });
+
+      const proofs = await request.startVerification();
+      console.log("startVerification (promise)", proofs);
+    } catch (err) {
+      setError(err.message || String(err));
+      setIsVerifying(false);
+    }
+  }, [providerId, EXTENSION_ID]);
+
+  const reset = useCallback(() => {
+    setProofs(null);
+    setError(null);
+    setSessionId(null);
+    setIsVerifying(false);
+  }, []);
+
+  return {
+    extensionInstalled,
+    isVerifying,
+    proofs,
+    error,
+    sessionId,
+    startVerification,
+    reset,
+  };
+}
+
+// Helper functions
+async function fetchServerConfig(providerId) {
+  const response = await fetch("/api/verification/create", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ providerId }),
+  });
+
+  if (!response.ok) throw new Error("Failed to create verification");
+
+  const { requestConfig } = await response.json();
+  return requestConfig;
+}
+
+async function validateOnServer(proofs) {
+  const response = await fetch("/api/verification/validate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ proofs }),
+  });
+
+  const { verified } = await response.json();
+  return verified;
+}
+```
+
+### Using the Custom Hook
+
+```javascript
+import { useReclaimVerification } from "./useReclaimVerification";
+
+function MyComponent() {
+  const { extensionInstalled, isVerifying, proofs, error, startVerification, reset } = useReclaimVerification("google-login");
+
+  if (!extensionInstalled) {
+    return <div>Please install the extension</div>;
+  }
+
+  if (proofs) {
+    return (
+      <div>
+        <p>✅ Verified successfully!</p>
+        <button onClick={reset}>Verify Again</button>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <button onClick={startVerification} disabled={isVerifying}>
+        {isVerifying ? "Verifying..." : "Verify"}
+      </button>
+      {error && <p>Error: {error}</p>}
+    </div>
+  );
+}
+```
+
+## Multiple Provider Support
+
+Handle multiple providers in your application:
+
+```javascript
+function MultiProviderVerification() {
+  const [selectedProvider, setSelectedProvider] = useState(null);
+
+  const providers = [
+    { id: "google-login", name: "Google", icon: "🔍" },
+    { id: "twitter-profile", name: "Twitter", icon: "🐦" },
+    { id: "github-login", name: "GitHub", icon: "🐙" },
+  ];
+
+  return (
+    <div>
+      <h2>Select Provider to Verify</h2>
+
+      <div className="provider-grid">
+        {providers.map((provider) => (
+          <button key={provider.id} onClick={() => setSelectedProvider(provider.id)} className="provider-button">
+            <span className="icon">{provider.icon}</span>
+            <span>{provider.name}</span>
+          </button>
+        ))}
+      </div>
+
+      {selectedProvider && <ReclaimVerification providerId={selectedProvider} onComplete={() => setSelectedProvider(null)} />}
+    </div>
+  );
+}
+```
+
+## Testing Your Integration
+
+### Local Testing Checklist
+
+- ✅ Extension installed and active
+- ✅ Environment variables configured
+- ✅ Extension ID matches installed extension
+- ✅ Backend API endpoints working (if using server config)
+- ✅ Error handling works for all scenarios
+- ✅ UI updates correctly during verification flow
+
+### Debug Logging
+
+Enable debug mode for development:
+
+```javascript
+const DEBUG = import.meta.env.MODE === "development";
+
+if (DEBUG) {
+  console.log("🔧 Debug mode enabled");
+}
+
+const request = await reclaimExtensionSDK.init(...);
+
+if (DEBUG) {
+  request.on("started", (data) => console.log("[DEBUG] Started:", data));
+  request.on("completed", (data) => console.log("[DEBUG] Completed:", data));
+  request.on("error", (data) => console.log("[DEBUG] Error:", data));
+}
+```
+
+## Next Steps
+
+- **[Troubleshooting](/browser-extension/troubleshooting)** - Common issues and solutions
+- **Backend Validation** - Implement server-side proof verification
+- **User Experience** - Optimize verification flow for your users

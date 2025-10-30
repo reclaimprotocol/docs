@@ -1,0 +1,281 @@
+---
+title: Setup
+description: Initialize the SDK in your browser extension's background and content scripts
+---
+
+## Overview
+
+After configuring your manifest, you need to initialize the SDK in two places:
+
+1. **Background Service Worker**: Manages offscreen documents and verification orchestration
+2. **Content Script Loading**: Bridges communication (optional if using static manifest registration)
+
+This guide covers both initialization methods and best practices.
+
+## Background Initialization
+
+### Basic Setup
+
+Initialize the SDK in your background service worker (`background.js` or similar):
+
+```javascript
+import { reclaimExtensionSDK } from "@reclaimprotocol/browser-extension-sdk";
+
+// Initialize the SDK - idempotent, safe to call multiple times
+reclaimExtensionSDK.initializeBackground();
+
+console.log("Reclaim SDK initialized in background");
+```
+
+<Callout type="info">
+  **Idempotent Operation**: `initializeBackground()` is safe to call multiple times. The SDK handles duplicate initialization attempts
+  gracefully, making it perfect for service worker reactivation scenarios.
+</Callout>
+
+### What Does Background Initialization Do?
+
+When you call `initializeBackground()`, the SDK:
+
+1. **Sets up message listeners** for communication between extension components
+2. **Registers offscreen document handlers** for proof generation
+3. **Prepares network interception** capabilities
+4. **Establishes verification flow orchestration**
+
+## Content Script Loading
+
+The SDK's content script bridge must be loaded into web pages to enable communication. You have two options: **static registration** (via manifest) or **dynamic registration** (via code).
+
+### Option 1: Static Registration (Recommended)
+
+This is the simplest approach and is already configured if you followed the [Manifest Configuration guide](/browser-extension/extension-integration/manifest-configuration).
+
+Your `manifest.json` includes:
+
+```json
+"content_scripts": [
+  {
+    "js": ["reclaim-browser-extension-sdk/content/content.bundle.js"],
+    "matches": ["<all_urls>"],
+    "run_at": "document_start"
+  }
+]
+```
+
+**Advantages**:
+
+- ✅ Automatic injection on all pages
+- ✅ No additional code required
+- ✅ Simpler to maintain
+- ✅ Loaded before page scripts
+
+**No additional setup needed** - the content script is automatically injected.
+
+### Option 2: Dynamic Registration
+
+Dynamic registration gives you more control over when and where the content script loads. Requires the `"scripting"` permission in your manifest.
+
+Add to your `manifest.json`:
+
+```json
+"permissions": [
+  "offscreen",
+  "cookies",
+  "scripting"
+]
+```
+
+#### Registration on Installation
+
+Register the content script when your extension is installed:
+
+```javascript
+import { reclaimExtensionSDK } from "@reclaimprotocol/browser-extension-sdk";
+
+chrome.runtime.onInstalled.addListener(() => {
+  // Initialize SDK
+  reclaimExtensionSDK.initializeBackground();
+
+  // Register content script dynamically
+  chrome.scripting.registerContentScripts(
+    [
+      {
+        id: "reclaim-sdk-bridge",
+        matches: ["<all_urls>"],
+        js: ["reclaim-browser-extension-sdk/content/content.bundle.js"],
+        runAt: "document_start",
+        world: "ISOLATED",
+      },
+    ],
+    () => {
+      if (chrome.runtime.lastError) {
+        console.error("❌ Failed to register content script:", chrome.runtime.lastError);
+      } else {
+        console.log("✅ Reclaim SDK content script registered");
+      }
+    }
+  );
+});
+```
+
+#### Registration with Duplicate Check
+
+Prevent duplicate registrations across service worker restarts:
+
+```javascript
+import { reclaimExtensionSDK } from "@reclaimprotocol/browser-extension-sdk";
+
+async function ensureContentScriptRegistered() {
+  try {
+    // Check if already registered
+    const scripts = await chrome.scripting.getRegisteredContentScripts();
+    const isRegistered = scripts.some((script) => script.id === "reclaim-sdk-bridge");
+
+    if (!isRegistered) {
+      await chrome.scripting.registerContentScripts([
+        {
+          id: "reclaim-sdk-bridge",
+          matches: ["<all_urls>"],
+          js: ["reclaim-browser-extension-sdk/content/content.bundle.js"],
+          runAt: "document_start",
+          world: "ISOLATED",
+        },
+      ]);
+      console.log("✅ Reclaim SDK content script registered");
+    } else {
+      console.log("ℹ️ Reclaim SDK content script already registered");
+    }
+  } catch (error) {
+    console.error("❌ Content script registration error:", error);
+  }
+}
+
+// Initialize on service worker activation
+chrome.runtime.onStartup.addListener(() => {
+  reclaimExtensionSDK.initializeBackground();
+  ensureContentScriptRegistered();
+});
+
+chrome.runtime.onInstalled.addListener(() => {
+  reclaimExtensionSDK.initializeBackground();
+  ensureContentScriptRegistered();
+});
+```
+
+## Loading Multiple Content Scripts
+
+If your extension has its own content scripts, load them after the SDK bridge:
+
+### In Manifest (Static)
+
+```json
+"content_scripts": [
+  {
+    "js": [
+      "reclaim-browser-extension-sdk/content/content.bundle.js",
+      "your-content-script.js",
+      "another-content-script.js"
+    ],
+    "matches": ["<all_urls>"],
+    "run_at": "document_start"
+  }
+]
+```
+
+### Dynamically (Advanced)
+
+```javascript
+chrome.runtime.onInstalled.addListener(async () => {
+  reclaimExtensionSDK.initializeBackground();
+
+  // Register SDK bridge first
+  await chrome.scripting.registerContentScripts([
+    {
+      id: "reclaim-sdk-bridge",
+      matches: ["<all_urls>"],
+      js: ["reclaim-browser-extension-sdk/content/content.bundle.js"],
+      runAt: "document_start",
+      world: "ISOLATED",
+    },
+  ]);
+
+  // Then register your content scripts
+  await chrome.scripting.registerContentScripts([
+    {
+      id: "your-content-script",
+      matches: ["<all_urls>"],
+      js: ["your-content-script.js"],
+      runAt: "document_end",
+      world: "ISOLATED",
+    },
+  ]);
+});
+```
+
+## Debugging Setup
+
+### Verify Background Initialization
+
+1. Open `chrome://extensions`
+2. Find your extension and click "service worker"
+3. Check console for initialization messages:
+
+```
+✅ Reclaim SDK initialized successfully
+```
+
+### Verify Content Script Injection
+
+1. Navigate to any web page
+2. Open DevTools (F12)
+3. Go to the Console tab
+4. Look for SDK initialization messages or check sources:
+
+```javascript
+// In the console, check if the SDK loaded:
+console.log("Reclaim SDK Content Script:", typeof window.__RECLAIM_SDK__ !== "undefined");
+```
+
+### Check Registered Scripts
+
+For dynamic registration, verify scripts are registered:
+
+```javascript
+chrome.scripting.getRegisteredContentScripts().then((scripts) => {
+  console.log("Registered scripts:", scripts);
+});
+```
+
+## Common Setup Issues
+
+### Service Worker Not Starting
+
+**Symptoms**: Background initialization not running
+
+**Solutions**:
+
+1. Check for syntax errors in background.js
+2. Verify `"background"` is correctly defined in manifest
+3. Look for errors in the service worker console
+
+### Content Script Not Injecting
+
+**Symptoms**: Verification fails, no communication with pages
+
+**Solutions**:
+
+1. Verify content script path matches your public directory
+2. Check `run_at` is set to `"document_start"`
+3. Ensure `host_permissions` includes target domains
+4. Reload the extension and refresh test pages
+
+### Duplicate Initialization Errors
+
+**Symptoms**: Console shows multiple initialization messages
+
+**Solution**: This is usually harmless due to service worker reactivation. The SDK handles duplicate calls safely.
+
+## Next Steps
+
+With background and content scripts set up, you're ready to implement verification flows in your extension popup or panel:
+
+**[Implement Verification Flow →](/browser-extension/extension-integration/usage)**
