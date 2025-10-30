@@ -6,6 +6,7 @@ description: Initialize the SDK in your browser extension's background and conte
 ## Overview
 
 After configuring your manifest, you need to initialize the SDK in two places:
+
 1. **Background Service Worker**: Manages offscreen documents and verification orchestration
 2. **Content Script Loading**: Bridges communication (optional if using static manifest registration)
 
@@ -27,7 +28,8 @@ console.log("Reclaim SDK initialized in background");
 ```
 
 <Callout type="info">
-**Idempotent Operation**: `initializeBackground()` is safe to call multiple times. The SDK handles duplicate initialization attempts gracefully, making it perfect for service worker reactivation scenarios.
+  **Idempotent Operation**: `initializeBackground()` is safe to call multiple times. The SDK handles duplicate initialization attempts
+  gracefully, making it perfect for service worker reactivation scenarios.
 </Callout>
 
 ### What Does Background Initialization Do?
@@ -60,6 +62,7 @@ Your `manifest.json` includes:
 ```
 
 **Advantages**:
+
 - ✅ Automatic injection on all pages
 - ✅ No additional code required
 - ✅ Simpler to maintain
@@ -77,7 +80,7 @@ Add to your `manifest.json`:
 "permissions": [
   "offscreen",
   "cookies",
-  "scripting"  // Required for dynamic registration
+  "scripting"
 ]
 ```
 
@@ -93,21 +96,24 @@ chrome.runtime.onInstalled.addListener(() => {
   reclaimExtensionSDK.initializeBackground();
 
   // Register content script dynamically
-  chrome.scripting.registerContentScripts([
-    {
-      id: "reclaim-sdk-bridge",
-      matches: ["<all_urls>"],
-      js: ["reclaim-browser-extension-sdk/content/content.bundle.js"],
-      runAt: "document_start",
-      world: "ISOLATED"
+  chrome.scripting.registerContentScripts(
+    [
+      {
+        id: "reclaim-sdk-bridge",
+        matches: ["<all_urls>"],
+        js: ["reclaim-browser-extension-sdk/content/content.bundle.js"],
+        runAt: "document_start",
+        world: "ISOLATED",
+      },
+    ],
+    () => {
+      if (chrome.runtime.lastError) {
+        console.error("❌ Failed to register content script:", chrome.runtime.lastError);
+      } else {
+        console.log("✅ Reclaim SDK content script registered");
+      }
     }
-  ], () => {
-    if (chrome.runtime.lastError) {
-      console.error("❌ Failed to register content script:", chrome.runtime.lastError);
-    } else {
-      console.log("✅ Reclaim SDK content script registered");
-    }
-  });
+  );
 });
 ```
 
@@ -122,7 +128,7 @@ async function ensureContentScriptRegistered() {
   try {
     // Check if already registered
     const scripts = await chrome.scripting.getRegisteredContentScripts();
-    const isRegistered = scripts.some(script => script.id === "reclaim-sdk-bridge");
+    const isRegistered = scripts.some((script) => script.id === "reclaim-sdk-bridge");
 
     if (!isRegistered) {
       await chrome.scripting.registerContentScripts([
@@ -131,8 +137,8 @@ async function ensureContentScriptRegistered() {
           matches: ["<all_urls>"],
           js: ["reclaim-browser-extension-sdk/content/content.bundle.js"],
           runAt: "document_start",
-          world: "ISOLATED"
-        }
+          world: "ISOLATED",
+        },
       ]);
       console.log("✅ Reclaim SDK content script registered");
     } else {
@@ -154,7 +160,6 @@ chrome.runtime.onInstalled.addListener(() => {
   ensureContentScriptRegistered();
 });
 ```
-
 
 ## Loading Multiple Content Scripts
 
@@ -189,8 +194,8 @@ chrome.runtime.onInstalled.addListener(async () => {
       matches: ["<all_urls>"],
       js: ["reclaim-browser-extension-sdk/content/content.bundle.js"],
       runAt: "document_start",
-      world: "ISOLATED"
-    }
+      world: "ISOLATED",
+    },
   ]);
 
   // Then register your content scripts
@@ -200,8 +205,8 @@ chrome.runtime.onInstalled.addListener(async () => {
       matches: ["<all_urls>"],
       js: ["your-content-script.js"],
       runAt: "document_end",
-      world: "ISOLATED"
-    }
+      world: "ISOLATED",
+    },
   ]);
 });
 ```
@@ -227,7 +232,7 @@ chrome.runtime.onInstalled.addListener(async () => {
 
 ```javascript
 // In the console, check if the SDK loaded:
-console.log("Reclaim SDK Content Script:", typeof window.__RECLAIM_SDK__ !== 'undefined');
+console.log("Reclaim SDK Content Script:", typeof window.__RECLAIM_SDK__ !== "undefined");
 ```
 
 ### Check Registered Scripts
@@ -235,7 +240,7 @@ console.log("Reclaim SDK Content Script:", typeof window.__RECLAIM_SDK__ !== 'un
 For dynamic registration, verify scripts are registered:
 
 ```javascript
-chrome.scripting.getRegisteredContentScripts().then(scripts => {
+chrome.scripting.getRegisteredContentScripts().then((scripts) => {
   console.log("Registered scripts:", scripts);
 });
 ```
@@ -247,6 +252,7 @@ chrome.scripting.getRegisteredContentScripts().then(scripts => {
 **Symptoms**: Background initialization not running
 
 **Solutions**:
+
 1. Check for syntax errors in background.js
 2. Verify `"background"` is correctly defined in manifest
 3. Look for errors in the service worker console
@@ -256,6 +262,7 @@ chrome.scripting.getRegisteredContentScripts().then(scripts => {
 **Symptoms**: Verification fails, no communication with pages
 
 **Solutions**:
+
 1. Verify content script path matches your public directory
 2. Check `run_at` is set to `"document_start"`
 3. Ensure `host_permissions` includes target domains
@@ -266,32 +273,6 @@ chrome.scripting.getRegisteredContentScripts().then(scripts => {
 **Symptoms**: Console shows multiple initialization messages
 
 **Solution**: This is usually harmless due to service worker reactivation. The SDK handles duplicate calls safely.
-
-## Environment Variables (Optional)
-
-For cleaner code, use environment variables for configuration:
-
-```javascript
-// background.js
-const SDK_CONFIG = {
-  debug: process.env.NODE_ENV === 'development',
-  logLevel: process.env.SDK_LOG_LEVEL || 'info'
-};
-
-reclaimExtensionSDK.initializeBackground(SDK_CONFIG);
-```
-
-Configure in your build tool (Vite example):
-
-```javascript
-// vite.config.js
-export default {
-  define: {
-    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
-    'process.env.SDK_LOG_LEVEL': JSON.stringify(process.env.SDK_LOG_LEVEL)
-  }
-}
-```
 
 ## Next Steps
 

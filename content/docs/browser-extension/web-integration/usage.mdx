@@ -30,31 +30,36 @@ const EXTENSION_ID = import.meta.env.VITE_RECLAIM_EXTENSION_ID;
 async function verifyUser(providerId) {
   try {
     // Initialize request
-    const request = await reclaimExtensionSDK.init(
-      APP_ID,
-      APP_SECRET,
-      providerId,
-      {
-        extensionID: EXTENSION_ID
-      }
-    );
+    const request = await reclaimExtensionSDK.init(APP_ID, APP_SECRET, providerId, {
+      extensionID: EXTENSION_ID,
+    });
 
-    // Handle completion
+    // Configure the request (optional)
+    request.setAppCallbackUrl("https://your.server/receive-proofs");
+    request.setParams({ userId: "user123", action: "login" });
+    request.addContext("0x0", "web verification");
+
+    console.log({ request });
+
+    // Handle events
+    request.on("started", ({ sessionId }) => {
+      console.log("🔄 Verification started:", sessionId);
+    });
+
     request.on("completed", (proofs) => {
       console.log("✅ Verification successful!");
       console.log("Proofs:", proofs);
       // Process proofs
     });
 
-    // Handle errors
     request.on("error", (error) => {
       console.error("❌ Verification failed:", error);
       // Handle error
     });
 
-    // Start verification
-    await request.startVerification();
-
+    // Start verification (also returns a promise)
+    const proofs = await request.startVerification();
+    console.log("startVerification (promise)", proofs);
   } catch (error) {
     console.error("Failed to initialize:", error);
   }
@@ -62,6 +67,236 @@ async function verifyUser(providerId) {
 
 // Trigger verification
 verifyUser("google-login");
+```
+
+## SDK API Reference
+
+### Initialization Methods
+
+#### `reclaimExtensionSDK.init()`
+
+Initialize a new verification request with credentials.
+
+```javascript
+const request = await reclaimExtensionSDK.init(appId, appSecret, providerId, {
+  extensionID: EXTENSION_ID,
+});
+```
+
+**Parameters**:
+
+- `appId` (string): Your application ID from Reclaim dashboard
+- `appSecret` (string): Your application secret (keep secure!)
+- `providerId` (string): ID of the provider to verify (e.g., `"google-login"`)
+- `options` (object): Configuration options
+  - `extensionID` (string): Required - Browser extension ID
+
+**Returns**: Promise that resolves to a `ReclaimRequest` object
+
+---
+
+#### `reclaimExtensionSDK.fromConfig()`
+
+Initialize from a pre-generated configuration (recommended for production).
+
+```javascript
+const requestConfig = await fetchFromBackend(); // Get config from your server
+const request = reclaimExtensionSDK.fromConfig(requestConfig, {
+  extensionID: EXTENSION_ID,
+});
+```
+
+**Parameters**:
+
+- `requestConfig` (object): Configuration object from backend
+- `options` (object): Configuration options
+  - `extensionID` (string): Required - Browser extension ID
+
+**Returns**: `ReclaimRequest` object
+
+**Use Case**: When using server-side request generation for better security
+
+---
+
+#### `reclaimExtensionSDK.isExtensionInstalled()`
+
+Check if the Reclaim extension is installed in the user's browser.
+
+```javascript
+const isInstalled = await reclaimExtensionSDK.isExtensionInstalled({
+  extensionID: EXTENSION_ID,
+});
+```
+
+**Parameters**:
+
+- `options` (object): Configuration options
+  - `extensionID` (string): Required - Browser extension ID
+
+**Returns**: Promise that resolves to `true` if installed, `false` otherwise
+
+**Use Case**: Check extension status before starting verification to show appropriate UI
+
+---
+
+#### `reclaimExtensionSDK.getVersion()`
+
+Get the current version of the Reclaim Extension SDK.
+
+```javascript
+const version = reclaimExtensionSDK.getVersion();
+console.log("SDK Version:", version);
+```
+
+**Parameters**: None
+
+**Returns**: String containing the SDK version (e.g., `"1.0.0"`)
+
+**Use Case**:
+
+- Display SDK version in your application
+- Log version information for debugging
+- Check SDK version for compatibility
+
+---
+
+### Request Object Methods
+
+After calling `reclaimExtensionSDK.init()` or `fromConfig()`, you receive a `request` object with these methods:
+
+#### `request.setAppCallbackUrl()`
+
+Set a callback URL where proofs will be sent automatically.
+
+```javascript
+request.setAppCallbackUrl("https://your.server/receive-proofs");
+```
+
+**Parameters**:
+
+- `url` (string): Your backend endpoint to receive proofs
+
+**Use Case**: Automatically send proofs to your server when verification completes
+
+---
+
+#### `request.setParams()`
+
+Add custom parameters to the verification request.
+
+```javascript
+request.setParams({
+  userId: "user123",
+  action: "login",
+  timestamp: Date.now(),
+});
+```
+
+**Parameters**:
+
+- `params` (object): Custom key-value pairs to include with the proof
+
+**Use Case**: Pass additional context or metadata with the verification
+
+---
+
+#### `request.addContext()`
+
+Add context information to the verification.
+
+```javascript
+request.addContext("0x0", "web app verification");
+```
+
+**Parameters**:
+
+- `address` (string): Context address or identifier
+- `message` (string): Context message or description
+
+**Use Case**: Add on-chain context or additional verification metadata
+
+---
+
+#### `request.startVerification()`
+
+Start the verification process and return a promise that resolves with proofs.
+
+```javascript
+const proofs = await request.startVerification();
+console.log("Verification complete:", proofs);
+```
+
+**Returns**: Promise that resolves with proof data when verification completes
+
+**Use Case**:
+
+- Get proofs via promise instead of event listeners
+- Use with async/await for cleaner code flow
+- Combine with event listeners for both immediate and async handling
+
+**Note**: You can use both the promise return value AND event listeners together. The `completed` event will fire, and the promise will resolve with the same proof data.
+
+---
+
+#### `request.on()`
+
+Register event listeners for verification lifecycle events.
+
+```javascript
+request.on("started", ({ sessionId }) => {
+  console.log("Verification started:", sessionId);
+});
+
+request.on("completed", (proofs) => {
+  console.log("Proofs received:", proofs);
+});
+
+request.on("error", (error) => {
+  console.error("Error:", error);
+});
+```
+
+**Parameters**:
+
+- `event` (string): Event name (`"started"`, `"completed"`, or `"error"`)
+- `callback` (function): Function to call when event fires
+
+**Available Events**:
+
+- `started`: Fired when verification session begins (payload: `{ sessionId }`)
+- `completed`: Fired when verification succeeds (payload: `proofs` object)
+- `error`: Fired when verification fails or is cancelled (payload: `error` object/string)
+
+---
+
+### Complete Usage Example
+
+```javascript
+// Initialize the request
+const request = await reclaimExtensionSDK.init(APP_ID, APP_SECRET, "google-login", { extensionID: EXTENSION_ID });
+
+// Configure the request
+request.setAppCallbackUrl("https://your.server/receive-proofs");
+request.setParams({ userId: "user123", action: "verify_email" });
+request.addContext("0x0", "email verification");
+
+// Set up event listeners
+request.on("started", ({ sessionId }) => {
+  console.log("Session started:", sessionId);
+});
+
+request.on("completed", (proofs) => {
+  console.log("Verification complete:", proofs);
+  // Send to backend, update UI, etc.
+});
+
+request.on("error", (error) => {
+  console.error("Verification failed:", error);
+});
+
+// Start verification (also returns a promise)
+const proofs = await request.startVerification();
+console.log("Got proofs via promise:", proofs);
 ```
 
 ## React Implementation
@@ -80,7 +315,7 @@ function ReclaimVerification({ providerId = "google-login" }) {
     isVerifying: false,
     proofs: null,
     error: null,
-    sessionId: null
+    sessionId: null,
   });
 
   const EXTENSION_ID = import.meta.env.VITE_RECLAIM_EXTENSION_ID;
@@ -93,21 +328,21 @@ function ReclaimVerification({ providerId = "google-login" }) {
   const checkExtension = async () => {
     try {
       const installed = await reclaimExtensionSDK.isExtensionInstalled({
-        extensionID: EXTENSION_ID
+        extensionID: EXTENSION_ID,
       });
-      setState(prev => ({ ...prev, extensionInstalled: installed }));
+      setState((prev) => ({ ...prev, extensionInstalled: installed }));
     } catch (error) {
       console.error("Extension check failed:", error);
-      setState(prev => ({ ...prev, extensionInstalled: false }));
+      setState((prev) => ({ ...prev, extensionInstalled: false }));
     }
   };
 
   const startVerification = async () => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       isVerifying: true,
       error: null,
-      proofs: null
+      proofs: null,
     }));
 
     try {
@@ -115,13 +350,20 @@ function ReclaimVerification({ providerId = "google-login" }) {
       const config = await fetchServerConfig(providerId);
 
       const request = reclaimExtensionSDK.fromConfig(config, {
-        extensionID: EXTENSION_ID
+        extensionID: EXTENSION_ID,
       });
+
+      // Configure the request (optional)
+      request.setAppCallbackUrl("https://your.server/receive-proofs");
+      request.setParams({ userId: "user123", action: "verify" });
+      request.addContext("0x0", "react app verification");
+
+      console.log({ request });
 
       // Handle events
       request.on("started", ({ sessionId }) => {
         console.log("Session started:", sessionId);
-        setState(prev => ({ ...prev, sessionId }));
+        setState((prev) => ({ ...prev, sessionId }));
       });
 
       request.on("completed", async (proofs) => {
@@ -131,11 +373,11 @@ function ReclaimVerification({ providerId = "google-login" }) {
         const validated = await validateOnServer(proofs);
 
         if (validated) {
-          setState(prev => ({
+          setState((prev) => ({
             ...prev,
             proofs,
             isVerifying: false,
-            error: null
+            error: null,
           }));
         } else {
           throw new Error("Server validation failed");
@@ -144,20 +386,20 @@ function ReclaimVerification({ providerId = "google-login" }) {
 
       request.on("error", (error) => {
         console.error("Verification error:", error);
-        setState(prev => ({
+        setState((prev) => ({
           ...prev,
           error: error.message || String(error),
-          isVerifying: false
+          isVerifying: false,
         }));
       });
 
-      await request.startVerification();
-
+      const proofs = await request.startVerification();
+      console.log("startVerification (promise)", proofs);
     } catch (error) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         error: error.message || String(error),
-        isVerifying: false
+        isVerifying: false,
       }));
     }
   };
@@ -176,12 +418,7 @@ function ReclaimVerification({ providerId = "google-login" }) {
       <div className="reclaim-no-extension">
         <h3>Extension Required</h3>
         <p>Please install the Reclaim extension to continue.</p>
-        <a
-          href="https://chrome.google.com/webstore"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="install-button"
-        >
+        <a href="https://chrome.google.com/webstore" target="_blank" rel="noopener noreferrer" className="install-button">
           Install Extension
         </a>
         <button onClick={checkExtension} className="check-button">
@@ -196,8 +433,12 @@ function ReclaimVerification({ providerId = "google-login" }) {
       <div className="reclaim-success">
         <h3>✅ Verification Successful!</h3>
         <div className="proof-details">
-          <p><strong>Provider:</strong> {providerId}</p>
-          <p><strong>Session:</strong> {state.sessionId}</p>
+          <p>
+            <strong>Provider:</strong> {providerId}
+          </p>
+          <p>
+            <strong>Session:</strong> {state.sessionId}
+          </p>
         </div>
         <details>
           <summary>View Proofs</summary>
@@ -209,17 +450,11 @@ function ReclaimVerification({ providerId = "google-login" }) {
 
   return (
     <div className="reclaim-verify">
-      <button
-        onClick={startVerification}
-        disabled={state.isVerifying}
-        className="verify-button"
-      >
+      <button onClick={startVerification} disabled={state.isVerifying} className="verify-button">
         {state.isVerifying ? "Verifying..." : "Verify with Reclaim"}
       </button>
 
-      {state.sessionId && (
-        <p className="session-info">Session: {state.sessionId}</p>
-      )}
+      {state.sessionId && <p className="session-info">Session: {state.sessionId}</p>}
 
       {state.error && (
         <div className="error-message">
@@ -235,7 +470,7 @@ async function fetchServerConfig(providerId) {
   const response = await fetch("/api/verification/create", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ providerId })
+    body: JSON.stringify({ providerId }),
   });
 
   if (!response.ok) throw new Error("Failed to create verification");
@@ -248,7 +483,7 @@ async function validateOnServer(proofs) {
   const response = await fetch("/api/verification/validate", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ proofs })
+    body: JSON.stringify({ proofs }),
   });
 
   const { verified } = await response.json();
@@ -287,7 +522,7 @@ export default ReclaimVerification;
 }
 
 .verify-button {
-  background: #4CAF50;
+  background: #4caf50;
   color: white;
   width: 100%;
 }
@@ -302,7 +537,7 @@ export default ReclaimVerification;
 }
 
 .install-button {
-  background: #2196F3;
+  background: #2196f3;
   color: white;
   text-decoration: none;
   display: inline-block;
@@ -381,7 +616,7 @@ export function useReclaimVerification(providerId) {
     const checkExtension = async () => {
       try {
         const installed = await reclaimExtensionSDK.isExtensionInstalled({
-          extensionID: EXTENSION_ID
+          extensionID: EXTENSION_ID,
         });
         setExtensionInstalled(installed);
       } catch (err) {
@@ -403,8 +638,13 @@ export function useReclaimVerification(providerId) {
       const config = await fetchServerConfig(providerId);
 
       const request = reclaimExtensionSDK.fromConfig(config, {
-        extensionID: EXTENSION_ID
+        extensionID: EXTENSION_ID,
       });
+
+      // Configure the request (optional)
+      request.setAppCallbackUrl("https://your.server/receive-proofs");
+      request.setParams({ userId: "user123", providerId });
+      request.addContext("0x0", "custom hook verification");
 
       request.on("started", ({ sessionId: sid }) => {
         setSessionId(sid);
@@ -426,8 +666,8 @@ export function useReclaimVerification(providerId) {
         setIsVerifying(false);
       });
 
-      await request.startVerification();
-
+      const proofs = await request.startVerification();
+      console.log("startVerification (promise)", proofs);
     } catch (err) {
       setError(err.message || String(err));
       setIsVerifying(false);
@@ -448,7 +688,7 @@ export function useReclaimVerification(providerId) {
     error,
     sessionId,
     startVerification,
-    reset
+    reset,
   };
 }
 
@@ -457,7 +697,7 @@ async function fetchServerConfig(providerId) {
   const response = await fetch("/api/verification/create", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ providerId })
+    body: JSON.stringify({ providerId }),
   });
 
   if (!response.ok) throw new Error("Failed to create verification");
@@ -470,7 +710,7 @@ async function validateOnServer(proofs) {
   const response = await fetch("/api/verification/validate", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ proofs })
+    body: JSON.stringify({ proofs }),
   });
 
   const { verified } = await response.json();
@@ -484,14 +724,7 @@ async function validateOnServer(proofs) {
 import { useReclaimVerification } from "./useReclaimVerification";
 
 function MyComponent() {
-  const {
-    extensionInstalled,
-    isVerifying,
-    proofs,
-    error,
-    startVerification,
-    reset
-  } = useReclaimVerification("google-login");
+  const { extensionInstalled, isVerifying, proofs, error, startVerification, reset } = useReclaimVerification("google-login");
 
   if (!extensionInstalled) {
     return <div>Please install the extension</div>;
@@ -517,7 +750,6 @@ function MyComponent() {
 }
 ```
 
-
 ## Multiple Provider Support
 
 Handle multiple providers in your application:
@@ -529,7 +761,7 @@ function MultiProviderVerification() {
   const providers = [
     { id: "google-login", name: "Google", icon: "🔍" },
     { id: "twitter-profile", name: "Twitter", icon: "🐦" },
-    { id: "github-login", name: "GitHub", icon: "🐙" }
+    { id: "github-login", name: "GitHub", icon: "🐙" },
   ];
 
   return (
@@ -537,104 +769,19 @@ function MultiProviderVerification() {
       <h2>Select Provider to Verify</h2>
 
       <div className="provider-grid">
-        {providers.map(provider => (
-          <button
-            key={provider.id}
-            onClick={() => setSelectedProvider(provider.id)}
-            className="provider-button"
-          >
+        {providers.map((provider) => (
+          <button key={provider.id} onClick={() => setSelectedProvider(provider.id)} className="provider-button">
             <span className="icon">{provider.icon}</span>
             <span>{provider.name}</span>
           </button>
         ))}
       </div>
 
-      {selectedProvider && (
-        <ReclaimVerification
-          providerId={selectedProvider}
-          onComplete={() => setSelectedProvider(null)}
-        />
-      )}
+      {selectedProvider && <ReclaimVerification providerId={selectedProvider} onComplete={() => setSelectedProvider(null)} />}
     </div>
   );
 }
 ```
-
-## Error Handling Patterns
-
-### Comprehensive Error Handling
-
-```javascript
-function handleVerificationError(error) {
-  const errorMessage = error?.message || String(error);
-
-  // User cancelled
-  if (errorMessage.includes("cancelled") || errorMessage.includes("cancel")) {
-    return {
-      type: "user_cancelled",
-      message: "Verification was cancelled",
-      retry: true
-    };
-  }
-
-  // Extension not found
-  if (errorMessage.includes("extension") || errorMessage.includes("not found")) {
-    return {
-      type: "extension_missing",
-      message: "Extension not installed or not responding",
-      retry: false
-    };
-  }
-
-  // Network error
-  if (errorMessage.includes("network") || errorMessage.includes("fetch")) {
-    return {
-      type: "network_error",
-      message: "Network error occurred",
-      retry: true
-    };
-  }
-
-  // Timeout
-  if (errorMessage.includes("timeout") || errorMessage.includes("timed out")) {
-    return {
-      type: "timeout",
-      message: "Verification timed out",
-      retry: true
-    };
-  }
-
-  // Authentication failed
-  if (errorMessage.includes("auth") || errorMessage.includes("login")) {
-    return {
-      type: "auth_failed",
-      message: "Authentication failed",
-      retry: true
-    };
-  }
-
-  // Generic error
-  return {
-    type: "unknown",
-    message: errorMessage,
-    retry: true
-  };
-}
-
-// Usage
-request.on("error", (error) => {
-  const { type, message, retry } = handleVerificationError(error);
-
-  showErrorMessage(message);
-
-  if (retry) {
-    showRetryButton();
-  } else {
-    showExtensionInstallPrompt();
-  }
-});
-```
-
 
 ## Testing Your Integration
 
