@@ -1,0 +1,603 @@
+---
+title: Next.js Setup
+description: Production-ready Reclaim Protocol integration with Next.js App Router and API routes
+---
+
+<Callout type="success">
+**✅ Full-Stack Next.js Integration**
+
+Leverage Next.js API routes for secure backend initialization while keeping your frontend code clean and simple. Perfect for modern full-stack applications.
+</Callout>
+
+## Prerequisites
+
+- Next.js 13+ (App Router or Pages Router)
+- API credentials from [Reclaim Developer Portal](/api-key)
+
+## Installation
+
+Install the Reclaim JavaScript SDK:
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+
+<Tabs items={['npm', 'yarn', 'pnpm']}>
+```bash tab="npm"
+npm install @reclaimprotocol/js-sdk
+```
+
+```bash tab="yarn"
+yarn add @reclaimprotocol/js-sdk
+```
+
+```bash tab="pnpm"
+pnpm add @reclaimprotocol/js-sdk
+```
+</Tabs>
+
+## Project Structure
+
+```
+nextjs-reclaim-app/
+├── .env.local              # Environment variables (not in git!)
+├── app/                    # App Router (Next.js 13+)
+│   ├── api/
+│   │   └── reclaim/
+│   │       ├── config/
+│   │       │   └── route.js
+│   │       └── callback/
+│   │           └── route.js
+│   ├── verify/
+│   │   └── page.jsx
+│   └── layout.jsx
+└── components/
+    └── ReclaimButton.jsx
+```
+
+Or for Pages Router:
+
+```
+nextjs-reclaim-app/
+├── .env.local
+├── pages/
+│   ├── api/
+│   │   └── reclaim/
+│   │       ├── config.js
+│   │       └── callback.js
+│   └── verify.jsx
+└── components/
+    └── ReclaimButton.jsx
+```
+
+## Environment Setup
+
+Create `.env.local` in your project root:
+
+```bash
+# .env.local - Never commit this file!
+RECLAIM_APP_ID=your_app_id_here
+RECLAIM_APP_SECRET=your_app_secret_here
+RECLAIM_PROVIDER_ID=your_provider_id_here
+
+# For local development
+NEXT_PUBLIC_BASE_URL=http://localhost:3000
+
+# For production (Vercel automatically sets this)
+# NEXT_PUBLIC_BASE_URL=https://yourapp.com
+```
+
+<Callout type="info">
+**Next.js Environment Variables**
+
+- Variables without `NEXT_PUBLIC_` prefix are server-side only (perfect for secrets!)
+- Variables with `NEXT_PUBLIC_` prefix are exposed to the browser
+- Never add `NEXT_PUBLIC_` to `RECLAIM_APP_SECRET`
+</Callout>
+
+## Backend API Routes
+
+### App Router (Next.js 13+)
+
+#### Config Route: `app/api/reclaim/config/route.js`
+
+```javascript
+import { NextResponse } from 'next/server';
+import { ReclaimProofRequest } from '@reclaimprotocol/js-sdk';
+
+export async function GET(request) {
+  try {
+    // Initialize SDK with server-side environment variables (secure)
+    const reclaimProofRequest = await ReclaimProofRequest.init(
+      process.env.RECLAIM_APP_ID,
+      process.env.RECLAIM_APP_SECRET,
+      process.env.RECLAIM_PROVIDER_ID
+    );
+
+    // Get base URL (Vercel sets this automatically in production)
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ||
+                    process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` :
+                    'http://localhost:3000';
+
+    // Set callback URL
+    reclaimProofRequest.setAppCallbackUrl(`${baseUrl}/api/reclaim/callback`);
+
+    // Convert to JSON string (safe for client)
+    const config = reclaimProofRequest.toJsonString();
+
+    return NextResponse.json({
+      success: true,
+      reclaimProofRequestConfig: config
+    });
+  } catch (error) {
+    console.error('Error generating config:', error);
+
+    return NextResponse.json(
+      {
+        success: false,
+        error: error.message || 'Failed to generate config'
+      },
+      { status: 500 }
+    );
+  }
+}
+```
+
+#### Callback Route: `app/api/reclaim/callback/route.js`
+
+```javascript
+import { NextResponse } from 'next/server';
+import { verifyProof } from '@reclaimprotocol/js-sdk';
+
+export async function POST(request) {
+  try {
+    // Get the raw body as text
+    const body = await request.text();
+
+    // Decode and parse the proof
+    const decodedBody = decodeURIComponent(body);
+    const proof = JSON.parse(decodedBody);
+
+    console.log('Received proof:', proof.identifier);
+
+    // Verify the proof cryptographically
+    const isValid = await verifyProof(proof);
+
+    if (!isValid) {
+      console.error('Proof verification failed');
+      return NextResponse.json(
+        { success: false, error: 'Proof verification failed' },
+        { status: 400 }
+      );
+    }
+
+    console.log('✅ Proof verified successfully');
+
+    // YOUR BUSINESS LOGIC HERE
+    // Examples:
+    // - Save to database
+    // - Update user record
+    // - Trigger webhooks
+
+    // Example with database (pseudo-code):
+    // await db.verifications.create({
+    //   proofId: proof.identifier,
+    //   verifiedAt: new Date(proof.timestampS * 1000),
+    //   proofData: proof
+    // });
+
+    return NextResponse.json({
+      success: true,
+      message: 'Proof verified successfully'
+    });
+  } catch (error) {
+    console.error('Error processing proof:', error);
+
+    return NextResponse.json(
+      { success: false, error: 'Failed to process proof' },
+      { status: 500 }
+    );
+  }
+}
+```
+
+### Pages Router (Next.js 12 and earlier)
+
+#### Config API: `pages/api/reclaim/config.js`
+
+```javascript
+import { ReclaimProofRequest } from '@reclaimprotocol/js-sdk';
+
+export default async function handler(req, res) {
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  try {
+    const reclaimProofRequest = await ReclaimProofRequest.init(
+      process.env.RECLAIM_APP_ID,
+      process.env.RECLAIM_APP_SECRET,
+      process.env.RECLAIM_PROVIDER_ID
+    );
+
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ||
+                    `https://${req.headers.host}`;
+
+    reclaimProofRequest.setAppCallbackUrl(`${baseUrl}/api/reclaim/callback`);
+
+    const config = reclaimProofRequest.toJsonString();
+
+    return res.status(200).json({
+      success: true,
+      reclaimProofRequestConfig: config
+    });
+  } catch (error) {
+    console.error('Error generating config:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to generate config'
+    });
+  }
+}
+```
+
+#### Callback API: `pages/api/reclaim/callback.js`
+
+```javascript
+import { verifyProof } from '@reclaimprotocol/js-sdk';
+
+export const config = {
+  api: {
+    bodyParser: false, // Disable default body parser
+  },
+};
+
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  try {
+    // Read raw body
+    const chunks = [];
+    for await (const chunk of req) {
+      chunks.push(chunk);
+    }
+    const body = Buffer.concat(chunks).toString();
+
+    // Decode and parse
+    const decodedBody = decodeURIComponent(body);
+    const proof = JSON.parse(decodedBody);
+
+    console.log('Received proof:', proof.identifier);
+
+    // Verify proof
+    const isValid = await verifyProof(proof);
+
+    if (!isValid) {
+      return res.status(400).json({
+        success: false,
+        error: 'Proof verification failed'
+      });
+    }
+
+    console.log('✅ Proof verified');
+
+    // YOUR BUSINESS LOGIC HERE
+
+    return res.status(200).json({
+      success: true,
+      message: 'Proof verified successfully'
+    });
+  } catch (error) {
+    console.error('Error processing proof:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to process proof'
+    });
+  }
+}
+```
+
+## Frontend Components
+
+### Reusable Verification Component
+
+Create `components/ReclaimButton.jsx`:
+
+```jsx
+'use client'; // Required for App Router
+
+import { useState } from 'react';
+import { ReclaimProofRequest } from '@reclaimprotocol/js-sdk';
+
+export default function ReclaimButton({ onSuccess, onError }) {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleVerification = async () => {
+    try {
+      setIsLoading(true);
+
+      // Fetch config from our API route
+      const response = await fetch('/api/reclaim/config');
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch config');
+      }
+
+      const { reclaimProofRequestConfig } = await response.json();
+
+      // Reconstruct proof request
+      const reclaimProofRequest = await ReclaimProofRequest.fromJsonString(
+        reclaimProofRequestConfig
+      );
+
+      // Trigger verification flow
+      await reclaimProofRequest.triggerReclaimFlow();
+
+      // Listen for results
+      await reclaimProofRequest.startSession({
+        onSuccess: (proofs) => {
+          console.log('Verification successful:', proofs);
+          setIsLoading(false);
+          onSuccess?.(proofs);
+        },
+        onError: (error) => {
+          console.error('Verification failed:', error);
+          setIsLoading(false);
+          onError?.(error);
+        },
+      });
+    } catch (error) {
+      console.error('Error:', error);
+      setIsLoading(false);
+      onError?.(error);
+    }
+  };
+
+  return (
+    <button
+      onClick={handleVerification}
+      disabled={isLoading}
+      className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold py-3 px-6 rounded-lg transition"
+    >
+      {isLoading ? '🔄 Verifying...' : '🔐 Verify with Reclaim'}
+    </button>
+  );
+}
+```
+
+### Verification Page
+
+#### App Router: `app/verify/page.jsx`
+
+```jsx
+'use client';
+
+import { useState } from 'react';
+import ReclaimButton from '@/components/ReclaimButton';
+
+export default function VerifyPage() {
+  const [proof, setProof] = useState(null);
+  const [error, setError] = useState(null);
+
+  const handleSuccess = (proofs) => {
+    setProof(proofs);
+    setError(null);
+  };
+
+  const handleError = (err) => {
+    setError(err.message || 'Verification failed');
+    setProof(null);
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="max-w-2xl w-full bg-white rounded-lg shadow-lg p-8">
+        <h1 className="text-3xl font-bold mb-4">Verify Your Identity</h1>
+        <p className="text-gray-600 mb-8">
+          Use Reclaim Protocol to verify your credentials securely
+        </p>
+
+        <ReclaimButton onSuccess={handleSuccess} onError={handleError} />
+
+        {error && (
+          <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-red-800">❌ {error}</p>
+          </div>
+        )}
+
+        {proof && (
+          <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <h3 className="text-green-800 font-semibold mb-2">
+              ✅ Verification Successful!
+            </h3>
+            <p className="text-sm text-gray-600 mb-2">
+              <strong>Proof ID:</strong> {proof.identifier}
+            </p>
+            <details className="mt-2">
+              <summary className="cursor-pointer text-sm font-medium">
+                View full proof
+              </summary>
+              <pre className="mt-2 p-2 bg-white rounded text-xs overflow-x-auto">
+                {JSON.stringify(proof, null, 2)}
+              </pre>
+            </details>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+```
+
+#### Pages Router: `pages/verify.jsx`
+
+```jsx
+import { useState } from 'react';
+import ReclaimButton from '@/components/ReclaimButton';
+
+export default function VerifyPage() {
+  const [proof, setProof] = useState(null);
+  const [error, setError] = useState(null);
+
+  // Same implementation as App Router version
+  // ...
+
+  return (
+    // Same JSX as App Router version
+  );
+}
+```
+
+## Local Development
+
+### 1. Install Dependencies
+
+```bash
+npm install @reclaimprotocol/js-sdk
+```
+
+### 2. Set Up Environment Variables
+
+Create `.env.local` with your credentials (see Environment Setup above).
+
+### 3. Run Development Server
+
+```bash
+npm run dev
+```
+
+### 4. Set Up ngrok (for callback testing)
+
+```bash
+ngrok http 3000
+```
+
+Update `.env.local` with ngrok URL:
+
+```bash
+NEXT_PUBLIC_BASE_URL=https://abc123.ngrok.io
+```
+
+Restart your dev server to pick up the new URL.
+
+### 5. Test the Integration
+
+Visit `http://localhost:3000/verify` and click the verification button.
+
+## Deployment (Vercel)
+
+### 1. Push to GitHub
+
+```bash
+git add .
+git commit -m "Add Reclaim integration"
+git push origin main
+```
+
+### 2. Deploy to Vercel
+
+1. Go to [vercel.com](https://vercel.com) and import your repository
+2. Add environment variables in Vercel dashboard:
+   - `RECLAIM_APP_ID`
+   - `RECLAIM_APP_SECRET`
+   - `RECLAIM_PROVIDER_ID`
+   - `NEXT_PUBLIC_BASE_URL` (your Vercel URL)
+
+3. Deploy!
+
+<Callout type="info">
+**Vercel Auto-Configuration**
+
+Vercel automatically sets `VERCEL_URL` which can be used to construct your callback URL. The code examples above handle this automatically.
+</Callout>
+
+## Database Integration Example
+
+### With Prisma
+
+```javascript
+// app/api/reclaim/callback/route.js
+import { NextResponse } from 'next/server';
+import { verifyProof } from '@reclaimprotocol/js-sdk';
+import { prisma } from '@/lib/prisma';
+
+export async function POST(request) {
+  try {
+    const body = await request.text();
+    const proof = JSON.parse(decodeURIComponent(body));
+
+    const isValid = await verifyProof(proof);
+
+    if (!isValid) {
+      return NextResponse.json(
+        { error: 'Invalid proof' },
+        { status: 400 }
+      );
+    }
+
+    // Save to database
+    await prisma.verification.create({
+      data: {
+        proofId: proof.identifier,
+        provider: JSON.parse(proof.claimData.context).extractedParameters.providerName,
+        verifiedAt: new Date(proof.timestampS * 1000),
+        proofData: proof,
+      },
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+```
+
+## Common Issues
+
+### 1. Environment Variables Not Loading
+
+**Problem**: `process.env.RECLAIM_APP_ID` is undefined.
+
+**Solution**:
+- Ensure file is named `.env.local` (not `.env`)
+- Restart dev server after changing `.env.local`
+- For server-side vars, don't use `NEXT_PUBLIC_` prefix
+
+### 2. Callback Route Not Receiving Data
+
+**Problem**: Callback endpoint returns 404 or doesn't process proof.
+
+**Solutions**:
+- Verify route file location matches URL structure
+- For App Router: `app/api/reclaim/callback/route.js`
+- For Pages Router: `pages/api/reclaim/callback.js`
+- Check `bodyParser` is disabled for Pages Router
+- Use ngrok for local development
+
+### 3. CORS Issues
+
+**Problem**: Frontend can't call API routes.
+
+**Solution**: Next.js API routes automatically handle CORS for same-origin requests. If calling from external domain, add CORS headers:
+
+```javascript
+export async function GET(request) {
+  const response = NextResponse.json({ data });
+
+  response.headers.set('Access-Control-Allow-Origin', '*');
+  response.headers.set('Access-Control-Allow-Methods', 'GET, POST');
+
+  return response;
+}
+```
+
+## Next Steps
+
+- **[Client Integration →](/js-sdk/client-integration/nextjs)** - Advanced patterns and hooks
+- **[Backend Verification →](/js-sdk/backend-verification/nodejs)** - Deep dive into verification
+- **[API Reference →](/js-sdk/api-reference)** - Complete SDK documentation
+- **[Troubleshooting →](/js-sdk/troubleshooting)** - Common issues and solutions

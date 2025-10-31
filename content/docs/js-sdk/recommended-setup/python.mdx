@@ -1,0 +1,705 @@
+---
+title: Python Setup
+description: Production-ready Reclaim Protocol integration with Python backend (FastAPI/Django) and JavaScript frontend
+---
+
+<Callout type="success">
+**✅ Python Backend Integration**
+
+Use Python for backend verification while leveraging the JavaScript SDK on the frontend. Perfect for Python-based applications and data science workflows.
+</Callout>
+
+## Prerequisites
+
+- Python 3.8 or later
+- pip or pip3 package manager
+- JavaScript SDK for frontend
+- API credentials from [Reclaim Developer Portal](/api-key)
+
+## Installation
+
+Install the Reclaim Python SDK for your backend:
+
+```bash
+pip install reclaim-python-sdk
+```
+
+## Project Structure
+
+```
+python-reclaim-app/
+├── backend/
+│   ├── main.py              # FastAPI app
+│   ├── requirements.txt
+│   └── .env                 # Environment variables (not in git!)
+└── frontend/
+    ├── index.html
+    ├── app.js
+    └── package.json
+```
+
+## Backend Implementation (FastAPI)
+
+### Step 1: Install Dependencies
+
+```bash
+pip install fastapi uvicorn reclaim-python-sdk python-dotenv
+```
+
+Create `requirements.txt`:
+
+```
+fastapi>=0.104.0
+uvicorn>=0.24.0
+reclaim-python-sdk>=0.1.0
+python-dotenv>=1.0.0
+```
+
+### Step 2: Environment Setup
+
+Create `.env` file:
+
+```bash
+# .env - Never commit this file!
+RECLAIM_APP_ID=your_app_id_here
+RECLAIM_APP_SECRET=your_app_secret_here
+RECLAIM_PROVIDER_ID=your_provider_id_here
+
+# Your backend base URL (use ngrok for local development)
+BASE_URL=https://yourapp.com
+# For local: BASE_URL=https://abc123.ngrok.io
+
+PORT=8000
+```
+
+### Step 3: Complete FastAPI Server
+
+Create `main.py`:
+
+```python
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+from reclaim_python_sdk import ReclaimProofRequest, verify_proof, Proof
+import uvicorn
+import os
+import json
+from urllib.parse import unquote
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
+app = FastAPI(
+    title="Reclaim Protocol API",
+    description="Backend for Reclaim Protocol verification",
+    version="1.0.0"
+)
+
+# CORS middleware (configure for your frontend domain)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000",
+        "http://localhost:5173",  # Vite default
+        os.getenv("FRONTEND_URL", "*")
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Environment variables
+RECLAIM_APP_ID = os.getenv("RECLAIM_APP_ID")
+RECLAIM_APP_SECRET = os.getenv("RECLAIM_APP_SECRET")
+RECLAIM_PROVIDER_ID = os.getenv("RECLAIM_PROVIDER_ID")
+BASE_URL = os.getenv("BASE_URL", "http://localhost:8000")
+
+@app.get("/health")
+async def health_check():
+    """Health check endpoint"""
+    return {
+        "status": "ok",
+        "service": "reclaim-backend",
+        "base_url": BASE_URL
+    }
+
+@app.get("/api/reclaim/config")
+async def generate_config():
+    """
+    Generate SDK configuration for frontend
+    Initializes SDK securely on backend and returns safe config
+    """
+    try:
+        # Validate environment variables
+        if not all([RECLAIM_APP_ID, RECLAIM_APP_SECRET, RECLAIM_PROVIDER_ID]):
+            return {
+                "success": False,
+                "error": "Missing required environment variables"
+            }, 500
+
+        # Initialize SDK with credentials (secure - server-side only)
+        reclaim_proof_request = await ReclaimProofRequest.init(
+            RECLAIM_APP_ID,
+            RECLAIM_APP_SECRET,
+            RECLAIM_PROVIDER_ID
+        )
+
+        # Set callback URL where proofs will be sent
+        reclaim_proof_request.set_app_callback_url(
+            f"{BASE_URL}/api/reclaim/callback"
+        )
+
+        # Convert to JSON string (safe for frontend - no secrets)
+        config = reclaim_proof_request.to_json_string()
+
+        print(f"✅ Generated Reclaim config for frontend")
+
+        return {
+            "success": True,
+            "reclaimProofRequestConfig": config
+        }
+
+    except Exception as error:
+        print(f"❌ Error generating request config: {error}")
+
+        if "credentials" in str(error).lower():
+            return {
+                "success": False,
+                "error": "Invalid API credentials. Check your .env file."
+            }, 401
+
+        if "provider" in str(error).lower():
+            return {
+                "success": False,
+                "error": "Provider not found. Verify PROVIDER_ID in .env file."
+            }, 404
+
+        return {
+            "success": False,
+            "error": "Failed to generate request config"
+        }, 500
+
+@app.post("/api/reclaim/callback")
+async def receive_proofs(request: Request):
+    """
+    Receive and verify proofs from Reclaim Protocol
+    Called by Reclaim Protocol after user completes verification
+    """
+    try:
+        # Get raw body content
+        body = await request.body()
+
+        # Decode bytes to string
+        body_str = body.decode('utf-8')
+
+        # URL decode
+        body_str = unquote(body_str)
+
+        # Parse JSON
+        parsed_data = json.loads(body_str)
+
+        print(f"📨 Received proof: {parsed_data.get('identifier', 'unknown')}")
+
+        # Convert to Proof object
+        proof = Proof.from_json(parsed_data)
+
+        # Verify the proof cryptographically
+        result = await verify_proof(proof)
+
+        if not result:
+            print(f"❌ Proof verification failed")
+            return {
+                "status": "failed",
+                "message": "Proof verification failed"
+            }, 400
+
+        print(f"✅ Proof verified successfully")
+
+        # Extract verified data from proof
+        verified_data = {
+            "identifier": proof.identifier,
+            "timestamp": proof.timestampS,
+            "provider": proof.claimData.provider,
+            # Add more fields as needed
+        }
+
+        print(f"📦 Verified data: {verified_data}")
+
+        # ✅ YOUR BUSINESS LOGIC HERE
+        # Examples:
+        # - Save proof to database
+        # - Update user verification status
+        # - Trigger downstream workflows
+        # - Send notifications
+
+        # Example: Save to database (pseudo-code)
+        # await db.verifications.create({
+        #     "proof_id": proof.identifier,
+        #     "verified_at": datetime.fromtimestamp(proof.timestampS),
+        #     "proof_data": parsed_data
+        # })
+
+        return {
+            "status": "success",
+            "message": "Proof verified and processed"
+        }
+
+    except json.JSONDecodeError as error:
+        print(f"❌ JSON parsing error: {error}")
+        return {
+            "status": "failed",
+            "message": "Invalid proof format - JSON parsing failed"
+        }, 400
+
+    except Exception as error:
+        print(f"❌ Error processing proof: {error}")
+        return {
+            "status": "failed",
+            "message": "Internal server error while processing proof"
+        }, 500
+
+if __name__ == "__main__":
+    port = int(os.getenv("PORT", 8000))
+
+    print(f"🚀 Starting Reclaim backend server on port {port}")
+    print(f"📍 Base URL: {BASE_URL}")
+    print(f"🔗 Config endpoint: {BASE_URL}/api/reclaim/config")
+    print(f"🔗 Callback endpoint: {BASE_URL}/api/reclaim/callback")
+
+    if not all([RECLAIM_APP_ID, RECLAIM_APP_SECRET]):
+        print("⚠️  WARNING: Missing RECLAIM_APP_ID or RECLAIM_APP_SECRET in .env")
+
+    uvicorn.run(
+        "main:app",
+        host="0.0.0.0",
+        port=port,
+        reload=True  # Disable in production
+    )
+```
+
+### Step 4: Run the Server
+
+```bash
+python main.py
+```
+
+Or with uvicorn directly:
+
+```bash
+uvicorn main:app --reload --port 8000
+```
+
+You should see:
+
+```
+🚀 Starting Reclaim backend server on port 8000
+📍 Base URL: https://yourapp.com
+🔗 Config endpoint: https://yourapp.com/api/reclaim/config
+🔗 Callback endpoint: https://yourapp.com/api/reclaim/callback
+INFO:     Uvicorn running on http://0.0.0.0:8000
+```
+
+## Backend Implementation (Django)
+
+### Step 1: Install Dependencies
+
+```bash
+pip install django reclaim-python-sdk python-dotenv djangorestframework
+```
+
+### Step 2: Create Django Views
+
+Create `views.py`:
+
+```python
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+from reclaim_python_sdk import ReclaimProofRequest, verify_proof, Proof
+import json
+import os
+from urllib.parse import unquote
+from dotenv import load_dotenv
+
+load_dotenv()
+
+RECLAIM_APP_ID = os.getenv("RECLAIM_APP_ID")
+RECLAIM_APP_SECRET = os.getenv("RECLAIM_APP_SECRET")
+RECLAIM_PROVIDER_ID = os.getenv("RECLAIM_PROVIDER_ID")
+BASE_URL = os.getenv("BASE_URL", "http://localhost:8000")
+
+@require_http_methods(["GET"])
+async def generate_config(request):
+    """Generate SDK configuration for frontend"""
+    try:
+        reclaim_proof_request = await ReclaimProofRequest.init(
+            RECLAIM_APP_ID,
+            RECLAIM_APP_SECRET,
+            RECLAIM_PROVIDER_ID
+        )
+
+        reclaim_proof_request.set_app_callback_url(
+            f"{BASE_URL}/api/reclaim/callback"
+        )
+
+        config = reclaim_proof_request.to_json_string()
+
+        return JsonResponse({
+            "success": True,
+            "reclaimProofRequestConfig": config
+        })
+
+    except Exception as error:
+        return JsonResponse({
+            "success": False,
+            "error": str(error)
+        }, status=500)
+
+@csrf_exempt
+@require_http_methods(["POST"])
+async def receive_proofs(request):
+    """Receive and verify proofs from Reclaim Protocol"""
+    try:
+        body_str = request.body.decode('utf-8')
+        body_str = unquote(body_str)
+        parsed_data = json.loads(body_str)
+
+        proof = Proof.from_json(parsed_data)
+
+        result = await verify_proof(proof)
+
+        if not result:
+            return JsonResponse({
+                "status": "failed",
+                "message": "Proof verification failed"
+            }, status=400)
+
+        # YOUR BUSINESS LOGIC HERE
+
+        return JsonResponse({
+            "status": "success",
+            "message": "Proof verified successfully"
+        })
+
+    except Exception as error:
+        return JsonResponse({
+            "status": "failed",
+            "message": str(error)
+        }, status=500)
+```
+
+### Step 3: Configure URLs
+
+Add to `urls.py`:
+
+```python
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('api/reclaim/config', views.generate_config, name='reclaim_config'),
+    path('api/reclaim/callback', views.receive_proofs, name='reclaim_callback'),
+]
+```
+
+## Frontend Implementation
+
+### JavaScript Frontend (Vanilla JS)
+
+Create `frontend/index.html`:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reclaim Verification</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+    }
+    button {
+      background: #0070f3;
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .result {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 6px;
+    }
+    .success {
+      background: #efe;
+      color: #363;
+    }
+    .error {
+      background: #fee;
+      color: #c33;
+    }
+  </style>
+</head>
+<body>
+  <h1>Reclaim Verification</h1>
+  <button id="verifyBtn">Start Verification</button>
+  <div id="result"></div>
+
+  <script type="module">
+    import { ReclaimProofRequest } from 'https://cdn.jsdelivr.net/npm/@reclaimprotocol/js-sdk/dist/index.js';
+
+    const BACKEND_URL = 'http://localhost:8000';
+    const verifyBtn = document.getElementById('verifyBtn');
+    const resultDiv = document.getElementById('result');
+
+    verifyBtn.addEventListener('click', async () => {
+      try {
+        verifyBtn.disabled = true;
+        verifyBtn.textContent = 'Loading...';
+        resultDiv.innerHTML = '';
+
+        // Fetch config from Python backend
+        const response = await fetch(`${BACKEND_URL}/api/reclaim/config`);
+        const { reclaimProofRequestConfig } = await response.json();
+
+        // Reconstruct proof request
+        const reclaimProofRequest = await ReclaimProofRequest.fromJsonString(
+          reclaimProofRequestConfig
+        );
+
+        verifyBtn.textContent = 'Waiting for verification...';
+
+        // Trigger verification
+        await reclaimProofRequest.triggerReclaimFlow();
+
+        // Listen for results
+        await reclaimProofRequest.startSession({
+          onSuccess: (proofs) => {
+            resultDiv.className = 'result success';
+            resultDiv.innerHTML = `
+              <h3>✅ Verification Successful!</h3>
+              <p><strong>Proof ID:</strong> ${proofs.identifier}</p>
+              <pre>${JSON.stringify(proofs, null, 2)}</pre>
+            `;
+            verifyBtn.disabled = false;
+            verifyBtn.textContent = 'Start Verification';
+          },
+          onError: (error) => {
+            resultDiv.className = 'result error';
+            resultDiv.innerHTML = `
+              <h3>❌ Verification Failed</h3>
+              <p>${error.message || error}</p>
+            `;
+            verifyBtn.disabled = false;
+            verifyBtn.textContent = 'Start Verification';
+          },
+        });
+      } catch (error) {
+        resultDiv.className = 'result error';
+        resultDiv.innerHTML = `
+          <h3>❌ Error</h3>
+          <p>${error.message || error}</p>
+        `;
+        verifyBtn.disabled = false;
+        verifyBtn.textContent = 'Start Verification';
+      }
+    });
+  </script>
+</body>
+</html>
+```
+
+## Local Development Setup
+
+### 1. Start Python Backend with ngrok
+
+Terminal 1 - Start FastAPI server:
+
+```bash
+cd backend
+python main.py
+```
+
+Terminal 2 - Start ngrok tunnel:
+
+```bash
+ngrok http 8000
+```
+
+Copy the ngrok URL and update `.env`:
+
+```bash
+BASE_URL=https://abc123.ngrok.io
+```
+
+Restart your Python server.
+
+### 2. Start Frontend
+
+Terminal 3:
+
+```bash
+cd frontend
+python -m http.server 3000
+# or
+npx http-server -p 3000
+```
+
+Visit `http://localhost:3000` and test the verification.
+
+## Testing the Integration
+
+### Test Backend Config Endpoint
+
+```bash
+curl http://localhost:8000/api/reclaim/config
+```
+
+Expected response:
+
+```json
+{
+  "success": true,
+  "reclaimProofRequestConfig": "{...}"
+}
+```
+
+### Test Health Endpoint
+
+```bash
+curl http://localhost:8000/health
+```
+
+## Production Deployment
+
+### Deploy on Railway/Render
+
+1. Add `requirements.txt` to your project
+2. Create `Procfile`:
+
+```
+web: uvicorn main:app --host 0.0.0.0 --port $PORT
+```
+
+3. Set environment variables in platform dashboard:
+   - `RECLAIM_APP_ID`
+   - `RECLAIM_APP_SECRET`
+   - `RECLAIM_PROVIDER_ID`
+   - `BASE_URL`
+
+4. Deploy!
+
+### Deploy with Docker
+
+Create `Dockerfile`:
+
+```dockerfile
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+EXPOSE 8000
+
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+```
+
+Build and run:
+
+```bash
+docker build -t reclaim-backend .
+docker run -p 8000:8000 --env-file .env reclaim-backend
+```
+
+## Database Integration Example
+
+### With SQLAlchemy (FastAPI)
+
+```python
+from sqlalchemy import create_engine, Column, String, DateTime, JSON
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from datetime import datetime
+
+Base = declarative_base()
+
+class Verification(Base):
+    __tablename__ = "verifications"
+
+    id = Column(String, primary_key=True)
+    proof_id = Column(String, unique=True)
+    verified_at = Column(DateTime, default=datetime.utcnow)
+    proof_data = Column(JSON)
+
+# In your callback endpoint:
+@app.post("/api/reclaim/callback")
+async def receive_proofs(request: Request):
+    # ... verification code ...
+
+    if result:
+        # Save to database
+        db = SessionLocal()
+        verification = Verification(
+            id=str(uuid.uuid4()),
+            proof_id=proof.identifier,
+            verified_at=datetime.fromtimestamp(proof.timestampS),
+            proof_data=parsed_data
+        )
+        db.add(verification)
+        db.commit()
+        db.close()
+
+    return {"status": "success"}
+```
+
+## Common Issues
+
+### 1. ImportError: No module named 'reclaim_python_sdk'
+
+**Solution**:
+
+```bash
+pip install reclaim-python-sdk
+```
+
+### 2. CORS Errors
+
+**Solution**: Configure CORS middleware properly:
+
+```python
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # Your frontend URL
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+```
+
+### 3. Callback Not Receiving Data
+
+**Solutions**:
+- Ensure `BASE_URL` is publicly accessible (use ngrok for local dev)
+- Check ngrok tunnel is running
+- Verify FastAPI server is running on the correct port
+- Check server logs for incoming requests
+
+## Next Steps
+
+- **[Backend Verification →](/js-sdk/backend-verification/python)** - Deep dive into Python verification
+- **[API Reference →](/js-sdk/api-reference)** - Complete SDK documentation
+- **[Troubleshooting →](/js-sdk/troubleshooting)** - Common issues and solutions

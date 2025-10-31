@@ -1,0 +1,136 @@
+---
+title: Client Integration
+description: Advanced client-side integration patterns and framework-specific guides
+---
+
+## Overview
+
+This section covers advanced client-side integration patterns for different frameworks and use cases.
+
+For most use cases, the [Quickstart](/js-sdk/quickstart) and [Recommended Setup](/js-sdk/recommended-setup) guides provide everything you need. This section is for advanced customization and framework-specific optimizations.
+
+## Available Guides
+
+### React Integration
+
+For React-specific patterns, hooks, and components, see:
+- [Quickstart with React](/js-sdk/quickstart/react) - Basic integration
+- [Recommended Setup with React](/js-sdk/recommended-setup/nodejs) - Production patterns
+
+### Next.js Integration
+
+For Next.js with App Router or Pages Router:
+- [Next.js Recommended Setup](/js-sdk/recommended-setup/nextjs) - Complete full-stack guide
+
+### Vanilla JavaScript
+
+For framework-agnostic integration:
+- [Vanilla JS Quickstart](/js-sdk/quickstart/vanilla-js) - Pure JavaScript implementation
+
+## Common Integration Patterns
+
+### Custom Hooks (React)
+
+Create reusable hooks for verification:
+
+```javascript
+// hooks/useReclaim.js
+import { useState, useCallback } from 'react';
+import { ReclaimProofRequest } from '@reclaimprotocol/js-sdk';
+
+export function useReclaim() {
+  const [proofs, setProofs] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const startVerification = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      // Fetch config from backend
+      const response = await fetch('/api/reclaim/config');
+      const { reclaimProofRequestConfig } = await response.json();
+
+      const reclaimProofRequest = await ReclaimProofRequest.fromJsonString(
+        reclaimProofRequestConfig
+      );
+
+      await reclaimProofRequest.triggerReclaimFlow();
+
+      await reclaimProofRequest.startSession({
+        onSuccess: (proofs) => {
+          setProofs(proofs);
+          setIsLoading(false);
+        },
+        onError: (err) => {
+          setError(err.message);
+          setIsLoading(false);
+        }
+      });
+    } catch (err) {
+      setError(err.message);
+      setIsLoading(false);
+    }
+  }, []);
+
+  return { proofs, isLoading, error, startVerification };
+}
+```
+
+### Composables (Vue 3)
+
+```javascript
+// composables/useReclaim.js
+import { ref } from 'vue';
+import { ReclaimProofRequest } from '@reclaimprotocol/js-sdk';
+
+export function useReclaim() {
+  const proofs = ref(null);
+  const isLoading = ref(false);
+  const error = ref(null);
+
+  const startVerification = async () => {
+    try {
+      isLoading.value = true;
+      error.value = null;
+
+      const response = await fetch('/api/reclaim/config');
+      const { reclaimProofRequestConfig } = await response.json();
+
+      const reclaimProofRequest = await ReclaimProofRequest.fromJsonString(
+        reclaimProofRequestConfig
+      );
+
+      await reclaimProofRequest.triggerReclaimFlow();
+
+      await reclaimProofRequest.startSession({
+        onSuccess: (proof) => {
+          proofs.value = proof;
+          isLoading.value = false;
+        },
+        onError: (err) => {
+          error.value = err.message;
+          isLoading.value = false;
+        }
+      });
+    } catch (err) {
+      error.value = err.message;
+      isLoading.value = false;
+    }
+  };
+
+  return {
+    proofs,
+    isLoading,
+    error,
+    startVerification
+  };
+}
+```
+
+## Next Steps
+
+- **[Recommended Setup →](/js-sdk/recommended-setup)** - Production-ready patterns
+- **[API Reference →](/js-sdk/api-reference)** - Complete SDK documentation
+- **[Troubleshooting →](/js-sdk/troubleshooting)** - Common issues and solutions
