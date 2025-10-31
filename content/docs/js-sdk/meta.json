@@ -1,0 +1,12 @@
+{
+  "title": "JavaScript SDK",
+  "pages": [
+    "installation",
+    "quickstart",
+    "recommended-setup",
+    "client-integration",
+    "backend-verification",
+    "api-reference",
+    "troubleshooting"
+  ]
+}

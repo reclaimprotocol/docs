@@ -1,0 +1,356 @@
+---
+title: Backend Verification
+description: Server-side proof verification patterns and best practices
+---
+
+## Overview
+
+Backend verification is the process of cryptographically validating proofs received from the Reclaim Protocol after users complete verification. This ensures the authenticity and integrity of the verified data before using it in your application.
+
+<Callout type="success">
+**Why Backend Verification is Critical**
+
+Always verify proofs on your backend before trusting the data. Client-side verification alone can be bypassed, but cryptographic verification on your server ensures authenticity.
+</Callout>
+
+## Quick Start
+
+For complete backend verification implementations, see:
+
+- **[Node.js / Express Setup →](/js-sdk/recommended-setup/nodejs)** - Complete backend with Express.js
+- **[Next.js Setup →](/js-sdk/recommended-setup/nextjs)** - API routes and verification
+- **[Python Setup →](/js-sdk/recommended-setup/python)** - FastAPI and Django examples
+
+## Verification Process
+
+### 1. Receive Proof
+
+Proofs are sent to your callback URL as URL-encoded JSON:
+
+```javascript
+// Express.js
+app.use(express.text({ type: '*/*', limit: '50mb' }));
+
+app.post('/api/reclaim/callback', async (req, res) => {
+  const decodedBody = decodeURIComponent(req.body);
+  const proof = JSON.parse(decodedBody);
+  // ...
+});
+```
+
+### 2. Verify Proof
+
+Use the `verifyProof()` function to cryptographically verify:
+
+```javascript
+import { verifyProof } from '@reclaimprotocol/js-sdk';
+
+const isValid = await verifyProof(proof);
+
+if (isValid) {
+  console.log('✅ Proof is valid');
+  // Process verified data
+} else {
+  console.log('❌ Proof verification failed');
+  // Reject the proof
+}
+```
+
+### 3. Extract Data
+
+Once verified, extract the data you need:
+
+```javascript
+if (isValid) {
+  const verifiedData = {
+    identifier: proof.identifier,
+    provider: JSON.parse(proof.claimData.context).extractedParameters.providerName,
+    timestamp: new Date(proof.timestampS * 1000),
+    // Extract more fields based on your provider
+  };
+
+  // YOUR BUSINESS LOGIC HERE
+  // - Save to database
+  // - Update user status
+  // - Trigger workflows
+}
+```
+
+## Complete Example (Node.js)
+
+```javascript
+const express = require('express');
+const { ReclaimProofRequest, verifyProof } = require('@reclaimprotocol/js-sdk');
+
+const app = express();
+app.use(express.text({ type: '*/*', limit: '50mb' }));
+
+// Callback endpoint
+app.post('/api/reclaim/callback', async (req, res) => {
+  try {
+    // Parse proof
+    const decodedBody = decodeURIComponent(req.body);
+    const proof = JSON.parse(decodedBody);
+
+    console.log('📨 Received proof:', proof.identifier);
+
+    // Verify proof
+    const isValid = await verifyProof(proof);
+
+    if (!isValid) {
+      console.error('❌ Proof verification failed');
+      return res.status(400).json({ error: 'Invalid proof' });
+    }
+
+    console.log('✅ Proof verified successfully');
+
+    // Extract verified data
+    const context = JSON.parse(proof.claimData.context);
+    const verifiedData = {
+      proofId: proof.identifier,
+      provider: context.extractedParameters.providerName,
+      verifiedAt: new Date(proof.timestampS * 1000),
+    };
+
+    // Save to database (example)
+    // await db.verifications.create(verifiedData);
+
+    // Update user status (example)
+    // await db.users.update({ verified: true });
+
+    return res.json({ success: true });
+  } catch (error) {
+    console.error('❌ Error processing proof:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.listen(3000, () => {
+  console.log('Server running on port 3000');
+});
+```
+
+## Complete Example (Python)
+
+```python
+from fastapi import FastAPI, Request
+from reclaim_python_sdk import verify_proof, Proof
+import json
+from urllib.parse import unquote
+
+app = FastAPI()
+
+@app.post("/api/reclaim/callback")
+async def receive_proofs(request: Request):
+    try:
+        # Parse proof
+        body = await request.body()
+        body_str = body.decode('utf-8')
+        body_str = unquote(body_str)
+        parsed_data = json.loads(body_str)
+
+        print(f"📨 Received proof: {parsed_data.get('identifier')}")
+
+        # Convert to Proof object
+        proof = Proof.from_json(parsed_data)
+
+        # Verify proof
+        is_valid = await verify_proof(proof)
+
+        if not is_valid:
+            print("❌ Proof verification failed")
+            return {"error": "Invalid proof"}, 400
+
+        print("✅ Proof verified successfully")
+
+        # Extract verified data
+        verified_data = {
+            "proof_id": proof.identifier,
+            "provider": proof.claimData.provider,
+            "verified_at": datetime.fromtimestamp(proof.timestampS)
+        }
+
+        # Save to database (example)
+        # await db.verifications.create(verified_data)
+
+        return {"success": True}
+
+    except Exception as error:
+        print(f"❌ Error: {error}")
+        return {"error": "Internal server error"}, 500
+```
+
+## Proof Structure
+
+Understanding the proof object structure:
+
+```typescript
+{
+  identifier: string;           // Unique proof ID
+  claimData: {
+    provider: string;           // Provider name
+    parameters: string;         // JSON string of parameters
+    context: string;            // JSON string with metadata
+  };
+  signatures: string[];         // Cryptographic signatures
+  witnesses: [{                 // Witness attestations
+    address: string;
+    signature: string;
+  }];
+  timestampS: number;          // Unix timestamp (seconds)
+}
+```
+
+## Security Best Practices
+
+<Callout type="warning">
+**Critical Security Requirements**
+
+1. **Always verify on backend** - Never trust client-side verification alone
+2. **Validate proof structure** - Check all required fields exist
+3. **Store proofs securely** - Use encrypted database storage
+4. **Check timestamps** - Reject old proofs (set expiration time)
+5. **Rate limit callbacks** - Prevent spam/DOS attacks
+6. **Use HTTPS** - Secure data in transit
+</Callout>
+
+### Timestamp Validation
+
+```javascript
+const MAX_AGE_SECONDS = 300; // 5 minutes
+
+const isValid = await verifyProof(proof);
+const proofAge = Date.now() / 1000 - proof.timestampS;
+
+if (isValid && proofAge <= MAX_AGE_SECONDS) {
+  // Proof is valid and recent
+} else if (proofAge > MAX_AGE_SECONDS) {
+  console.log('⚠️  Proof is too old');
+}
+```
+
+### Proof Deduplication
+
+```javascript
+// Check if proof was already processed
+const existingProof = await db.proofs.findOne({
+  identifier: proof.identifier
+});
+
+if (existingProof) {
+  console.log('⚠️  Proof already processed');
+  return res.status(409).json({ error: 'Proof already processed' });
+}
+
+// Process and save new proof
+await db.proofs.create({ identifier: proof.identifier, ... });
+```
+
+## Database Integration
+
+### Save Verified Proofs
+
+```javascript
+// Mongoose/MongoDB example
+const Verification = mongoose.model('Verification', {
+  proofId: { type: String, unique: true },
+  userId: String,
+  provider: String,
+  verifiedAt: Date,
+  proofData: Object
+});
+
+// In callback
+if (isValid) {
+  await Verification.create({
+    proofId: proof.identifier,
+    userId: extractUserId(proof),
+    provider: extractProvider(proof),
+    verifiedAt: new Date(proof.timestampS * 1000),
+    proofData: proof
+  });
+}
+```
+
+## Error Handling
+
+```javascript
+app.post('/api/reclaim/callback', async (req, res) => {
+  try {
+    const proof = parseProof(req.body);
+
+    // Validate structure
+    if (!proof || !proof.identifier || !proof.claimData) {
+      return res.status(400).json({ error: 'Invalid proof structure' });
+    }
+
+    // Verify cryptographically
+    const isValid = await verifyProof(proof);
+
+    if (!isValid) {
+      return res.status(400).json({ error: 'Proof verification failed' });
+    }
+
+    // Process proof
+    // ...
+
+    res.json({ success: true });
+  } catch (error) {
+    if (error instanceof SyntaxError) {
+      return res.status(400).json({ error: 'Invalid JSON' });
+    }
+
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+```
+
+## Testing
+
+### Manual Testing
+
+```bash
+# Test your callback endpoint
+curl -X POST https://yourapp.com/api/reclaim/callback \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d '{"identifier":"test","claimData":{},"signatures":[],"witnesses":[],"timestampS":1234567890}'
+```
+
+### Automated Testing
+
+```javascript
+// Jest example
+describe('Proof Verification', () => {
+  it('should verify valid proof', async () => {
+    const mockProof = {
+      identifier: 'test-proof-id',
+      claimData: { ... },
+      signatures: ['...'],
+      witnesses: [{ ... }],
+      timestampS: Date.now() / 1000
+    };
+
+    const response = await request(app)
+      .post('/api/reclaim/callback')
+      .send(encodeURIComponent(JSON.stringify(mockProof)));
+
+    expect(response.status).toBe(200);
+  });
+});
+```
+
+## Next Steps
+
+For complete implementation examples:
+
+- **[Node.js Setup →](/js-sdk/recommended-setup/nodejs)** - Full Express.js backend
+- **[Next.js Setup →](/js-sdk/recommended-setup/nextjs)** - API routes implementation
+- **[Python Setup →](/js-sdk/recommended-setup/python)** - FastAPI/Django examples
+- **[API Reference →](/js-sdk/api-reference)** - Complete SDK documentation
+- **[Troubleshooting →](/js-sdk/troubleshooting)** - Common issues
+
+## Need Help?
+
+- 💬 [Community Discord](https://discord.gg/reclaim)
+- 🐛 [GitHub Issues](https://github.com/reclaimprotocol/reclaim-js-sdk/issues)

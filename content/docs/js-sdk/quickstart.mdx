@@ -1,0 +1,662 @@
+---
+title: Quickstart
+description: Get started quickly with client-side Reclaim SDK integration for prototyping and learning
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+
+<Callout type="warning">
+**⚠️ Development Only - Not for Production**
+
+This quickstart guide shows **client-side initialization** which exposes your `APP_SECRET` in the browser. This approach is only suitable for:
+- Learning and prototyping
+- Local development
+- Proof-of-concept demos
+
+**Never deploy this to production.** For production applications, use the [Backend Integration](/js-sdk/recommended-setup) with secure backend initialization.
+</Callout>
+
+## Overview
+
+The quickstart approach lets you experience the Reclaim verification flow in minutes by initializing the SDK directly in your frontend code. This is the fastest way to understand how the SDK works, but it's not secure for production use.
+
+<Callout type="info">
+**Quick Example Available**
+
+Looking for a simple React example to try immediately? Check out the [Quick Start section on the main JS SDK page](/js-sdk#quick-start) for a practical React component you can use right away.
+
+This page provides additional examples for vanilla JavaScript, Vue, and alternative integration methods.
+</Callout>
+
+## Prerequisites
+
+- ✅ Installed the SDK following the [Installation guide](/js-sdk/installation)
+- ✅ Obtained your `APP_ID`, `APP_SECRET`, and `PROVIDER_ID` from the [API Key guide](/api-key)
+- ✅ A React or vanilla JavaScript project set up
+
+## Two Integration Methods
+
+There are two ways to trigger verification in your frontend:
+
+### Method 1: triggerReclaimFlow() (Recommended)
+
+The `triggerReclaimFlow()` method automatically detects the user's platform and provides the optimal verification experience. This is the simplest approach.
+
+**What it does**:
+- Automatically shows QR code modal on desktop
+- Redirects to App Clip on iOS
+- Redirects to deep link on Android
+- Uses browser extension if available
+
+### Method 2: getRequestUrl() (Manual Control)
+
+The `getRequestUrl()` method gives you the verification URL to display however you want. Use this when you need custom UI or specific flow control.
+
+**What it does**:
+- Returns a verification URL
+- You handle displaying it (QR code, link, button, etc.)
+- More control over the user experience
+
+---
+
+## React Implementation
+
+### Method 1: Using triggerReclaimFlow()
+
+<Tabs items={['Complete Example', 'Key Code']}>
+```jsx tab="Complete Example"
+import { useState } from 'react';
+import { ReclaimProofRequest } from '@reclaimprotocol/js-sdk';
+
+function ReclaimDemo() {
+  const [proofs, setProofs] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const handleVerification = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      // ⚠️ CLIENT-SIDE ONLY - NOT FOR PRODUCTION
+      const APP_ID = 'YOUR_APPLICATION_ID';
+      const APP_SECRET = 'YOUR_APPLICATION_SECRET';
+      const PROVIDER_ID = 'YOUR_PROVIDER_ID';
+
+      // Initialize the Reclaim SDK
+      const reclaimProofRequest = await ReclaimProofRequest.init(
+        APP_ID,
+        APP_SECRET,
+        PROVIDER_ID
+      );
+
+      // Trigger the verification flow (automatic platform detection)
+      await reclaimProofRequest.triggerReclaimFlow();
+
+      // Start listening for proof submissions
+      await reclaimProofRequest.startSession({
+        onSuccess: (proofs) => {
+          console.log('Verification successful:', proofs);
+          setProofs(proofs);
+          setIsLoading(false);
+        },
+        onError: (error) => {
+          console.error('Verification failed:', error);
+          setError(error.message);
+          setIsLoading(false);
+        },
+      });
+    } catch (error) {
+      console.error('Error starting verification:', error);
+      setError(error.message);
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="reclaim-demo">
+      <h1>Reclaim Verification Demo</h1>
+
+      <button onClick={handleVerification} disabled={isLoading}>
+        {isLoading ? 'Verifying...' : 'Start Verification'}
+      </button>
+
+      {error && (
+        <div className="error">
+          <p>Error: {error}</p>
+        </div>
+      )}
+
+      {proofs && (
+        <div className="success">
+          <h2>✅ Verification Successful!</h2>
+          <pre>{JSON.stringify(proofs, null, 2)}</pre>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default ReclaimDemo;
+```
+
+```jsx tab="Key Code"
+// Initialize SDK
+const reclaimProofRequest = await ReclaimProofRequest.init(
+  APP_ID,
+  APP_SECRET,
+  PROVIDER_ID
+);
+
+// Trigger flow (auto platform detection)
+await reclaimProofRequest.triggerReclaimFlow();
+
+// Listen for results
+await reclaimProofRequest.startSession({
+  onSuccess: (proofs) => {
+    console.log('Success:', proofs);
+  },
+  onError: (error) => {
+    console.error('Error:', error);
+  }
+});
+```
+</Tabs>
+
+### Method 2: Using getRequestUrl()
+
+<Tabs items={['Complete Example', 'Key Code']}>
+```jsx tab="Complete Example"
+import { useState } from 'react';
+import QRCode from 'react-qr-code';
+import { ReclaimProofRequest } from '@reclaimprotocol/js-sdk';
+
+function ReclaimCustomDemo() {
+  const [requestUrl, setRequestUrl] = useState('');
+  const [proofs, setProofs] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const generateVerificationRequest = async () => {
+    try {
+      setIsLoading(true);
+
+      // ⚠️ CLIENT-SIDE ONLY - NOT FOR PRODUCTION
+      const APP_ID = 'YOUR_APPLICATION_ID';
+      const APP_SECRET = 'YOUR_APPLICATION_SECRET';
+      const PROVIDER_ID = 'YOUR_PROVIDER_ID';
+
+      // Initialize the SDK
+      const reclaimProofRequest = await ReclaimProofRequest.init(
+        APP_ID,
+        APP_SECRET,
+        PROVIDER_ID
+      );
+
+      // Generate the verification request URL
+      const requestUrl = await reclaimProofRequest.getRequestUrl();
+      setRequestUrl(requestUrl);
+      setIsLoading(false);
+
+      // Start listening for proof submissions
+      await reclaimProofRequest.startSession({
+        onSuccess: (proofs) => {
+          console.log('Verification successful:', proofs);
+          setProofs(proofs);
+        },
+        onError: (error) => {
+          console.error('Verification failed:', error);
+        },
+      });
+    } catch (error) {
+      console.error('Error generating request:', error);
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="reclaim-custom-demo">
+      <h1>Custom Reclaim Verification</h1>
+
+      <button onClick={generateVerificationRequest} disabled={isLoading}>
+        {isLoading ? 'Generating...' : 'Generate Verification Request'}
+      </button>
+
+      {requestUrl && (
+        <div className="qr-container">
+          <h2>Scan QR Code to Verify</h2>
+          <QRCode value={requestUrl} size={256} level="H" />
+
+          <div className="mobile-link">
+            <p>On mobile? Click the link:</p>
+            <a href={requestUrl} target="_blank" rel="noopener noreferrer">
+              Open Verification
+            </a>
+          </div>
+        </div>
+      )}
+
+      {proofs && (
+        <div className="verification-result">
+          <h2>✅ Verification Complete!</h2>
+          <pre>{JSON.stringify(proofs, null, 2)}</pre>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default ReclaimCustomDemo;
+```
+
+```jsx tab="Key Code"
+// Initialize SDK
+const reclaimProofRequest = await ReclaimProofRequest.init(
+  APP_ID,
+  APP_SECRET,
+  PROVIDER_ID
+);
+
+// Get verification URL
+const requestUrl = await reclaimProofRequest.getRequestUrl();
+
+// Display QR code with your own implementation
+<QRCode value={requestUrl} />
+
+// Listen for results
+await reclaimProofRequest.startSession({
+  onSuccess: (proofs) => console.log('Success:', proofs),
+  onError: (error) => console.error('Error:', error)
+});
+```
+</Tabs>
+
+<Callout type="info">
+**QR Code Library**: Install `react-qr-code` for Method 2:
+```bash
+npm install react-qr-code
+```
+</Callout>
+
+---
+
+## Vanilla JavaScript Implementation
+
+### Method 1: Using triggerReclaimFlow()
+
+<Tabs items={['Complete Example', 'Key Code']}>
+```html tab="Complete Example"
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reclaim Verification Demo</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+    }
+    button {
+      background: #0070f3;
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .result {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f5f5f5;
+      border-radius: 6px;
+    }
+    .error { background: #fee; color: #c33; }
+    .success { background: #efe; color: #363; }
+  </style>
+</head>
+<body>
+  <h1>Reclaim Verification Demo</h1>
+  <p>Click the button to start verification</p>
+
+  <button id="verifyBtn">Start Verification</button>
+  <div id="status"></div>
+  <div id="result"></div>
+
+  <script type="module">
+    import { ReclaimProofRequest } from 'https://cdn.jsdelivr.net/npm/@reclaimprotocol/js-sdk/dist/index.js';
+
+    // ⚠️ CLIENT-SIDE ONLY - NOT FOR PRODUCTION
+    const APP_ID = 'YOUR_APPLICATION_ID';
+    const APP_SECRET = 'YOUR_APPLICATION_SECRET';
+    const PROVIDER_ID = 'YOUR_PROVIDER_ID';
+
+    const verifyBtn = document.getElementById('verifyBtn');
+    const statusDiv = document.getElementById('status');
+    const resultDiv = document.getElementById('result');
+
+    verifyBtn.addEventListener('click', async () => {
+      try {
+        verifyBtn.disabled = true;
+        verifyBtn.textContent = 'Initializing...';
+        statusDiv.textContent = 'Setting up verification...';
+        resultDiv.innerHTML = '';
+
+        // Initialize the Reclaim SDK
+        const reclaimProofRequest = await ReclaimProofRequest.init(
+          APP_ID,
+          APP_SECRET,
+          PROVIDER_ID
+        );
+
+        statusDiv.textContent = 'Triggering verification flow...';
+
+        // Trigger the verification flow (auto platform detection)
+        await reclaimProofRequest.triggerReclaimFlow();
+
+        statusDiv.textContent = 'Waiting for verification...';
+
+        // Start listening for proof submissions
+        await reclaimProofRequest.startSession({
+          onSuccess: (proofs) => {
+            console.log('Verification successful:', proofs);
+            statusDiv.textContent = '';
+            resultDiv.className = 'result success';
+            resultDiv.innerHTML = `
+              <h3>✅ Verification Successful!</h3>
+              <pre>${JSON.stringify(proofs, null, 2)}</pre>
+            `;
+            verifyBtn.disabled = false;
+            verifyBtn.textContent = 'Start Verification';
+          },
+          onError: (error) => {
+            console.error('Verification failed:', error);
+            statusDiv.textContent = '';
+            resultDiv.className = 'result error';
+            resultDiv.innerHTML = `
+              <h3>❌ Verification Failed</h3>
+              <p>${error.message || error}</p>
+            `;
+            verifyBtn.disabled = false;
+            verifyBtn.textContent = 'Start Verification';
+          },
+        });
+      } catch (error) {
+        console.error('Error starting verification:', error);
+        statusDiv.textContent = '';
+        resultDiv.className = 'result error';
+        resultDiv.innerHTML = `
+          <h3>❌ Error</h3>
+          <p>${error.message || error}</p>
+        `;
+        verifyBtn.disabled = false;
+        verifyBtn.textContent = 'Start Verification';
+      }
+    });
+  </script>
+</body>
+</html>
+```
+
+```javascript tab="Key Code"
+import { ReclaimProofRequest } from '@reclaimprotocol/js-sdk';
+
+// Initialize SDK
+const reclaimProofRequest = await ReclaimProofRequest.init(
+  APP_ID,
+  APP_SECRET,
+  PROVIDER_ID
+);
+
+// Trigger flow (auto platform detection)
+await reclaimProofRequest.triggerReclaimFlow();
+
+// Listen for results
+await reclaimProofRequest.startSession({
+  onSuccess: (proofs) => {
+    console.log('Success:', proofs);
+  },
+  onError: (error) => {
+    console.error('Error:', error);
+  }
+});
+```
+</Tabs>
+
+### Method 2: Using getRequestUrl()
+
+<Tabs items={['Complete Example', 'Key Code']}>
+```html tab="Complete Example"
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Custom Reclaim Verification</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      text-align: center;
+    }
+    button {
+      background: #0070f3;
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+    #qrcode {
+      display: inline-block;
+      margin: 20px 0;
+      padding: 20px;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+    .hidden { display: none; }
+    .link-section {
+      margin: 20px 0;
+      padding: 15px;
+      background: #f5f5f5;
+      border-radius: 6px;
+    }
+    .link-section a {
+      color: #0070f3;
+      text-decoration: none;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <h1>Custom Reclaim Verification</h1>
+
+  <button id="generateBtn">Generate Verification Request</button>
+
+  <div id="qrSection" class="hidden">
+    <h2>Scan QR Code</h2>
+    <div id="qrcode"></div>
+
+    <div class="link-section">
+      <p>On mobile? Click here:</p>
+      <a id="mobileLink" href="#" target="_blank">Open Verification</a>
+    </div>
+  </div>
+
+  <div id="result"></div>
+
+  <!-- QRCode library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <script type="module">
+    import { ReclaimProofRequest } from 'https://cdn.jsdelivr.net/npm/@reclaimprotocol/js-sdk/dist/index.js';
+
+    // ⚠️ CLIENT-SIDE ONLY - NOT FOR PRODUCTION
+    const APP_ID = 'YOUR_APPLICATION_ID';
+    const APP_SECRET = 'YOUR_APPLICATION_SECRET';
+    const PROVIDER_ID = 'YOUR_PROVIDER_ID';
+
+    const generateBtn = document.getElementById('generateBtn');
+    const qrSection = document.getElementById('qrSection');
+    const qrcodeDiv = document.getElementById('qrcode');
+    const mobileLink = document.getElementById('mobileLink');
+    const resultDiv = document.getElementById('result');
+
+    generateBtn.addEventListener('click', async () => {
+      try {
+        generateBtn.disabled = true;
+        generateBtn.textContent = 'Generating...';
+
+        // Initialize the SDK
+        const reclaimProofRequest = await ReclaimProofRequest.init(
+          APP_ID,
+          APP_SECRET,
+          PROVIDER_ID
+        );
+
+        // Generate the verification request URL
+        const requestUrl = await reclaimProofRequest.getRequestUrl();
+
+        // Clear previous QR code
+        qrcodeDiv.innerHTML = '';
+
+        // Generate QR code
+        new QRCode(qrcodeDiv, {
+          text: requestUrl,
+          width: 256,
+          height: 256,
+          correctLevel: QRCode.CorrectLevel.H
+        });
+
+        // Update mobile link
+        mobileLink.href = requestUrl;
+
+        // Show QR section
+        qrSection.classList.remove('hidden');
+
+        generateBtn.textContent = 'Waiting for verification...';
+
+        // Start listening for proof submissions
+        await reclaimProofRequest.startSession({
+          onSuccess: (proofs) => {
+            console.log('Verification successful:', proofs);
+            resultDiv.innerHTML = `
+              <div style="background: #efe; padding: 15px; border-radius: 6px; margin-top: 20px;">
+                <h3>✅ Verification Complete!</h3>
+                <pre style="text-align: left; background: white; padding: 10px; border-radius: 4px; overflow-x: auto;">
+${JSON.stringify(proofs, null, 2)}
+                </pre>
+              </div>
+            `;
+            generateBtn.disabled = false;
+            generateBtn.textContent = 'Generate New Request';
+          },
+          onError: (error) => {
+            console.error('Verification failed:', error);
+            resultDiv.innerHTML = `
+              <div style="background: #fee; padding: 15px; border-radius: 6px; margin-top: 20px; color: #c33;">
+                <h3>❌ Verification Failed</h3>
+                <p>${error.message || error}</p>
+              </div>
+            `;
+            generateBtn.disabled = false;
+            generateBtn.textContent = 'Try Again';
+          },
+        });
+      } catch (error) {
+        console.error('Error:', error);
+        generateBtn.disabled = false;
+        generateBtn.textContent = 'Generate Verification Request';
+        alert('Error: ' + (error.message || error));
+      }
+    });
+  </script>
+</body>
+</html>
+```
+
+```javascript tab="Key Code"
+import { ReclaimProofRequest } from '@reclaimprotocol/js-sdk';
+
+// Initialize SDK
+const reclaimProofRequest = await ReclaimProofRequest.init(
+  APP_ID,
+  APP_SECRET,
+  PROVIDER_ID
+);
+
+// Get verification URL
+const requestUrl = await reclaimProofRequest.getRequestUrl();
+
+// Display QR code with QRCode library
+new QRCode(element, {
+  text: requestUrl,
+  width: 256,
+  height: 256
+});
+
+// Listen for results
+await reclaimProofRequest.startSession({
+  onSuccess: (proofs) => console.log('Success:', proofs),
+  onError: (error) => console.error('Error:', error)
+});
+```
+</Tabs>
+
+---
+
+## Security Considerations
+
+<Callout type="error">
+**Why This Isn't Production-Ready**
+
+When you initialize the SDK in the browser:
+
+1. **APP_SECRET is exposed** - Anyone can view your secret in the browser's DevTools
+2. **No backend verification** - Proofs aren't verified server-side before use
+3. **Client can be tampered** - Users could potentially modify the verification flow
+4. **Credentials can be stolen** - Your API credentials are visible in the source code
+
+**The Fix**: Use [backend initialization](/js-sdk/recommended-setup) to keep `APP_SECRET` secure on your server.
+</Callout>
+
+## What's Next?
+
+After experimenting with the quickstart:
+
+1. **[Backend Integration →](/js-sdk/recommended-setup)** - Learn how to securely initialize from your backend ⭐
+2. **[Backend Verification →](/js-sdk/backend-verification)** - Verify proofs server-side
+3. **[API Reference →](/js-sdk/api-reference)** - Explore all SDK methods
+
+## Common Issues
+
+### Modal Doesn't Appear
+
+**Issue**: Nothing happens when calling `triggerReclaimFlow()`
+
+**Solution**: Check browser console for errors. Ensure you're calling it from a user interaction (button click).
+
+### QR Code Not Loading
+
+**Issue**: QR code is blank or shows an error
+
+**Solution**: Verify your credentials are correct and the provider ID is valid.
+
+### Mobile Verification Fails
+
+**Issue**: App Clip or deep link doesn't launch on mobile
+
+**Solution**: Test on an actual mobile device. Simulators may not support App Clips or deep links.
+
+For more help, see the [Troubleshooting Guide](/js-sdk/troubleshooting).

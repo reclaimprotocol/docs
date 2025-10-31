@@ -3,7 +3,7 @@
   "pages": [
     "index",
     "api-key",
-    "web",
+    "js-sdk",
     "browser-extension",
     "react-native",
     "ios-swift",

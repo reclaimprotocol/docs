@@ -7,13 +7,27 @@ description: Implement Reclaim verification flows in your browser extension popu
 
 With the SDK initialized and configured, you can now implement verification flows in your extension's user interface. This guide covers implementing verification in popups, side panels, and handling the complete verification lifecycle.
 
+## Get Your API Credentials
+
+<Callout type="warning">
+**🔑 Required: API Credentials**
+
+Before implementing verification, make sure you have your API credentials (`APP_ID` and `APP_SECRET`). All code examples below require these credentials.
+
+**[Get Your API Credentials →](/api-key)**
+
+You'll need:
+- **`APP_ID`**: Your unique application identifier
+- **`APP_SECRET`**: Your application secret key
+</Callout>
+
 ## Prerequisites
 
 Before implementing verification flows, ensure you have:
 
 - ✅ Completed [Manifest Configuration](/browser-extension/extension-integration/manifest-configuration)
 - ✅ Completed [Background Setup](/browser-extension/extension-integration/setup)
-- ✅ Obtained API credentials from the [API Key guide](/api-key)
+- ✅ **Obtained your API credentials** (`APP_ID` and `APP_SECRET`) from the [API Key guide](/api-key)
 
 ## Basic Popup Implementation
 

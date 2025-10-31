@@ -43,12 +43,28 @@ graph LR
 5. **Provider Tab**: Handles authentication
 6. **Proofs Returned**: Sent back to your website
 
+## Get Your API Credentials First
+
+<Callout type="warning">
+**🔑 Required: Get Your API Credentials Before Integration**
+
+Before you can integrate Reclaim verification into your website, you **must** obtain your API credentials. These credentials (`APP_ID` and `APP_SECRET`) are essential for creating verification requests.
+
+**[Get Your API Credentials Now →](/api-key)**
+
+You'll need:
+- **`APP_ID`**: Your unique application identifier
+- **`APP_SECRET`**: Your application secret key (keep secure!)
+
+Without these credentials, you cannot initialize the SDK or start verification flows.
+</Callout>
+
 ## Prerequisites
 
 Before integrating, ensure you have:
 
 - ✅ Completed the [Installation guide](/browser-extension/installation)
-- ✅ Obtained API credentials from the [API Key guide](/api-key)
+- ✅ **Obtained your API credentials (`APP_ID` and `APP_SECRET`)** from the [API Key guide](/api-key)
 - ✅ Access to a Reclaim-compatible browser extension (or built one using [Extension Integration](/browser-extension/extension-integration))
 - ✅ A web application (React, Vue, vanilla JavaScript, etc.)
 

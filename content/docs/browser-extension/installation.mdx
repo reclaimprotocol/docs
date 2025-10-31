@@ -104,11 +104,28 @@ rm -rf node_modules package-lock.json && npm install
 - Ensure SDK assets are in `public/`, not imported in your code
 - Reference via manifest configuration (see next steps)
 
+## Get Your API Credentials
+
+<Callout type="warning">
+**⚠️ Required Before Proceeding**
+
+Before you can use the SDK, you **must** obtain your API credentials (`APP_ID` and `APP_SECRET`) from the Reclaim Protocol dashboard. These credentials are required for all integrations.
+
+**[Get Your API Credentials Now →](/api-key)**
+</Callout>
+
+Without API credentials, you won't be able to initialize the SDK or create verification requests. This is the most important step after installation.
+
+### What You'll Get
+
+- **`APP_ID`**: Your unique application identifier
+- **`APP_SECRET`**: Your application secret key (keep this secure!)
+
+You'll need both of these credentials in the next steps for any integration path you choose.
+
 ## Next Steps
 
 Choose your integration path:
 
 - **[Extension Integration →](/browser-extension/extension-integration)** - Build a browser extension
 - **[Web Integration →](/browser-extension/web-integration)** - Integrate from a website
-
-Get your [API credentials →](/api-key) before proceeding.

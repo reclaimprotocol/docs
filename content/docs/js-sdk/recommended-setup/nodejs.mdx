@@ -1,0 +1,617 @@
+---
+title: Node.js / Express Setup
+description: Production-ready Reclaim Protocol integration with Node.js/Express backend and React frontend
+---
+
+<Callout type="success">
+**✅ Production-Ready Full-Stack Example**
+
+This guide shows a complete implementation with Express.js backend (secure SDK initialization) and React frontend (UI and verification flow).
+</Callout>
+
+## Prerequisites
+
+- Node.js 14.x or later
+- Express.js project set up
+- API credentials from [Reclaim Developer Portal](/api-key)
+
+## Installation
+
+Install the Reclaim JavaScript SDK in your backend:
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+
+<Tabs items={['npm', 'yarn', 'pnpm']}>
+```bash tab="npm"
+npm install @reclaimprotocol/js-sdk
+```
+
+```bash tab="yarn"
+yarn add @reclaimprotocol/js-sdk
+```
+
+```bash tab="pnpm"
+pnpm add @reclaimprotocol/js-sdk
+```
+</Tabs>
+
+## Project Structure
+
+```
+your-app/
+├── backend/
+│   ├── server.js          # Express server
+│   ├── .env               # Environment variables (not in git!)
+│   └── package.json
+└── frontend/
+    ├── src/
+    │   ├── components/
+    │   │   └── ReclaimVerify.jsx
+    │   └── App.jsx
+    └── package.json
+```
+
+## Backend Implementation
+
+### Step 1: Environment Setup
+
+Create `.env` file in your backend directory:
+
+```bash
+# .env
+RECLAIM_APP_ID=your_app_id_here
+RECLAIM_APP_SECRET=your_app_secret_here
+RECLAIM_PROVIDER_ID=your_provider_id_here
+
+# Your backend base URL (use ngrok for local development)
+BASE_URL=https://yourapp.com
+# For local development:
+# BASE_URL=https:// 123abc.ngrok.io
+
+PORT=3000
+```
+
+### Step 2: Install Dependencies
+
+```bash
+cd backend
+npm install express dotenv @reclaimprotocol/js-sdk cors
+```
+
+### Step 3: Complete Express Server
+
+Create `server.js`:
+
+```javascript
+const express = require('express');
+const cors = require('cors');
+const { ReclaimProofRequest, verifyProof } = require('@reclaimprotocol/js-sdk');
+require('dotenv').config();
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+const BASE_URL = process.env.BASE_URL;
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+// IMPORTANT: Use express.text() to parse the URL-encoded proof from callback
+app.use(express.text({ type: '*/*', limit: '50mb' }));
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+/**
+ * Endpoint 1: Generate SDK Configuration
+ * Purpose: Initialize SDK securely on backend and return safe config to frontend
+ */
+app.get('/api/reclaim/config', async (req, res) => {
+  try {
+    // Initialize SDK with credentials from environment (secure)
+    const reclaimProofRequest = await ReclaimProofRequest.init(
+      process.env.RECLAIM_APP_ID,
+      process.env.RECLAIM_APP_SECRET,
+      process.env.RECLAIM_PROVIDER_ID
+    );
+
+    // Set the callback URL where proofs will be sent
+    reclaimProofRequest.setAppCallbackUrl(`${BASE_URL}/api/reclaim/callback`);
+
+    // Convert to JSON string (safe to send to frontend - no secrets)
+    const reclaimProofRequestConfig = reclaimProofRequest.toJsonString();
+
+    console.log('✅ Generated Reclaim config for frontend');
+
+    return res.json({
+      success: true,
+      reclaimProofRequestConfig
+    });
+  } catch (error) {
+    console.error('❌ Error generating request config:', error);
+
+    if (error.message.includes('Invalid credentials')) {
+      return res.status(401).json({
+        success: false,
+        error: 'Invalid API credentials. Check your .env file.'
+      });
+    }
+
+    if (error.message.includes('Provider')) {
+      return res.status(404).json({
+        success: false,
+        error: 'Provider not found. Verify PROVIDER_ID in your .env file.'
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to generate request config'
+    });
+  }
+});
+
+/**
+ * Endpoint 2: Receive and Verify Proofs (Callback)
+ * Purpose: Receive proofs from Reclaim Protocol and verify them
+ * Called by Reclaim Protocol after user completes verification
+ */
+app.post('/api/reclaim/callback', async (req, res) => {
+  try {
+    // Decode the URL-encoded proof object
+    const decodedBody = decodeURIComponent(req.body);
+    const proof = JSON.parse(decodedBody);
+
+    console.log('📨 Received proof from Reclaim:', proof.identifier);
+
+    // Verify the proof cryptographically
+    const isValid = await verifyProof(proof);
+
+    if (!isValid) {
+      console.error('❌ Proof verification failed:', proof.identifier);
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid proof - verification failed'
+      });
+    }
+
+    console.log('✅ Proof verified successfully:', proof.identifier);
+
+    // Extract verified data from proof
+    const verifiedData = {
+      identifier: proof.identifier,
+      provider: JSON.parse(proof.claimData.context).extractedParameters.providerName,
+      timestamp: proof.timestampS,
+      // Add more fields as needed based on your provider
+    };
+
+    console.log('📦 Verified data:', verifiedData);
+
+    // ✅ YOUR BUSINESS LOGIC HERE
+    // Examples:
+    // - Save proof to database
+    // - Update user verification status
+    // - Trigger downstream workflows
+    // - Send notifications
+
+    // Example: Save to database (pseudo-code)
+    // await db.verifications.create({
+    //   userId: extractUserIdFromProof(proof),
+    //   proofId: proof.identifier,
+    //   provider: verifiedData.provider,
+    //   verifiedAt: new Date(proof.timestampS * 1000),
+    //   proofData: proof
+    // });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Proof verified and processed'
+    });
+  } catch (error) {
+    console.error('❌ Error processing proof:', error);
+
+    if (error instanceof SyntaxError) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid proof format - JSON parsing failed'
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      error: 'Internal server error while processing proof'
+    });
+  }
+});
+
+// Start server
+app.listen(PORT, () => {
+  console.log(`🚀 Reclaim backend server running on port ${PORT}`);
+  console.log(`📍 Base URL: ${BASE_URL}`);
+  console.log(`🔗 Config endpoint: ${BASE_URL}/api/reclaim/config`);
+  console.log(`🔗 Callback endpoint: ${BASE_URL}/api/reclaim/callback`);
+
+  // Validate environment variables
+  if (!process.env.RECLAIM_APP_ID || !process.env.RECLAIM_APP_SECRET) {
+    console.error('⚠️  WARNING: Missing RECLAIM_APP_ID or RECLAIM_APP_SECRET in .env');
+  }
+});
+```
+
+<Callout type="warning">
+**Important Middleware Notes**
+
+1. **Do NOT use `express.urlencoded()`** - It conflicts with `express.text()` and prevents proper proof parsing
+2. **Use `express.text()`** - The proof from Reclaim is sent as URL-encoded text
+3. Order matters - `express.text()` must come after `express.json()` if you need both
+</Callout>
+
+### Step 4: Run the Backend
+
+```bash
+node server.js
+```
+
+You should see:
+```
+🚀 Reclaim backend server running on port 3000
+📍 Base URL: https://yourapp.com
+🔗 Config endpoint: https://yourapp.com/api/reclaim/config
+🔗 Callback endpoint: https://yourapp.com/api/reclaim/callback
+```
+
+## Frontend Implementation (React)
+
+### Step 1: Create Verification Component
+
+Create `frontend/src/components/ReclaimVerify.jsx`:
+
+```jsx
+import { useState } from 'react';
+import { ReclaimProofRequest } from '@reclaimprotocol/js-sdk';
+import './ReclaimVerify.css'; // Optional styling
+
+const BACKEND_URL = 'http://localhost:3000'; // Change for production
+
+function ReclaimVerify() {
+  const [proofs, setProofs] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const handleVerification = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      setProofs(null);
+
+      console.log('🔄 Fetching config from backend...');
+
+      // Step 1: Fetch secure configuration from backend
+      const response = await fetch(`${BACKEND_URL}/api/reclaim/config`);
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch config from backend');
+      }
+
+      const { reclaimProofRequestConfig } = await response.json();
+
+      console.log('✅ Config received, initializing SDK...');
+
+      // Step 2: Reconstruct ReclaimProofRequest from config
+      const reclaimProofRequest = await ReclaimProofRequest.fromJsonString(
+        reclaimProofRequestConfig
+      );
+
+      console.log('🚀 Triggering verification flow...');
+
+      // Step 3: Trigger the verification flow
+      // This automatically shows QR code on desktop or redirects on mobile
+      await reclaimProofRequest.triggerReclaimFlow();
+
+      console.log('👂 Listening for proof...');
+
+      // Step 4: Start session and listen for proof
+      await reclaimProofRequest.startSession({
+        onSuccess: (proofs) => {
+          console.log('✅ Verification successful!', proofs);
+          setProofs(proofs);
+          setIsLoading(false);
+
+          // Note: Proof is also sent to your backend callback
+          // You can poll your backend API to check verification status
+        },
+        onError: (error) => {
+          console.error('❌ Verification failed:', error);
+          setError(error.message || 'Verification failed');
+          setIsLoading(false);
+        },
+      });
+    } catch (error) {
+      console.error('❌ Error:', error);
+      setError(error.message || 'An error occurred');
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="reclaim-verify">
+      <h2>Verify with Reclaim Protocol</h2>
+      <p>Click the button below to start verification</p>
+
+      <button
+        onClick={handleVerification}
+        disabled={isLoading}
+        className="verify-button"
+      >
+        {isLoading ? '🔄 Verifying...' : '🔐 Start Verification'}
+      </button>
+
+      {error && (
+        <div className="error-message">
+          <h3>❌ Error</h3>
+          <p>{error}</p>
+        </div>
+      )}
+
+      {proofs && (
+        <div className="success-message">
+          <h3>✅ Verification Successful!</h3>
+          <div className="proof-details">
+            <p><strong>Proof ID:</strong> {proofs.identifier}</p>
+            <p><strong>Timestamp:</strong> {new Date(proofs.timestampS * 1000).toLocaleString()}</p>
+
+            <details>
+              <summary>View Full Proof</summary>
+              <pre>{JSON.stringify(proofs, null, 2)}</pre>
+            </details>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default ReclaimVerify;
+```
+
+### Step 2: Optional Styling
+
+Create `frontend/src/components/ReclaimVerify.css`:
+
+```css
+.reclaim-verify {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.verify-button {
+  background: #0070f3;
+  color: white;
+  padding: 14px 28px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin: 1rem 0;
+}
+
+.verify-button:hover:not(:disabled) {
+  background: #0051cc;
+  transform: translateY(-1px);
+}
+
+.verify-button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.error-message {
+  background: #fee;
+  border: 2px solid #fcc;
+  padding: 1rem;
+  border-radius: 8px;
+  color: #c33;
+  margin-top: 1rem;
+}
+
+.success-message {
+  background: #efe;
+  border: 2px solid #cfc;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+}
+
+.proof-details {
+  margin-top: 1rem;
+}
+
+.proof-details p {
+  margin: 0.5rem 0;
+}
+
+.proof-details pre {
+  background: white;
+  padding: 1rem;
+  border-radius: 4px;
+  overflow-x: auto;
+  font-size: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+details {
+  margin-top: 1rem;
+  cursor: pointer;
+}
+
+summary {
+  font-weight: 600;
+  padding: 0.5rem;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+}
+```
+
+### Step 3: Use in Your App
+
+```jsx
+// frontend/src/App.jsx
+import ReclaimVerify from './components/ReclaimVerify';
+
+function App() {
+  return (
+    <div className="App">
+      <h1>My App with Reclaim Verification</h1>
+      <ReclaimVerify />
+    </div>
+  );
+}
+
+export default App;
+```
+
+## Local Development Setup
+
+### 1. Start Backend with ngrok
+
+Terminal 1 - Start Express server:
+```bash
+cd backend
+node server.js
+```
+
+Terminal 2 - Start ngrok tunnel:
+```bash
+ngrok http 3000
+```
+
+Copy the ngrok URL (e.g., `https://abc123.ngrok.io`) and update your `.env`:
+
+```bash
+BASE_URL=https://abc123.ngrok.io
+```
+
+Restart your Express server to pick up the new BASE_URL.
+
+### 2. Start Frontend
+
+Terminal 3:
+```bash
+cd frontend
+npm start
+```
+
+Your app should open at `http://localhost:3000` (or another port if 3000 is taken).
+
+## Testing the Integration
+
+### 1. Test Backend Config Endpoint
+
+```bash
+curl http://localhost:3000/api/reclaim/config
+```
+
+Expected response:
+```json
+{
+  "success": true,
+  "reclaimProofRequestConfig": "{...}"
+}
+```
+
+### 2. Test Full Flow
+
+1. Open your React app in browser
+2. Click "Start Verification"
+3. On desktop: QR code modal should appear
+4. Scan with mobile device and complete verification
+5. Check backend logs for proof reception
+6. Frontend should show success message
+
+## Production Deployment
+
+### Environment Variables
+
+For production, set these environment variables on your hosting platform:
+
+```bash
+RECLAIM_APP_ID=your_production_app_id
+RECLAIM_APP_SECRET=your_production_app_secret
+RECLAIM_PROVIDER_ID=your_provider_id
+BASE_URL=https://api.yourapp.com
+PORT=3000
+NODE_ENV=production
+```
+
+### Frontend API URL
+
+Update the BACKEND_URL in your React component:
+
+```jsx
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:3000';
+```
+
+Set in `.env.production`:
+```bash
+REACT_APP_BACKEND_URL=https://api.yourapp.com
+```
+
+## Common Issues
+
+### 1. CORS Errors
+
+**Problem**: Frontend can't reach backend due to CORS.
+
+**Solution**: Ensure CORS is properly configured:
+
+```javascript
+const cors = require('cors');
+
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production'
+    ? 'https://yourapp.com'
+    : 'http://localhost:3000',
+  credentials: true
+}));
+```
+
+### 2. Callback Not Reached
+
+**Problem**: Backend callback endpoint not receiving proofs.
+
+**Solutions**:
+- Verify `BASE_URL` is publicly accessible (use ngrok for local dev)
+- Check ngrok tunnel is running
+- Ensure callback URL doesn't have trailing slash
+- Check server logs for incoming requests
+
+### 3. Proof Parsing Fails
+
+**Problem**: `JSON.parse()` fails in callback endpoint.
+
+**Solution**: Ensure you're using `express.text()` middleware and decoding properly:
+
+```javascript
+app.use(express.text({ type: '*/*', limit: '50mb' }));
+
+app.post('/api/reclaim/callback', async (req, res) => {
+  const decodedBody = decodeURIComponent(req.body);
+  const proof = JSON.parse(decodedBody);
+  // ...
+});
+```
+
+## Next Steps
+
+- **[Backend Verification →](/js-sdk/backend-verification/nodejs)** - Deep dive into proof verification
+- **[Client Integration →](/js-sdk/client-integration/react)** - Advanced frontend patterns
+- **[API Reference →](/js-sdk/api-reference)** - Complete SDK documentation
+- **[Troubleshooting →](/js-sdk/troubleshooting)** - Common issues and solutions
