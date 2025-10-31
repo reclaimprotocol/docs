@@ -1,6 +1,6 @@
 ---
-title: API Reference
-description: Complete API documentation for the Reclaim JavaScript SDK
+title: API Reference & Advanced Configuration
+description: Complete API documentation and advanced configuration options for the Reclaim JavaScript SDK
 ---
 
 ## Overview
@@ -16,7 +16,7 @@ npm install @reclaimprotocol/js-sdk
 ## Import
 
 ```javascript
-import { ReclaimProofRequest, verifyProof } from '@reclaimprotocol/js-sdk';
+import { ReclaimProofRequest, verifyProof } from "@reclaimprotocol/js-sdk";
 ```
 
 ---
@@ -32,6 +32,7 @@ The main class for creating and managing proof requests.
 Initialize a new proof request with your API credentials.
 
 **Parameters:**
+
 - `appId` (string, required): Your application ID from the Reclaim Developer Portal
 - `appSecret` (string, required): Your application secret
 - `providerId` (string, required): The provider ID to verify against
@@ -39,28 +40,25 @@ Initialize a new proof request with your API credentials.
 **Returns:** `Promise<ReclaimProofRequest>`
 
 **Example:**
+
 ```javascript
-const reclaimProofRequest = await ReclaimProofRequest.init(
-  'your-app-id',
-  'your-app-secret',
-  'your-provider-id'
-);
+const reclaimProofRequest = await ReclaimProofRequest.init("your-app-id", "your-app-secret", "your-provider-id");
 ```
 
-<Callout type="warning">
-**Security**: Initialize from backend only in production. Never expose `appSecret` in client-side code.
-</Callout>
+<Callout type="warning">**Security**: Initialize from backend only in production. Never expose `appSecret` in client-side code.</Callout>
 
 #### `ReclaimProofRequest.fromJsonString(configString)`
 
 Reconstruct a proof request from a JSON configuration string (typically generated on the backend).
 
 **Parameters:**
+
 - `configString` (string, required): JSON string from `toJsonString()`
 
 **Returns:** `Promise<ReclaimProofRequest>`
 
 **Example:**
+
 ```javascript
 // Backend generates config
 const config = reclaimProofRequest.toJsonString();
@@ -80,9 +78,10 @@ Generate a verification request URL for manual display (QR codes, links, etc.).
 **Returns:** `Promise<string>` - The verification request URL
 
 **Example:**
+
 ```javascript
 const requestUrl = await reclaimProofRequest.getRequestUrl();
-console.log('Verification URL:', requestUrl);
+console.log("Verification URL:", requestUrl);
 // Display as QR code or clickable link
 ```
 
@@ -93,9 +92,10 @@ Get the status polling URL for checking verification progress.
 **Returns:** `string` - The status URL
 
 **Example:**
+
 ```javascript
 const statusUrl = reclaimProofRequest.getStatusUrl();
-console.log('Status URL:', statusUrl);
+console.log("Status URL:", statusUrl);
 ```
 
 #### `triggerReclaimFlow(options?)`
@@ -103,9 +103,11 @@ console.log('Status URL:', statusUrl);
 Automatically trigger the optimal verification flow based on user's platform. Shows QR code modal on desktop, redirects to App Clip/Instant App on mobile, or uses browser extension if available.
 
 **Parameters:**
+
 - `options` (object, optional): Configuration options for the flow
 
 **Options Object:**
+
 - `theme` (string): `'light'` or `'dark'` - Modal theme (default: `'light'`)
 - `modalTitle` (string): Custom title for the QR modal
 - `modalSubtitle` (string): Custom subtitle for the QR modal
@@ -118,14 +120,15 @@ Automatically trigger the optimal verification flow based on user's platform. Sh
 **Returns:** `Promise<void>`
 
 **Example:**
+
 ```javascript
 await reclaimProofRequest.triggerReclaimFlow({
-  theme: 'dark',
-  modalTitle: 'Verify Your Account',
+  theme: "dark",
+  modalTitle: "Verify Your Account",
   autoCloseModal: true,
   autoCloseDelay: 2000,
-  onModalOpen: () => console.log('Modal opened'),
-  onModalClose: () => console.log('Modal closed')
+  onModalOpen: () => console.log("Modal opened"),
+  onModalClose: () => console.log("Modal closed"),
 });
 ```
 
@@ -134,9 +137,11 @@ await reclaimProofRequest.triggerReclaimFlow({
 Start listening for proof submissions. Must be called after generating request URL or triggering flow.
 
 **Parameters:**
+
 - `callbacks` (object, required): Callback functions
 
 **Callbacks Object:**
+
 - `onSuccess` (function, required): Called when proof is successfully generated
   - Receives: `(proofs: Proof) => void`
 - `onError` (function, required): Called when verification fails
@@ -145,16 +150,17 @@ Start listening for proof submissions. Must be called after generating request U
 **Returns:** `Promise<void>`
 
 **Example:**
+
 ```javascript
 await reclaimProofRequest.startSession({
   onSuccess: (proofs) => {
-    console.log('Verification successful!', proofs);
+    console.log("Verification successful!", proofs);
     // Process the proofs
   },
   onError: (error) => {
-    console.error('Verification failed:', error);
+    console.error("Verification failed:", error);
     // Handle error
-  }
+  },
 });
 ```
 
@@ -163,13 +169,15 @@ await reclaimProofRequest.startSession({
 Set a callback URL where Reclaim will send proofs after verification (for backend processing).
 
 **Parameters:**
+
 - `url` (string, required): Your backend callback URL (must be publicly accessible)
 
 **Returns:** `void`
 
 **Example:**
+
 ```javascript
-reclaimProofRequest.setAppCallbackUrl('https://yourapp.com/api/reclaim/callback');
+reclaimProofRequest.setAppCallbackUrl("https://yourapp.com/api/reclaim/callback");
 ```
 
 #### `toJsonString()`
@@ -179,6 +187,7 @@ Serialize the proof request to a JSON string (safe to send to frontend, excludes
 **Returns:** `string` - JSON configuration string
 
 **Example:**
+
 ```javascript
 // Backend
 const config = reclaimProofRequest.toJsonString();
@@ -195,14 +204,437 @@ Check if the Reclaim browser extension is installed and available.
 **Returns:** `Promise<boolean>`
 
 **Example:**
+
 ```javascript
 const hasExtension = await reclaimProofRequest.isBrowserExtensionAvailable();
 
 if (hasExtension) {
-  console.log('Extension available - will use in-browser verification');
+  console.log("Extension available - will use in-browser verification");
 } else {
-  console.log('No extension - will show QR code');
+  console.log("No extension - will show QR code");
 }
+```
+
+---
+
+## Advanced Configuration
+
+<Callout type="info">
+**Customization Options**
+
+The SDK provides extensive customization options for the verification flow, UI appearance, and behavior. Jump to any section:
+
+- [🎨 Modal Customization](#modal-customization) - Configure QR modal appearance and behavior
+- [⚙️ Custom Parameters](#custom-parameters) - Add metadata with `setParams()`
+- [📝 Context Addition](#context-addition) - Add signed context with `addContext()`
+- [🧩 Browser Extension](#browser-extension-configuration) - Configure extension behavior
+- [🔗 Callback URLs](#callback-urls) - Set backend callback endpoints
+- [🔀 Custom Redirects](#custom-redirects) - Configure post-verification redirects
+- [🎯 Session Callbacks](#session-callbacks) - Handle `onSuccess`/`onFailure` events
+- [💡 Complete Example](#complete-configuration-example) - See all features together
+
+</Callout>
+
+---
+
+### 🎨 Modal Customization
+
+#### `setModalOptions(options)`
+
+Configure the QR code modal appearance, behavior, and callbacks.
+
+**Parameters:**
+
+- `options` (object, required): Configuration object for the modal
+
+**Options Object:**
+
+- `darkTheme` (boolean): Enable dark mode styling (default: `false`)
+- `title` (string): Custom modal title
+- `description` (string): Custom modal description text
+- `modalPopupTimer` (number): Auto-close timer in minutes (0 = no auto-close)
+- `showExtensionInstallButton` (boolean): Show browser extension install prompt
+- `extensionUrl` (string): Custom extension URL for install button
+- `onClose` (function): Callback function when modal is closed by user
+
+**Returns:** `void`
+
+**Example:**
+
+```javascript
+reclaimProofRequest.setModalOptions({
+  // Theme
+  darkTheme: true,
+
+  // Text customization
+  title: "Verify Your Account",
+  description: "Scan this QR code with your mobile device to continue",
+
+  // Behavior
+  modalPopupTimer: 5, // Auto-close after 5 minutes of inactivity
+
+  // Browser extension
+  showExtensionInstallButton: true,
+  extensionUrl: "https://chrome.google.com/webstore/...",
+
+  // Callbacks
+  onClose: () => {
+    console.log("User closed the verification modal");
+    // Handle modal closure (e.g., show alternative flow)
+  },
+});
+```
+
+**Use Cases:**
+
+- Match your app's theme (light/dark mode)
+- Provide context-specific instructions
+- Handle user abandonment with `onClose` callback
+- Promote browser extension installation
+
+---
+
+### ⚙️ Custom Parameters
+
+#### `setParams(params)`
+
+Add custom key-value parameters to the proof request. These parameters will be included in the verified proof and can be used for application-specific metadata.
+
+**Parameters:**
+
+- `params` (object, required): Key-value pairs of custom data
+
+**Returns:** `void`
+
+**Example:**
+
+```javascript
+reclaimProofRequest.setParams({
+  userId: "user_12345",
+  action: "account_verification",
+  tier: "premium",
+  timestamp: Date.now(),
+  sessionId: "abc-def-ghi",
+});
+```
+
+**Access in Proof:**
+
+```javascript
+// The parameters are included in the proof
+await reclaimProofRequest.startSession({
+  onSuccess: (proofs) => {
+    const parameters = JSON.parse(proofs.claimData.parameters);
+  },
+});
+```
+
+---
+
+### 📝 Context Addition
+
+#### `addContext(address, message)`
+
+Add custom context or metadata to the proof request. Context is signed and included in the cryptographic proof.
+
+**Parameters:**
+
+- `address` (string, required): Context identifier (e.g., wallet address, user ID)
+- `message` (string, required): Context message or metadata
+
+**Returns:** `void`
+
+**Example:**
+
+```javascript
+// Add wallet address context
+reclaimProofRequest.addContext("0x1234567890abcdef1234567890abcdef12345678", "Verification for DeFi platform access");
+
+// Or add any custom context
+reclaimProofRequest.addContext("user_id_12345", "Email verification for premium tier upgrade");
+```
+
+**Access in Proof:**
+
+```javascript
+await reclaimProofRequest.startSession({
+  onSuccess: (proofs) => {
+    const context = JSON.parse(proofs.claimData.context);
+    console.log("Context:", context);
+  },
+});
+```
+
+**Use Cases:**
+
+- Link verification to blockchain addresses
+- Add tamper-proof metadata
+- Include application-specific identifiers
+- Create auditable verification records
+
+---
+
+### 🧩 Browser Extension Configuration
+
+#### Extension Initialization Options
+
+Configure browser extension behavior when initializing the proof request.
+
+**Parameters (in `init()` fourth argument):**
+
+- `useBrowserExtension` (boolean): Enable/disable extension detection (default: `true`)
+- `extensionID` (string): Custom browser extension identifier
+
+**Example:**
+
+```javascript
+// Enable extension with custom ID
+const reclaimProofRequest = await ReclaimProofRequest.init(APP_ID, APP_SECRET, PROVIDER_ID, {
+  useBrowserExtension: true,
+  extensionID: "your-custom-extension-id",
+});
+
+// Disable extension (always use QR/mobile flow)
+const reclaimProofRequest = await ReclaimProofRequest.init(APP_ID, APP_SECRET, PROVIDER_ID, {
+  useBrowserExtension: false,
+});
+```
+
+#### Check Extension Availability
+
+Use `isBrowserExtensionAvailable()` to conditionally render UI based on extension presence:
+
+**Example:**
+
+```javascript
+const hasExtension = await reclaimProofRequest.isBrowserExtensionAvailable();
+
+if (hasExtension) {
+  // Show "Verify with Extension" button
+  showExtensionButton();
+} else {
+  // Show "Scan QR Code" instructions
+  showQRCodeInstructions();
+}
+```
+
+**Use Cases:**
+
+- Provide different UI for extension vs non-extension users
+- Show extension install prompts strategically
+- Optimize verification flow based on capabilities
+
+---
+
+### 🔗 Callback URLs
+
+#### `setAppCallbackUrl(url)`
+
+Set a backend callback URL where Reclaim Protocol will POST proofs directly after verification. This enables secure backend proof processing without relying on frontend delivery.
+
+**Parameters:**
+
+- `url` (string, required): Your publicly accessible backend endpoint
+
+**Returns:** `void`
+
+**Example:**
+
+```javascript
+// Backend receives proofs directly from Reclaim
+reclaimProofRequest.setAppCallbackUrl("https://yourapp.com/api/reclaim/callback");
+
+// Backend endpoint
+app.post("/api/reclaim/callback", async (req, res) => {
+  const proof = req.body; // Proof sent directly by Reclaim
+
+  // Verify proof
+  const isValid = await verifyProof(proof);
+
+  if (isValid) {
+    // Process verified data
+    await updateUserRecord(proof);
+  }
+
+  res.sendStatus(200); // Acknowledge receipt
+});
+```
+
+**Requirements:**
+
+- URL must be publicly accessible (not localhost)
+- Endpoint should return 200 OK response
+- Implement proof verification on backend
+
+**Benefits:**
+
+- ✅ Proofs delivered directly to your backend (more secure)
+- ✅ No dependency on frontend proof handling
+- ✅ Backend can process async without user waiting
+- ✅ Automatic retry on delivery failure
+
+---
+
+### 🔀 Custom Redirects
+
+#### `setRedirectUrl(url)`
+
+Set a custom redirect URL where users will be sent after completing verification on mobile (App Clip, Instant App, deep link).
+
+**Parameters:**
+
+- `url` (string, required): Your app's redirect destination
+
+**Returns:** `void`
+
+**Example:**
+
+```javascript
+// Redirect to success page after verification
+reclaimProofRequest.setRedirectUrl("https://yourapp.com/verification/success");
+
+// Or deep link back to your mobile app
+reclaimProofRequest.setRedirectUrl("yourapp://verification-complete");
+```
+
+**Use Cases:**
+
+- Guide users back to your app after mobile verification
+- Show custom success/thank you pages
+- Deep link into specific app sections
+- Track verification completion
+
+---
+
+### 🎯 Session Callbacks
+
+#### Enhanced `startSession()` Callbacks
+
+The `startSession()` method provides detailed callbacks for handling verification results.
+
+**Callback Signatures:**
+
+```typescript
+interface SessionCallbacks {
+  onSuccess: (proofs: Proof | string) => void;
+  onFailure: (error: Error) => void;
+}
+```
+
+**Detailed Example:**
+
+```javascript
+await reclaimProofRequest.startSession({
+  onSuccess: (proofs) => {
+    console.log('✅ Verification successful!');
+
+    // Proofs can be either object or string message
+    if (typeof proofs === 'string') {
+      console.log('Message:', proofs);
+    } else {
+      console.log('Proof ID:', proofs.identifier);
+      console.log('Provider:', proofs.claimData.provider);
+      console.log('Timestamp:', new Date(proofs.timestampS * 1000));
+
+      // Extract verified data
+      const parameters = JSON.parse(proofs.claimData.parameters);
+      console.log('Verified data:', parameters);
+
+      // Send to backend for processing
+      await fetch('/api/verify', {
+        method: 'POST',
+        body: JSON.stringify(proofs),
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+  },
+
+  onFailure: (error) => {
+    console.error('❌ Verification failed:', error);
+
+    // Handle specific error types
+    if (error.message.includes('timeout')) {
+      showTimeoutMessage();
+    } else if (error.message.includes('cancelled')) {
+      showCancelledMessage();
+    } else {
+      showGenericErrorMessage();
+    }
+
+    // Log for debugging
+    logVerificationFailure(error);
+  }
+});
+```
+
+**Error Scenarios Handled:**
+
+- User cancels verification
+- Verification timeout
+- Network connectivity issues
+- Invalid provider configuration
+- Backend callback failures
+
+---
+
+### 💡 Complete Configuration Example
+
+Here's a comprehensive example using multiple advanced features:
+
+```javascript
+// Initialize with extension config
+const reclaimProofRequest = await ReclaimProofRequest.init(APP_ID, APP_SECRET, PROVIDER_ID, {
+  useBrowserExtension: true,
+  extensionID: "custom-extension-id",
+});
+
+// Set backend callback for proof delivery
+reclaimProofRequest.setAppCallbackUrl("https://yourapp.com/api/reclaim/callback");
+
+// Add custom parameters
+reclaimProofRequest.setParams({
+  userId: "user_12345",
+  action: "premium_verification",
+  timestamp: Date.now(),
+});
+
+// Add context
+reclaimProofRequest.addContext("0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb2", "DeFi platform verification");
+
+// Set custom redirect
+reclaimProofRequest.setRedirectUrl("https://yourapp.com/verification/complete");
+
+// Configure modal appearance
+reclaimProofRequest.setModalOptions({
+  darkTheme: true,
+  title: "Verify Your Premium Account",
+  description: "Scan with your mobile device",
+  modalPopupTimer: 10,
+  showExtensionInstallButton: true,
+  onClose: () => {
+    console.log("Modal closed by user");
+    trackEvent("verification_abandoned");
+  },
+});
+
+// Check for extension
+const hasExtension = await reclaimProofRequest.isBrowserExtensionAvailable();
+console.log("Extension available:", hasExtension);
+
+// Trigger verification flow
+await reclaimProofRequest.triggerReclaimFlow();
+
+// Handle results
+await reclaimProofRequest.startSession({
+  onSuccess: async (proofs) => {
+    console.log("Verification successful!");
+    await processProof(proofs);
+  },
+  onFailure: (error) => {
+    console.error("Verification failed:", error);
+    handleVerificationError(error);
+  },
+});
 ```
 
 ---
@@ -214,24 +646,26 @@ if (hasExtension) {
 Cryptographically verify a proof received from Reclaim Protocol.
 
 **Parameters:**
+
 - `proof` (Proof object, required): The proof to verify
 
 **Returns:** `Promise<boolean>` - `true` if proof is valid, `false` otherwise
 
 **Example:**
-```javascript
-import { verifyProof } from '@reclaimprotocol/js-sdk';
 
-app.post('/api/reclaim/callback', async (req, res) => {
+```javascript
+import { verifyProof } from "@reclaimprotocol/js-sdk";
+
+app.post("/api/reclaim/callback", async (req, res) => {
   const proof = parseProof(req.body);
 
   const isValid = await verifyProof(proof);
 
   if (isValid) {
-    console.log('✅ Proof is valid');
+    console.log("✅ Proof is valid");
     // Process verified data
   } else {
-    console.log('❌ Proof verification failed');
+    console.log("❌ Proof verification failed");
   }
 
   res.sendStatus(200);
@@ -239,7 +673,7 @@ app.post('/api/reclaim/callback', async (req, res) => {
 ```
 
 <Callout type="success">
-**Best Practice**: Always verify proofs on your backend before trusting the data. Never rely solely on client-side verification.
+  **Best Practice**: Always verify proofs on your backend before trusting the data. Never rely solely on client-side verification.
 </Callout>
 
 ---
@@ -252,26 +686,27 @@ The proof object received after successful verification:
 
 ```typescript
 interface Proof {
-  identifier: string;                // Unique proof identifier
-  claimData: ClaimData;              // Claim details
-  signatures: string[];              // Cryptographic signatures
-  witnesses: Witness[];              // Witness attestations
-  timestampS: number;                // Unix timestamp in seconds
+  identifier: string; // Unique proof identifier
+  claimData: ClaimData; // Claim details
+  signatures: string[]; // Cryptographic signatures
+  witnesses: Witness[]; // Witness attestations
+  timestampS: number; // Unix timestamp in seconds
 }
 
 interface ClaimData {
-  provider: string;                  // Provider name (e.g., "google")
-  parameters: string;                // JSON string of provider parameters
-  context: string;                   // JSON string of context data
+  provider: string; // Provider name (e.g., "google")
+  parameters: string; // JSON string of provider parameters
+  context: string; // JSON string of context data
 }
 
 interface Witness {
-  address: string;                   // Witness address
-  signature: string;                 // Witness signature
+  address: string; // Witness address
+  signature: string; // Witness signature
 }
 ```
 
 **Example Proof:**
+
 ```json
 {
   "identifier": "0x1234567890abcdef...",
@@ -317,8 +752,8 @@ const verifiedAt = new Date(proof.timestampS * 1000);
 try {
   await ReclaimProofRequest.init(appId, appSecret, providerId);
 } catch (error) {
-  if (error.message.includes('Invalid credentials')) {
-    console.error('Check your APP_ID and APP_SECRET');
+  if (error.message.includes("Invalid credentials")) {
+    console.error("Check your APP_ID and APP_SECRET");
   }
 }
 ```
@@ -329,8 +764,8 @@ try {
 try {
   await ReclaimProofRequest.init(appId, appSecret, providerId);
 } catch (error) {
-  if (error.message.includes('Provider')) {
-    console.error('Verify your PROVIDER_ID is correct');
+  if (error.message.includes("Provider")) {
+    console.error("Verify your PROVIDER_ID is correct");
   }
 }
 ```
@@ -340,10 +775,10 @@ try {
 ```javascript
 await reclaimProofRequest.startSession({
   onError: (error) => {
-    if (error.message.includes('timeout')) {
-      console.error('Verification timed out - user may have abandoned flow');
+    if (error.message.includes("timeout")) {
+      console.error("Verification timed out - user may have abandoned flow");
     }
-  }
+  },
 });
 ```
 
@@ -355,7 +790,7 @@ await reclaimProofRequest.startSession({
 
 ```javascript
 // Backend
-app.get('/api/reclaim/config', async (req, res) => {
+app.get("/api/reclaim/config", async (req, res) => {
   const reclaimProofRequest = await ReclaimProofRequest.init(
     process.env.RECLAIM_APP_ID,
     process.env.RECLAIM_APP_SECRET,
@@ -369,12 +804,10 @@ app.get('/api/reclaim/config', async (req, res) => {
 });
 
 // Frontend
-const response = await fetch('/api/reclaim/config');
+const response = await fetch("/api/reclaim/config");
 const { reclaimProofRequestConfig } = await response.json();
 
-const reclaimProofRequest = await ReclaimProofRequest.fromJsonString(
-  reclaimProofRequestConfig
-);
+const reclaimProofRequest = await ReclaimProofRequest.fromJsonString(reclaimProofRequestConfig);
 
 await reclaimProofRequest.triggerReclaimFlow();
 await reclaimProofRequest.startSession({ onSuccess, onError });
@@ -385,16 +818,16 @@ await reclaimProofRequest.startSession({ onSuccess, onError });
 ```javascript
 // ⚠️ Not for production - exposes APP_SECRET
 const reclaimProofRequest = await ReclaimProofRequest.init(
-  'your-app-id',
-  'your-app-secret',  // Exposed!
-  'your-provider-id'
+  "your-app-id",
+  "your-app-secret", // Exposed!
+  "your-provider-id"
 );
 
 await reclaimProofRequest.triggerReclaimFlow();
 
 await reclaimProofRequest.startSession({
-  onSuccess: (proofs) => console.log('Success:', proofs),
-  onError: (error) => console.error('Error:', error)
+  onSuccess: (proofs) => console.log("Success:", proofs),
+  onError: (error) => console.error("Error:", error),
 });
 ```
 
@@ -417,13 +850,13 @@ await reclaimProofRequest.startSession({ onSuccess, onError });
 
 The SDK automatically detects the user's platform and provides the best experience:
 
-| Platform | Detection Method | Verification Flow |
-|----------|-----------------|-------------------|
-| Desktop Chrome/Edge | User agent | QR code modal or extension |
-| Desktop Safari/Firefox | User agent | QR code modal |
-| iOS Safari | User agent + touch | App Clip redirect |
-| Android Chrome | User agent + touch | Instant App redirect |
-| Mobile browsers | Touch capability | Deep link or QR |
+| Platform               | Detection Method   | Verification Flow          |
+| ---------------------- | ------------------ | -------------------------- |
+| Desktop Chrome/Edge    | User agent         | QR code modal or extension |
+| Desktop Safari/Firefox | User agent         | QR code modal              |
+| iOS Safari             | User agent + touch | App Clip redirect          |
+| Android Chrome         | User agent + touch | Instant App redirect       |
+| Mobile browsers        | Touch capability   | Deep link or QR            |
 
 ---
 
@@ -443,16 +876,12 @@ The SDK automatically detects the user's platform and provides the best experien
 The SDK includes TypeScript definitions out of the box:
 
 ```typescript
-import { ReclaimProofRequest, Proof } from '@reclaimprotocol/js-sdk';
+import { ReclaimProofRequest, Proof } from "@reclaimprotocol/js-sdk";
 
-const reclaimProofRequest: ReclaimProofRequest = await ReclaimProofRequest.init(
-  appId,
-  appSecret,
-  providerId
-);
+const reclaimProofRequest: ReclaimProofRequest = await ReclaimProofRequest.init(appId, appSecret, providerId);
 
 const handleSuccess = (proofs: Proof): void => {
-  console.log('Proof received:', proofs.identifier);
+  console.log("Proof received:", proofs.identifier);
 };
 ```
 
