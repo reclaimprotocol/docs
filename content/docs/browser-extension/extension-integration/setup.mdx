@@ -3,9 +3,25 @@ title: Setup
 description: Initialize the SDK in your browser extension's background and content scripts
 ---
 
+## Get Your API Credentials First
+
+<Callout type="warning">
+**🔑 Required Before Setup**
+
+Before you can initialize the SDK, you **must** have your API credentials (`APP_ID` and `APP_SECRET`). These are required to create verification requests.
+
+**[Get Your API Credentials →](/api-key)**
+
+You'll need:
+- **`APP_ID`**: Your unique application identifier
+- **`APP_SECRET`**: Your application secret key
+
+Keep these credentials secure and never expose them in client-side code for production applications.
+</Callout>
+
 ## Overview
 
-After configuring your manifest, you need to initialize the SDK in two places:
+After configuring your manifest and obtaining your API credentials, you need to initialize the SDK in two places:
 
 1. **Background Service Worker**: Manages offscreen documents and verification orchestration
 2. **Content Script Loading**: Bridges communication (optional if using static manifest registration)
