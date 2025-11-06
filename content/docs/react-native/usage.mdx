@@ -3,22 +3,25 @@ title: Usage
 description: This SDK allows Reclaim Protocol to be triggered from your app, without changing context.
 ---
 
+import { Callout } from 'fumadocs-ui/components/callout';
 
-To use Reclaim InApp Sdk in your project, follow these steps:
+## Basic Usage
 
-1. Import the `@reclaimprotocol/inapp-rn-sdk` package in your project file.
+### 1. Import the SDK
 
 ```js
 import { ReclaimVerification } from '@reclaimprotocol/inapp-rn-sdk';
 ```
 
-2. Initialize the `ReclaimVerification` class to create an instance.
+### 2. Initialize
 
 ```js
 const reclaimVerification = new ReclaimVerification();
 ```
 
-3. Start the verification flow by providing the app id, secret and provider id.
+### 3. Start Verification
+
+Start the verification flow with your app credentials and provider ID:
 
 ```js
 const verificationResult = await reclaimVerification.startVerification({
@@ -28,65 +31,217 @@ const verificationResult = await reclaimVerification.startVerification({
 });
 ```
 
-The returned result is a [ReclaimVerification.Response] object. This object contains a response that has proofs, exception, and the sessionId if the verification is successful.
+The returned result is a `ReclaimVerification.Response` object containing proofs and session information.
 
-### Exception Handling
+#### Complete Request Parameters
 
-If the verification ends with an exception, the exception is thrown as a [ReclaimVerification.ReclaimVerificationException] object.
+```typescript
+const verificationResult = await reclaimVerification.startVerification({
+    // Required fields
+    appId: string,              // Your Reclaim app ID
+    secret: string,             // Your Reclaim app secret
+    providerId: string,         // Provider ID from Reclaim Devtools
 
-Following is an example of how to handle the exception using [error.type]:
+    // Optional fields
+    session?: {                 // Reuse existing session (SDK generates if not provided)
+        sessionId: string,
+        timestamp: string,      // Milliseconds since Unix epoch
+        signature: string
+    },
+
+    contextString?: string,     // Additional context data for verification
+
+    parameters?: {              // Custom parameters required by specific providers
+        [key: string]: string   // Check provider details for required parameters
+    },
+
+    providerVersion?: {         // Specify provider version
+        resolvedVersion: string,
+        versionExpression: string
+    }
+});
+```
+
+**Example with Optional Parameters:**
+
+```js
+const verificationResult = await reclaimVerification.startVerification({
+    appId: 'your-app-id',
+    secret: 'your-app-secret',
+    providerId: 'provider-id',
+
+    // Add context for tracking
+    contextString: 'user-signup-flow',
+
+    // Custom parameters (if required by the provider)
+    parameters: {
+        customField: 'value'
+    },
+
+    // Specify exact provider version
+    providerVersion: ReclaimVerification.ProviderVersion.resolved('1.0.0')
+});
+```
+
+## Alternative Verification Methods
+
+### Start from URL
+
+Start verification directly from a request URL:
+
+```js
+const verificationResult = await reclaimVerification.startVerificationFromUrl(
+    'https://api.example.com/verification-request'
+);
+```
+
+### Start from JSON Template
+
+Start verification using a JSON template:
+
+```js
+const template = {
+    appId: 'your-app-id',
+    secret: 'your-app-secret',
+    providerId: 'provider-id',
+    // ... other configuration
+};
+
+const verificationResult = await reclaimVerification.startVerificationFromJson(template);
+```
+
+## Exception Handling
+
+If verification fails or is interrupted, a `ReclaimVerificationException` is thrown. Handle different exception types:
 
 ```js
 try {
-  // ... start verification
+  const result = await reclaimVerification.startVerification({
+    appId: config.REACT_APP_RECLAIM_APP_ID,
+    secret: config.REACT_APP_RECLAIM_APP_SECRET,
+    providerId: providerId,
+  });
+
+  // Verification successful
+  console.log('Proofs:', result.proofs);
+
 } catch (error) {
   if (error instanceof ReclaimVerification.ReclaimVerificationException) {
+
     switch (error.type) {
       case ReclaimVerification.ExceptionType.Cancelled:
-        Snackbar.show({
-          text: 'Verification cancelled',
-          duration: Snackbar.LENGTH_LONG,
-        });
+        console.log('User cancelled verification');
         break;
+
       case ReclaimVerification.ExceptionType.Dismissed:
-        Snackbar.show({
-          text: 'Verification dismissed',
-          duration: Snackbar.LENGTH_LONG,
-        });
+        console.log('Verification was dismissed');
         break;
+
       case ReclaimVerification.ExceptionType.SessionExpired:
-        Snackbar.show({
-          text: 'Verification session expired',
-          duration: Snackbar.LENGTH_LONG,
-        });
+        console.log('Verification session expired');
         break;
+
       case ReclaimVerification.ExceptionType.Failed:
       default:
-        Snackbar.show({
-          text: 'Verification failed',
-          duration: Snackbar.LENGTH_LONG,
-        });
+        console.log('Verification failed:', error.reason);
+        break;
     }
+
+    // Access additional error details
+    console.log('Session ID:', error.sessionId);
+    console.log('Reason:', error.reason);
+    console.log('Inner Error:', error.innerError);
+
   } else {
-    Snackbar.show({
-      text: error instanceof Error ? error.message : 'An unknown verification error occurred',
-      duration: Snackbar.LENGTH_LONG,
-    });
+    console.error('Unexpected error:', error);
   }
 }
 ```
 
-This error also contains `sessionId`, `reason`, and `innerError` that can be used to get more details about the occurred error.
+## Advanced Usage
+
+### Customize Verification Flow
+
+Override SDK configuration to customize the verification experience:
 
 ```js
-error.sessionId
-error.reason
-error.innerError
+reclaimVerification.setOverrides({
+  appInfo: {
+    appName: "My Custom App",
+    appImageUrl: "https://example.com/logo.png"
+  },
+  // ... other override options
+});
+```
+
+For detailed override options, see the [SDK documentation](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/overrides.md).
+
+### Clear All Overrides
+
+Reset all customizations to defaults:
+
+```js
+reclaimVerification.clearAllOverrides();
+```
+
+### Set Verification Options
+
+Configure additional verification options:
+
+```js
+reclaimVerification.setVerificationOptions({
+  // ... options
+});
+```
+
+## Troubleshooting
+
+### Cronet Errors on Android
+
+On Android devices without Google Play Services, you may see Cronet-related errors. Add this dependency to your `android/build.gradle`:
+
+```gradle
+dependencies {
+    // ... other dependencies
+    implementation("org.chromium.net:cronet-embedded:119.6045.31")
+}
+```
+
+### expo-dev-client Incompatibility (iOS)
+
+There's a known incompatibility between `ReclaimInAppSdk` and `expo-dev-client` on iOS that causes network request timeouts. Temporarily remove `expo-dev-client` when testing Reclaim functionality on iOS.
+
+### iOS Build Issues
+
+If you encounter CocoaPods compatibility errors:
+
+```bash
+cd ios/
+pod update ReclaimInAppSdk
+```
+
+### Build Failures (0.7.x versions)
+
+Versions 0.7.0-0.7.2 have build issues. Update to 0.7.3 or later:
+
+```bash
+npm install @reclaimprotocol/inapp-rn-sdk@latest
 ```
 
 ## Migration
 
-- Migration steps for [0.3.1](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/migration.md#031)
-- Migration steps for [0.3.0](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/migration.md#030)
-- Migration steps for [0.2.1](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/migration.md#021)
+When upgrading to newer versions, follow the migration guides:
 
+- [0.15.0](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/migration.md#0150)
+- [0.12.0](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/migration.md#0120)
+- [0.10.11](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/migration.md#01011)
+- [0.9.2](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/migration.md#092)
+- [0.9.1](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/migration.md#091)
+- [0.9.0](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/migration.md#090)
+- [0.8.3](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/migration.md#083)
+- [0.7.3](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/migration.md#073)
+- [0.6.0](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/documentation/migration.md#060)
+
+<Callout type="info">
+For the latest updates and features, check the [SDK changelog](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/CHANGELOG.md).
+</Callout>
