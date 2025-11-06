@@ -1,0 +1,356 @@
+---
+title: Advanced Features
+description: Advanced features and customization options
+---
+
+Learn about advanced features and customization options available in the Reclaim Flutter SDK.
+
+## Theming
+
+The Reclaim SDK supports custom themes to match your app's branding. To enable custom theming for your application, please contact our support team.
+
+### Available Theme Properties
+
+Once custom theming is enabled for your application, the following properties can be configured:
+
+#### Colors
+
+- `primary` - Primary brand color
+- `secondaryColor` - Secondary color for actions
+- `surfaceColor` - Background surface color
+- `green` - Success/verified state color
+- `cardColor` - Card background color
+- `onCardColor` - Text color on cards
+- `termsNoticeColor` - Terms notice text color
+- `hyperlinkColor` - Hyperlink color
+- `sessionChipSurfaceColor` - Session chip background
+- `sessionChipOnSurfaceColor` - Session chip text color
+
+#### Custom Graphics
+
+- `doneIconProvider` - Completion icon
+- `fieldVerifiedIconProvider` - Field verified icon
+- `fieldVerifyingIconProvider` - Field verifying icon
+- `verificationCompleteIconProvider` - Verification complete icon
+- `verifyScreenAppIconProvider` - App icon on verify screen
+- `providerToAppLoader` - Loading animation between provider and app
+- `loading` - General loading indicator
+
+#### Background
+
+- `background` - Background decoration
+- `blurStrength` - Background blur intensity
+- `blurColor` - Background blur color overlay
+
+#### Messages
+
+- `returnToAppMessage` - Message shown when returning to app
+  - `title` - Message title
+  - `subtitle` - Message subtitle
+- `dataSharedMessage` - Message shown after data is shared
+  - `title` - Message title
+  - `subtitle` - Message subtitle
+
+#### Parameters Display
+
+- `parameterListStyle` - How parameters are displayed (compact or expanded)
+- `dividerColor` - Color of dividers between parameters
+- `isValueShown` - Whether to show parameter values
+
+#### Legal Links
+
+- `termsAndConditionsUri` - URL to your terms and conditions
+- `privacyPolicyUri` - URL to your privacy policy
+
+#### Other
+
+- `cardElevation` - Elevation for card components
+- `appIconGraphicOptions` - Options for app icon display
+
+### Contact Support
+
+To set up custom theming for your application, please reach out to our support team with your branding requirements.
+
+---
+
+## Localization
+
+The SDK includes built-in support for multiple languages.
+
+### Supported Languages
+
+Currently supported locales:
+- **English** (`en_US`) - Default
+- **Spanish** (`es_ES`)
+
+The SDK automatically uses the device's locale if supported, falling back to English for unsupported languages.
+
+### Force a Specific Locale
+
+You can force a specific locale for the verification flow:
+
+```dart
+await reclaim.startVerification(
+  request: verificationRequest,
+  options: ReclaimVerificationOptions(
+    locale: 'es_ES',  // Force Spanish
+  ),
+);
+```
+
+### Request Additional Language Support
+
+If you need support for additional languages, please contact our support team. We can work with you to add new language translations to the SDK.
+
+---
+
+## Session Management
+
+### Custom Session Control
+
+Control whether verification can continue with custom logic:
+
+```dart
+await reclaim.startVerification(
+  request: verificationRequest,
+  options: ReclaimVerificationOptions(
+    canContinueVerification: (provider, sessionInfo) async {
+      // Custom logic to determine if verification can proceed
+      final isValid = await validateSession(sessionInfo);
+      return isValid;
+    },
+  ),
+);
+```
+
+### Session Persistence
+
+Store and reuse session information across app restarts:
+
+```dart
+// Generate and store session
+final session = await ReclaimSessionInformation.generateNew(
+  providerId: providerId,
+  applicationId: appId,
+  applicationSecret: appSecret,
+);
+await storage.saveSession(session);
+
+// Reuse stored session
+final storedSession = await storage.getSession();
+await reclaim.startVerification(
+  request: ReclaimVerificationRequest(
+    applicationId: appId,
+    providerId: providerId,
+    sessionProvider: () => storedSession,
+  ),
+);
+```
+
+---
+
+## WebView Configuration
+
+### Clear WebView Storage
+
+Control whether to clear webview storage before verification:
+
+```dart
+await reclaim.startVerification(
+  request: verificationRequest,
+  options: ReclaimVerificationOptions(
+    canClearWebStorage: false,  // Keep cookies/storage
+  ),
+);
+```
+
+**Use Cases:**
+- Preserve login sessions across verifications
+- Reduce re-authentication needs
+- Speed up subsequent verifications
+
+**Default:** `true` (storage is cleared before each verification)
+
+---
+
+## UI Customization
+
+### Auto-Submit
+
+Automatically submit when verification data is ready:
+
+```dart
+await reclaim.startVerification(
+  request: verificationRequest,
+  options: ReclaimVerificationOptions(
+    canAutoSubmit: true,
+  ),
+);
+```
+
+This skips the review step and submits immediately when data is collected.
+
+**Default:** `false`
+
+### Hide Close Button
+
+Remove the close button from the verification UI:
+
+```dart
+await reclaim.startVerification(
+  request: verificationRequest,
+  options: ReclaimVerificationOptions(
+    isCloseButtonVisible: false,
+  ),
+);
+```
+
+**Useful For:**
+- Mandatory verification flows
+- Preventing accidental dismissal
+- Guided onboarding processes
+
+**Default:** `true`
+
+---
+
+## Custom Parameters
+
+Some providers require specific data to complete verification. These custom parameters are determined by the provider's requirements.
+
+### Providing Custom Parameters
+
+Pass the required parameters when starting verification:
+
+```dart
+await reclaim.startVerification(
+  request: ReclaimVerificationRequest(
+    applicationId: appId,
+    providerId: providerId,
+    sessionProvider: sessionProvider,
+    parameters: {
+      'username': 'john_doe',
+      'account_id': '12345',
+      'region': 'US',
+    },
+  ),
+);
+```
+
+Check the specific provider's documentation in the [Provider Explorer](https://dev.reclaimprotocol.org/explore) to see what parameters it requires.
+
+---
+## Context Strings
+
+Add additional context to verifications that will be included in the proof:
+
+```dart
+await reclaim.startVerification(
+  request: ReclaimVerificationRequest(
+    applicationId: appId,
+    providerId: providerId,
+    sessionProvider: sessionProvider,
+    contextString: json.encode({
+      'user_id': userId,
+      'action': 'account_verification',
+      'timestamp': DateTime.now().toIso8601String(),
+    }),
+  ),
+);
+```
+
+**Use Cases:**
+- Tracking verification purposes
+- Binding verifications to specific actions
+- Adding metadata to proofs
+- Audit trails
+
+---
+
+## Security Best Practices
+
+### 1. Never Hardcode Secrets
+
+Always use environment variables or secure storage:
+
+```dart
+// ✅ Good
+const appSecret = String.fromEnvironment('APP_SECRET');
+
+// ❌ Bad
+const appSecret = 'my-secret-123';
+```
+
+### 2. Handle Exceptions Properly
+
+Don't expose sensitive error details to users:
+
+```dart
+try {
+  await reclaim.startVerification(...);
+} catch (e) {
+  // Log detailed error internally
+  logger.error('Verification failed', e);
+
+  // Show generic message to user
+  showDialog('Verification failed. Please try again.');
+}
+```
+
+### 3. Secure Storage
+
+Store sensitive data securely:
+
+```dart
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+final secureStorage = FlutterSecureStorage();
+
+// Store session securely
+await secureStorage.write(
+  key: 'reclaim_session',
+  value: json.encode(session.toJson()),
+);
+```
+
+---
+
+## Platform-Specific Considerations
+
+### Android
+
+#### Cronet for Devices Without Play Services
+
+On devices without Google Play Services, add embedded Cronet:
+
+```gradle
+dependencies {
+    implementation("org.chromium.net:cronet-embedded:119.6045.31")
+}
+```
+
+### iOS
+
+Ensure minimum iOS version is set:
+
+```ruby
+platform :ios, '13.0'
+```
+
+---
+
+## Getting Help
+
+For advanced customization, additional language support, or custom theming:
+
+- **Telegram Community**: [t.me/protocolreclaim](https://t.me/protocolreclaim)
+- **Twitter**: [@reclaimprotocol](https://twitter.com/reclaimprotocol)
+- **Support**: Contact our support team for custom requirements
+
+---
+
+## Next Steps
+
+- Check out [Examples](/docs/flutter/examples) for practical implementations
+- Review the [API Reference](/docs/flutter/api-reference) for detailed class documentation
+- Read the [Usage Guide](/docs/flutter/usage) for basic implementation patterns
