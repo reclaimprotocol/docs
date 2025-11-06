@@ -2,23 +2,25 @@
 title: Usage
 description: Flutter SDK for Reclaim Protocol
 ---
-1. Import the SDK in your Dart file:
+
+# Quickstart
+## Import the SDK in your Dart file
 
 ```dart
 import 'package:reclaim_inapp_flutter_sdk/reclaim_inapp_flutter_sdk.dart';
 ```
 
-2. Initialize the SDK with your app credentials:
-
-Following is an exmaple.
-
+## Initialize the SDK with your app credentials
 ```dart
 const String appId = String.fromEnvironment('APP_ID');
 const String appSecret = String.fromEnvironment('APP_SECRET');
 const String providerId = String.fromEnvironment('PROVIDER_ID');
 ```
+- You can get the `APP_ID` and `APP_SECRET` using [this guide](/api-key)
+- The `PROVIDER_ID` is the proof you want the user to generate. You can see all the [available providers here](https://dev.reclaimprotocol.org/explore).
 
-### Starting Verification
+
+## Starting Verification
 
 ```dart
 final sdk = ReclaimInAppSdk.of(context);
@@ -35,39 +37,13 @@ final proofs = await sdk.startVerification(
 );
 ```
 
-### Configuration Options
+## Verifying proofs
+You don't need to separately verify the proofs as you would [in the js-sdk](/js-sdk/verifying-proofs). If the verification failed, you will get an exception. If there is no exception, the proof was generated correctly _and_ verified correctly.
 
-The `ReclaimVerificationRequest` supports the following options:
 
-- `appId`: Your Reclaim application ID
-- `providerId`: The ID of the provider you want to verify against
-- `secret`: Your application secret (optional if using session information)
-- `sessionInformation`: Session information for authentication
-- `contextString`: Additional context for the verification
-- `parameters`: Custom parameters for the verification
-- `claimCreationType`: Type of claim creation (standalone or meChain)
-- `autoSubmit`: Whether to auto-submit the verification
-- `hideCloseButton`: Whether to hide the close button
-- `webhookUrl`: URL for webhook notifications
-- `verificationOptions`: Additional verification options
 
-### Error Handling
-
-The SDK throws specific exceptions that you can handle:
-
-```dart
-try {
-  final proofs = await sdk.startVerification(request);
-} on ReclaimExpiredSessionException {
-  // Handle expired session
-} on ReclaimVerificationManualReviewException {
-  // Handle manual review case
-} catch (error) {
-  // Handle other errors if required
-}
-```
-
-### Pre-warming
+# Advanced Options
+## Pre-warming
 
 For better performance, you can pre-warm the SDK:
 
@@ -78,19 +54,3 @@ void main() async {
   runApp(MyApp());
 }
 ```
-## Environment Variables
-
-The SDK requires the following environment variables:
-
-- `APP_ID`: Your Reclaim application ID
-- `APP_SECRET`: Your application secret
-- `PROVIDER_ID`: The ID of the provider to verify against
-
-You can provide these values using:
-
-- Dart Define Env file: `--dart-define-from-file=./.env`
-- Hardcoded values (not recommended for production)
-
-## Example
-
-Check out the [example](example/lib/main.dart) for a complete implementation.

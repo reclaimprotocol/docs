@@ -1,0 +1,158 @@
+---
+title: Asking the user to generate the proof
+description: Initiate the proof request to the user on the frontend
+---
+
+# What is initiating a proof request?
+In the [previous section](/preparing-request), you just built the request containing the information on what proof you want the user to generate.
+Now it is turn to actually ask the user to generate the proof.
+
+There are many ways the user can generate a proof.
+
+## User is on a desktop
+Till January 31 2026, the proofs can generate a proof only using a mobile device. If the user opens your webapp on a desktop, they should be presented a QR code that they can scan with their iOS or Android device. Once they scan this QR code, they will be directed through the flow as mentioned below.
+
+## User is on a mobile device
+- If the user is on iOS
+  - if the user is on iOS 14+ : they will be shown the Reclaim Protocol AppClip, where they can generate the proof without installing anything.
+  - if the user is on iOS 13 or below: they will be taken to the AppStore to install the Reclaim Protocol App, where they will now be able to generate the proof.
+- If the user is on Android
+  - Until December 1 2025 : they will be shown the Reclaim Protocol Instant App, where they can generate the proof without installing anything.
+  - After December 1 2025 : they will be taken to the PlayStore to install the Reclaim Protocol App, where they will be able to generate the proof.
+
+## User is on a desktop with Reclaim Protocol Browser Extension installed
+If the user has the browser extension installed, they needn't scan the QR code - they can generate the proof directly in the Reclaim Protocol (or any partner) Browser Extension.
+
+## January 31 2026 onwards
+On January 31, the Reclaim Protocol Embedded SDK is marked for public release. From this date, the users will not have to change devices or install any software to generate proofs. You can [request for early access](https://t.me/protocolreclaim) for the EmbeddedSDK.
+
+## So many conditions?!
+There are many combinations of device, browser and OS that are possible - leading to a lot of if else conditions. 
+The Reclaim Protocol JS SDK will handle all the cases for you, so you need to call only one function and it will automatically upgrade to the most seamless available flow!
+
+# Quickstart
+## Get the `proofRequestObject` from the backend
+Call the endpoint that you created in the [preparing request](/js-sdk/preparing-request) step.
+
+```javascript
+      const response = await fetch('/api/reclaimprotocol-buildproofrequest');
+      const { proofRequest } = await response.json();
+```
+
+## Construct the `ReclaimProofRequest`
+You need to convert this Json into type `ReclaimProofRequest`
+```javascript
+const reclaimProofRequest = await ReclaimProofRequest.fromJsonString(proofRequest);
+```
+
+## Trigger the proof generation flow with the user
+```javascript
+await reclaimProofRequest.triggerReclaimFlow();
+```
+This step will take care of all the conditions for you - and use the most seamless available experience for the user based on the available options as of today, browser, OS and device.
+
+## Listen for the proof generation process
+You can receive callbacks when the proof generation process completes or fails so that you can update your UI accordingly for the user's next steps.
+
+onSuccess is called after the user has generated the proof and the proof has been uploaded to the callback endpoint which we will define in the next section - [verifying the proofs](/js-sdk/verifying-proofs). 
+
+Note : onSuccess means the proof has been successfully uploaded, but doesn't mean it's been verified. For verifying, please see the next section - [verifying the proofs](/js-sdk/verifying-proofs).
+
+```javascript
+    await reclaimProofRequest.startSession({
+    onSuccess: (proofs) => {
+        // ... continue business logic
+    },
+    onError: (err) => {
+        // ... show error message
+    }
+    });
+```
+
+## Example using `React`
+```javascript
+// hooks/useReclaim.js
+import { useState, useCallback } from 'react';
+import { ReclaimProofRequest } from '@reclaimprotocol/js-sdk';
+ 
+export function useReclaim() {
+  const [proofs, setProofs] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+ 
+  const startVerification = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+ 
+      // Fetch config from backend
+      const response = await fetch('/api/reclaim/config');
+      const { reclaimProofRequestConfig } = await response.json();
+ 
+      const reclaimProofRequest = await ReclaimProofRequest.fromJsonString(
+        reclaimProofRequestConfig
+      );
+ 
+      await reclaimProofRequest.triggerReclaimFlow();
+ 
+      await reclaimProofRequest.startSession({
+        onSuccess: (proofs) => {
+          setProofs(proofs);
+          setIsLoading(false);
+        },
+        onError: (err) => {
+          setError(err.message);
+          setIsLoading(false);
+        }
+      });
+    } catch (err) {
+      setError(err.message);
+      setIsLoading(false);
+    }
+  }, []);
+ 
+  return { proofs, isLoading, error, startVerification };
+}
+```
+# More options
+## Implement your own UI
+If you don't want the SDK to take care of the navigations or you want to implement your own UI, you can do so.
+
+You can get the verification url that needs to be opened on the user's mobile device. 
+
+```javascript
+const requestUrl = await reclaimProofRequest.getRequestUrl();
+```
+the `triggerReclaimFlow()` uses this function internally and displays a QR code if it is on a browser and opens this link on a new window in a mobile browser. You can mimic the same functionality using your own UI or customize the experience as per your application.
+
+## Is Browser Extension available?
+You can detect if the user has installed any browser extension that allows a Reclaim Protocol flow to be triggered on device without needing a QR scan or App change. If Reclaim Protocol Browser Extension or any Partner Browser Extension is available, you should ideally just use that extension to respect the user's choice. The `triggerReclaimFlow()` will handle this case automatically, but you can write your custom logic. You can detect extensions using : 
+```javascript
+const hasExtension = await reclaimProofRequest.isBrowserExtensionAvailable();
+if(hasExtension){
+    reclaimProofRequest.triggerReclaimFlow();
+}
+else {
+    //... your custom logic
+}
+```
+
+## Redirect after proof generation
+If you want to redirect the user after generating the proof to a specific webpage or app, you can do so using `setRedirectUrl`. 
+
+When you should use this : 
+- User is on a desktop, scans QR code to generate the proof. After the proof generation is complete you want to show a custom success message on their mobile device instead of the Reclaim Protocol's default success message. You can redirect them to a webpage.
+- User is on a mobile, taps a button to generate the proof. After the proof generation is complete, you typically want to redirect the user to the page that must be shown after the proof generation is complete. If you are using `onSuccess`, the user will have to close the proof generation success banner and go back to the browser to continue. We recommend using a redirect url to take the user to the next step in the business logic. On this step, render a page depending on whether the proof was correctly verified.
+
+```javascript
+// Redirect to success page after verification
+reclaimProofRequest.setRedirectUrl("https://yourapp.com/verification/success");
+ 
+// Or deep link back to a mobile app
+reclaimProofRequest.setRedirectUrl("yourapp://verification-complete");
+```
+
+
+
+
+

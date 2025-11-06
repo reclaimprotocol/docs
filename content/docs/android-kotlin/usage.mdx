@@ -1,19 +1,17 @@
 ---
 title: Usage
-description: Reclaim Protocol's InApp Android SDK for ZK proof generations for requests with an in-app experience of web verification
+description: Integrate Reclaim Protocol using Kotlin
 ---
 
-## Usage
+# Quickstart
 
-To use ReclaimInAppSdk in your project, follow these steps:
-
-1. Import the ReclaimInAppSdk module into your Kotlin/Java file.
+## Import
 
 ```kotlin
 import org.reclaimprotocol.inapp_sdk.ReclaimVerification
 ```
 
-2. Create a request object.
+## Create a request object
 
 ```kotlin
 val request = ReclaimVerification.Request(
@@ -22,17 +20,11 @@ val request = ReclaimVerification.Request(
         providerId = "YOUR_PROVIDER_ID"
     )
 ```
+- You can get the `APP_ID` and `APP_SECRET` using [this guide](/api-key)
+- The `PROVIDER_ID` is the proof you want the user to generate. You can see all the [available providers here](https://dev.reclaimprotocol.org/explore).
 
-Or if you have added the APP_ID and APP_SECRET metadata to your AndroidManifest.xml file, you can create the request object using the `ReclaimVerification.Request.fromManifestMetaData` method.
 
-```kotlin
-    val request = ReclaimVerification.Request.fromManifestMetaData(
-        context = context,
-        providerId = "YOUR_PROVIDER_ID"
-    )
-```
-
-3. Start the verification flow.
+## Start the verification flow
 
 
 ```kotlin
@@ -41,28 +33,12 @@ ReclaimVerification.startVerification(
     request = request,
     handler = object : ReclaimVerification.ResultHandler {
         override fun onException(exception: ReclaimVerification.ReclaimVerificationException) {
-            Log.e("MainActivity", "Something went wrong", exception)
-            val reason = when (exception) {
-                is ReclaimVerification.ReclaimVerificationException.Failed -> "Failed because: ${exception.reason}"
-                is ReclaimVerification.ReclaimVerificationException.Cancelled -> "Verification cancelled"
-                is ReclaimVerification.ReclaimVerificationException.Dismissed -> "Dismissed by user"
-                is ReclaimVerification.ReclaimVerificationException.SessionExpired -> "Session expired"
-            }
-            Log.d("MainActivity", "reason: $reason")
+            // Proof generation or verification failed
         }
 
         override fun onResponse(response: ReclaimVerification.Response) {
-            Log.d("MainActivity", response.toString())
+            // Proof generated and verified successfully
         }
     }
 )
 ```
-
-The returned result `ReclaimVerification.ResultHandler.onResponse` in is a `ReclaimVerification.Response` object. This object contains a response that has proofs, exception, and the sessionId if the verification is successful.
-
-If the verification is cancelled or failed, the handler's `ReclaimVerification.ResultHandler.onException` method is called with a `ReclaimVerification.ReclaimVerificationException` object.
-
-## Example
-
-- See the [Reclaim Compose Example - Android](https://github.com/reclaimprotocol/reclaim-inapp-android-sdk/tree/main/example/README.md) for a complete example of how to use the SDK in an Android application.
-

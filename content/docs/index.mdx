@@ -1,9 +1,45 @@
 ---
 title: Reclaim Protocol Docs
-description: Reclaim SDKs make it simple to bring user activity, reputation, and identity from external websites into your own platform.
+description: Reclaim SDKs make it simple to bring user activity, reputation, and identity from external websites into your app.
 ---
+# Welcome to Reclaim Protocol
+Reclaim Protocol is a cryptographic system that enables users to prove facts about their activity, reputation and identity that is available present on other apps and websites - but not easily ingestible on your own app. Think of it as a cryptographic notary for the internet - proving what's true on platforms that you don't control. Even when the said platform doesn't have APIs.
 
 Reclaim Protocol has the best in class coverage of data sources ([2500+](https://dev.reclaimprotocol.org/explore)) and best coverage of platforms. So no matter what data point you need, no matter on what platform your app is built - you will have a first class integration experience.
+
+## zkProofs
+The artifact that is generated via Reclaim Protocol is a zkProof. This zkProof, or more generally just proof, is an encapsulation of :
+1. Data that has been extracted from a webpage a user logged in into
+2. The webpage the user actually logged in into
+3. A cryptographic proof that both of the above are true
+
+This proof is the centerpiece of Reclaim Protocol, and is what should give you confidence that users are not cheating the system - and proving things about themselves which is simply not true.
+
+# Use Cases
+
+Reclaim Protocol enables various applications, including:
+- **Education Verification** - if you want to verify where and what the student is studying. Useful for marketing campaigns and background verifications.
+- **Employment Verification** - If you need to make sure the user works where they claim to work. Useful for lending and hiring.
+- **Financial Background** - if you need to verify financial background like credit score, accredited investor status etc. Particularly useful in lending and credit.
+- **Shopping History** - if you need to give deals and discounts based on users' loyalty to certain brands
+- **... and many more!**
+
+# Real world example
+Imagine you want to verify if a user is a student at a particular university to give a student discount, how would you do it?
+
+## Traditional way
+- Ask user to upload their transcripts PDF, given that most universities don't have APIs.
+- Verify the transcripts either Manually or using an AI
+- Give them the discount if they are a student
+
+## Issues with the traditional way
+- If you are verifying manually, well ... it will take time and resources to actually verify
+- You are at the mercy of the user to upload authentic PDFs and not morphed ones
+
+## Reclaim Protocol way
+- Ask the user to login into their university student portal
+- Reclaim Protocol will extract the required information that will indicate that the user is a student, after they have logged in
+- Reclaim Protocol will generate a cryptographic proof that the information is accurate and has not been tampered with, solving the PDF morphing problem
 
 <iframe
   className="w-full aspect-video rounded-lg"
@@ -12,22 +48,14 @@ Reclaim Protocol has the best in class coverage of data sources ([2500+](https:/
   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
   allowFullScreen
 />
-### Use Cases
 
-Our protocol enables various applications, including:
-- **Education Verification** - if you want to verify where and what the student is studying. Useful for marketing campaigns and background verifications.
-- **Employment Verification** - If you need to make sure the user works where they claim to work. Useful for lending and hiring.
-- **Financial Background** - if you need to verify financial background like credit score, accredited investor status etc. Particularly useful in lending and credit.
-- **Shopping History** - if you need to give deals and discounts based on users' loyalty to certain brands
-- **... and many more!**
-
-### More information about how Reclaim Protocol works
+# More information about how Reclaim Protocol works
 - [Non-technical Overview | blog.reclaimprotocol.org](https://blog.reclaimprotocol.org/posts/reclaim-explained)
 - [Technical explainer | YouTube](https://www.youtube.com/playlist?list=PLMl4DDeHR104z1zmcKgK7yZk0TL7NF9oo)
 - [Whitepaper | PDF](https://link.reclaimprotocol.org/whitepaper-draft-v2)
 - [Formal Security Analysis | ePrint](https://eprint.iacr.org/2024/733)
 
-### More resources
+# More resources
 - [Blog](https://blog.reclaimprotocol.org) - Many technical, security and business usecase discussions
 - [PBnJ](https://www.youtube.com/playlist?list=PLMl4DDeHR106VOVhQXt79VdBKYPXumeCc) - Customers explaining how they use Reclaim Protocol in their products
 - [Telegram](https://t.me/protocolreclaim) - All developer questions, answered.
