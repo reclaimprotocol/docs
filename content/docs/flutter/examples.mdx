@@ -1,0 +1,557 @@
+---
+title: Examples
+description: Practical examples for common use cases
+---
+
+Explore practical examples for implementing Reclaim Protocol verification in your Flutter app.
+
+## Basic Verification
+
+Simple verification with minimal configuration.
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:reclaim_inapp_sdk/reclaim_inapp_sdk.dart';
+
+class BasicVerificationExample extends StatelessWidget {
+  const BasicVerificationExample({super.key});
+
+  Future<void> startVerification(BuildContext context) async {
+    final messenger = ScaffoldMessenger.of(context);
+
+    try {
+      final reclaim = ReclaimVerification.of(context);
+
+      final result = await reclaim.startVerification(
+        request: ReclaimVerificationRequest(
+          applicationId: appId,
+          providerId: providerId,
+          sessionProvider: () => ReclaimSessionInformation.generateNew(
+            providerId: providerId,
+            applicationId: appId,
+            applicationSecret: appSecret,
+          ),
+        ),
+      );
+
+      // Handle success
+      print('Verification completed with ${result.proofs.length} proofs');
+
+    } catch (e) {
+      messenger.showSnackBar(
+        SnackBar(content: Text('Verification failed: $e')),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Basic Verification')),
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () => startVerification(context),
+          child: const Text('Start Verification'),
+        ),
+      ),
+    );
+  }
+}
+```
+
+---
+
+## Error Handling
+
+Comprehensive error handling for all exception types.
+
+```dart
+class VerificationWithErrorHandling extends StatelessWidget {
+  const VerificationWithErrorHandling({super.key});
+
+  Future<void> startVerification(BuildContext context) async {
+    final messenger = ScaffoldMessenger.of(context);
+
+    try {
+      final reclaim = ReclaimVerification.of(context);
+
+      final result = await reclaim.startVerification(
+        request: ReclaimVerificationRequest(
+          applicationId: appId,
+          providerId: providerId,
+          sessionProvider: () => ReclaimSessionInformation.generateNew(
+            providerId: providerId,
+            applicationId: appId,
+            applicationSecret: appSecret,
+          ),
+        ),
+      );
+
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text('✓ Verification successful'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+    } on ReclaimExpiredSessionException {
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text('Session expired. Please try again.'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+
+    } on ReclaimVerificationDismissedException {
+      // User cancelled - no error message needed
+      print('User cancelled verification');
+
+    } on ReclaimVerificationPlatformNotSupportedException {
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text('Your device is not supported.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+
+    } on InvalidRequestReclaimException catch (e) {
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text('Invalid request: ${e.message}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+
+    } on ReclaimVerificationProviderException catch (e) {
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text('Provider error: ${e.message}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+
+    } catch (e) {
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text('Unexpected error: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Error Handling')),
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () => startVerification(context),
+          child: const Text('Start Verification'),
+        ),
+      ),
+    );
+  }
+}
+```
+
+---
+
+## Auto-Submit Verification
+
+Automatically submit verification without user review.
+
+```dart
+class AutoSubmitVerification extends StatelessWidget {
+  const AutoSubmitVerification({super.key});
+
+  Future<void> startVerification(BuildContext context) async {
+    try {
+      final reclaim = ReclaimVerification.of(context);
+
+      final result = await reclaim.startVerification(
+        request: ReclaimVerificationRequest(
+          applicationId: appId,
+          providerId: providerId,
+          sessionProvider: () => ReclaimSessionInformation.generateNew(
+            providerId: providerId,
+            applicationId: appId,
+            applicationSecret: appSecret,
+          ),
+        ),
+        options: ReclaimVerificationOptions(
+          canAutoSubmit: true,  // Enable auto-submit
+        ),
+      );
+
+      print('Auto-submitted with ${result.proofs.length} proofs');
+
+    } catch (e) {
+      print('Verification failed: $e');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () => startVerification(context),
+      child: const Text('Start Auto-Submit Verification'),
+    );
+  }
+}
+```
+
+---
+
+## Custom Parameters
+
+Provide custom parameters required by certain providers.
+
+```dart
+class CustomParametersExample extends StatefulWidget {
+  const CustomParametersExample({super.key});
+
+  @override
+  State<CustomParametersExample> createState() => _CustomParametersExampleState();
+}
+
+class _CustomParametersExampleState extends State<CustomParametersExample> {
+  final _usernameController = TextEditingController();
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _startVerification() async {
+    if (_usernameController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a username')),
+      );
+      return;
+    }
+
+    try {
+      final reclaim = ReclaimVerification.of(context);
+
+      // Some providers require specific parameters
+      // Check the provider documentation to see what's required
+      final result = await reclaim.startVerification(
+        request: ReclaimVerificationRequest(
+          applicationId: appId,
+          providerId: providerId,
+          sessionProvider: () => ReclaimSessionInformation.generateNew(
+            providerId: providerId,
+            applicationId: appId,
+            applicationSecret: appSecret,
+          ),
+          parameters: {
+            'username': _usernameController.text,
+          },
+        ),
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Verification complete!')),
+      );
+
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Custom Parameters')),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'This provider requires a username parameter',
+              style: TextStyle(color: Colors.grey[600]),
+            ),
+            SizedBox(height: 16),
+            TextField(
+              controller: _usernameController,
+              decoration: InputDecoration(
+                labelText: 'Username',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _startVerification,
+              child: const Text('Verify with Username'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+```
+
+---
+
+## Context String Usage
+
+Add context to bind verification to specific actions.
+
+```dart
+class ContextStringExample extends StatelessWidget {
+  final String userId;
+  final String orderId;
+
+  const ContextStringExample({
+    super.key,
+    required this.userId,
+    required this.orderId,
+  });
+
+  Future<void> startVerification(BuildContext context) async {
+    try {
+      final reclaim = ReclaimVerification.of(context);
+
+      // Create context with action details
+      final contextData = {
+        'user_id': userId,
+        'order_id': orderId,
+        'action': 'order_verification',
+        'timestamp': DateTime.now().toIso8601String(),
+      };
+
+      final result = await reclaim.startVerification(
+        request: ReclaimVerificationRequest(
+          applicationId: appId,
+          providerId: providerId,
+          sessionProvider: () => ReclaimSessionInformation.generateNew(
+            providerId: providerId,
+            applicationId: appId,
+            applicationSecret: appSecret,
+          ),
+          contextString: json.encode(contextData),
+        ),
+      );
+
+      // The context is now embedded in the proof
+      print('Verification complete with context: $contextData');
+
+    } catch (e) {
+      print('Verification failed: $e');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () => startVerification(context),
+      child: const Text('Verify Order'),
+    );
+  }
+}
+```
+
+---
+
+## Processing Proofs
+
+Extract and use data from verification proofs.
+
+```dart
+class ProofProcessingExample extends StatelessWidget {
+  const ProofProcessingExample({super.key});
+
+  void _processProofs(ReclaimVerificationResult result) {
+    print('Provider: ${result.provider.name}');
+    print('Version: ${result.exactProviderVersion}');
+    print('Total proofs: ${result.proofs.length}');
+
+    for (var i = 0; i < result.proofs.length; i++) {
+      final proof = result.proofs[i];
+
+      print('\n--- Proof ${i + 1} ---');
+      print('Identifier: ${proof.identifier}');
+      print('Owner: ${proof.claimData.owner}');
+      print('Timestamp: ${DateTime.fromMillisecondsSinceEpoch(proof.claimData.timestampS * 1000)}');
+      print('Context: ${proof.claimData.context}');
+      print('Signatures: ${proof.signatures.length}');
+      print('Witnesses: ${proof.witnesses.length}');
+
+      // Extract public data
+      if (proof.publicData != null) {
+        print('Public Data: ${json.encode(proof.publicData)}');
+      }
+
+      // Witness information
+      for (var witness in proof.witnesses) {
+        print('Witness ${witness.id}: ${witness.url}');
+      }
+    }
+  }
+
+  Future<void> startVerification(BuildContext context) async {
+    try {
+      final reclaim = ReclaimVerification.of(context);
+
+      final result = await reclaim.startVerification(
+        request: ReclaimVerificationRequest(
+          applicationId: appId,
+          providerId: providerId,
+          sessionProvider: () => ReclaimSessionInformation.generateNew(
+            providerId: providerId,
+            applicationId: appId,
+            applicationSecret: appSecret,
+          ),
+        ),
+      );
+
+      // Process the proofs
+      _processProofs(result);
+
+      // Send to backend for validation
+      await _sendProofsToBackend(result.proofs);
+
+    } catch (e) {
+      print('Verification failed: $e');
+    }
+  }
+
+  Future<void> _sendProofsToBackend(List<CreateClaimOutput> proofs) async {
+    // Example: Send proofs to your backend
+    final proofsJson = proofs.map((p) => p.toJson()).toList();
+
+    // Make API call to your backend
+    // await http.post(
+    //   Uri.parse('https://your-api.com/verify-proofs'),
+    //   body: json.encode({'proofs': proofsJson}),
+    // );
+
+    print('Proofs sent to backend for validation');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () => startVerification(context),
+      child: const Text('Verify and Process Proofs'),
+    );
+  }
+}
+```
+
+---
+
+## Multi-Provider Verification
+
+Verify multiple providers sequentially.
+
+```dart
+class MultiProviderExample extends StatefulWidget {
+  const MultiProviderExample({super.key});
+
+  @override
+  State<MultiProviderExample> createState() => _MultiProviderExampleState();
+}
+
+class _MultiProviderExampleState extends State<MultiProviderExample> {
+  final List<String> _providerIds = [
+    'provider-id-1',
+    'provider-id-2',
+    'provider-id-3',
+  ];
+
+  final Map<String, ReclaimVerificationResult> _results = {};
+  int _currentProviderIndex = 0;
+  bool _isVerifying = false;
+
+  Future<void> _startMultiVerification() async {
+    setState(() {
+      _isVerifying = true;
+      _currentProviderIndex = 0;
+      _results.clear();
+    });
+
+    final reclaim = ReclaimVerification.of(context);
+
+    for (int i = 0; i < _providerIds.length; i++) {
+      setState(() => _currentProviderIndex = i);
+
+      try {
+        final result = await reclaim.startVerification(
+          request: ReclaimVerificationRequest(
+            applicationId: appId,
+            providerId: _providerIds[i],
+            sessionProvider: () => ReclaimSessionInformation.generateNew(
+              providerId: _providerIds[i],
+              applicationId: appId,
+              applicationSecret: appSecret,
+            ),
+          ),
+        );
+
+        _results[_providerIds[i]] = result;
+
+      } on ReclaimVerificationDismissedException {
+        // User cancelled
+        break;
+      } catch (e) {
+        print('Provider ${_providerIds[i]} failed: $e');
+        // Continue with next provider
+      }
+    }
+
+    setState(() => _isVerifying = false);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Completed ${_results.length}/${_providerIds.length} verifications'),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Multi-Provider Verification')),
+      body: Center(
+        child: _isVerifying
+            ? Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('Verifying provider ${_currentProviderIndex + 1}/${_providerIds.length}'),
+                ],
+              )
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    onPressed: _startMultiVerification,
+                    child: const Text('Start Multi-Verification'),
+                  ),
+                  if (_results.isNotEmpty) ...[
+                    SizedBox(height: 24),
+                    Text('Completed: ${_results.length}/${_providerIds.length}'),
+                  ],
+                ],
+              ),
+      ),
+    );
+  }
+}
+```
+
+---
+
+## Next Steps
+
+- Review the [Usage Guide](/docs/flutter/usage) for basic implementation
+- Check the [API Reference](/docs/flutter/api-reference) for detailed documentation
+- Explore [Advanced Features](/docs/flutter/advanced-features) for customization options

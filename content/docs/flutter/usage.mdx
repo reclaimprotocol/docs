@@ -1,16 +1,23 @@
 ---
 title: Usage
-description: Flutter SDK for Reclaim Protocol
+description: Learn how to use the Reclaim Flutter SDK
 ---
-1. Import the SDK in your Dart file:
+
+This guide will walk you through implementing Reclaim Protocol verification in your Flutter application.
+
+## Quick Start
+
+### 1. Import the SDK
+
+Import the Reclaim SDK in your Dart file:
 
 ```dart
-import 'package:reclaim_inapp_flutter_sdk/reclaim_inapp_flutter_sdk.dart';
+import 'package:reclaim_inapp_sdk/reclaim_inapp_sdk.dart';
 ```
 
-2. Initialize the SDK with your app credentials:
+### 2. Set Up Credentials
 
-Following is an exmaple.
+Use environment variables for your credentials:
 
 ```dart
 const String appId = String.fromEnvironment('APP_ID');
@@ -18,79 +25,353 @@ const String appSecret = String.fromEnvironment('APP_SECRET');
 const String providerId = String.fromEnvironment('PROVIDER_ID');
 ```
 
-### Starting Verification
+### 3. Initialize ReclaimVerification
+
+Create a `ReclaimVerification` instance from your BuildContext:
 
 ```dart
-final sdk = ReclaimInAppSdk.of(context);
-final proofs = await sdk.startVerification(
-  ReclaimVerificationRequest(
-    appId: appId,
+final reclaim = ReclaimVerification.of(context);
+```
+
+### 4. Start Verification
+
+Call `startVerification()` to begin the verification flow:
+
+```dart
+final result = await reclaim.startVerification(
+  request: ReclaimVerificationRequest(
+    applicationId: appId,
     providerId: providerId,
-    secret: appSecret,
-    sessionInformation: ReclaimSessionInformation.empty(),
-    contextString: '',
-    parameters: {},
-    claimCreationType: ClaimCreationType.standalone,
+    sessionProvider: () => ReclaimSessionInformation.generateNew(
+      providerId: providerId,
+      applicationId: appId,
+      applicationSecret: appSecret,
+    ),
+  ),
+);
+
+// Access the proofs
+final proofs = result.proofs;
+print('Received ${proofs.length} proofs');
+```
+
+## Complete Example
+
+Here's a complete example of a verification flow:
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:reclaim_inapp_sdk/reclaim_inapp_sdk.dart';
+
+class VerificationScreen extends StatelessWidget {
+  const VerificationScreen({super.key});
+
+  Future<void> startVerification(BuildContext context) async {
+    final messenger = ScaffoldMessenger.of(context);
+
+    try {
+      final reclaim = ReclaimVerification.of(context);
+
+      final result = await reclaim.startVerification(
+        request: ReclaimVerificationRequest(
+          applicationId: appId,
+          providerId: providerId,
+          sessionProvider: () => ReclaimSessionInformation.generateNew(
+            providerId: providerId,
+            applicationId: appId,
+            applicationSecret: appSecret,
+          ),
+        ),
+      );
+
+      // Success - handle the proofs
+      messenger.showSnackBar(
+        SnackBar(content: Text('Verification successful! Got ${result.proofs.length} proofs')),
+      );
+
+    } on ReclaimExpiredSessionException catch (e) {
+      messenger.showSnackBar(
+        SnackBar(content: Text('Session expired: ${e.message}')),
+      );
+    } on ReclaimVerificationDismissedException {
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Verification cancelled by user')),
+      );
+    } catch (e) {
+      messenger.showSnackBar(
+        SnackBar(content: Text('Verification failed: $e')),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Reclaim Verification')),
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () => startVerification(context),
+          child: const Text('Start Verification'),
+        ),
+      ),
+    );
+  }
+}
+```
+
+## Understanding the Response
+
+The `startVerification()` method returns a `ReclaimVerificationResult` containing:
+
+```dart
+class ReclaimVerificationResult {
+  final HttpProvider provider;           // Provider information
+  final String exactProviderVersion;     // Provider version used
+  final List<CreateClaimOutput> proofs;  // Generated proofs
+}
+```
+
+### Proof Structure
+
+Each proof (`CreateClaimOutput`) contains:
+
+```dart
+class CreateClaimOutput {
+  final String identifier;              // Unique identifier
+  final ProviderClaimData claimData;    // Claim data
+  final List<String> signatures;        // Cryptographic signatures
+  final List<WitnessData> witnesses;    // Witness information
+  final Object? publicData;             // Public data from verification
+}
+```
+
+### Accessing Proof Data
+
+```dart
+final result = await reclaim.startVerification(...);
+
+for (final proof in result.proofs) {
+  print('Proof ID: ${proof.identifier}');
+  print('Timestamp: ${proof.claimData.timestampS}');
+  print('Context: ${proof.claimData.context}');
+  print('Public Data: ${proof.publicData}');
+  print('Signatures: ${proof.signatures.length}');
+}
+```
+
+## Configuration Options
+
+### ReclaimVerificationRequest
+
+Configure the verification request:
+
+```dart
+ReclaimVerificationRequest(
+  applicationId: 'your-app-id',
+  providerId: 'your-provider-id',
+  sessionProvider: () => ReclaimSessionInformation.generateNew(...),
+  contextString: 'optional-context',      // Additional context
+  parameters: {'key': 'value'},           // Custom parameters
+)
+```
+
+**Parameters:**
+- `applicationId` (required): Your Reclaim application ID
+- `providerId` (required): The provider ID to verify against
+- `sessionProvider` (required): Function that returns session information
+- `contextString` (optional): Additional context for the verification
+- `parameters` (optional): Map of key-value pairs to provide custom data to the provider
+
+### ReclaimVerificationOptions
+
+Customize the verification behavior:
+
+```dart
+await reclaim.startVerification(
+  request: verificationRequest,
+  options: ReclaimVerificationOptions(
+    canAutoSubmit: true,              // Auto-submit when data is ready
+    isCloseButtonVisible: true,       // Show/hide close button
+    canClearWebStorage: true,         // Clear webview storage before verification
+    locale: 'en_US',                  // Force specific locale
   ),
 );
 ```
 
-### Configuration Options
+**Available Options:**
+- `canAutoSubmit`: Whether to automatically submit the verification when ready (default: `false`)
+- `isCloseButtonVisible`: Show or hide the close button in the verification UI (default: `true`)
+- `canClearWebStorage`: Clear webview storage before starting (default: `true`)
+- `attestorZkOperator`: Custom ZK operator for proof generation
+- `locale`: Force a specific locale (e.g., `'en_US'`, `'es_ES'`)
 
-The `ReclaimVerificationRequest` supports the following options:
+## Error Handling
 
-- `appId`: Your Reclaim application ID
-- `providerId`: The ID of the provider you want to verify against
-- `secret`: Your application secret (optional if using session information)
-- `sessionInformation`: Session information for authentication
-- `contextString`: Additional context for the verification
-- `parameters`: Custom parameters for the verification
-- `claimCreationType`: Type of claim creation (standalone or meChain)
-- `autoSubmit`: Whether to auto-submit the verification
-- `hideCloseButton`: Whether to hide the close button
-- `webhookUrl`: URL for webhook notifications
-- `verificationOptions`: Additional verification options
+The SDK throws specific exceptions that you should handle:
 
-### Error Handling
-
-The SDK throws specific exceptions that you can handle:
+### Common Exceptions
 
 ```dart
 try {
-  final proofs = await sdk.startVerification(request);
+  final result = await reclaim.startVerification(...);
 } on ReclaimExpiredSessionException {
-  // Handle expired session
-} on ReclaimVerificationManualReviewException {
-  // Handle manual review case
-} catch (error) {
-  // Handle other errors if required
+  // Session has expired - create a new session
+  print('Session expired, please try again');
+
+} on ReclaimVerificationDismissedException {
+  // User closed the verification screen
+  print('User cancelled verification');
+
+} on ReclaimVerificationCancelledException {
+  // Verification was cancelled (e.g., new verification started)
+  print('Verification cancelled');
+
+} on ReclaimVerificationPlatformNotSupportedException {
+  // Platform not supported (requires 64-bit runtime)
+  print('Platform not supported');
+
+} on InvalidRequestReclaimException catch (e) {
+  // Invalid request parameters
+  print('Invalid request: ${e.message}');
+
+} on ReclaimVerificationProviderException catch (e) {
+  // Provider-related error
+  print('Provider error: ${e.message}');
+
+} catch (e) {
+  // Other errors
+  print('Unexpected error: $e');
 }
 ```
 
-### Pre-warming
+### Exception Hierarchy
 
-For better performance, you can pre-warm the SDK:
+All Reclaim exceptions extend `ReclaimException`:
+
+- `ReclaimException` (base class)
+  - `ReclaimVerificationCancelledException`
+    - `InvalidRequestReclaimException`
+    - `ReclaimVerificationPlatformNotSupportedException`
+  - `ReclaimVerificationDismissedException`
+  - `ReclaimVerificationSkippedException`
+  - `ReclaimSessionException`
+    - `ReclaimExpiredSessionException`
+    - `ReclaimInitSessionException`
+  - `ReclaimVerificationProviderException`
+    - `ReclaimVerificationProviderNotFoundException`
+    - `ReclaimVerificationProviderScriptException`
+    - `ReclaimVerificationNoActivityDetectedException`
+    - `ReclaimVerificationRequirementException`
+    - `ReclaimVerificationProviderLoadException`
+
+## Session Management
+
+### Generating a New Session
+
+The recommended way to create a session:
 
 ```dart
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  ReclaimInAppSdk.preWarm();
-  runApp(MyApp());
+sessionProvider: () => ReclaimSessionInformation.generateNew(
+  providerId: providerId,
+  applicationId: appId,
+  applicationSecret: appSecret,
+)
+```
+
+### Reusing Sessions
+
+You can also provide existing session information:
+
+```dart
+final sessionInfo = ReclaimSessionInformation(
+  sessionId: 'existing-session-id',
+  signature: 'session-signature',
+  timestamp: 'session-timestamp',
+  version: ProviderVersionExact('1.0.0', versionExpression: '^1.0.0'),
+);
+
+sessionProvider: () => sessionInfo
+```
+
+## Custom Parameters
+
+Some providers require additional data to complete verification. You can provide these custom parameters:
+
+```dart
+ReclaimVerificationRequest(
+  applicationId: appId,
+  providerId: providerId,
+  sessionProvider: ...,
+  parameters: {
+    'username': 'john_doe',
+    'account_type': 'premium',
+  },
+)
+```
+
+These parameters are requested by the specific provider you're verifying against. Check the provider's documentation to see what parameters it requires.
+
+## Canceling Pending Verifications
+
+If you need to cancel any pending verifications:
+
+```dart
+final reclaim = ReclaimVerification.of(context);
+final wasCancelled = await reclaim.cancelPendingVerifications();
+
+if (wasCancelled) {
+  print('Previous verification was cancelled');
 }
 ```
-## Environment Variables
 
-The SDK requires the following environment variables:
+This is automatically handled when starting a new verification.
 
-- `APP_ID`: Your Reclaim application ID
-- `APP_SECRET`: Your application secret
-- `PROVIDER_ID`: The ID of the provider to verify against
+## Best Practices
 
-You can provide these values using:
+### 1. Use Environment Variables
 
-- Dart Define Env file: `--dart-define-from-file=./.env`
-- Hardcoded values (not recommended for production)
+Never hardcode credentials in production:
 
-## Example
+```dart
+// ✅ Good
+const appId = String.fromEnvironment('APP_ID');
 
-Check out the [example](example/lib/main.dart) for a complete implementation.
+// ❌ Bad
+const appId = 'my-app-id-123';
+```
+
+### 2. Handle All Exception Types
+
+Catch specific exceptions to provide better UX:
+
+```dart
+try {
+  await reclaim.startVerification(...);
+} on ReclaimExpiredSessionException {
+  // Show "Session expired" message
+} on ReclaimVerificationDismissedException {
+  // User cancelled - no error message needed
+} catch (e) {
+  // Show generic error
+}
+```
+
+### 3. Show Loading States
+
+Verification can take time - show progress to users:
+
+```dart
+setState(() => isLoading = true);
+try {
+  final result = await reclaim.startVerification(...);
+  // Handle result
+} finally {
+  setState(() => isLoading = false);
+}
+```
+
+## Next Steps
+
+- Learn about [Advanced Features](/docs/flutter/advanced-features) like theming and customization
+- Explore the [API Reference](/docs/flutter/api-reference) for detailed class documentation
+- Check out [Examples](/docs/flutter/examples) for more use cases

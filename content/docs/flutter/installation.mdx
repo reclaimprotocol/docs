@@ -1,54 +1,114 @@
 ---
 title: Installation
-description: Flutter SDK for Reclaim Protocol
+description: Install and set up the Reclaim Flutter SDK
 ---
 
-<Callout type="info">
-The Reclaim Protocol SDK for Flutter (android & iOS) applications is ready and available upon request. Contact our team to discuss implementation details.
-</Callout>
-
-A Flutter SDK for integrating Reclaim's verification system directly into your Flutter applications. This SDK allows you to verify user credentials and generate proofs in-app.
+The Reclaim Flutter SDK provides a seamless way to integrate Reclaim Protocol's verification system directly into your Flutter applications for both Android and iOS platforms.
 
 ## Features
 
-- In-app verification flow
-- Customizable verification options
-- ZK Proof generation
-- Compatible when using Flutter "Add to App modules" in your native applications
+- In-app verification flow with native UI
+- Zero-knowledge proof generation
+- Customizable themes and localization
+- AI-assisted verification flows
+- Compatible with "Add to App" Flutter modules
+- Cross-platform support (Android 5.0+ and iOS 13.0+)
 
 ## Prerequisites
 
-- An Android application source code (Support for Android 5.0 or later).
-- An Android device or emulator running Android 5.0 or later.
-- A Reclaim account where you've created an app and have the app id, app secret.
-- A provider id that you've added to your app in Reclaim Devtools.
+Before you begin, ensure you have:
+
+1. **Flutter Environment**: Flutter SDK 3.35.0 or later with Dart 3.9.0 or later
+2. **Reclaim Developer Account**: Login to [Reclaim Developer Tool](https://dev.reclaimprotocol.org/)
+3. **Application Credentials**:
+   - Create an application at [Reclaim Developer Tool](https://dev.reclaimprotocol.org/new-application)
+   - Obtain your Application ID and Application Secret
+4. **Provider ID**: Choose a data provider from [Provider Explorer](https://dev.reclaimprotocol.org/explore)
 
 ## Get an API Key
-Setup your project using the [Get API Key guide](/api-key).
+
+Set up your project credentials using the [Get API Key guide](/api-key).
 
 ## Installation
+
+Add the Reclaim SDK to your Flutter project:
+
+### Using Flutter CLI
+
+```bash
+flutter pub add reclaim_inapp_sdk
+```
+
+### Manual Installation
 
 Add the following to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  reclaim_inapp_flutter_sdk: ^latest_version
+  reclaim_inapp_sdk: ^latest_version
 ```
 
+Then run:
 
-## Usage
-
-### Basic Setup
-
-1. Import the SDK in your Dart file:
-
-```dart
-import 'package:reclaim_inapp_flutter_sdk/reclaim_inapp_flutter_sdk.dart';
+```bash
+flutter pub get
 ```
 
-2. Initialize the SDK with your app credentials:
+## Platform-Specific Configuration
 
-Following is an exmaple.
+### Android Configuration
+
+#### Minimum Requirements
+
+Update your `android/app/build.gradle`:
+
+```gradle
+android {
+    defaultConfig {
+        minSdkVersion 21  // Minimum Android 5.0
+        targetSdkVersion 34
+    }
+}
+```
+
+#### Cronet for Devices Without Play Services
+
+If you need to support Android devices without Google Play Services, add the embedded Cronet library:
+
+```gradle
+dependencies {
+    // Use embedded cronet for devices without play services
+    implementation("org.chromium.net:cronet-embedded:119.6045.31")
+}
+```
+
+### iOS Configuration
+
+Update your `ios/Podfile`:
+
+```ruby
+platform :ios, '13.0'  # Minimum iOS 13.0
+```
+
+## Environment Variables
+
+For security best practices, store your credentials using environment variables:
+
+Create a `.env` file in your project root:
+
+```env
+APP_ID=your_application_id_here
+APP_SECRET=your_application_secret_here
+PROVIDER_ID=your_provider_id_here
+```
+
+Run your app with the environment file:
+
+```bash
+flutter run --dart-define-from-file=./.env
+```
+
+Access the values in your Dart code:
 
 ```dart
 const String appId = String.fromEnvironment('APP_ID');
@@ -56,85 +116,12 @@ const String appSecret = String.fromEnvironment('APP_SECRET');
 const String providerId = String.fromEnvironment('PROVIDER_ID');
 ```
 
-### Starting Verification
+## Next Steps
 
-```dart
-final sdk = ReclaimInAppSdk.of(context);
-final proofs = await sdk.startVerification(
-  ReclaimVerificationRequest(
-    appId: appId,
-    providerId: providerId,
-    secret: appSecret,
-    sessionInformation: ReclaimSessionInformation.empty(),
-    contextString: '',
-    parameters: {},
-    claimCreationType: ClaimCreationType.standalone,
-  ),
-);
-```
+After installation, continue to the [Usage](/docs/flutter/usage) guide to learn how to implement verification in your app.
 
-### Configuration Options
 
-The `ReclaimVerificationRequest` supports the following options:
-
-- `appId`: Your Reclaim application ID
-- `providerId`: The ID of the provider you want to verify against
-- `secret`: Your application secret (optional if using session information)
-- `sessionInformation`: Session information for authentication
-- `contextString`: Additional context for the verification
-- `parameters`: Custom parameters for the verification
-- `claimCreationType`: Type of claim creation (standalone or meChain)
-- `autoSubmit`: Whether to auto-submit the verification
-- `hideCloseButton`: Whether to hide the close button
-- `webhookUrl`: URL for webhook notifications
-- `verificationOptions`: Additional verification options
-
-### Error Handling
-
-The SDK throws specific exceptions that you can handle:
-
-```dart
-try {
-  final proofs = await sdk.startVerification(request);
-} on ReclaimExpiredSessionException {
-  // Handle expired session
-} on ReclaimVerificationManualReviewException {
-  // Handle manual review case
-} catch (error) {
-  // Handle other errors if required
-}
-```
-
-### Pre-warming
-
-For better performance, you can pre-warm the SDK:
-
-```dart
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  ReclaimInAppSdk.preWarm();
-  runApp(MyApp());
-}
-```
-
-## Example
-
-Check out the [example](example/lib/main.dart) for a complete implementation.
-
-## Environment Variables
-
-The SDK requires the following environment variables:
-
-- `APP_ID`: Your Reclaim application ID
-- `APP_SECRET`: Your application secret
-- `PROVIDER_ID`: The ID of the provider to verify against
-
-You can provide these values using:
-
-- Dart Define Env file: `--dart-define-from-file=./.env`
-- Hardcoded values (not recommended for production)
-
-### Stay Updated
+## Stay Updated
 
 - Join our [Telegram community](https://t.me/protocolreclaim)
 - Follow [@reclaimprotocol](https://twitter.com/reclaimprotocol) on Twitter
