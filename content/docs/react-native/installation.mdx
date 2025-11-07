@@ -7,17 +7,13 @@ import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 import { BadgeGroup } from '@/app/components/badge';
 import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
 
-<BadgeGroup badges={[
-    { href: 'https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk', imgSrc: 'https://img.shields.io/github/v/tag/reclaimprotocol/reclaim-inapp-reactnative-sdk.svg', alt: 'Reclaim React Native SDK' },
-    { href: 'https://docs.reclaimprotocol.org/inapp-sdks/react-native', imgSrc: 'https://img.shields.io/badge/read_the-docs-blue.svg', alt: 'Documentation' },
-    { href: 'https://www.npmjs.com/package/@reclaimprotocol/inapp-rn-sdk', imgSrc: 'https://img.shields.io/npm/v/%40reclaimprotocol%2Finapp-rn-sdk.svg', alt: 'NPM Version' },
-]} />
 
 ## Get an API Key
 Setup your project using the [Get API Key guide](/api-key).
 
 
 # Using Expo
+
 ## Installation
 
 ```package-install
@@ -26,63 +22,60 @@ npx expo install @reclaimprotocol/inapp-rn-sdk
 
 ## Setup
 
-Expo users can skip the native configuration changes by adding the Reclaim InApp Config Plugin. To do so merge the following code to the plugins section of your `app.json`, `app.config.js`, or `app.config.ts` file:
+Add the Reclaim InApp Config Plugin to your `app.json`, `app.config.js`, or `app.config.ts`:
 
 ```diff
 {
-  // .. other plugin options (removed for brevity)
   "plugins": [
-    "expo-router",
-    // Add the following in the plugins section:
 +   "@reclaimprotocol/inapp-rn-sdk",
-    [
-      "expo-splash-screen",
-      {
-        "image": "./assets/images/splash-icon.png",
-        "imageWidth": 200,
-        "resizeMode": "contain",
-        "backgroundColor": "#ffffff"
-      }
-    ]
-    // ... other plugins (removed for brevity)
-  ],
-  // .. other options (removed for brevity)
+    // ... other plugins
+  ]
 }
 ```
 
-Note: This module contains custom native code which is NOT supported by Expo Go
+<Callout type="warn">
+This module contains custom native code and is **NOT supported by Expo Go**. You'll need to create a development build.
+</Callout>
 
-If you're using Expo without EAS, run the following commands:
+## Building
 
-```
-# For iOS
+<Tabs items={['Without EAS', 'With EAS']}>
+<Tab value="Without EAS">
+```bash
+# iOS
 npx expo prebuild
 npx expo run:ios
 
-# For Android
+# Android
 npx expo prebuild
 npx expo run:android
 ```
+</Tab>
 
-If you're using Expo with EAS, create a new build:
-
-```
-# For online builds
+<Tab value="With EAS">
+```bash
+# Online builds
 npx eas-cli build --profile development
 
-# For local builds
+# Local builds
 npx eas-cli build --profile development --local
 ```
-# Compatibility Notice: expo-dev-client on iOS
+</Tab>
+</Tabs>
 
-Please be aware of a known incompatibility between ReclaimInAppSdk and the expo-dev-client package on the iOS platform.
+## iOS Performance Fix
 
-When both packages are present in your iOS application, critical network requests from ReclaimInAppSdk may fail with a request timeout error (i.e Http failed. Checking if we can retry..\nNSErrorClientException: The request timed out.).
+When running on iOS physical devices, add this environment variable to prevent performance issues:
 
-Our team is investigating this issue to find a solution. In the meantime, we recommend temporarily removing expo-dev-client from your project when you need to test or use ReclaimInAppSdk functionality on iOS.
+1. Open your project in Xcode
+2. Edit Scheme → Run → Arguments tab
+3. Add environment variable:
+   - **Key**: `GODEBUG`
+   - **Value**: `asyncpreemptoff=1`
 
+---
 
-# Without using Expo
+# Without Using Expo
 
 ## Installation
 
@@ -90,32 +83,33 @@ Our team is investigating this issue to find a solution. In the meantime, we rec
 npm install @reclaimprotocol/inapp-rn-sdk
 ```
 
-#### Alternative: Install from git source
+Alternatively, install directly from GitHub:
 
-```package-install
+```bash
 npm install git+https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk.git
 ```
 
-## Setup
+## Android Setup
 
-### Android Setup
+### 1. Add Activity to AndroidManifest.xml
 
-Add the following to your `android/app/src/main/AndroidManifest.xml` file under the `<application>` tag:
+Add this inside the `<application>` tag in `android/app/src/main/AndroidManifest.xml`:
 
 ```xml
-      <activity
-        android:name="org.reclaimprotocol.inapp_sdk.ReclaimActivity"
-        android:theme="@style/Theme.ReclaimInAppSdk.LaunchTheme"
-        android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
-        android:hardwareAccelerated="true"
-        android:windowSoftInputMode="adjustResize"
-        />
+<activity
+  android:name="org.reclaimprotocol.inapp_sdk.ReclaimActivity"
+  android:theme="@style/Theme.ReclaimInAppSdk.LaunchTheme"
+  android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+  android:hardwareAccelerated="true"
+  android:windowSoftInputMode="adjustResize"
+/>
 ```
 
-add the following to the end of settings.gradle:
+### 2. Add Repositories
 
-<Tabs items={['Groovy', 'Kotlin']}>
-```groovy tabs="Groovy"
+Add these repositories to your `android/settings.gradle`:
+
+```groovy
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
     String flutterStorageUrl = System.env.FLUTTER_STORAGE_BASE_URL ?: "https://storage.googleapis.com"
@@ -133,171 +127,64 @@ dependencyResolutionManagement {
 }
 ```
 
-```kotlin tabs="Kotlin"
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
-    val flutterStorageUrl = System.env.FLUTTER_STORAGE_BASE_URL ?: "https://storage.googleapis.com"
-    val reclaimStorageUrl = System.env.RECLAIM_STORAGE_BASE_URL ?: "https://reclaim-inapp-sdk.s3.ap-south-1.amazonaws.com/android/repo"
-    repositories {
-        google()
-        mavenCentral()
-        maven("$reclaimStorageUrl")
-        maven("$flutterStorageUrl/download.flutter.io")
-    }
-}
-```
+<Callout>
+If the above doesn't work, try adding the repositories to your root `build.gradle` or app-level `build.gradle` in the `allprojects` section.
+</Callout>
 
-</Tabs>
+## iOS Setup
 
-(Ignore if already added in `settings.gradle` from above)
-or alternatively add the following repositories to the relevant repositories block:
+### 1. Set Minimum iOS Version
 
-
-<Tabs items={['Groovy', 'Kotlin']}>
-```groovy tabs="Groovy"
-String flutterStorageUrl = System.env.FLUTTER_STORAGE_BASE_URL ?: "https://storage.googleapis.com"
-String reclaimStorageUrl = System.env.RECLAIM_STORAGE_BASE_URL ?: "https://reclaim-inapp-sdk.s3.ap-south-1.amazonaws.com/android/repo"
-// ...
-maven {
-    url "$reclaimStorageUrl"
-}
-maven {
-    url "$flutterStorageUrl/download.flutter.io"
-}
-```
-
-```kotlin tabs="Kotlin"
-val flutterStorageUrl = System.env.FLUTTER_STORAGE_BASE_URL ?: "https://storage.googleapis.com"
-val reclaimStorageUrl = System.env.RECLAIM_STORAGE_BASE_URL ?: "https://reclaim-inapp-sdk.s3.ap-south-1.amazonaws.com/android/repo"
-// ...
-maven("$reclaimStorageUrl")
-maven("$flutterStorageUrl/download.flutter.io")
-```
-
-</Tabs>
-
-### iOS Setup
-
-1. Make sure to have a platform declaration for your project in your `Podfile` with version 13.0 or higher.
-
-```ruby
-platform :ios, '13.0' # or platform :ios, min_ios_version_supported
-```
-
-Ignore if you already have this declaration in your `Podfile`.
-
-2. Add the following to your `Podfile` to override SDK dependency:
-
-- This step is only required when facing issues with the resolved pod dependency.
-- You can override the version of dependency when you wish to use a specific version of the SDK.
-- You can add a declaration in your `Podfile` to install the SDK from cocoapods, or from a specific git tag, head, commit, or branch.
-
-<Tabs items={['Cocoapods (Recommended)', 'Git Tag', 'Git Head', 'Git Commit', 'Git Branch']}>
-```ruby tabs="Cocoapods (Recommended)"
-# Cocoapods is the recommended way to install the SDK.
-pod 'ReclaimInAppSdk', '~> 0.6.0'
-```
-
-```ruby tabs="Git Tag"
-pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :tag => '0.6.0'
-```
-
-```ruby tabs="Git Head"
-pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git'
-```
-
-```ruby tabs="Git Commit"
-pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :commit => 'eeb5a5484a5927217065e5c988fab8201cb2db2e'
-```
-
-```ruby tabs="Git Branch"
-pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :branch => 'main'
-```
-
-</Tabs>
-
-- After adding the dependency, your podfile may look like this:
+Ensure your `ios/Podfile` has iOS 13.0 or higher:
 
 ```ruby
 platform :ios, '13.0'
-
-# ... some podfile content (removed for brevity)
-
-target 'InappRnSdkExample' do
-  config = use_native_modules!
-
-  use_react_native!(
-    :path => config[:reactNativePath],
-    :app_path => "#{Pod::Config.instance.installation_root}/.."
-  )
-
-  # This is the line that you may need to add in your podfile.
-  pod 'ReclaimInAppSdk', '~> 0.6.0'
-
-  pre_install do |installer|
-    system("cd ../../ && npx bob build --target codegen")
-  end
-
-  # ... rest of the podfile. (removed for brevity)
 ```
 
-3. Run `pod install` inside the `ios/` directory of your project.
+### 2. Install Pods
 
-```sh
+```bash
 cd ios/
 pod install
 ```
 
-#### Fixing performance issues on IOS physical devices
+### 3. Fix Performance on Physical Devices
 
-Your app performance will be severely impacted when you run debug executable on a physical device. Fixing this requires a simple change in your Xcode project xcscheme.
+Add this environment variable in your Xcode scheme to prevent performance issues on physical devices:
+
+1. Open `*.xcworkspace` in Xcode
+2. Edit Scheme → Run → Arguments
+3. Add environment variable:
+   - **Key**: `GODEBUG`
+   - **Value**: `asyncpreemptoff=1`
+
+## Advanced iOS Setup
 
 <Accordions>
-<Accordion title="Method 1: Update Environment Variables for XCScheme (Recommended)">
+<Accordion title="Override Pod Dependency Version (Optional)">
 
-1. Open your project in Xcode.
-2. Click on the project target.
-3. Click on the **Scheme** dropdown.
+If you need to use a specific version of the iOS SDK, you can override it in your `Podfile`:
 
-<img src="https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk/raw/53a19f88c8d90df485a60dc20190f740cd9fd108/Screenshots/Install/10.png" alt="Edit current xcscheme in Xcode" width="500" />
+**From CocoaPods (Recommended):**
+```ruby
+pod 'ReclaimInAppSdk', '~> 0.18.0'
+```
 
-4. Click on the **Edit Scheme** button.
-5. Click on the **Run** tab.
-6. Click on the **Arguments** tab and check the **Environment Variables** section.
+**From Git Tag:**
+```ruby
+pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :tag => '0.18.0'
+```
 
-<img src="https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk/raw/53a19f88c8d90df485a60dc20190f740cd9fd108/Screenshots/Install/12.png" alt="Enable Debug executable in Xcode" width="500" />
+**From Git HEAD:**
+```ruby
+pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git'
+```
 
-7. Add the following environment variable:
-    - Key: `GODEBUG`
-    - Value: `asyncpreemptoff=1`
-8. Click on the **Close** button in the dialog and build the project.
-9. Run the app on a physical device.
-
-</Accordion>
-<Accordion title="Method 2: Disable 'Debug executable'">
-
-This method is **not recommended** but could be useful if you don't want to add environment variables to the xcscheme.
-
-1. Open your project in Xcode.
-2. Click on the project target.
-3. Click on the **Scheme** dropdown.
-
-<img src="https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk/raw/53a19f88c8d90df485a60dc20190f740cd9fd108/Screenshots/Install/10.png" alt="Edit current xcscheme in Xcode" width="500" />
-
-4. Click on the **Edit Scheme** button.
-5. Click on the **Run** tab.
-6. Uncheck the **Debug executable** checkbox.
-
-<img src="https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk/raw/53a19f88c8d90df485a60dc20190f740cd9fd108/Screenshots/Install/11.png" alt="Enable Debug executable in Xcode" width="500" />
+After adding, run:
+```bash
+cd ios/
+pod install
+```
 
 </Accordion>
 </Accordions>
-
-
-## Contributing
-
-See the [contributing guide](CONTRIBUTING.md) to learn how to contribute to the repository and the development workflow.
-
-## License
-
-MIT

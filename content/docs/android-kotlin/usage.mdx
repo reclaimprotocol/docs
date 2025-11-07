@@ -13,13 +13,15 @@ import org.reclaimprotocol.inapp_sdk.ReclaimVerification
 
 ## Create a request object
 
+Using credentials from AndroidManifest.xml:
 ```kotlin
 val request = ReclaimVerification.Request(
-        appId = "YOUR_APP_ID",
-        secret = "YOUR_APP_SECRET",
-        providerId = "YOUR_PROVIDER_ID"
-    )
+    appId = "YOUR_APP_ID",
+    secret = "YOUR_APP_SECRET",
+    providerId = "YOUR_PROVIDER_ID"
+)
 ```
+
 - You can get the `APP_ID` and `APP_SECRET` using [this guide](/api-key)
 - The `PROVIDER_ID` is the proof you want the user to generate. You can see all the [available providers here](https://dev.reclaimprotocol.org/explore).
 
@@ -41,4 +43,48 @@ ReclaimVerification.startVerification(
         }
     }
 )
+```
+
+## Example
+
+[Complete Android example](https://github.com/reclaimprotocol/reclaim-inapp-android-sdk/tree/main/example) with Jetpack Compose
+
+# Advanced Options
+## Complete Request Parameters
+
+```kotlin
+val request = ReclaimVerification.Request(
+    // Required
+    appId = "YOUR_APP_ID",
+    secret = "YOUR_APP_SECRET",
+    providerId = "YOUR_PROVIDER_ID",
+
+    // Optional
+    session = ReclaimVerification.ReclaimSessionInformation(
+        sessionId = "session-id",
+        timestamp = "1234567890",
+        signature = "signature"
+    ),
+
+    contextString = "additional-context",          // Additional context data
+
+    parameters = mapOf(                            // Custom provider parameters
+        "customParam" to "value"
+    ),
+
+    providerVersion = ReclaimVerification.Request  // Specify provider version
+        .ProviderVersion.resolved("1.0.0")
+)
+```
+
+## Troubleshooting
+
+### Cronet Errors (Devices without Google Play Services)
+
+If you see Cronet-related errors on devices without Play Services, add embedded Cronet:
+
+```gradle
+dependencies {
+    implementation("org.chromium.net:cronet-embedded:141.7340.3")
+}
 ```

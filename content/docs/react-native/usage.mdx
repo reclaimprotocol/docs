@@ -31,6 +31,7 @@ The returned result is a `[ReclaimVerification.Response]` object. This object co
 
 ## Verifying proofs
 You don't need to separately verify the proofs as you would [in the js-sdk](/js-sdk/verifying-proofs). If the verification failed, you will get an exception of type `ReclaimVerification.ExceptionType.Failed`. If there is no exception, the proof was generated correctly _and_ verified correctly.
+
 ### Exception Handling
 Exceptions
 - `ReclaimVerification.ExceptionType.Cancelled` : User cancelled the proof generation process midway
@@ -38,12 +39,122 @@ Exceptions
 - `ReclaimVerification.ExceptionType.SessionExpired` : The session took too long to generate a proof. Either the proof generation got stuck indefinitely or it was waiting for the user to take an action (e.g. login).
 - `ReclaimVerification.ExceptionType.Failed` : Proof couldn't be generated or verified.
 
+## Examples
+
+See complete working examples:
+- [React Native Example](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/tree/main/samples/example_new_arch) - for standard React Native projects
+- [Expo Example](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/tree/main/samples/example_expo) - for Expo projects
+
 
 import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
 
-# Advanced options : Overrides
+# Advanced options
 
+## Request Parameters
+
+#### Complete Request Parameters
+Below are all the parameters you can set for your proof request creation :
+```typescript
+const verificationResult = await reclaimVerification.startVerification({
+    // Required fields
+    appId: string,              // Your Reclaim app ID
+    secret: string,             // Your Reclaim app secret
+    providerId: string,         // Provider ID from Reclaim Devtools
+
+    // Optional fields
+    session?: {                 // Reuse existing session (SDK generates if not provided)
+        sessionId: string,
+        timestamp: string,      // Milliseconds since Unix epoch
+        signature: string
+    },
+
+    contextString?: string,     // Additional context data for verification
+
+    parameters?: {              // Custom parameters required by specific providers
+        [key: string]: string   // Check provider details for required parameters
+    },
+
+    providerVersion?: {         // Specify provider version
+        resolvedVersion: string,
+        versionExpression: string
+    }
+});
+```
+
+**Example with Optional Parameters:**
+
+```js
+const verificationResult = await reclaimVerification.startVerification({
+    appId: 'your-app-id',
+    secret: 'your-app-secret',
+    providerId: 'provider-id',
+
+    // Add context for tracking
+    contextString: 'user-signup-flow',
+
+    // Custom parameters (if required by the provider)
+    parameters: {
+        customField: 'value'
+    },
+
+    // Specify exact provider version
+    providerVersion: ReclaimVerification.ProviderVersion.resolved('1.0.0')
+});
+```
+## Alternative Verification Methods
+
+### Start from URL
+
+Start verification directly from a request URL:
+
+```js
+const verificationResult = await reclaimVerification.startVerificationFromUrl(
+    'https://api.example.com/verification-request'
+);
+```
+
+### Start from JSON Template
+
+Start verification using a JSON template:
+
+```js
+const template = {
+    appId: 'your-app-id',
+    secret: 'your-app-secret',
+    providerId: 'provider-id',
+    // ... other configuration
+};
+
+const verificationResult = await reclaimVerification.startVerificationFromJson(template);
+
+## Troubleshooting
+
+### Cronet Errors on Android
+
+On Android devices without Google Play Services, you may see Cronet-related errors. Add this dependency to your `android/build.gradle`:
+
+```gradle
+dependencies {
+    // ... other dependencies
+    implementation("org.chromium.net:cronet-embedded:119.6045.31")
+}
+```
+
+### expo-dev-client Incompatibility (iOS)
+
+There's a known incompatibility between `ReclaimInAppSdk` and `expo-dev-client` on iOS that causes network request timeouts. Temporarily remove `expo-dev-client` when testing Reclaim functionality on iOS.
+
+### iOS Build Issues
+
+If you encounter CocoaPods compatibility errors:
+
+```bash
+cd ios/
+pod update ReclaimInAppSdk
+```
+
+## Overrides
 Many configurations in the InApp SDKs can be overridden. For example, a different attestor can be used, or we can update app info that appears in the verification flow.
 
 <Callout type="info">
@@ -327,18 +438,3 @@ reclaimVerification.setOverrides({
   }
 });
 ```
-
-## Best Practices
-
-1. Set overrides before calling `startVerification`
-2. Consider setting overrides only once.
-3. Handle all session management events appropriately.
-4. Use appropriate timeout values for your use case
-5. Test thoroughly when modifying default behaviors
-
-## Notes
-
-- All override options are optional
-- Overrides persist until explicitly changed or cleared with `clearAllOverrides`
-- Some features may require specific override combinations to work properly
-- Overriding all options will cause the app to not use *any* reclaim protocol APIs.

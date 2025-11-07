@@ -11,9 +11,58 @@ Setup your project using the [Get API Key guide](/api-key).
 
 ## Installation
 
-Add the following to your `pubspec.yaml`:
+### Using Flutter CLI
 
+```bash
+flutter pub add reclaim_inapp_sdk
+```
+
+### Manual Installation
+
+Add the following to your `pubspec.yaml`:
 ```yaml
 dependencies:
-  reclaim_inapp_flutter_sdk: ^latest_version
+  reclaim_inapp_sdk: ^latest_version
 ```
+
+Then run:
+```bash
+flutter pub get
+```
+
+## Platform-Specific Configuration
+
+### Android Configuration
+
+#### Minimum Requirements
+
+Update your `android/app/build.gradle`:
+
+```gradle
+android {
+    defaultConfig {
+        minSdkVersion 21  // Minimum Android 5.0
+        targetSdkVersion 34
+    }
+}
+```
+
+#### Cronet for Devices Without Play Services
+
+If you need to support Android devices without Google Play Services, add the embedded Cronet library:
+
+```gradle
+dependencies {
+    // Use embedded cronet for devices without play services
+    implementation("org.chromium.net:cronet-embedded:119.6045.31")
+}
+```
+
+### iOS Configuration
+
+Update your `ios/Podfile`:
+
+```ruby
+platform :ios, '13.0'  # Minimum iOS 13.0
+```
+

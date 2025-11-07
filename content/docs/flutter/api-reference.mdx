@@ -1,0 +1,390 @@
+---
+title: API Reference
+description: Complete API reference for the Reclaim Flutter SDK
+---
+
+Complete reference documentation for all public classes, methods, and types in the Reclaim Flutter SDK.
+
+## ReclaimVerification
+
+Main class for managing verification flows.
+
+### Constructor
+
+**`ReclaimVerification.of(BuildContext context)`**
+
+Creates an instance from a BuildContext.
+
+- **Parameters:**
+  - `context` - The BuildContext from your widget
+- **Returns:** ReclaimVerification instance
+
+### Methods
+
+**`Future<ReclaimVerificationResult> startVerification({required ReclaimVerificationRequest request, ReclaimVerificationOptions options})`**
+
+Starts a verification flow.
+
+- **Parameters:**
+  - `request` - Verification request configuration
+  - `options` - Optional verification options (defaults to `ReclaimVerificationOptions()`)
+- **Returns:** Future that resolves to ReclaimVerificationResult
+- **Throws:** Various ReclaimException subclasses
+
+**`Future<bool> cancelPendingVerifications()`**
+
+Cancels any pending verifications.
+
+- **Returns:** true if verifications were cancelled
+
+---
+
+## ReclaimVerificationRequest
+
+Configuration for a verification request.
+
+### Constructor
+
+**`ReclaimVerificationRequest({required String applicationId, required String providerId, required SessionProvider sessionProvider, String? contextString, Map<String, String> parameters})`**
+
+- **Parameters:**
+  - `applicationId` (required) - Your application ID
+  - `providerId` (required) - Provider ID to verify
+  - `sessionProvider` (required) - Function returning session information
+  - `contextString` (optional) - Additional context
+  - `parameters` (optional) - Custom parameters required by the provider (defaults to empty map)
+
+### Properties
+
+- `String applicationId` - Application identifier
+- `String providerId` - Provider identifier
+- `SessionProvider sessionProvider` - Session provider function
+- `String? contextString` - Context string
+- `Map<String, String> parameters` - Custom parameters required by the provider
+
+---
+
+## ReclaimVerificationOptions
+
+Optional configuration for verification behavior.
+
+### Constructor
+
+**`ReclaimVerificationOptions({bool canAutoSubmit, bool isCloseButtonVisible, bool canClearWebStorage, ReclaimAttestorAuthenticationRequestCallback? attestorAuthenticationRequest, CanContinueVerificationCallback? canContinueVerification, AttestorZkOperator? attestorZkOperator, String? locale})`**
+
+All parameters are optional with the following defaults:
+- `canAutoSubmit` - false
+- `isCloseButtonVisible` - true
+- `canClearWebStorage` - true
+- `attestorAuthenticationRequest` - null
+- `canContinueVerification` - null
+- `attestorZkOperator` - null
+- `locale` - null
+
+### Properties
+
+- `bool canAutoSubmit` - Auto-submit when ready
+- `bool isCloseButtonVisible` - Show close button
+- `bool canClearWebStorage` - Clear storage before verification
+- `ReclaimAttestorAuthenticationRequestCallback? attestorAuthenticationRequest` - Custom attestor auth
+- `CanContinueVerificationCallback? canContinueVerification` - Verification control callback
+- `AttestorZkOperator? attestorZkOperator` - Custom ZK operator
+- `String? locale` - Force specific locale
+
+---
+
+## ReclaimSessionInformation
+
+Session authentication information.
+
+### Constructor
+
+**`ReclaimSessionInformation({required String sessionId, required String signature, required String timestamp, required ProviderVersionExact version})`**
+
+- **Parameters:**
+  - `sessionId` (required) - Session identifier
+  - `signature` (required) - Session signature
+  - `timestamp` (required) - Session timestamp
+  - `version` (required) - Provider version
+
+### Static Methods
+
+**`static Future<ReclaimSessionInformation> generateNew({required String applicationId, required String applicationSecret, required String providerId, String providerVersion})`**
+
+Generates a new session.
+
+- **Parameters:**
+  - `applicationId` (required) - Application ID
+  - `applicationSecret` (required) - Application secret
+  - `providerId` (required) - Provider ID
+  - `providerVersion` (optional) - Version constraint (defaults to empty string)
+- **Returns:** Future resolving to new ReclaimSessionInformation
+
+### Properties
+
+- `String sessionId` - Session ID
+- `String signature` - Cryptographic signature
+- `String timestamp` - Timestamp string
+- `ProviderVersionExact version` - Provider version info
+- `bool isValid` - Whether signature and timestamp are valid
+
+---
+
+## ReclaimVerificationResult
+
+Result of a successful verification.
+
+### Properties
+
+- `HttpProvider provider` - Provider information
+- `String exactProviderVersion` - Exact provider version used
+- `List<CreateClaimOutput> proofs` - List of generated proofs
+
+### Methods
+
+**`Map<String, Object?> toJson()`**
+
+Converts result to JSON map.
+
+---
+
+## CreateClaimOutput
+
+A single proof from verification.
+
+### Properties
+
+- `String identifier` - Unique proof identifier
+- `ProviderClaimData claimData` - Claim metadata
+- `List<String> signatures` - Cryptographic signatures
+- `List<WitnessData> witnesses` - Witness data list
+- `Object? publicData` - Public data from verification
+- `int? taskId` - Optional task ID
+
+### Methods
+
+**`Map<String, Object?> toJson()`**
+
+Converts to JSON map.
+
+**`static CreateClaimOutput fromJson(Map<String, dynamic> json)`**
+
+Creates instance from JSON.
+
+**`CreateClaimOutput copyWith({int? taskId, Object? publicData})`**
+
+Creates a copy with updated fields.
+
+---
+
+## ProviderClaimData
+
+Metadata about a claim.
+
+### Properties
+
+- `String provider` - Provider name
+- `String parameters` - Serialized parameters
+- `String owner` - Claim owner
+- `int timestampS` - Unix timestamp (seconds)
+- `String context` - Context string
+- `String identifier` - Claim identifier
+- `int epoch` - Epoch number
+
+### Methods
+
+**`Map<String, dynamic> toJson()`**
+
+Converts to JSON.
+
+**`static ProviderClaimData fromJson(Map<String, dynamic> json)`**
+
+Creates from JSON.
+
+---
+
+## WitnessData
+
+Witness information.
+
+### Properties
+
+- `String id` - Witness ID
+- `String url` - Witness URL
+
+### Methods
+
+**`Map<String, dynamic> toJson()`**
+
+Converts to JSON.
+
+**`static WitnessData fromJson(Map<String, dynamic> json)`**
+
+Creates from JSON.
+
+---
+
+## Exceptions
+
+All exceptions extend `ReclaimException`.
+
+### ReclaimException
+
+Base exception class.
+
+**Properties:**
+- `String? message` - Error message
+- `String exceptionName` - Exception type name
+
+**Methods:**
+- `Map<String, Object?> toJson()` - Convert to JSON
+
+### Session Exceptions
+
+**`ReclaimExpiredSessionException([String? message])`**
+- Session expired or invalid
+
+**`ReclaimInitSessionException([String? message])`**
+- Session initialization failed
+
+### Verification Exceptions
+
+**`ReclaimVerificationCancelledException([String? message])`**
+- Verification cancelled
+
+**`ReclaimVerificationDismissedException([String? message])`**
+- User dismissed verification
+
+**`ReclaimVerificationSkippedException([String? message])`**
+- Verification skipped
+
+**`ReclaimVerificationPlatformNotSupportedException([String? message])`**
+- Platform not supported (requires 64-bit)
+
+**`ReclaimVerificationOutdatedSDKException([String? message])`**
+- SDK version is outdated
+
+**`InvalidRequestReclaimException([String? message])`**
+- Invalid request parameters
+
+### Provider Exceptions
+
+Base: **`ReclaimVerificationProviderException([String? message])`**
+
+**`ReclaimVerificationProviderNotFoundException()`**
+- Provider not found
+
+**`ReclaimVerificationProviderScriptException(String message, [Map<String, dynamic>? providerError])`**
+- Provider script error
+- Additional property: `Map<String, dynamic>? providerError`
+
+**`ReclaimVerificationNoActivityDetectedException(String message)`**
+- No activity detected
+
+**`ReclaimVerificationRequirementException()`**
+- Verification requirements not met
+
+**`ReclaimVerificationProviderLoadException([String? message])`**
+- Provider loading failed
+
+**`ReclaimAttestorException(String message)`**
+- Attestor error
+
+---
+
+## Type Aliases
+
+**`typedef SessionProvider = FutureOr<ReclaimSessionInformation> Function()`**
+
+Function that provides session information (sync or async).
+
+**`typedef ReclaimAttestorAuthenticationRequestCallback = FutureOr<AttestorAuthenticationRequest> Function(HttpProvider provider)`**
+
+Callback for custom attestor authentication.
+
+**`typedef CanContinueVerificationCallback = Future<bool> Function(HttpProvider provider, ReclaimSessionInformation sessionInformation)`**
+
+Callback to control verification flow continuation.
+
+---
+
+## Theme Classes
+
+### ReclaimTheme
+
+Theme customization for verification UI.
+
+See [Advanced Features](/docs/flutter/advanced-features) for detailed theming documentation.
+
+### ReclaimThemeProvider
+
+Widget that provides theme to verification flow.
+
+**Constructor:**
+```dart
+ReclaimThemeProvider({
+  required String? applicationId,
+  required Widget Function(BuildContext) builder,
+})
+```
+
+---
+
+## Version Classes
+
+### ProviderVersionExact
+
+Represents an exact provider version.
+
+**Constructor:**
+```dart
+ProviderVersionExact(String version, {String versionExpression})
+```
+
+**Parameters:**
+- `version` - Exact version string
+- `versionExpression` (optional) - Version constraint expression
+
+---
+
+## Utility Classes
+
+### AttestorZkOperator
+
+Interface for ZK proof computation.
+
+**Methods:**
+- `Future<bool> isPlatformSupported()` - Check if platform is supported
+- `Future<Object> computeProof(...)` - Compute ZK proof
+
+### AttestorZkOperatorWithCallback
+
+Implementation with custom callbacks.
+
+**Static Constructor:**
+```dart
+static AttestorZkOperatorWithCallback.withReclaimZKOperator({
+  required OnComputeProof onComputeProof,
+  required Future<bool> Function() isPlatformSupported,
+})
+```
+
+---
+
+## Constants
+
+The SDK uses default values for several configurations:
+- Default auto-submit: `false`
+- Default close button visibility: `true`
+- Default clear web storage: `true`
+- Empty provider version constraint: `''`
+
+---
+
+## Import Path
+
+```dart
+import 'package:reclaim_inapp_sdk/reclaim_inapp_sdk.dart';
+```
+
+This exports all public API classes and types.
