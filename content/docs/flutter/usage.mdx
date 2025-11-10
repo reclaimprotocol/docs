@@ -2,72 +2,207 @@
 title: Usage
 description: Flutter SDK for Reclaim Protocol
 ---
-1. Import the SDK in your Dart file:
+
+# Quickstart
+## Import the SDK in your Dart file
 
 ```dart
 import 'package:reclaim_inapp_flutter_sdk/reclaim_inapp_flutter_sdk.dart';
 ```
 
-2. Initialize the SDK with your app credentials:
-
-Following is an exmaple.
-
+## Initialize the SDK with your app credentials
 ```dart
 const String appId = String.fromEnvironment('APP_ID');
 const String appSecret = String.fromEnvironment('APP_SECRET');
 const String providerId = String.fromEnvironment('PROVIDER_ID');
 ```
+- You can get the `APP_ID` and `APP_SECRET` using [this guide](/api-key)
+- The `PROVIDER_ID` is the proof you want the user to generate. You can see all the [available providers here](https://dev.reclaimprotocol.org/explore).
 
-### Starting Verification
+
+## Starting Verification
+Create a `ReclaimVerification` instance from your BuildContext:
 
 ```dart
-final sdk = ReclaimInAppSdk.of(context);
-final proofs = await sdk.startVerification(
-  ReclaimVerificationRequest(
-    appId: appId,
+final reclaim = ReclaimVerification.of(context);
+```
+
+Call `startVerification()` to begin the verification flow:
+
+```dart
+final result = await reclaim.startVerification(
+  request: ReclaimVerificationRequest(
+    applicationId: appId,
     providerId: providerId,
-    secret: appSecret,
-    sessionInformation: ReclaimSessionInformation.empty(),
-    contextString: '',
-    parameters: {},
-    claimCreationType: ClaimCreationType.standalone,
+    sessionProvider: () => ReclaimSessionInformation.generateNew(
+      providerId: providerId,
+      applicationId: appId,
+      applicationSecret: appSecret,
+    ),
+  ),
+);
+// Access the proofs
+final proofs = result.proofs;
+print('Received ${proofs.length} proofs');
+```
+
+## Verifying proofs
+
+The `startVerification()` method returns a `ReclaimVerificationResult` containing:
+
+```dart
+class ReclaimVerificationResult {
+  final HttpProvider provider;           // Provider information
+  final String exactProviderVersion;     // Provider version used
+  final List<CreateClaimOutput> proofs;  // Generated proofs
+}
+```
+
+### Proof Structure
+
+Each proof (`CreateClaimOutput`) contains:
+
+```dart
+class CreateClaimOutput {
+  final String identifier;              // Unique identifier
+  final ProviderClaimData claimData;    // Claim data
+  final List<String> signatures;        // Cryptographic signatures
+  final List<WitnessData> witnesses;    // Witness information
+  final Object? publicData;             // Public data from verification
+}
+```
+
+The data extracted will be available as a stringified JSON under `claimData.extractedParameters`.
+
+## Example Implementation
+- Check out [Examples](/docs/flutter/examples) for practical implementations
+
+# Advanced Options
+## Configuration Options
+
+### ReclaimVerificationRequest
+
+Configure the verification request:
+
+```dart
+ReclaimVerificationRequest(
+  applicationId: 'your-app-id',
+  providerId: 'your-provider-id',
+  sessionProvider: () => ReclaimSessionInformation.generateNew(...),
+  contextString: 'optional-context',      // Additional context
+  parameters: {'key': 'value'},           // Custom parameters
+)
+```
+
+**Parameters:**
+- `applicationId` (required): Your Reclaim application ID
+- `providerId` (required): The provider ID to verify against
+- `sessionProvider` (required): Function that returns session information
+- `contextString` (optional): Additional context for the verification, bound to the proof cryptographically (e.g. sessionIDs, timestamp etc. based on your custom business logic)
+- `parameters` (optional): Map of key-value pairs that will be part of the proof, but not cryptographically bound
+
+### ReclaimVerificationOptions
+
+Customize the verification behavior:
+
+```dart
+await reclaim.startVerification(
+  request: verificationRequest,
+  options: ReclaimVerificationOptions(
+    canAutoSubmit: true,              // Auto-submit when data is ready
+    isCloseButtonVisible: true,       // Show/hide close button
+    canClearWebStorage: true,         // Clear webview storage before verification
+    locale: 'en_US',                  // Force specific locale
   ),
 );
 ```
 
-### Configuration Options
+**Available Options:**
+- `canAutoSubmit`: Whether to automatically submit the verification when ready, and close the UI (default: `false`)
+- `isCloseButtonVisible`: Show or hide the close button in the verification UI (default: `true`)
+- `canClearWebStorage`: Clear webview storage like cookies before starting (default: `true`). Set to `false` if you want the user to not login each time they are creating the same proof.
+- `attestorZkOperator`: Custom ZK operator for proof generation
+- `locale`: Force a specific locale (e.g., `'en_US'`, `'es_ES'`)
 
-The `ReclaimVerificationRequest` supports the following options:
+## Context Strings
 
-- `appId`: Your Reclaim application ID
-- `providerId`: The ID of the provider you want to verify against
-- `secret`: Your application secret (optional if using session information)
-- `sessionInformation`: Session information for authentication
-- `contextString`: Additional context for the verification
-- `parameters`: Custom parameters for the verification
-- `claimCreationType`: Type of claim creation (standalone or meChain)
-- `autoSubmit`: Whether to auto-submit the verification
-- `hideCloseButton`: Whether to hide the close button
-- `webhookUrl`: URL for webhook notifications
-- `verificationOptions`: Additional verification options
-
-### Error Handling
-
-The SDK throws specific exceptions that you can handle:
+Add additional context to verifications that will be included in the proof:
 
 ```dart
-try {
-  final proofs = await sdk.startVerification(request);
-} on ReclaimExpiredSessionException {
-  // Handle expired session
-} on ReclaimVerificationManualReviewException {
-  // Handle manual review case
-} catch (error) {
-  // Handle other errors if required
+await reclaim.startVerification(
+  request: ReclaimVerificationRequest(
+    applicationId: appId,
+    providerId: providerId,
+    sessionProvider: sessionProvider,
+    contextString: json.encode({
+      'user_id': userId,
+      'action': 'account_verification',
+      'timestamp': DateTime.now().toIso8601String(),
+    }),
+  ),
+);
+```
+
+**Use Cases:**
+- Tracking verification purposes
+- Binding verifications to specific actions
+- Adding metadata to proofs
+- Audit trails
+
+
+## Error Handling
+
+The SDK throws specific exceptions that you should handle:
+
+All Reclaim exceptions extend `ReclaimException`:
+
+- `ReclaimException` (base class)
+  - `ReclaimVerificationCancelledException`
+    - `InvalidRequestReclaimException`
+    - `ReclaimVerificationPlatformNotSupportedException`
+  - `ReclaimVerificationDismissedException`
+  - `ReclaimVerificationSkippedException`
+  - `ReclaimSessionException`
+    - `ReclaimExpiredSessionException`
+    - `ReclaimInitSessionException`
+  - `ReclaimVerificationProviderException`
+    - `ReclaimVerificationProviderNotFoundException`
+    - `ReclaimVerificationProviderScriptException`
+    - `ReclaimVerificationNoActivityDetectedException`
+    - `ReclaimVerificationRequirementException`
+    - `ReclaimVerificationProviderLoadException`
+
+## Custom Parameters
+
+Some providers require additional data to complete verification. You can provide these custom parameters:
+
+```dart
+ReclaimVerificationRequest(
+  applicationId: appId,
+  providerId: providerId,
+  sessionProvider: ...,
+  parameters: {
+    'username': 'john_doe',
+    'account_type': 'premium',
+  },
+)
+```
+
+## Canceling Pending Verifications
+
+If you need to cancel any pending verifications:
+
+```dart
+final reclaim = ReclaimVerification.of(context);
+final wasCancelled = await reclaim.cancelPendingVerifications();
+if (wasCancelled) {
+  print('Previous verification was cancelled');
 }
 ```
 
-### Pre-warming
+This is automatically handled when starting a new verification.
+
+## Performance optimization
 
 For better performance, you can pre-warm the SDK:
 
@@ -78,19 +213,232 @@ void main() async {
   runApp(MyApp());
 }
 ```
-## Environment Variables
 
-The SDK requires the following environment variables:
+## Theming
 
-- `APP_ID`: Your Reclaim application ID
-- `APP_SECRET`: Your application secret
-- `PROVIDER_ID`: The ID of the provider to verify against
+The Reclaim SDK supports custom themes to match your app's branding. You need to be on the [enterprise plan](https://dev.reclaimprotocol.org/payment) for custom themeing. After upgrading, you need to contact the Reclaim Protocol team to enable this for you.
 
-You can provide these values using:
+### Available Theme Properties
 
-- Dart Define Env file: `--dart-define-from-file=./.env`
-- Hardcoded values (not recommended for production)
+Once custom theming is enabled for your application, the following properties can be configured:
 
-## Example
+#### Colors
 
-Check out the [example](example/lib/main.dart) for a complete implementation.
+- `primary` - Primary brand color
+- `secondaryColor` - Secondary color for actions
+- `surfaceColor` - Background surface color
+- `green` - Success/verified state color
+- `cardColor` - Card background color
+- `onCardColor` - Text color on cards
+- `termsNoticeColor` - Terms notice text color
+- `hyperlinkColor` - Hyperlink color
+- `sessionChipSurfaceColor` - Session chip background
+- `sessionChipOnSurfaceColor` - Session chip text color
+
+#### Custom Graphics
+
+- `doneIconProvider` - Completion icon
+- `fieldVerifiedIconProvider` - Field verified icon
+- `fieldVerifyingIconProvider` - Field verifying icon
+- `verificationCompleteIconProvider` - Verification complete icon
+- `verifyScreenAppIconProvider` - App icon on verify screen
+- `providerToAppLoader` - Loading animation between provider and app
+- `loading` - General loading indicator
+
+#### Background
+
+- `background` - Background decoration
+- `blurStrength` - Background blur intensity
+- `blurColor` - Background blur color overlay
+
+#### Messages
+
+- `returnToAppMessage` - Message shown when returning to app
+  - `title` - Message title
+  - `subtitle` - Message subtitle
+- `dataSharedMessage` - Message shown after data is shared
+  - `title` - Message title
+  - `subtitle` - Message subtitle
+
+#### Parameters Display
+
+- `parameterListStyle` - How parameters are displayed (compact or expanded)
+- `dividerColor` - Color of dividers between parameters
+- `isValueShown` - Whether to show parameter values
+
+#### Legal Links
+
+- `termsAndConditionsUri` - URL to your terms and conditions
+- `privacyPolicyUri` - URL to your privacy policy
+
+#### Other
+
+- `cardElevation` - Elevation for card components
+- `appIconGraphicOptions` - Options for app icon display
+
+---
+
+## Localization
+
+The SDK includes built-in support for multiple languages.
+
+### Supported Languages
+
+Currently supported locales:
+- **English** (`en_US`) - Default
+- **Spanish** (`es_ES`)
+
+The SDK automatically uses the device's locale if supported, falling back to English for unsupported languages.
+
+### Force a Specific Locale
+
+You can force a specific locale for the verification flow:
+
+```dart
+await reclaim.startVerification(
+  request: verificationRequest,
+  options: ReclaimVerificationOptions(
+    locale: 'es_ES',  // Force Spanish
+  ),
+);
+```
+
+### Request Additional Language Support
+
+If you need support for additional languages, please contact our support team. We can work with you to add new language translations to the SDK.
+
+---
+
+## Session Management
+
+### Custom Session Control
+
+Control whether verification can continue with custom logic:
+
+```dart
+await reclaim.startVerification(
+  request: verificationRequest,
+  options: ReclaimVerificationOptions(
+    canContinueVerification: (provider, sessionInfo) async {
+      // Custom logic to determine if verification can proceed
+      final isValid = await validateSession(sessionInfo);
+      return isValid;
+    },
+  ),
+);
+```
+
+### Session Persistence
+
+Store and reuse session information across app restarts:
+
+```dart
+// Generate and store session
+final session = await ReclaimSessionInformation.generateNew(
+  providerId: providerId,
+  applicationId: appId,
+  applicationSecret: appSecret,
+);
+await storage.saveSession(session);
+
+// Reuse stored session
+final storedSession = await storage.getSession();
+await reclaim.startVerification(
+  request: ReclaimVerificationRequest(
+    applicationId: appId,
+    providerId: providerId,
+    sessionProvider: () => storedSession,
+  ),
+);
+```
+
+---
+
+## WebView Configuration
+
+### Clear WebView Storage
+
+Control whether to clear webview storage before verification:
+
+```dart
+await reclaim.startVerification(
+  request: verificationRequest,
+  options: ReclaimVerificationOptions(
+    canClearWebStorage: false,  // Keep cookies/storage
+  ),
+);
+```
+
+**Use Cases:**
+- Preserve login sessions across verifications
+- Reduce re-authentication needs
+- Speed up subsequent verifications
+
+**Default:** `true` (storage is cleared before each verification)
+
+---
+
+## UI Customization
+
+### Auto-Submit
+
+Automatically submit when verification data is ready:
+
+```dart
+await reclaim.startVerification(
+  request: verificationRequest,
+  options: ReclaimVerificationOptions(
+    canAutoSubmit: true,
+  ),
+);
+```
+
+This skips the review step and submits immediately when data is collected.
+
+**Default:** `false`
+
+### Hide Close Button
+
+Remove the close button from the verification UI:
+
+```dart
+await reclaim.startVerification(
+  request: verificationRequest,
+  options: ReclaimVerificationOptions(
+    isCloseButtonVisible: false,
+  ),
+);
+```
+
+**Useful For:**
+- Mandatory verification flows
+- Preventing accidental dismissal
+- Guided onboarding processes
+
+**Default:** `true`
+
+
+## Platform-Specific Considerations
+
+### Android
+
+#### Cronet for Devices Without Play Services
+
+On devices without Google Play Services, add embedded Cronet:
+
+```gradle
+dependencies {
+    implementation("org.chromium.net:cronet-embedded:119.6045.31")
+}
+```
+
+### iOS
+
+Ensure minimum iOS version is set:
+
+```ruby
+platform :ios, '13.0'
+```
+
+---
+

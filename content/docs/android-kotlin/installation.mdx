@@ -1,55 +1,43 @@
 ---
 title: Installation
-description: Integrate Reclaim Protocol into Android Native Applications.
+description: Integrate Reclaim Protocol into Android Native Applications
 ---
 
-import { BadgeGroup } from '@/app/components/badge';
-
-<BadgeGroup badges={[
-    { href: 'https://github.com/reclaimprotocol/reclaim-inapp-android-sdk', imgSrc: 'https://img.shields.io/github/v/tag/reclaimprotocol/reclaim-inapp-android-sdk.svg', alt: 'Reclaim Android SDK' },
-    { href: 'https://docs.reclaimprotocol.org/inapp-sdks/android', imgSrc: 'https://img.shields.io/badge/read_the-docs-blue.svg', alt: 'Documentation' },
-]} />
-
 ## Prerequisites
-
-- An Android application source code (Support for Android 5.0 or later).
 - An Android device or emulator running Android 5.0 or later.
-- A Reclaim account where you've created an app and have the app id, app secret.
-- A provider id that you've added to your app in Reclaim Devtools.
+
+## Get an API Key
+Setup your project using the [Get API Key guide](/api-key).
 
 
 ## Installation
 
+### Add Repositories
 Add the following repositories to your `settings.gradle` file's repositories block or at the end of settings.gradle:
 
 ```groovy
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
     String flutterStorageUrl = System.env.FLUTTER_STORAGE_BASE_URL ?: "https://storage.googleapis.com"
-    String reclaimStorageUrl = System.env.RECLAIM_STORAGE_BASE_URL ?: "https://reclaim-inapp-sdk.s3.ap-south-1.amazonaws.com/android/0.3.0/repo"
+    String reclaimStorageUrl = System.env.RECLAIM_STORAGE_BASE_URL ?: "https://reclaim-inapp-sdk.s3.ap-south-1.amazonaws.com/android/repo"
     repositories {
         google()
         mavenCentral()
-        maven {
-            url "$reclaimStorageUrl"
-        }
-        maven {
-            url "$flutterStorageUrl/download.flutter.io"
-        }
+        maven { url "$reclaimStorageUrl" }
+        maven { url "$flutterStorageUrl/download.flutter.io" }
     }
 }
 ```
-
-You can replace the version mentioned in the url of `reclaimStorageUrl` with the version of SDK you're using. Latest is `0.3.0`.
 
 Some projects may require you to add the repositories to the root `build.gradle` file or your app-level `build.gradle` file's allprojects section.
 
 Next, add the following to your app level `build.gradle` file:
 
 ```groovy
-implementation "org.reclaimprotocol:inapp_sdk:0.3.0"
+implementation "org.reclaimprotocol:inapp_sdk:0.21.0"
 ```
 
+### Configure AndroidManifest.xml
 Add the following to your app level `AndroidManifest.xml` file under the `<application>` tag:
 
 ```xml
@@ -64,5 +52,24 @@ Add the following to your app level `AndroidManifest.xml` file under the `<appli
     android:value="<YOUR_RECLAIM_APP_ID>" />
 <meta-data android:name="org.reclaimprotocol.inapp_sdk.APP_SECRET"
     android:value="<YOUR_RECLAIM_APP_SECRET>" />
+```
+
+### Add Permissions
+
+Required permission in `AndroidManifest.xml`:
+
+```xml
+<uses-permission android:name="android.permission.INTERNET" />
+```
+
+Optional permissions (requested by specific providers at runtime):
+
+```xml
+<uses-feature android:name="android.hardware.camera" android:required="false" />
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+<uses-permission android:name="android.permission.RECORD_AUDIO" />
+<uses-permission android:name="android.permission.CAMERA"/>
+<uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 ```
 

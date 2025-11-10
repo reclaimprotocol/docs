@@ -1,19 +1,15 @@
 ---
 title: Get an API key
-description: For all the SDKs mentioned on this docs page, you need an `APP_ID` and `APP_SECRET`
+description: For all the SDKs mentioned on this docs page, you need an `APP_ID`, `APP_SECRET` and a `PROVIDER_ID`
 ---
-
-For being able to use Reclaim Protocol, you need to have 3 variables handy.
 
 ## 0. Register
 First, head to the [Reclaim Protocol Dev Tool](https://dev.reclaimprotocol.org). 
 Create an account here if you haven't already.
 
 ## 1. Create an Application
-Head to [My Applicatons](https://dev.reclaimprotocol.org/my-applications) from the left navigation bar. Here, tap on [Create Application](https://dev.reclaimprotocol.org/application-creation).
+Head to [My Applicatons](https://dev.reclaimprotocol.org/my-applications) from the left navigation bar. Here, tap on [New Application](https://dev.reclaimprotocol.org/application-creation).
 
-Provide the application name, description and upload a logo.
-This is the information that will be presented to the user when they are generating the proof, to maintain continuity with your brand.
 
 ### Copy your Application ID and secret
 Once you create the application, you will be shown the Application ID and Application Secret. 
@@ -26,14 +22,19 @@ Be sure to copy them into your `.env` file immediately.
 ## 2. Add providers
 Once you have created the application, you will have to add providers that are supported by this application. You will NOT be able to generate proofs for providers that are not already added to your application.
 
-Open your application `https://dev.reclaimprotocol.org/my-applications/[YOUR APP_ID]`
+You will be prompted to add providers when creating the application. You can always go back to your application and add more providers.
 
-Here you can tap on `Add Provider`
-
-Search for the providers you want to add and click on it to add it to the list.
-Once you have added all your providers, hit Update Providers. 
-
-After adding the providers, you can copy the `provider ID` and keep them handy.
+After adding the providers, you should copy the `provider ID` and keep them handy.
 
 ## 3. Integrate your SDK
 Now, you can head over to the integration guide for your platform - where you can paste these values to get the application up and running!
+
+# Video Tutorial
+Below is a comprehensive guide on how to use the Reclaim Protocol Dev Tool
+<iframe
+  className="w-full aspect-video rounded-lg"
+  src="https://www.youtube.com/embed/wvcZPSiqn5Y?si=GyVlIfyfwmkEZlVO"
+  title="DevTool Tutorial"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+  allowFullScreen
+/>

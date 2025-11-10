@@ -5,11 +5,10 @@ description: Install the Reclaim JavaScript SDK and start integrating proof gene
 
 import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 
-## Prerequisites
+## Get API Credentials
 
-- **Node.js**: 14.x or later
-- **Package Manager**: npm 6.x+, yarn 1.22.x+, or pnpm
-- **Project**: Initialized with `package.json`
+Before using the SDK, you will need to [obtain your credentials](/api-key) from the [DevTool](https://dev.reclaimprotocol.org):
+
 
 ## Installation
 
@@ -27,162 +26,11 @@ pnpm add @reclaimprotocol/js-sdk
 ```
 </Tabs>
 
-## Import
+# Next steps
+There are 3 steps in integrating the JavaScript SDK
+1. Preparing the proof request on the backend
+2. Asking the user to generate the proof on the frontend
+3. Uploading the proof to the backend and verifying it
 
-<Tabs items={['ES Modules', 'CommonJS', 'TypeScript']}>
-```javascript tab="ES Modules"
-import { ReclaimProofRequest } from '@reclaimprotocol/js-sdk';
-```
+This guide will walk you through each of these three steps.
 
-```javascript tab="CommonJS"
-const { ReclaimProofRequest } = require('@reclaimprotocol/js-sdk');
-```
-
-```typescript tab="TypeScript"
-import { ReclaimProofRequest, Proof } from '@reclaimprotocol/js-sdk';
-```
-</Tabs>
-
-## Get API Credentials
-
-Before using the SDK, obtain your credentials from the [Reclaim Developer Portal](/api-key):
-
-- `APP_ID` - Your application identifier
-- `APP_SECRET` - Your application secret (keep secure!)
-- `PROVIDER_ID` - The provider you want to verify against
-
-## Environment Setup
-
-<Callout type="warning">
-**Security**: Never hardcode credentials in your code or commit them to version control. Always use environment variables.
-</Callout>
-
-Create a `.env` file in your project root:
-
-```bash
-# .env
-RECLAIM_APP_ID=your_app_id_here
-RECLAIM_APP_SECRET=your_app_secret_here
-RECLAIM_PROVIDER_ID=your_provider_id_here
-```
-
-Add `.env` to your `.gitignore`:
-
-```
-# .gitignore
-.env
-.env.local
-.env.*.local
-```
-
-### Load Environment Variables
-
-<Tabs items={['Node.js', 'Next.js', 'Vite']}>
-```javascript tab="Node.js"
-// Install dotenv
-// npm install dotenv
-
-// Load at the top of your file
-require('dotenv').config();
-
-// Access variables
-const APP_ID = process.env.RECLAIM_APP_ID;
-```
-
-```javascript tab="Next.js"
-// Next.js loads .env.local automatically
-// Create .env.local file with your credentials
-
-// Access in API routes or server components
-const APP_ID = process.env.RECLAIM_APP_ID;
-
-// Note: Use NEXT_PUBLIC_ prefix only for client-side vars
-// Never use NEXT_PUBLIC_ for APP_SECRET
-```
-
-```javascript tab="Vite"
-// Vite loads .env automatically
-// Prefix with VITE_ for client-side access
-
-// .env
-VITE_RECLAIM_APP_ID=your_app_id
-
-// Access in code
-const APP_ID = import.meta.env.VITE_RECLAIM_APP_ID;
-
-// For backend/server-side only (no VITE_ prefix)
-RECLAIM_APP_SECRET=your_secret
-```
-</Tabs>
-
-<Callout type="error">
-**Critical**: Never expose `APP_SECRET` to the client. Keep it server-side only. Frontend environment variables (like `REACT_APP_*`, `NEXT_PUBLIC_*`, `VITE_*`) are bundled into your JavaScript and visible to users.
-</Callout>
-
-## Verify Installation
-
-Create a test file to verify the SDK is installed correctly:
-
-```javascript
-// test-install.js
-import { ReclaimProofRequest } from '@reclaimprotocol/js-sdk';
-
-console.log('✅ Reclaim SDK imported successfully!');
-console.log('ReclaimProofRequest:', typeof ReclaimProofRequest);
-```
-
-Run the test:
-
-```bash
-node test-install.js
-```
-
-Expected output:
-```
-✅ Reclaim SDK imported successfully!
-ReclaimProofRequest: function
-```
-
-## Troubleshooting
-
-### Module Not Found
-
-If you see `Cannot find module '@reclaimprotocol/js-sdk'`:
-
-```bash
-# Verify installation
-npm list @reclaimprotocol/js-sdk
-
-# Reinstall if needed
-npm install @reclaimprotocol/js-sdk
-```
-
-### TypeScript Errors
-
-Ensure TypeScript 4.0+ and check `tsconfig.json`:
-
-```json
-{
-  "compilerOptions": {
-    "moduleResolution": "node",
-    "esModuleInterop": true
-  }
-}
-```
-
-### Environment Variables Not Loading
-
-- Ensure `.env` file is in project root
-- Restart your development server after changes
-- Check for typos in variable names
-- Verify no spaces around `=` in `.env` file
-
-## Next Steps
-
-Choose your integration approach:
-
-- **[Quickstart →](/js-sdk/quickstart)** - Client-side demo for learning (dev only)
-- **[Backend Integration →](/js-sdk/recommended-setup)** - Production-ready setup ⭐
-- **[API Reference →](/js-sdk/api-reference)** - Complete SDK documentation
-
-Get started with your [first integration →](/js-sdk/quickstart)
