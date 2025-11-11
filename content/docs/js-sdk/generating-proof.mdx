@@ -5,30 +5,14 @@ description: Initiate the proof request to the user on the frontend
 
 # What is initiating a proof request?
 In the [previous section](/preparing-request), you just built the request containing the information on what proof you want the user to generate.
-Now it is turn to actually ask the user to generate the proof.
+Now it is turn to actually ask the user to generate the proof. Depending on the user's device, browser and operating system, the SDK will pick the most seamless verification mechanism available for that user. 
 
-There are many ways the user can generate a proof.
+Available options :
+- [iOS AppClip](https://blog.reclaimprotocol.org/posts/appclip-and-instantapp) and [Android Instant Apps](https://blog.reclaimprotocol.org/posts/moving-beyond-google-play-instant)
+- [iOS App](https://apps.apple.com/be/app/reclaim-verifier/id6503247508) and [Android App](https://play.google.com/store/apps/details?id=org.reclaimprotocol.app&hl=en_US)
+- [Browser Extension](https://docs.reclaimprotocol.org/browser-extension)
+- [Remote browser](preparing-request#forcing-remote-browser-use)
 
-## User is on a desktop
-Till January 31 2026, the proofs can generate a proof only using a mobile device. If the user opens your webapp on a desktop, they should be presented a QR code that they can scan with their iOS or Android device. Once they scan this QR code, they will be directed through the flow as mentioned below.
-
-## User is on a mobile device
-- If the user is on iOS
-  - if the user is on iOS 14+ : they will be shown the Reclaim Protocol AppClip, where they can generate the proof without installing anything.
-  - if the user is on iOS 13 or below: they will be taken to the AppStore to install the Reclaim Protocol App, where they will now be able to generate the proof.
-- If the user is on Android
-  - Until December 1 2025 : they will be shown the Reclaim Protocol Instant App, where they can generate the proof without installing anything.
-  - After December 1 2025 : they will be taken to the PlayStore to install the Reclaim Protocol App, where they will be able to generate the proof.
-
-## User is on a desktop with Reclaim Protocol Browser Extension installed
-If the user has the browser extension installed, they needn't scan the QR code - they can generate the proof directly in the Reclaim Protocol (or any partner) Browser Extension.
-
-## January 31 2026 onwards
-On January 31, the Reclaim Protocol Embedded SDK is marked for public release. From this date, the users will not have to change devices or install any software to generate proofs. You can [request for early access](https://t.me/protocolreclaim) for the EmbeddedSDK.
-
-## So many conditions?!
-There are many combinations of device, browser and OS that are possible - leading to a lot of if else conditions. 
-The Reclaim Protocol JS SDK will handle all the cases for you, so you need to call only one function and it will automatically upgrade to the most seamless available flow!
 
 # Quickstart
 ## Get the `proofRequestObject` from the backend
@@ -54,13 +38,12 @@ This step will take care of all the conditions for you - and use the most seamle
 ## Listen for the proof generation process
 You can receive callbacks when the proof generation process completes or fails so that you can update your UI accordingly for the user's next steps.
 
-onSuccess is called after the user has generated the proof and the proof has been uploaded to the callback endpoint which we will define in the next section - [verifying the proofs](/js-sdk/verifying-proofs). 
-
-Note : onSuccess means the proof has been successfully uploaded, but doesn't mean it's been verified. For verifying, please see the next section - [verifying the proofs](/js-sdk/verifying-proofs).
+onSuccess is called after the user has generated the proof, but you must [verify the proofs on the backend](/js-sdk/verifying-proofs) to be sure that the user wasn't being malicious.
 
 ```javascript
     await reclaimProofRequest.startSession({
     onSuccess: (proofs) => {
+        // upload proofs to your backend and verify 
         // ... continue business logic
     },
     onError: (err) => {
@@ -96,8 +79,9 @@ export function useReclaim() {
       await reclaimProofRequest.triggerReclaimFlow();
  
       await reclaimProofRequest.startSession({
-        onSuccess: (proofs) => {
+        onSuccess: async (proofs) => {
           setProofs(proofs);
+          await uploadProofs(proofs);
           setIsLoading(false);
         },
         onError: (err) => {
@@ -114,7 +98,7 @@ export function useReclaim() {
   return { proofs, isLoading, error, startVerification };
 }
 ```
-# More options
+# Advance options
 ## Implement your own UI
 If you don't want the SDK to take care of the navigations or you want to implement your own UI, you can do so.
 
@@ -152,6 +136,46 @@ reclaimProofRequest.setRedirectUrl("https://yourapp.com/verification/success");
 reclaimProofRequest.setRedirectUrl("yourapp://verification-complete");
 ```
 
+## Showing Progress
+
+You can poll the progress of the proof generation process and update the UI accordingly, especially if you are not using the `startSession` method. 
+
+```javascript
+const statusUrl = reclaimProofRequest.getStatusUrl();
+```
+
+## Customize UI
+
+Automatically trigger the optimal verification flow based on user's platform. Shows QR code modal on desktop, redirects to App Clip/Instant App on mobile, or uses browser extension if available. The default UI can be customized :
+
+
+
+**Options Object:**
+
+- `theme` (string): `'light'` or `'dark'` - Modal theme (default: `'light'`)
+- `modalTitle` (string): Custom title for the QR modal
+- `modalSubtitle` (string): Custom subtitle for the QR modal
+- `autoCloseModal` (boolean): Auto-close modal after successful verification (default: `false`)
+- `autoCloseDelay` (number): Delay in ms before auto-closing (default: `3000`)
+- `showExtensionPrompt` (boolean): Show browser extension install prompt if not installed (default: `true`)
+- `onModalOpen` (function): Callback when modal opens
+- `onModalClose` (function): Callback when modal closes
+
+```
+reclaimProofRequest.triggerReclaimFlow(options)
+```
+
+## Passing variables through the proof object
+
+You can add custom key-value parameters to the proof request. These parameters will be included in the verified proof and can be used for application-specific metadata. However, the parameters are not cryptographically bound to the proof. If they are edited by a malicious user, there is no way to detect. So we recommend putting only metadata in parameters that are not strictly mission critical. This is useful to pass variables into the proof object instead of having to maintain state separately. For mission critical variables that should not be possible for the user to edit, please refer [`setContext`](preparing-request#set-context) instead.
+
+```
+reclaimProofRequest.setParams({
+  action: "account_verification",
+  timestamp: Date.now(),
+  ...
+});
+```
 
 
 

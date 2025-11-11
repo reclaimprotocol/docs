@@ -1,4 +1,4 @@
 {
     "title": "Flutter SDK",
-    "pages": ["installation", "usage"]
+    "pages": ["installation", "usage", "api-reference"]
 }
