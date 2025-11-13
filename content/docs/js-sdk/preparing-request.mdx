@@ -66,9 +66,9 @@ proofRequestOptions = {
     useAppClip: false,
     customSharePageUrl: 'CONTACT_SUPPORT_FOR_URL'
 }
-
 const proofRequest = await ReclaimProofRequest.init(appId, appSecret, providerId, proofRequestOptions);
 ```
+[See reference implementation](https://github.com/reclaimprotocol/websdk-demo)
 
 ## Set Context
 You can set context to the proof request that helps identify the request when you receive it back in the callback.
