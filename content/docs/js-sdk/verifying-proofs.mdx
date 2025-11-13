@@ -4,20 +4,18 @@ description: Critical step to make sure user is not trying to defraud your app
 ---
 
 # Why do I need to verify, when the proof has already been generated?
-The [proof generation](/js-sdk/generating-proof) is a client side operation to protect the privacy and security of the user. Once the proof is generate, the proof is uploaded to the backend. A malicious user may generate a proof (or not) on their client side - and choose to upload an arbitrary json object to your backend. If you don't verify the proof, the arbitrary JSON object and the actual Prooj JSON object will be indistinguishable.
+The [proof generation](/js-sdk/generating-proof) is a client side operation. On Success Callback is only responsible for notifying when the proof is generated successfully. All the proofs generated should be verified on your backend as a malicious user can bypass any check you add on the frontend.
 
-Verifying proofs is a very simple light weight operation. You can think of it as verifying the digital signatures to make sure the data is tamper proof.
+Verifying proofs is a very simple light weight operation. You can think of it as verifying the digital signatures to make sure the data is tamper resistant.
 
 # Quickstart
 ## Setup the callback endpoint
-This should be the same callback endpoint that was set when [building the proof request](preparing-request).
+This should be the endpoint that will be called by your [`onSuccess` callback](generating-proof).
 
 This endpoint should be of type `POST`.
 
 ## Decode the proof object
-The proof object is a URIEncoded JSON object. So, you need to decode it and then parse it.
 ```javascript
-const decodedBody = decodeURIComponent(req.body);
 const proofs = JSON.parse(decodedBody);
 ```
 
@@ -42,6 +40,9 @@ const { extractedParameters } = JSON.parse(proofs[i].context);
 ```
 
 ## Sanity Check
+`TODO`
+
+## Sample implementation in Next.js
 `TODO`
 
 # Structure of proofs
