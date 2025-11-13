@@ -164,19 +164,3 @@ Automatically trigger the optimal verification flow based on user's platform. Sh
 ```
 reclaimProofRequest.triggerReclaimFlow(options)
 ```
-
-## Passing variables through the proof object
-
-You can add custom key-value parameters to the proof request. These parameters will be included in the verified proof and can be used for application-specific metadata. However, the parameters are not cryptographically bound to the proof. If they are edited by a malicious user, there is no way to detect. So we recommend putting only metadata in parameters that are not strictly mission critical. This is useful to pass variables into the proof object instead of having to maintain state separately. For mission critical variables that should not be possible for the user to edit, please refer [`setContext`](preparing-request#set-context) instead.
-
-```
-reclaimProofRequest.setParams({
-  action: "account_verification",
-  timestamp: Date.now(),
-  ...
-});
-```
-
-
-
-

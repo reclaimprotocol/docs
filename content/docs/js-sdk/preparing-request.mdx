@@ -17,7 +17,7 @@ This is the simplest version of creating a proof request.
 import { ReclaimProofRequest } from '@reclaimprotocol/js-sdk';
 ```
 
-## Create an endpoint to build the `Proof Request` on your backend
+## Setup a request on the backend
 ```javascript
 const reclaimProofRequest = await ReclaimProofRequest.init(
     'APP_ID',
@@ -83,6 +83,18 @@ reclaimProofRequest.setContext('address', 'message')
 ```
 - `address` : this is usually a unique identifier for the user. This could be an email address, a wallet address, or just a session id
 - `message` : this is an open field where you can add any other information that you want passed around from the build request to the callback endpoint. You can stringify jsons here for convenience. 
+
+## Set Parameters
+If you already know what the value of the extracted parameter is supposed to be, you can set that using `setParams`.
+For example, if you know that the user's name before hand - and you want them to prove something from a website and you need the name to match exactly, you should use set the name in the params.
+
+If the extracted parameter doesn't match the set parameter, the proof generation will fail.
+```
+reclaimProofRequest.setParams({ 
+    name : "John Doe"
+})
+```
+
 
 ## Set Callback 
 ```

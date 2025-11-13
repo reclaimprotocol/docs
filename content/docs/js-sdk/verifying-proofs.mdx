@@ -4,7 +4,7 @@ description: Critical step to make sure user is not trying to defraud your app
 ---
 
 # Why do I need to verify, when the proof has already been generated?
-The [proof generation](/js-sdk/generating-proof) is a client side operation to protect the privacy and security of the user. However, if the user is malicious and you don't verify the proof on the backend, the user could use browser injections to trick your webapp to call `onSuccess` callback even without creating a valid proof. So, you must force your frontend to upload the proof generated or claimed to have been generated and verify them before you take the user to the next step in your business logic.
+The [proof generation](/js-sdk/generating-proof) is a client side operation. On Success Callback is only responsible for notifying when the proof is generated successfully. All the proofs generated should be verified on your backend as a malicious user can bypass any check you add on the frontend.
 
 Verifying proofs is a very simple light weight operation. You can think of it as verifying the digital signatures to make sure the data is tamper resistant.
 
