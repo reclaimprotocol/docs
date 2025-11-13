@@ -92,6 +92,8 @@ reclaimProofRequest.setParams({
 
 ## Set Callback 
 ```
-reclaimProofRequest.setAppCallbackUrl(url)
+reclaimProofRequest.setAppCallbackUrl(url, useJson)
 ```
 Set a backend callback URL where Reclaim Protocol will POST proofs directly after verification. This enables secure backend proof processing without relying on frontend to upload the proof.
+
+If `useJson` is set to `true`, it will send the proof as a raw JSON. Else, the POST body will contain the Proof JSON urlencoded. 
