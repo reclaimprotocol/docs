@@ -1,0 +1,19 @@
+---
+title: Verification Options
+description: Customize the default verification flow with Reclaim Protocol's InApp SDKs
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
+
+## Options API
+
+The InApp SDKs provide an `setVerificationOptions` method to customize the verification flow. Below are the available options that can be set:
+
+| Prop                                           | Type                                   | Description                                                                   |
+| ---------------------------------------------- | -------------------------------------- | ----------------------------------------------------------------------------- |
+| **`canDeleteCookiesBeforeVerificationStarts`** | <code>boolean</code>                   | This is enabled by default. Set false to persist sessions storage for the user. (This will be replaced with `canClearWebStorage` in an upcoming update)                                                                              |
+| **`canUseAttestorAuthenticationRequest`**      | <code>boolean</code>                   | Enable the use of authentication request when starting a verification |
+| **`claimCreationType`**                        | <code>'standalone' \| 'meChain'</code> | The type of claim creation to use. Defaults to 'standalone'.                  |
+| **`canAutoSubmit`**                            | <code>boolean</code>                   | Whether to automatically submit the proof after generation. Defaults to true. When false, a prompt to submit is shown to the user. |
+| **`isCloseButtonVisible`**                     | <code>boolean</code>                   | Whether the close button is visible in the verification screen. Defaults to true.                        |

@@ -3,6 +3,8 @@ title: Installation
 description: Flutter SDK for Reclaim Protocol
 ---
 
+import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
+
 ## Prerequisites
 - An Android device or emulator running Android 5.0 or later.
 
@@ -14,7 +16,7 @@ Setup your project using the [Get API Key guide](/api-key).
 ### Using Flutter CLI
 
 ```bash
-flutter pub add reclaim_inapp_sdk
+flutter pub add https://github.com/reclaimprotocol/reclaim-inapp-flutter-sdk.git
 ```
 
 ### Manual Installation
@@ -22,7 +24,10 @@ flutter pub add reclaim_inapp_sdk
 Add the following to your `pubspec.yaml`:
 ```yaml
 dependencies:
-  reclaim_inapp_sdk: ^latest_version
+  reclaim_inapp_flutter_sdk:
+    git:
+      url: https://github.com/reclaimprotocol/reclaim-inapp-flutter-sdk.git
+      ref: 0.15.0
 ```
 
 Then run:
@@ -41,20 +46,9 @@ Update your `android/app/build.gradle`:
 ```gradle
 android {
     defaultConfig {
-        minSdkVersion 21  // Minimum Android 5.0
-        targetSdkVersion 34
+        minSdkVersion 24
+        targetSdkVersion 36
     }
-}
-```
-
-#### Cronet for Devices Without Play Services
-
-If you need to support Android devices without Google Play Services, add the embedded Cronet library:
-
-```gradle
-dependencies {
-    // Use embedded cronet for devices without play services
-    implementation("org.chromium.net:cronet-embedded:119.6045.31")
 }
 ```
 
@@ -63,6 +57,33 @@ dependencies {
 Update your `ios/Podfile`:
 
 ```ruby
-platform :ios, '13.0'  # Minimum iOS 13.0
+platform :ios, '14.0'
 ```
 
+#### Update Environment Variables for XCScheme
+
+<Accordions>
+<Accordion title="Updating Environment Variables for XCScheme">
+
+1. Open your project in Xcode.
+2. Click on the project target.
+3. Click on the **Scheme** dropdown.
+
+<img src="https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk/raw/53a19f88c8d90df485a60dc20190f740cd9fd108/Screenshots/Install/10.png" alt="Edit current xcscheme in Xcode" width="500" />
+
+4. Click on the **Edit Scheme** button.
+5. Click on the **Run** tab.
+6. Click on the **Arguments** tab and check the **Environment Variables** section.
+
+<img src="https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk/raw/53a19f88c8d90df485a60dc20190f740cd9fd108/Screenshots/Install/12.png" alt="Enable Debug executable in Xcode" width="500" />
+
+7. Add the following environment variable:
+    - Key: `GODEBUG`
+    - Value: `asyncpreemptoff=1`
+8. Click on the **Close** button in the dialog and build the project.
+9. Run the app on a physical device.
+
+</Accordion>
+</Accordions>
+
+To use Reclaim InAppSdk in your project, follow the [Usage guide](/flutter/usage).

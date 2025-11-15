@@ -45,46 +45,10 @@ ReclaimVerification.startVerification(
 )
 ```
 
+The returned result `ReclaimVerification.ResultHandler.onResponse` in is a `ReclaimVerification.Response` object. This object contains a response that has proofs, exception, and the sessionId if the verification is successful.
+
+If the verification is cancelled or failed, the handler's `ReclaimVerification.ResultHandler.onException` method is called with a `ReclaimVerification.ReclaimVerificationException` object.
+
 ## Example
 
 [Complete Android example](https://github.com/reclaimprotocol/reclaim-inapp-android-sdk/tree/main/example) with Jetpack Compose
-
-# Advanced Options
-## Complete Request Parameters
-
-```kotlin
-val request = ReclaimVerification.Request(
-    // Required
-    appId = "YOUR_APP_ID",
-    secret = "YOUR_APP_SECRET",
-    providerId = "YOUR_PROVIDER_ID",
-
-    // Optional
-    session = ReclaimVerification.ReclaimSessionInformation(
-        sessionId = "session-id",
-        timestamp = "1234567890",
-        signature = "signature"
-    ),
-
-    contextString = "additional-context",          // Additional context data
-
-    parameters = mapOf(                            // Custom provider parameters
-        "customParam" to "value"
-    ),
-
-    providerVersion = ReclaimVerification.Request  // Specify provider version
-        .ProviderVersion.resolved("1.0.0")
-)
-```
-
-## Troubleshooting
-
-### Cronet Errors (Devices without Google Play Services)
-
-If you see Cronet-related errors on devices without Play Services, add embedded Cronet:
-
-```gradle
-dependencies {
-    implementation("org.chromium.net:cronet-embedded:141.7340.3")
-}
-```

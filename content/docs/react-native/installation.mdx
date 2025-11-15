@@ -1,190 +1,173 @@
 ---
-title: Installation
-description: This SDK allows Reclaim Protocol to be triggered from your app, without changing context.
+title: Get Started
+description: Get Started to use Reclaim Protocol in your React Native app, without changing context.
 ---
 
 import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 import { BadgeGroup } from '@/app/components/badge';
 import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
 
+## Add Reclaim to your React Native app
 
-## Get an API Key
-Setup your project using the [Get API Key guide](/api-key).
+### @reclaimprotocol/inapp-rn-sdk
 
-
-# Using Expo
-
-## Installation
-
-```package-install
-npx expo install @reclaimprotocol/inapp-rn-sdk
-```
-
-## Setup
-
-Add the Reclaim InApp Config Plugin to your `app.json`, `app.config.js`, or `app.config.ts`:
-
-```diff
-{
-  "plugins": [
-+   "@reclaimprotocol/inapp-rn-sdk",
-    // ... other plugins
-  ]
-}
-```
-
-<Callout type="warn">
-This module contains custom native code and is **NOT supported by Expo Go**. You'll need to create a development build.
-</Callout>
-
-## Building
-
-<Tabs items={['Without EAS', 'With EAS']}>
-<Tab value="Without EAS">
-```bash
-# iOS
-npx expo prebuild
-npx expo run:ios
-
-# Android
-npx expo prebuild
-npx expo run:android
-```
-</Tab>
-
-<Tab value="With EAS">
-```bash
-# Online builds
-npx eas-cli build --profile development
-
-# Local builds
-npx eas-cli build --profile development --local
-```
-</Tab>
-</Tabs>
-
-## iOS Performance Fix
-
-When running on iOS physical devices, add this environment variable to prevent performance issues:
-
-1. Open your project in Xcode
-2. Edit Scheme → Run → Arguments tab
-3. Add environment variable:
-   - **Key**: `GODEBUG`
-   - **Value**: `asyncpreemptoff=1`
-
----
-
-# Without Using Expo
-
-## Installation
-
-```package-install
-npm install @reclaimprotocol/inapp-rn-sdk
-```
-
-Alternatively, install directly from GitHub:
-
-```bash
-npm install git+https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk.git
-```
-
-## Android Setup
-
-### 1. Add Activity to AndroidManifest.xml
-
-Add this inside the `<application>` tag in `android/app/src/main/AndroidManifest.xml`:
-
-```xml
-<activity
-  android:name="org.reclaimprotocol.inapp_sdk.ReclaimActivity"
-  android:theme="@style/Theme.ReclaimInAppSdk.LaunchTheme"
-  android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
-  android:hardwareAccelerated="true"
-  android:windowSoftInputMode="adjustResize"
+<BadgeGroup badges={[ 
+    { href: 'https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk', imgSrc: 'https://img.shields.io/github/v/tag/reclaimprotocol/reclaim-inapp-reactnative-sdk.svg', alt: 'Reclaim React Native SDK' },
+    { href: 'https://docs.reclaimprotocol.org/inapp-sdks/react-native', imgSrc: 'https://img.shields.io/badge/read_the-docs-blue.svg', alt: 'Documentation' },
+    { href: 'https://www.npmjs.com/package/@reclaimprotocol/inapp-rn-sdk', imgSrc: 'https://img.shields.io/npm/v/%40reclaimprotocol%2Finapp-rn-sdk.svg', alt: 'NPM Version' },
+  ]} 
 />
+
+### Prerequisites
+
+1. Setup your project using the [Get API Key guide](/api-key).
+2. A provider id that you've added to your app from [Reclaim Devtools](https://dev.reclaimprotocol.org/explore).
+
+### Setup your app for using Reclaim InApp SDK
+
+Install Reclaim InApp SDKs to your React Native app if you haven't already done so. Choose the appropriate installation guide based on your project setup:
+
+**For React Native projects without Expo:**
+📖 [Installation Guide for React Native (No Framework)](/react-native/install/no-framework)
+
+**For React Native Expo projects:**
+📖 [Installation Guide for React Native Expo](/react-native/install/expo)
+
+## Example
+
+- See the [Reclaim Example - React Native without Framework](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/samples/example_new_arch/README.md) for a complete example of how to use the SDK in a React Native application.
+- See the [Reclaim Example - React Native Expo](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/samples/example_expo/README.md) for a complete example of how to use the SDK in a React Native Expo application.
+
+## Usage
+
+To use Reclaim InApp Sdk in your project, follow these steps:
+
+1. Import the `@reclaimprotocol/inapp-rn-sdk` package in your project file.
+
+```js
+import { ReclaimVerification } from '@reclaimprotocol/inapp-rn-sdk';
 ```
 
-### 2. Add Repositories
+2. Initialize the `ReclaimVerification` class to create an instance.
 
-Add these repositories to your `android/settings.gradle`:
+```js
+const reclaimVerification = new ReclaimVerification();
+```
 
-```groovy
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
-    String flutterStorageUrl = System.env.FLUTTER_STORAGE_BASE_URL ?: "https://storage.googleapis.com"
-    String reclaimStorageUrl = System.env.RECLAIM_STORAGE_BASE_URL ?: "https://reclaim-inapp-sdk.s3.ap-south-1.amazonaws.com/android/repo"
-    repositories {
-        google()
-        mavenCentral()
-        maven {
-            url "$reclaimStorageUrl"
-        }
-        maven {
-            url "$flutterStorageUrl/download.flutter.io"
-        }
+### Starting Verification
+
+#### Quickly trying verifications with Reclaim
+
+Start the verification flow by simply providing an app id, secret and a provider id.
+
+  - You can use the `APP_ID` and `APP_SECRET` that you received when you setup API key using [this guide](/api-key)
+  - The `PROVIDER_ID` is identifier for the proof provider you want your users to generate. You can see all the [available providers here](https://dev.reclaimprotocol.org/explore).
+
+```js
+const verificationResult = await reclaimVerification.startVerification({
+    appId: config.REACT_APP_RECLAIM_APP_ID ?? '',
+    secret: config.REACT_APP_RECLAIM_APP_SECRET ?? '',
+    providerId: providerId,
+});
+```
+
+The returned result is a `ReclaimVerification.Response` object. This object contains a response that has proofs, exception, and the sessionId if the verification is successful.
+
+#### Recommended way to start verification
+
+We highly recommend that you create a verification session on your backend server using our [JS SDK](/js-sdk/preparing-request#send-back-the-proof-request-object-to-the-frontend). This way, you can avoid exposing your `APP_SECRET` in your mobile app.
+
+You can export the session generated at your backend using `request.toJsonString()`. Then, you can use this exported session to start the verification in your React Native app.
+
+```js
+const verificationResult = await reclaimVerification.startVerificationFromJson(JSON.parse(requestJsonString));
+``` 
+
+### Verifying the Result
+
+After the verification is completed, you can verify the proofs from this result on your backend server using our [JS SDK](/js-sdk/verifying-proofs#verify-the-proof).
+
+```js
+import { verifyProof } from "@reclaimprotocol/js-sdk";
+
+// Important: This should happen on your backend server
+verifyProof(verificationResult.proofs);
+```
+
+### Exception Handling
+
+If the verification ends with an exception, the exception is thrown as a [ReclaimVerification.ReclaimVerificationException] object.
+
+Following is an example of how to handle the exception using [error.type]:
+
+```js
+try {
+  // ... start verification
+} catch (error) {
+  if (error instanceof ReclaimVerification.ReclaimVerificationException) {
+    switch (error.type) {
+      case ReclaimVerification.ExceptionType.Cancelled:
+        Snackbar.show({
+          text: 'Verification cancelled',
+          duration: Snackbar.LENGTH_LONG,
+        });
+        break;
+      case ReclaimVerification.ExceptionType.Dismissed:
+        Snackbar.show({
+          text: 'Verification dismissed',
+          duration: Snackbar.LENGTH_LONG,
+        });
+        break;
+      case ReclaimVerification.ExceptionType.SessionExpired:
+        Snackbar.show({
+          text: 'Verification session expired',
+          duration: Snackbar.LENGTH_LONG,
+        });
+        break;
+      case ReclaimVerification.ExceptionType.Failed:
+      default:
+        Snackbar.show({
+          text: 'Verification failed',
+          duration: Snackbar.LENGTH_LONG,
+        });
     }
+  } else {
+    Snackbar.show({
+      text: error instanceof Error ? error.message : 'An unknown verification error occurred',
+      duration: Snackbar.LENGTH_LONG,
+    });
+  }
 }
 ```
 
-<Callout>
-If the above doesn't work, try adding the repositories to your root `build.gradle` or app-level `build.gradle` in the `allprojects` section.
-</Callout>
+This error also contains `sessionId`, `reason`, and `innerError` that can be used to get more details about the occurred error.
 
-## iOS Setup
-
-### 1. Set Minimum iOS Version
-
-Ensure your `ios/Podfile` has iOS 13.0 or higher:
-
-```ruby
-platform :ios, '13.0'
+```js
+error.sessionId
+error.reason
+error.innerError
 ```
 
-### 2. Install Pods
+If you need more help, check out the [Troubleshooting guide](/react-native/troubleshooting).
 
-```bash
-cd ios/
-pod install
-```
+## Next Steps
 
-### 3. Fix Performance on Physical Devices
+- Explore more about [Proof Providers](https://dev.reclaimprotocol.org/explore) that you can integrate with your app.
 
-Add this environment variable in your Xcode scheme to prevent performance issues on physical devices:
+### Advanced Usage
 
-1. Open `*.xcworkspace` in Xcode
-2. Edit Scheme → Run → Arguments
-3. Add environment variable:
-   - **Key**: `GODEBUG`
-   - **Value**: `asyncpreemptoff=1`
+You can customize the verification flow with options, and, as an advanced use—set up overrides or use authentication with the attestor. Learn more from [the Usage documentation](/inapp-sdks/advanced/intro). 
 
-## Advanced iOS Setup
+### Contributing
 
-<Accordions>
-<Accordion title="Override Pod Dependency Version (Optional)">
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-If you need to use a specific version of the iOS SDK, you can override it in your `Podfile`:
+### Issues and Feedback
 
-**From CocoaPods (Recommended):**
-```ruby
-pod 'ReclaimInAppSdk', '~> 0.18.0'
-```
+Please feel free to file feature requests and bugs at the issue tracker of InApp sdks. Don't hesitate to contact us if you need any help ;)
 
-**From Git Tag:**
-```ruby
-pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :tag => '0.18.0'
-```
+### Stay Updated
 
-**From Git HEAD:**
-```ruby
-pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git'
-```
-
-After adding, run:
-```bash
-cd ios/
-pod install
-```
-
-</Accordion>
-</Accordions>
+- Join our [Telegram community](https://t.me/protocolreclaim)
+- Follow [@reclaimprotocol](https://twitter.com/reclaimprotocol) on Twitter
+- Watch our [GitHub repository](https://github.com/reclaimprotocol)

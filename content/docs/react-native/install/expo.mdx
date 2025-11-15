@@ -1,0 +1,96 @@
+---
+title: React Native Expo
+description: Steps to install Reclaim InApp SDK on apps built with React Native Expo
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { BadgeGroup } from '@/app/components/badge';
+import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
+
+## Installation
+
+```package-install
+npm install @reclaimprotocol/inapp-rn-sdk
+```
+
+## Setup
+
+Add the Reclaim InApp Config Plugin to your `app.json`, `app.config.js`, or `app.config.ts`:
+
+```diff
+{
+  "plugins": [
++   "@reclaimprotocol/inapp-rn-sdk",
+    // ... other plugins
+  ]
+}
+```
+
+<Callout type="warn">
+This module contains custom native code and is **NOT supported by Expo Go**. You'll need to create a development build.
+</Callout>
+
+## Update Environment Variables for XCScheme
+
+<Accordions>
+<Accordion title="Updating Environment Variables for XCScheme">
+
+1. Open your project in Xcode.
+2. Click on the project target.
+3. Click on the **Scheme** dropdown.
+
+<img src="https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk/raw/53a19f88c8d90df485a60dc20190f740cd9fd108/Screenshots/Install/10.png" alt="Edit current xcscheme in Xcode" width="500" />
+
+4. Click on the **Edit Scheme** button.
+5. Click on the **Run** tab.
+6. Click on the **Arguments** tab and check the **Environment Variables** section.
+
+<img src="https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk/raw/53a19f88c8d90df485a60dc20190f740cd9fd108/Screenshots/Install/12.png" alt="Enable Debug executable in Xcode" width="500" />
+
+7. Add the following environment variable:
+    - Key: `GODEBUG`
+    - Value: `asyncpreemptoff=1`
+8. Click on the **Close** button in the dialog and build the project.
+9. Run the app on a physical device.
+
+</Accordion>
+</Accordions>
+
+
+## Building
+
+<Tabs items={['Without EAS', 'With EAS']}>
+<Tab value="Without EAS">
+
+```bash
+# iOS
+npx expo prebuild
+npx expo run:ios
+
+# Android
+npx expo prebuild
+npx expo run:android
+```
+
+</Tab>
+
+<Tab value="With EAS">
+
+```bash
+# Online builds
+npx eas-cli build --profile development
+
+# Local builds
+npx eas-cli build --profile development --local
+```
+
+</Tab>
+</Tabs>
+
+## Ready
+
+With the above steps completed, try running your project on any iOS device. You can now continue with our [React Native Get Started Guide](react-native/installation#using_reclaim).
+
+<Callout type="warn">
+Please be aware of a known incompatibility between ReclaimInAppSdk and the [expo-dev-client](https://www.npmjs.com/package/expo-dev-client) package on the iOS platform. We recommend temporarily removing [expo-dev-client](https://www.npmjs.com/package/expo-dev-client) from your project when you need to test or use ReclaimInAppSdk functionality on iOS.
+</Callout>
