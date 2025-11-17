@@ -24,7 +24,7 @@ const proofs = JSON.parse(decodedBody);
 import { verifyProof } from '@reclaimprotocol/js-sdk';
 
 ...
-  const isValid = await verifyProof(proofs[i]); // loop over proofs if multiple
+const isValid = await verifyProof(proofs);
 ```
 
 ## Extract the data

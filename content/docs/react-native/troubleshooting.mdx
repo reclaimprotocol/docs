@@ -1,0 +1,103 @@
+---
+title: Troubleshooting problems
+description: Figuring out common issues when integrating Reclaim InApp SDK in React Native apps
+---
+
+## Common Issues and Solutions
+
+If you encounter issues while integrating Reclaim InApp SDK into your React Native application, here are some common troubleshooting steps to help you resolve them:
+
+### iOS build issues
+
+Incase you get errors which say `CocoaPods could not find compatible versions for pod "ReclaimInAppSdk"`, run the following in your project's `ios/` directory:
+
+```sh
+bundle exec pod update ReclaimInAppSdk
+# or
+pod update ReclaimInAppSdk
+```
+
+### Compatibility Notice: expo-dev-client on iOS
+
+Please be aware of a known incompatibility between ReclaimInAppSdk and the [`expo-dev-client`](https://www.npmjs.com/package/expo-dev-client) package on the iOS platform.
+
+When both packages are present in your iOS application, critical network requests from ReclaimInAppSdk may fail with a request timeout error (i.e `Http failed. Checking if we can retry..\nNSErrorClientException: The request timed out.`).
+
+Our team is investigating this issue to find a solution. In the meantime, we recommend temporarily removing expo-dev-client from your project when you need to test or use ReclaimInAppSdk functionality on iOS.
+
+### UI immediately closes
+
+The verification likely ended with an exception, the exception is thrown as a [ReclaimVerification.ReclaimVerificationException] object.
+
+A common reason behind this could be incorrect configuration used to start the verification like using a provider ID that is included for use for your app which can be fixed by ensuring the provider ID is correctly set up in your [Reclaim Devtools Application dashboard](https://dev.reclaimprotocol.org/). 
+
+To get more details about error, following is an example of how to handle the exception using [error.type]:
+
+```js
+try {
+  // ... start verification
+} catch (error) {
+  if (error instanceof ReclaimVerification.ReclaimVerificationException) {
+    switch (error.type) {
+      case ReclaimVerification.ExceptionType.Cancelled:
+        Snackbar.show({
+          text: 'Verification cancelled',
+          duration: Snackbar.LENGTH_LONG,
+        });
+        break;
+      case ReclaimVerification.ExceptionType.Dismissed:
+        Snackbar.show({
+          text: 'Verification dismissed',
+          duration: Snackbar.LENGTH_LONG,
+        });
+        break;
+      case ReclaimVerification.ExceptionType.SessionExpired:
+        Snackbar.show({
+          text: 'Verification session expired',
+          duration: Snackbar.LENGTH_LONG,
+        });
+        break;
+      case ReclaimVerification.ExceptionType.Failed:
+      default:
+        Snackbar.show({
+          text: 'Verification failed',
+          duration: Snackbar.LENGTH_LONG,
+        });
+    }
+  } else {
+    Snackbar.show({
+      text: error instanceof Error ? error.message : 'An unknown verification error occurred',
+      duration: Snackbar.LENGTH_LONG,
+    });
+  }
+}
+```
+
+This error also contains `sessionId`, `reason`, and `innerError` that can be used to get more details about the occurred error.
+
+```js
+error.sessionId
+error.reason
+error.innerError
+```
+
+### Cronet errors on android without play services
+
+On android devices which don't have play services, you may get following errors in Android logs: `java.lang.RuntimeException: All available Cronet providers are disabled. A provider should be enabled before it can be used.`, `Google-Play-Services-Cronet-Provider is unavailable.`. This is because the Reclaim InApp SDK depends on cronet for making http requests.
+
+To fix this, you need to use embedded cronet in your android app by adding the following dependency in your build.gradle dependencies block: 
+
+```gradle
+dependencies {
+    // ... other dependencies (not shown for brevity)
+    // Use embedded cronet
+    implementation("org.chromium.net:cronet-embedded:119.6045.31")
+}
+```
+
+## Need More Help?
+
+If you need further assistance, please reach out to our support team or visit our [Telegram community](https://t.me/protocolreclaim) for help from other developers.
+
+- Join our [Telegram community](https://t.me/protocolreclaim)
+- Open an issue on our [GitHub repository](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/issues)

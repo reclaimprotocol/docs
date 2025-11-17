@@ -5,6 +5,7 @@ description: Integrate Reclaim Protocol in Swift
 
 
 # Quickstart
+
 ## Import module into your Swift file.
 
 ```swift
@@ -56,57 +57,3 @@ The exception can be one of the following:
 
 - [SwiftUI Example](https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk/tree/main/Examples/SwiftUIExample)
 - [SwiftUI with CocoaPods](https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk/tree/main/Examples/SwiftUIWithPodExample)
-
-# Advance Options
-## Complete Request Parameters
-
-```swift
-let request = ReclaimVerification.Request.params(
-    try .init(
-        // Required
-        providerId: "YOUR_PROVIDER_ID",
-
-        // Optional
-        appId: "YOUR_APP_ID",           // Defaults to Info.plist
-        secret: "YOUR_APP_SECRET",      // Defaults to Info.plist
-
-        session: .init(                 // Reuse existing session
-            timestamp: "1234567890",
-            sessionId: "session-id",
-            signature: "signature"
-        ),
-
-        contextString: "additional-context",  // Additional context data
-
-        parameters: [                   // Custom provider parameters
-            "customParam": "value"
-        ],
-
-        providerVersion: .init(         // Specify provider version
-            resolvedVersion: "1.0.0",
-            versionExpression: "1.0.0"
-        )
-    )
-)
-```
-
-## Alternative Methods
-
-### Start from URL
-
-```swift
-let result = try await ReclaimVerification.startVerificationFromUrl(
-    "https://api.example.com/verification-request"
-)
-```
-## Customize Verification Flow
-
-```swift
-try await ReclaimVerification.setOverrides(
-    appInfo: ReclaimOverrides.ReclaimAppInfo(
-        appName: "My Custom App",
-        appImageUrl: "https://example.com/logo.png"
-    )
-    // Add other overrides as needed
-)
-```

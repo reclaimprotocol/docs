@@ -2,6 +2,8 @@
   "title": "React Native SDK",
   "pages": [
     "installation",
-    "usage"
+    "install",
+    "troubleshooting",
+    "advanced-usage"
   ]
 }

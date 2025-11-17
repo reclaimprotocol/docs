@@ -19,7 +19,6 @@ const String providerId = String.fromEnvironment('PROVIDER_ID');
 - You can get the `APP_ID` and `APP_SECRET` using [this guide](/api-key)
 - The `PROVIDER_ID` is the proof you want the user to generate. You can see all the [available providers here](https://dev.reclaimprotocol.org/explore).
 
-
 ## Starting Verification
 Create a `ReclaimVerification` instance from your BuildContext:
 
@@ -44,6 +43,18 @@ final result = await reclaim.startVerification(
 // Access the proofs
 final proofs = result.proofs;
 print('Received ${proofs.length} proofs');
+```
+
+### Pre-warming
+
+For better performance, you can pre-warm the SDK before use:
+
+```dart
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  ReclaimInAppSdk.preWarm();
+  runApp(MyApp());
+}
 ```
 
 ## Verifying proofs
