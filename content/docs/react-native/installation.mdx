@@ -1,22 +1,14 @@
 ---
-title: Get Started
-description: Get Started to use Reclaim Protocol in your React Native app, without changing context.
+title: Getting Started
+description: Integrate Reclaim InApp SDK for React Native into your app.
 ---
 
 import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 import { BadgeGroup } from '@/app/components/badge';
 import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
+import { Cards, Card } from 'fumadocs-ui/components/card';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
 
-## Add Reclaim to your React Native app
-
-### @reclaimprotocol/inapp-rn-sdk
-
-<BadgeGroup badges={[ 
-    { href: 'https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk', imgSrc: 'https://img.shields.io/github/v/tag/reclaimprotocol/reclaim-inapp-reactnative-sdk.svg', alt: 'Reclaim React Native SDK' },
-    { href: 'https://docs.reclaimprotocol.org/inapp-sdks/react-native', imgSrc: 'https://img.shields.io/badge/read_the-docs-blue.svg', alt: 'Documentation' },
-    { href: 'https://www.npmjs.com/package/@reclaimprotocol/inapp-rn-sdk', imgSrc: 'https://img.shields.io/npm/v/%40reclaimprotocol%2Finapp-rn-sdk.svg', alt: 'NPM Version' },
-  ]} 
-/>
 
 ### Prerequisites
 
@@ -25,43 +17,67 @@ import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
 
 ### Setup your app for using Reclaim InApp SDK
 
-Install Reclaim InApp SDKs to your React Native app if you haven't already done so. Choose the appropriate installation guide based on your project setup:
+Choose the appropriate installation guide based on your project setup:
 
-**For React Native projects without Expo:**
-📖 [Installation Guide for React Native (No Framework)](/react-native/install/no-framework)
+<Cards>
+  <Card href="/react-native/install/no-framework" title="React Native (No Framework)">
+    Installation Guide for React Native projects without Expo
+  </Card>
+  <Card href="/react-native/install/expo" title="Expo">
+    Installation Guide for Expo projects
+  </Card>
+</Cards>
 
-**For React Native Expo projects:**
-📖 [Installation Guide for React Native Expo](/react-native/install/expo)
+## Examples
 
-## Example
+If you prefer to see a complete example of how to use the SDK in a React Native application, you can check out the following:
 
-- See the [Reclaim Example - React Native without Framework](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/samples/example_new_arch/README.md) for a complete example of how to use the SDK in a React Native application.
-- See the [Reclaim Example - React Native Expo](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/samples/example_expo/README.md) for a complete example of how to use the SDK in a React Native Expo application.
+- [React Native without Framework](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/samples/example_new_arch/README.md)
+- [React Native Expo](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/samples/example_expo/README.md)
 
-## Usage
+## Basic Usage
 
-To use Reclaim InApp Sdk in your project, follow these steps:
+<Steps>
+<Step>
+### Initialize the SDK
 
-1. Import the `@reclaimprotocol/inapp-rn-sdk` package in your project file.
+Import the package and create an instance of `ReclaimVerification`.
 
 ```js
 import { ReclaimVerification } from '@reclaimprotocol/inapp-rn-sdk';
-```
 
-2. Initialize the `ReclaimVerification` class to create an instance.
-
-```js
 const reclaimVerification = new ReclaimVerification();
 ```
+</Step>
 
-### Starting Verification
+<Step>
+### Start Verification
 
-#### Quickly trying verifications with Reclaim
+Choose your preferred method to start the verification flow.
 
-Start the verification flow by simply providing an app id, secret and a provider id.
+<Tabs items={['Backend-Driven (Recommended)', 'Frontend-Only']}>
+<Tab value="Backend-Driven (Recommended)">
 
-  - You can use the `APP_ID` and `APP_SECRET` that you received when you setup API key using [this guide](/api-key)
-  - The `PROVIDER_ID` is identifier for the proof provider you want your users to generate. You can see all the [available providers here](https://dev.reclaimprotocol.org/explore).
+Initialize a session on your backend to keep your `APP_SECRET` secure.
+
+1. Export the session config from your backend using `request.toJsonString()` (see [how to setup a request on the backend](/js-sdk/preparing-request#setup-a-request-on-the-backend)).
+2. Start verification with the config:
+
+```js
+const verificationResult = await reclaimVerification.startVerificationFromJson(
+                                        JSON.parse(requestJsonString)
+                                    );
+```
+
+</Tab>
+<Tab value="Frontend-Only">
+
+<Callout type="warn">
+This method exposes your `APP_SECRET` in the client code. Do not use this in production.
+</Callout>
+
+- `APP_ID` & `APP_SECRET`: Obtained from the [API Key guide](/api-key).
+- `PROVIDER_ID`: Identifier for the proof provider (see [available providers](https://dev.reclaimprotocol.org/explore)).
 
 ```js
 const verificationResult = await reclaimVerification.startVerification({
@@ -71,21 +87,14 @@ const verificationResult = await reclaimVerification.startVerification({
 });
 ```
 
-The returned result is a `ReclaimVerification.Response` object. This object contains a response that has proofs, exception, and the sessionId if the verification is successful.
+</Tab>
+</Tabs>
+</Step>
 
-#### Recommended way to start verification
+<Step>
+### Verify the Result
 
-We highly recommend that you create a verification session on your backend server using our [JS SDK](/js-sdk/preparing-request#send-back-the-proof-request-object-to-the-frontend). This way, you can avoid exposing your `APP_SECRET` in your mobile app.
-
-You can export the session generated at your backend using `request.toJsonString()`. Then, you can use this exported session to start the verification in your React Native app.
-
-```js
-const verificationResult = await reclaimVerification.startVerificationFromJson(JSON.parse(requestJsonString));
-``` 
-
-### Verifying the Result
-
-After the verification is completed, you can verify the proofs from this result on your backend server using our [JS SDK](/js-sdk/verifying-proofs#verify-the-proof).
+After the verification is completed, you can submit and verify the proofs on your backend server using our [JS SDK](/js-sdk/verifying-proofs#verify-the-proof).
 
 ```js
 import { verifyProof } from "@reclaimprotocol/js-sdk";
@@ -93,54 +102,14 @@ import { verifyProof } from "@reclaimprotocol/js-sdk";
 // Important: This should happen on your backend server
 verifyProof(verificationResult.proofs);
 ```
+</Step>
+</Steps>
 
 ### Exception Handling
 
-If the verification ends with an exception, the exception is thrown as a [ReclaimVerification.ReclaimVerificationException] object.
+If the verification ends with an exception, the exception is thrown as a `ReclaimVerification.ReclaimVerificationException` object.
 
-Following is an example of how to handle the exception using [error.type]:
-
-```js
-try {
-  // ... start verification
-} catch (error) {
-  if (error instanceof ReclaimVerification.ReclaimVerificationException) {
-    switch (error.type) {
-      case ReclaimVerification.ExceptionType.Cancelled:
-        Snackbar.show({
-          text: 'Verification cancelled',
-          duration: Snackbar.LENGTH_LONG,
-        });
-        break;
-      case ReclaimVerification.ExceptionType.Dismissed:
-        Snackbar.show({
-          text: 'Verification dismissed',
-          duration: Snackbar.LENGTH_LONG,
-        });
-        break;
-      case ReclaimVerification.ExceptionType.SessionExpired:
-        Snackbar.show({
-          text: 'Verification session expired',
-          duration: Snackbar.LENGTH_LONG,
-        });
-        break;
-      case ReclaimVerification.ExceptionType.Failed:
-      default:
-        Snackbar.show({
-          text: 'Verification failed',
-          duration: Snackbar.LENGTH_LONG,
-        });
-    }
-  } else {
-    Snackbar.show({
-      text: error instanceof Error ? error.message : 'An unknown verification error occurred',
-      duration: Snackbar.LENGTH_LONG,
-    });
-  }
-}
-```
-
-This error also contains `sessionId`, `reason`, and `innerError` that can be used to get more details about the occurred error.
+This error object contains `sessionId`, `reason`, and `innerError` that can be used to get more details about the occurred error.
 
 ```js
 error.sessionId
@@ -150,21 +119,11 @@ error.innerError
 
 If you need more help, check out the [Troubleshooting guide](/react-native/troubleshooting).
 
-## Next Steps
-
-- Explore more about [Proof Providers](https://dev.reclaimprotocol.org/explore) that you can integrate with your app.
 
 ### Advanced Usage
 
-You can customize the verification flow with options, and, as an advanced use—set up overrides or use authentication with the attestor. Learn more from [the Usage documentation](/inapp-sdks/advanced/intro). 
+Want to further customize the verification experience? You can configure options, set up overrides, or use authentication with the attestor. Check out the [Advanced Configuration guide](/inapp-sdks/advanced/intro) for more details. 
 
-### Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-### Issues and Feedback
-
-Please feel free to file feature requests and bugs at the issue tracker of InApp sdks. Don't hesitate to contact us if you need any help ;)
 
 ### Stay Updated
 
