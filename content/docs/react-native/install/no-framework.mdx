@@ -1,5 +1,5 @@
 ---
-title: React Native without Framework
+title: React Native 
 description: Steps to install Reclaim InApp SDK on apps built with React Native without a framework
 ---
 
@@ -31,7 +31,7 @@ Add the following to your `android/app/src/main/AndroidManifest.xml` file under 
 
 add the following to the end of settings.gradle:
 
-<Tabs items={['Groovy', 'Kotlin']}>
+<Tabs groupId="rnandroid-language"  items={['Groovy', 'Kotlin']} >
 ```groovy tabs="Groovy"
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
@@ -68,7 +68,7 @@ dependencyResolutionManagement {
 
 If the above doesn't work, alternatively add the following repositories to the relevant repositories block:
 
-<Tabs items={['Groovy', 'Kotlin']}>
+<Tabs groupId="rnandroid-language" items={['Groovy', 'Kotlin']}>
 ```groovy tabs="Groovy"
 String flutterStorageUrl = System.env.FLUTTER_STORAGE_BASE_URL ?: "https://storage.googleapis.com"
 String reclaimStorageUrl = System.env.RECLAIM_STORAGE_BASE_URL ?: "https://reclaim-inapp-sdk.s3.ap-south-1.amazonaws.com/android/repo"
@@ -136,7 +136,7 @@ pod install
 
 ## Ready
 
-With the above steps completed, try building & running your project on any iOS device. You can now continue with our [React Native Get Started Guide](react-native/installation#using_reclaim).
+With the above steps completed, try building & running your project on any iOS device. You can now continue with our [React Native Get Started Guide](/react-native/installation#basic-usage).
 
 ## Advanced iOS Setup
 
