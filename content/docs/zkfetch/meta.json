@@ -1,4 +1,4 @@
 {
     "title": "ZK Fetch",
-    "pages": ["quickstart", "cardano", "stellar"]
+    "pages": ["installation", "usage", "cardano", "stellar"]
 }

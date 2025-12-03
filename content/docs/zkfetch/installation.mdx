@@ -1,0 +1,42 @@
+---
+title: Installation
+description: Flutter SDK for Reclaim Protocol
+---
+
+## Prerequisites
+- NodeJS 18 or later
+
+## Get an API Key
+Setup your project using the [Get API Key guide](/api-key).
+
+## Enable zkFetch
+Make sure zkFetch is turned on for your application from the [Dev Tool](https://dev.reclaimprotocol.org). You can do so by navigating to the application, and looking for zkFetch in the Integration tab.
+
+## Installation
+
+```bash copy
+npm i @reclaimprotocol/zk-fetch
+```
+
+Please download zk files using this command:
+```bash copy
+node node_modules/@reclaimprotocol/zk-symmetric-crypto/lib/scripts/download-files
+```
+
+### Additional NextJS Configuration
+
+zkFetch uses native modules that need to be externalized in Next.js. Add this to your `next.config.ts`:
+
+```typescript
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  serverExternalPackages: ['koffi', '@reclaimprotocol/zk-fetch'],
+};
+
+export default nextConfig;
+```
+
+
+
+
