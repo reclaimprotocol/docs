@@ -1,0 +1,155 @@
+---
+title: Usage
+description: The Reclaim Protocol Proofs are compatible with blockchain applications.
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+### Import Reclaim Client
+
+```js copy
+import { ReclaimClient } from '@reclaimprotocol/zk-fetch';
+```
+
+### Initialize Reclaim Client
+
+```js copy
+const client = new ReclaimClient('YOUR_APP_ID', 'YOUR_APP_SECRET')
+```
+
+## Add Public/Private headers
+Headers are a standard part of any `fetch` request.
+When a proof is created, it is created for what was the request and what was its corresponding response.
+The `request` consists of `headers` and `body`.
+
+A typical fetch request looks like so :
+```
+fetch(url, {
+  method: 'POST',
+  headers : { ... },
+  body: {...}
+})
+```
+
+In this request, there might be sensitive information like api keys or username & password that should not be revealed as part of the proof. 
+
+For that purpose, you should construct two separate request objects `publicOptions` and `privateOptions`. 
+
+As the names suggest, public options will be revealed whereas private options will be redacted. We recommend keeping as little information in `privateOptions` as possible - to maintain the sanctity of the verification.
+
+Example, 
+```js
+  const publicOptions = {
+    method: 'GET', // or POST
+    headers : {
+      accept: 'application/json, text/plain, */*' 
+    }
+  }
+
+  const privateOptions = {
+    headers : {
+        apiKey: "123...456",
+    }, 
+    body : {
+        username: "supersecretvalue"
+    }
+  }
+
+  const proof = await client.zkFetch(
+    'https://your.url.org',
+    publicOptions,
+    privateOptions
+  )
+
+```
+
+## Reading the response
+```
+  const data = JSON.parse(proof?.extractedParameterValues?.data);
+```
+### Troubleshooting : chunked responses
+If the server returns chunked responses, you will need to decode the chunked response before parsing.
+
+```
+function decodeChunkedResponse(chunkedData: string): string {
+  // Remove chunk size markers (hex number + \r\n)
+  // and trailing \r\n markers
+  return chunkedData
+    .replace(/^[0-9a-fA-F]+\r\n/, '') // Remove initial chunk size
+    .replace(/\r\n0\r\n\r\n$/, '') // Remove final chunk marker
+    .replace(/\r\n[0-9a-fA-F]+\r\n/g, ''); // Remove any intermediate chunk markers
+}
+
+...
+
+  const rawData = proof?.extractedParameterValues?.data || '';
+  const cleanedData = decodeChunkedResponse(rawData);
+  const data = JSON.parse(cleanedData);
+```
+
+### Example
+You can use [LLM x402 project](https://llm-x402.reclaimprotocol.org) as a sample reference, which verifies that the api response actually came from the correct LLM.
+
+
+# Advance Options
+## Using Response Match and Redactions
+You can also use responseMatches and responseRedactions to match and redact the response. This is useful when you want to verify the response against a particular value and/or redact some part of the response.
+
+```js copy
+ const publicOptions = {
+    method: 'GET', // or POST
+    headers : {
+      accept: 'application/json, text/plain, */*' 
+    }
+  }
+
+  const privateOptions = {
+    responseMatches: [
+      {
+        type: 'contains' | 'regex', // type of match 
+        value: '<HTTP RESPONSE TEXT>' | '<REGEX>', // value to match or regex to match 
+      }
+    ],
+    responseRedactions: [
+      {
+        jsonPath: '$.data', // JSON path to redact 
+        xPath: '/data', // Xpath to redact  
+        regex: '<REGEX>', // Regex to redact
+      }
+    ]
+  }
+```
+
+## Verify the proofs and transform proof for onchain 
+
+### Verify the proofs
+
+Install @reclaimprotocol/js-sdk
+
+```bash copy
+npm install @reclaimprotocol/js-sdk
+```
+
+Import the Reclaim class from the js-sdk
+
+```js copy
+const { Reclaim } = require('@reclaimprotocol/js-sdk');
+```
+
+Use Reclaim.verifySignedProof(proof)
+
+You must send the proofObject and not the verifiedResponse to the verifier for them to be able to verify.
+
+```js
+const isProofVerified = await Reclaim.verifySignedProof(proof);
+```
+
+#### Transform proof for onchain
+
+Transforms proof data into a format suitable for on-chain transactions, you need to use it before sending the proof to the blockchain.
+
+Use Reclaim.transformForOnchain(proof) from the js-sdk to transform the proof for onchain.
+
+```js
+const onchainProof = Reclaim.transformForOnchain(proof);
+```
