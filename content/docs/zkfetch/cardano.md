@@ -73,6 +73,8 @@ deno run -A --unstable --node-modules-dir=manual sendTransaction.ts
 
 Proof identifier and extracted parameters will be included in the transaction's [metadata](https://preprod.cexplorer.io/tx/c36ba27f9124ec345b3a54bde3212aef834f91e203d2c8bf32a2f1f474ac5b4f/metadata#data).
 
+You can skip the guide below and head directly to the repository's comprehensive [README](https://github.com/reclaimprotocol/zkfetch-cardano-example?tab=readme-ov-file#zkfetch-cardano-example).
+
 ## Testing
 
 Run all tests with:
