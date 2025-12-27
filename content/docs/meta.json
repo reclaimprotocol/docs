@@ -3,6 +3,7 @@
   "pages": [
     "index",
     "api-key",
+    "fully-hosted",
     "js-sdk",
     "react-native",
     "flutter",

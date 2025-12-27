@@ -1,0 +1,49 @@
+---
+title: The Default Bundle
+description: You must pass the provider ID
+---
+
+## You need a providerId
+If you set the `bundleId` to `default`, you need to also pass the `providerId`.
+
+You can see all the providers [created by the Reclaim Protocol Community](https://dev.reclaimprotocol.org/explore). You can just copy the providerId from there.
+
+If you do not find a provider of your choice, you can build one yourself using the [Provider Builder](https://dev.reclaimprotocol.org/provider-builder).
+
+## UI
+The user will be navigated directly to the login page of the providerId. There is no provider selection page.
+![](/hosted-bundles/default-bundle.png)
+![](/hosted-bundles/ui.png)
+![](/hosted-bundles/verifying.png)
+![](/hosted-bundles/complete.png)
+
+## Callback
+To the callback you set, you will receive a json like so : 
+```json
+{
+  "data": {
+    "sessionId": "YOUR SESSION ID",
+    "applicationId": "YOUR APPLICATION ID",
+    "bundleId": "default",
+    "proofs": [
+      {
+        "success": true,
+        "data": {
+          "PARAM_1_NAME": "PARAM_1_VALUE",
+          "PARAM_2_NAME": "PARAM_2_VALUE",
+        },
+        "metadata": {
+          "verified": true,
+          "timestamp": 1766854715373
+        }
+      }
+    ],
+    "timestamp": "2025-12-27T16:58:35.373Z"
+  },
+  "signature": "0x5515a680e6f05d844c1e54aa231b...RECLAIMPROTOCOL_SIGNATURE"
+}
+```
+
+You can see all the parameter's [descriptions here](../usage). 
+
+However, unlike all other bundles, the parameters inside `proofs[i].data` will depend on the providerId you selected. You can see the provider's response schema on dev.reclaimprotocol.org. You must look for the `extractedParameterValues` of the provider schema. That is the object you will receive in `proofs[i].data`.

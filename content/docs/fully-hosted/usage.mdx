@@ -1,0 +1,86 @@
+---
+title: Usage
+description: Generate url and redirect user
+---
+import { Tab, Tabs } from "fumadocs-ui/components/tabs";
+
+## Generate a signed url
+The first step is to generate a signed URL. This signed URL will be the destination where the user should be redirected to, to complete the verification.
+
+Sample implementation [here](https://github.com/reclaimprotocol/hosted-bundles/blob/master/app/dummy-website/page.tsx).
+
+<Tabs items={["cURL", "NodeJS"]}>
+    <Tab title="cURL">
+    ```
+    curl -X POST https://hosted-bundles.reclaimprotocol.org/api/helper/generate-signed-url \
+    -H "Content-Type: application/json" \
+    -d '{
+        "applicationSecret": "YOUR_APPLICATION_SECRET",
+        "bundleId": "SELECTED_BUNDLE",
+        "callbackUrl": "YOUR_CALLBACK",
+        "sessionId": "YOUR_SESSIONID",
+        "providerId": "SELECTED_PROVIDERID"
+    }'
+    ```
+    </Tab>
+    <Tab title="NodeJS">
+    ```
+    const response = await fetch('https://hosted-bundles.reclaimprotocol.org/api/helper/generate-signed-url', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+        applicationSecret: process.env.APPLICATION_SECRET,
+        bundleId: 'SELECTED_BUNDLE',
+        callbackUrl: 'YOUR_CALLBACK',
+        sessionId: 'YOUR_SESSIONID',
+        providerId: 'SELECTED_PROVIDERID'
+    })
+    });
+
+    const data = await response.json();
+    const url = data.url;
+    ```
+    </Tab>
+</Tabs>
+  
+
+### Understanding the parameters
+- `applicationSecret` from [Get your API Keys](/api-key)
+- `bundleId` - one of `education`, `employment`, `age`, `default`. See [installation](installation) for information to pick a bundleId.
+- `callbackUrl` - a `POST` endpoint where the verified data will be sent. See next section for details.
+- `sessionId` - a session identifier that you can use to identify the user on your system. We will send this session id back to you so you can map the verification to the said user.
+- `providerId` - if you know a provider in specific that you want to use, you can set that here. You can see all the available providers on the [Developer Tool](https://dev.reclaimprotocol.org/explore). If you selected `default` for bundleId, you must set a providerId, else it is optional and user will be asked to select the provider using a managed UI.
+
+## Receiving the proof
+You must expose a `POST` endpoint. That accepts a json object.
+```js
+const body = await request.json();
+```
+
+### Verify
+To make sure this is data that actually came from us, you can use a helper function. Just pass the body as is to the signature verification endpoint.
+
+Sample implementation [here](https://github.com/reclaimprotocol/hosted-bundles/blob/master/app/api/dummy-callback/route.ts).
+
+```js
+      const verifyResponse = await fetch(`https://hosted-bundles.reclaimprotocol.org/api/helper/verify-callback`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      });
+
+      const verifyResult = await verifyResponse.json();
+      const isVerified = verifyResult.verified;
+```
+Once it is verified, you can confidently use the data you received. Please see bundle specific guides for processing data from that bundle.
+- [`default`](./bundles/default)
+- [`education`](./bundles/education)
+- [`employment`](./bundles/employment)
+- [`age`](./bundles/age)
+
+### Troubleshooting
+- Make sure CORS is enabled on this endpoint
