@@ -80,19 +80,7 @@ You can skip the guide below and head directly to the repository's comprehensive
 Run all tests with:
 
 ```sh
-npm run test:all
-```
-
-Also, you can test wallet creation separately with:
-
-```sh
-npm run test:deno
-```
-
-Or proof requesting with:
-
-```sh
-npm run test:node
+npm run test
 ```
 
 ## Prerequisites and Setup
