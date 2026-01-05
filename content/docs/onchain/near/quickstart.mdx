@@ -13,10 +13,9 @@ We will be using [HereWallet](https://www.herewallet.app/) and [MyNearWallet](ht
 
 Also, you will need to have the [Near CLI](https://docs.near.org/tools/near-cli-rs) installed.
 
-You can access the code of this walkthrough on Gitlab:
-
-- [Near contract](https://gitlab.reclaimprotocol.org/integrations/onchain/near-sdk).
-- [Frontend](https://gitlab.reclaimprotocol.org/starterpacks/reclaim-near-example).
+You can access the code of this walkthrough on Github:
+- [Near contract](https://github.com/reclaimprotocol/near-sdk-onchain-integration).
+- [Frontend](https://github.com/reclaimprotocol/reclaim-near-example).
 
 ## Contract Deployment
 
@@ -28,10 +27,10 @@ If you don't need to add more checks and logic to on-chain contract, You can ski
 <Steps>
 ### Clone the near contract sdk repo.
 
-This [Near contract](https://gitlab.reclaimprotocol.org/integrations/onchain/near-sdk) serves as a client to our Reclaim protocol. It instantiates Reclaim's contract, handles proofs, and verifies them.
+This [Near contract](https://github.com/reclaimprotocol/near-sdk-onchain-integration) serves as a client to our Reclaim protocol. It instantiates Reclaim's contract, handles proofs, and verifies them.
 
 ```bash copy
-git clone https://gitlab.reclaimprotocol.org/integrations/onchain/near-sdk
+git clone https://github.com/reclaimprotocol/near-sdk-onchain-integration
 cd near-sdk
 cargo near build
 ```
@@ -79,9 +78,9 @@ near contract call-function as-transaction <ACCOUNT_ID\> add_epoch \
 ### Cloning the frontend repo.
 
 ```bash
-git clone https://gitlab.reclaimprotocol.org/starterpacks/reclaim-near-example
+git clone https://github.com/reclaimprotocol/reclaim-near-example.git
 
-cd reclaim-near-frontend-example
+cd reclaim-near-example
 ```
 
 ### 2. Install Dependencies

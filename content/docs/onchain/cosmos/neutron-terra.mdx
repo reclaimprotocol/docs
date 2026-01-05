@@ -19,23 +19,23 @@ We will be using
   For the installation, please refer to this [installation guide](https://hermes.informal.systems/quick-start/installation.html).
 
 
-You can access the code of this walkthrough on Gitlab:
+You can access the code of this walkthrough on Github:
 
-- [CosmWasm contract](https://gitlab.reclaimprotocol.org/starterpacks/reclaim-neutron-terra-client).
-- [React client](https://gitlab.reclaimprotocol.org/starterpacks/reclaim-neutron-terra-example).
+- [CosmWasm contract](https://github.com/reclaimprotocol/neutron-terra-sdk-onchain-integration).
+- [React client](https://github.com/reclaimprotocol/reclaim-neutron-terra-example).
 
 ## Contract deployment
 
 <Steps>
 ### Clone the client contract repo.
 
-The [Neutron-Client](https://gitlab.reclaimprotocol.org/starterpacks/reclaim-neutron-terra-client/Neutron-Client) contract interacts with Terra-host 
+The [Neutron-Client](https://github.com/reclaimprotocol/neutron-terra-sdk-onchain-integration/tree/main/Neutron-Client) contract interacts with Terra-host 
 contract for sending verification requsts.
-The [Terra-host](https://gitlab.reclaimprotocol.org/starterpacks/reclaim-neutron-terra-client/Terra-host) contract receives the request,
+The [Terra-host](https://github.com/reclaimprotocol/neutron-terra-sdk-onchain-integration/tree/main/Terra-host) contract receives the request,
 relays it to the Core Verification contract deployed on the same network and records the result in itself.
 
 ```bash copy
-git clone https://gitlab.reclaimprotocol.org/starterpacks/reclaim-neutron-terra-client
+git clone https://github.com/reclaimprotocol/neutron-terra-sdk-onchain-integration
 ```
 
 ### Add your wallet information.
@@ -402,7 +402,7 @@ npm i
 
 ### Setup your React codebase.
 
-We will continue building on the [reclaim react client](https://gitlab.reclaimprotocol.org/starterpacks/reclaim-neutron-terra-example), new lines are highlighted below.
+We will continue building on the [reclaim react client](https://github.com/reclaimprotocol/reclaim-neutron-terra-example), new lines are highlighted below.
 
 ```js copy showLineNumbers {8-9, 37-38}
 import "./App.css";

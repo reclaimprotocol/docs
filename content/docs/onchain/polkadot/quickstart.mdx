@@ -11,7 +11,7 @@ You need to be familiar with [Substrate Framework](https://docs.substrate.io/qui
 
 At this stage, we assume that you are familiar with the steps at [ReactJs](/web/frontend).
 
-You can access the code of this walkthrough on [Gitlab](https://gitlab.reclaimprotocol.org/integrations/onchain/substrate-sdk).
+You can access the code of this walkthrough on [Github](https://github.com/reclaimprotocol/substrate-sdk-onchain-integration).
 
 ## Integration with Reclaim Pallet using node template
 
@@ -20,7 +20,7 @@ Please note that `pallet_integration_with_reclaim` pallet is an example pallet t
 <Steps>
 ### Clone the Substrate node with reclaim repo.
 
-This [Substrate node with reclaim](https://gitlab.reclaimprotocol.org/integrations/onchain/substrate-sdk) serves as a node template which enables you to use `ReclaimVerifier` trait in your pallets.
+This [Substrate node with reclaim](https://github.com/reclaimprotocol/substrate-sdk-onchain-integration) serves as a node template which enables you to use `ReclaimVerifier` trait in your pallets.
 
 There are two pallets already configured:
 
@@ -28,8 +28,8 @@ There are two pallets already configured:
 - `pallet_integration_with_reclaim`: Example pallet that aims to store if the account is verified and uses `ReclaimVerifier` as an associated type in your pallet `Config`.
 
 ```bash copy
-git clone https://gitlab.reclaimprotocol.org/integrations/onchain/substrate-sdk
-cd substrate-sdk
+git clone https://github.com/reclaimprotocol/substrate-sdk-onchain-integration
+cd substrate-sdk-onchain-integration
 cargo test
 ```
 
