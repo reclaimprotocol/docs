@@ -16,21 +16,21 @@ Also, we use [Wamskit](https://wasmkit.kubiklabs.xyz/) for compiling and deployi
 
 It is automatically installed when installing npm modules.
 
-You can access the code of this walkthrough on Gitlab:
+You can access the code of this walkthrough on Github:
 
-- [CosmWasm contract](https://gitlab.reclaimprotocol.org/starterpacks/reclaim-cosmwasm-wasmkit-client).
-- [React client](https://gitlab.reclaimprotocol.org/starterpacks/reclaim-archway-example).
+- [CosmWasm contract](https://github.com/reclaimprotocol/reclaim-cosmwasm-wasmkit-client).
+- [React client](https://github.com/reclaimprotocol/reclaim-archway-example).
 
 ## Contract deployment
 
 <Steps>
 ### Clone the client contract repo.
 
-This [Archway contract](https://gitlab.reclaimprotocol.org/starterpacks/reclaim-cosmwasm-wasmkit-client.git) serves as a client to our Reclaim contract. It takes Reclaim's contract address, handles proofs, and verifies them.
+This [Archway contract](https://github.com/reclaimprotocol/reclaim-cosmwasm-wasmkit-client) serves as a client to our Reclaim contract. It takes Reclaim's contract address, handles proofs, and verifies them.
 
 ```bash copy
-git clone https://gitlab.reclaimprotocol.org/starterpacks/reclaim-cosmwasm-wasmkit-client.git
-cd reclaim-archway-client
+git clone https://github.com/reclaimprotocol/reclaim-cosmwasm-wasmkit-client.git
+cd reclaim-cosmwasm-wasmkit-client
 wasmkit compile
 ```
 
@@ -103,7 +103,7 @@ npm i
 
 ### Setup your React codebase.
 
-We will continue building on the [reclaim react client](https://gitlab.reclaimprotocol.org/starterpacks/reclaim-archway-example), new lines are highlighted below.
+We will continue building on the [reclaim react client](https://github.com/reclaimprotocol/reclaim-archway-example.git), new lines are highlighted below.
 
 ```js copy showLineNumbers {8-9, 37-38}
 import "./App.css";

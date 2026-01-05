@@ -10,18 +10,18 @@ At this stage, we assume that you are familiar with the steps at [ReactJs](/web/
 
 We will be using [Keplr](https://www.keplr.app/) as a wallet to interact with the frontend interface. Make sure that you have it installed and funded with [testnet Nibi](https://app.nibiru.fi/faucet).
 
-You can access the code of this walkthrough on Gitlab:
- - [CosmWasm contract](https://gitlab.reclaimprotocol.org/starterpacks/nibiru-client-contract).
- - [React client](https://gitlab.reclaimprotocol.org/starterpacks/nibiru-client-frontend).
+You can access the code of this walkthrough on Github:
+ - [CosmWasm contract](https://github.com/reclaimprotocol/nibiru-sdk-onchain-integration).
+ - [React client](https://github.com/reclaimprotocol/nibiru-client-frontend).
 
 ## Contract deployment
 <Steps>
 ### Clone the client contract repo.
 
-This [Nibiru contract](https://gitlab.reclaimprotocol.org/starterpacks/nibiru-client-contract) serves as a client to our Reclaim contract. It instantiates Reclaim's contract, handles proofs, and verifies them.
+This [Nibiru contract](https://github.com/reclaimprotocol/nibiru-sdk-onchain-integration) serves as a client to our Reclaim contract. It instantiates Reclaim's contract, handles proofs, and verifies them.
 
 ```bash copy
-git clone https://gitlab.reclaimprotocol.org/starterpacks/nibiru-client-contract
+git clone https://github.com/reclaimprotocol/nibiru-sdk-onchain-integration.git
 make build
 ```
 
@@ -47,7 +47,7 @@ Run the script and take a note of your contract address, we will be using it lat
 ### Cloning the frontend repo.
 
 ```bash
-git clone https://gitlab.reclaimprotocol.org/starterpacks/nibiru-client-frontend
+git clone https://github.com/reclaimprotocol/nibiru-client-frontend.git
 
 cd nibiru-client-frontend
 
