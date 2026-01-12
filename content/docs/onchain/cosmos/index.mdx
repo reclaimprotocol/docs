@@ -3,10 +3,25 @@ title: Cosmos
 description: The Reclaim Protocol Proofs are compatible with blockchain applications.
 ---
 
-### Flow
+### Implementation Flow
 
-1. Your app requests proofs from the user using one of the front-end libraries like [Reclaim React SDK](/web/frontend), [Reclaim React Native SDK](/react-native/installation), [Reclaim Flutter SDK](/flutter/installation) or a backend library like [Reclaim Node SDK](/web/backend/installation)
-2. Once the user has uploaded the proof, you can serialize it into a CosmWasm friendly format
-3. Submit the serialized proof to your smart contract
-4. Verify the proof on the smart contract
+1. **Request Proofs**
+   - Implement proof requests in your application using one of our official SDKs:
+     - [Reclaim JS SDK](/js-sdk/installation) for web and backend implementations
+     - [Reclaim React Native SDK](/react-native/installation) for mobile applications
+     - [Reclaim Flutter SDK](/flutter/installation) for cross-platform applications
 
+2. **Handle Proof Upload**
+   - Once the user successfully uploads their proof, store the proof identifier
+   - Maintain proper record-keeping for subsequent verification
+
+3. **Submit for Verification**
+   - Transform the proof into its serialized format
+   - Submit the serialized proof to your designated smart contract
+
+4. **Verify On-Chain**
+   - Execute the verification process within your smart contract
+   - Handle the verification result according to your application logic
+
+### Next Steps
+After understanding the basic flow, refer to our specific SDK documentation for detailed implementation guidelines and best practices.

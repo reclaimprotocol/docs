@@ -9,20 +9,22 @@ Reclaim Protocol Proofs provide a secure way to verify user data in blockchain a
 ### Implementation Flow
 
 1. **Request Proofs**
-   - Implement proof requests using one of our official SDKs:
-     - [JS SDK](/js-sdk/installation) for backend anf web implementations
-     - [React Native SDK](/react-native/installation) for mobile applications
-     - [Flutter SDK](/flutter/installation) for cross-platform applications
+   - Implement proof requests in your application using one of our official SDKs:
+     - [Reclaim JS SDK](/js-sdk/installation) for web and backend implementations
+     - [Reclaim React Native SDK](/react-native/installation) for mobile applications
+     - [Reclaim Flutter SDK](/flutter/installation) for cross-platform applications
 
 2. **Handle Proof Upload**
-   - Once the user uploads the proof, store the proof identifier or reference
-   - This reference will be needed for subsequent verification steps
+   - Once the user successfully uploads their proof, store the proof identifier
+   - Maintain proper record-keeping for subsequent verification
 
-3. **Submit Proof to Smart Contract**
-   - Convert the proof into a blockchain-compatible format (serialization)
+3. **Submit for Verification**
+   - Transform the proof into its serialized format
    - Submit the serialized proof to your designated smart contract
 
-4. **Verify on-chain**
-   - The smart contract performs verification of the submitted proof
-   - Implement appropriate logic to handle verification results
+4. **Verify On-Chain**
+   - Execute the verification process within your smart contract
+   - Handle the verification result according to your application logic
 
+### Next Steps
+After understanding the basic flow, refer to our specific SDK documentation for detailed implementation guidelines and best practices.
