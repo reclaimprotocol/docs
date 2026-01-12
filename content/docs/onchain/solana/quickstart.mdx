@@ -7,7 +7,7 @@ import { Step, Steps } from 'fumadocs-ui/components/steps';
 
 ## Pre-requisite
 
-This tutorial assumes that you have a frontend that requests proofs from the user and processes the response, like [React](/web/frontend/), [React Native](/react-native/installation), or [Node](/web/backend/installation).
+This tutorial assumes that you have a frontend that requests proofs from the user and processes the response, like [JS](/js-sdk/installation), [React Native](/react-native/installation), or [Flutter](/flutter/installation).
 
 ## Solana
 
@@ -19,11 +19,11 @@ Before you begin, ensure that your development environment meets the following p
 
 ### Prerequisites
 
-1. **Rust** - The programming language used for writing Solana programs. Install Rust by following the instructions [here](https://www.rust-lang.org/tools/install) .
+1. **Rust** - The programming language used for writing Solana programs. Install Rust by following the instructions [here](https://www.rust-lang.org/tools/install).
 
-2. **Solana Tool Suite** - Provides the Solana CLI and other tools necessary for interacting with the Solana network. Install the Solana Tool Suite by following the instructions [here]() .
+2. **Solana Tool Suite** - Provides the Solana CLI and other tools necessary for interacting with the Solana network. Install the Solana Tool Suite by following the instructions [here]().
 
-3. **Node.js** - Required for running JavaScript and TypeScript scripts. Download Node.js from [here](https://nodejs.org/en/download) .
+3. **Node.js** - Required for running JavaScript and TypeScript scripts. Download Node.js from [here](https://nodejs.org/en/download).
 
 4. **Yarn Package Manager** - A fast, reliable, and secure dependency management tool.
    Install Yarn globally using npm:
@@ -115,7 +115,7 @@ anchor deploy --program-name reclaim --program-keypair program-keypairs/reclaim-
 - **`--program-name reclaim`** : Specifies the name of the program as defined in `Anchor.toml`.
 
 - **`--program-keypair`** : Points to the keypair file generated during the setup.
-  **Note** : The default network for deployment is `devnet`. To deploy to a different network, see [Specifying the Network](/solana/quickstart#specifying-the-network) .After deployment, take note of the **Program ID** displayed in the output:
+  **Note** : The default network for deployment is `devnet`. After deployment, take note of the **Program ID** displayed in the output:
 
 ```yaml
 Program Id: YourProgramIDHere
