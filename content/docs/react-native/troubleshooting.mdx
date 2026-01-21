@@ -3,6 +3,48 @@ title: Troubleshooting problems
 description: Figuring out common issues when integrating Reclaim InApp SDK in React Native apps
 ---
 
+## Reading Logs
+
+For advanced users, you can use the following methods to get logs from the Reclaim InApp SDK. These logs provide granular information about the verification journey, which helps with debugging and monitoring your integration.
+
+### How to get logs from Reclaim InApp SDK
+
+You can enable console logging by using the following code:
+
+```js
+reclaimVerification.setConsoleLogging(true)
+```
+
+This prints all the logs from the Reclaim InApp SDK to any console attached to your app.
+
+### How to get information about every log and send it to my backend?
+
+If you have a `capabilityAccessToken` from Reclaim, you can get a stream of logs by adding a log listener using `reclaimVerification.setOverrides`:
+
+```js
+reclaimVerification.setOverrides({
+  logConsumer: {
+    onLogs: (log, _) => {
+      // You can directly send and handle logs on your server
+      // or you can parse logs and view them here
+      const entry = reclaimVerification.parseLog(log);
+      if (entry.eventType) {
+        // Logs that have eventType are important milestones or errors in the user's verification journey
+        console.info(`[EVENT] `, entry)
+      } else {
+        console.info(entry);
+      }
+    },
+  },
+  capabilityAccessToken: config.REACT_APP_RECLAIM_CAPABILITY_ACCESS_TOKEN,
+});
+```
+
+The SDK's `reclaimVerification.parseLog(log)` method parses the logs and returns a typed log entry object.
+
+Log entries may optionally have an `eventType`, which represents important milestones or errors in the user's verification journey.
+Understanding these events helps with debugging and monitoring your integration. For a comprehensive list of event types, refer to the [Log Event Types](../inapp-sdks/advanced/log-event-types) documentation. 
+
 ## Common Issues and Solutions
 
 If you encounter issues while integrating Reclaim InApp SDK into your React Native application, here are some common troubleshooting steps to help you resolve them:

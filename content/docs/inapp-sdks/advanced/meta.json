@@ -4,6 +4,7 @@
         "intro",
         "verification-options",
         "attestor-auth",
-        "overrides"
+        "overrides",
+        "log-event-types"
     ]
 }
