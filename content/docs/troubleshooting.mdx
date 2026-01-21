@@ -1,0 +1,100 @@
+---
+title: Troubleshooting
+description: Common issues, log events, and debugging information for Reclaim Protocol integrations
+---
+
+## Log Event Types
+
+When integrating with Reclaim Protocol SDKs, you may encounter various log events. Understanding these events helps with debugging and monitoring your integration.
+
+
+### Verification Flow Events
+
+| Event Type | Level | Description |
+|------------|-------|-------------|
+| `VERIFICATION_FLOW_STARTED` | INFO | The verification flow has been initiated by the user. |
+| `IS_RECLAIM_VERIFIER` | INFO | Checking if the current environment is a Reclaim verifier. |
+| `IS_RECLAIM_INAPPSDK` | INFO | Checking if the current environment is a Reclaim inapp SDK. |
+| `RECLAIM_VERIFICATION_DISMISSED` | INFO | The Reclaim verification process was dismissed by the user. |
+| `RECLAIM_VERIFICATION_SKIPPED` | INFO | The Reclaim verification process was skipped. |
+
+### SDK Version Events
+
+| Event Type | Level | Description |
+|------------|-------|-------------|
+| `UPDATE_AVAILABLE` | WARNING | An update for inapp SDK is available. Use is still allowed. |
+| `SDK_OUTDATED` | ERROR | An update for inapp SDK is available and the current version cannot be used anymore. |
+
+### Session Events
+
+| Event Type | Level | Description |
+|------------|-------|-------------|
+| `RECLAIM_INIT_SESSION_EXCEPTION` | ERROR | An exception when initializing a Reclaim session. |
+| `RECLAIM_EXPIRED_SESSION_EXCEPTION` | ERROR | An exception for an expired Reclaim session. |
+
+### Page Loading Events
+
+| Event Type | Level | Description |
+|------------|-------|-------------|
+| `LOADING_INITIAL_URL` | INFO | Sending request to load initial url. |
+| `WEB_PAGE_READY` | INFO | The first web page for verification is ready. |
+| `PAGE_LOADING_STARTED` | INFO | Page loading started. |
+| `PAGE_LOADING_STOPPED` | INFO | Page loading stopped. |
+
+### Request & Matching Events
+
+| Event Type | Level | Description |
+|------------|-------|-------------|
+| `REQUEST_INTERCEPTED` | INFO | A network request has been intercepted. |
+| `REQUEST_MATCHED` | INFO | A network request has been matched against the provider's requirements. |
+| `PROVIDER_SCRIPT_REQUESTED_CLAIM` | INFO | The provider script has requested a claim. |
+
+### Claim Events
+
+| Event Type | Level | Description |
+|------------|-------|-------------|
+| `PREPARING_CLAIM` | INFO | The claim is being prepared. |
+| `VALIDATING_CLAIM_PARAMETERS` | INFO | The claim parameters are being validated. |
+| `STARTING_CLAIM_CREATION` | INFO | The process of creating a claim is starting. |
+| `CLAIM_CREATION_STARTED` | INFO | The claim creation process has officially started. |
+
+### Validation Errors
+
+| Event Type | Level | Description |
+|------------|-------|-------------|
+| `X_PATH_MATCH_REQUIREMENT_FAILED` | ERROR | An XPath match requirement for claim validation has failed. |
+| `JSON_PATH_MATCH_REQUIREMENT_FAILED` | ERROR | A JSONPath match requirement for claim validation has failed. |
+| `REGEX_MATCH_REQUIREMENT_FAILED` | ERROR | A regex match requirement for claim validation has failed. |
+| `NO_PARAMETERS_FOUND` | ERROR | No parameters found. |
+| `CLAIM_PARAMETER_VALIDATION_FAILED_EXCEPTION` | ERROR | An exception for failed claim parameter validation. |
+| `NO_RESPONSE_MATCH_WARNING` | WARNING | A warning that no response matched the provider's requirements. |
+
+### Proof Events
+
+| Event Type | Level | Description |
+|------------|-------|-------------|
+| `PROOF_GENERATED` | INFO | A proof has been successfully generated. |
+| `SUBMITTING_PROOF` | INFO | The generated proof is being submitted. |
+| `PROOF_SUBMITTED` | INFO | The proof has been successfully submitted. |
+| `PROOF_GENERATION_FAILED_EXCEPTION` | ERROR | An exception for a failed proof generation. |
+| `PROOF_SUBMISSION_FAILED` | ERROR | The proof submission has failed. |
+
+### Exception Events
+
+| Event Type | Level | Description |
+|------------|-------|-------------|
+| `RECLAIM_VERIFICATION_PLATFORM_NOT_SUPPORTED_EXCEPTION` | ERROR | An exception indicating that the platform is not supported for Reclaim verification. For example, a 32-bit Android device. |
+| `INVALID_REQUEST_RECLAIM_EXCEPTION` | ERROR | An exception for an invalid Reclaim request. |
+| `RECLAIM_VERIFICATION_CANCELLED_EXCEPTION` | WARNING | An exception indicating the verification process was cancelled for the user. |
+| `RECLAIM_VERIFICATION_PROVIDER_LOAD_EXCEPTION` | ERROR | An exception during the loading of a verification provider. |
+| `RECLAIM_ATTESTOR_AUTH_EXCEPTION` | ERROR | An exception related to attestor authentication. |
+| `RECLAIM_VERIFICATION_NO_ACTIVITY_DETECTED_EXCEPTION` | ERROR | An exception when no user activity is detected during verification. |
+| `ATTESTOR_NOT_RESPONDING` | WARNING | The attestor is not responding. |
+| `CLAIM_CREATION_CANCELLED_EXCEPTION` | ERROR | An exception indicating the claim creation was cancelled. |
+| `CLAIM_CREATION_TIMED_OUT_EXCEPTION` | ERROR | An exception indicating that the claim creation process has timed out. |
+
+### Result Events
+
+| Event Type | Level | Description |
+|------------|-------|-------------|
+| `RESULT_RECEIVED` | INFO | A result has been received. |
