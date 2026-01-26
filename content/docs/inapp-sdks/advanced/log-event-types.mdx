@@ -1,12 +1,13 @@
 ---
-title: Troubleshooting
-description: Common issues, log events, and debugging information for Reclaim Protocol integrations
+title: Log Event Types
+description: Known log event types and their descriptions received from logs
 ---
 
 ## Log Event Types
 
-When integrating with Reclaim Protocol SDKs, you may encounter various log events. Understanding these events helps with debugging and monitoring your integration.
+When listening to logs from the Reclaim Protocol InApp SDK's `reclaimVerification.setOverrides({ logConsumer: { onLogs: (log, _) => void } })` handler, you may find that several logs have an `eventType` field.
 
+Understanding these events helps with debugging and monitoring your integration. You can use these events to track the user's journey and log them to your backend. For instructions on how to set up the log listener, refer to the [Troubleshooting](../../react-native/troubleshooting#reading-logs) documentation.
 
 ### Verification Flow Events
 
