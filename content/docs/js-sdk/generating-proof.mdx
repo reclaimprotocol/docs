@@ -124,7 +124,8 @@ else {
 ## Redirect after proof generation
 If you want to redirect the user after generating the proof to a specific webpage or app, you can do so using `setRedirectUrl`. 
 
-When you should use this : 
+When you should use this:
+
 - User is on a desktop, scans QR code to generate the proof. After the proof generation is complete you want to show a custom success message on their mobile device instead of the Reclaim Protocol's default success message. You can redirect them to a webpage.
 - User is on a mobile, taps a button to generate the proof. After the proof generation is complete, you typically want to redirect the user to the page that must be shown after the proof generation is complete. If you are using `onSuccess`, the user will have to close the proof generation success banner and go back to the browser to continue. We recommend using a redirect url to take the user to the next step in the business logic. On this step, render a page depending on whether the proof was correctly verified.
 
@@ -134,6 +135,53 @@ reclaimProofRequest.setRedirectUrl("https://yourapp.com/verification/success");
  
 // Or deep link back to a mobile app
 reclaimProofRequest.setRedirectUrl("yourapp://verification-complete");
+```
+
+## Custom Error Redirect URL
+
+Set a custom URL to redirect users on an error which aborts the verification process:
+
+```javascript
+reclaimProofRequest.setErrorRedirectUrl("https://example.com/error-redirect");
+```
+
+## Custom Error Callback URL
+
+Set a custom error callback URL for your app which allows you to receive errors and status updates on your error callback URL:
+
+```javascript
+reclaimProofRequest.setErrorCallbackUrl("https://example.com/error-callback");
+```
+
+## Add additional metadata for verification client
+
+Additional metadata to pass to the verification client. This can be used to customize the client experience, such as customizing themes or UI by passing context-specific information. 
+The keys and values must be strings. For most clients, this is not required and goes unused.
+
+This has no effect on the verification process.
+
+```js
+// Initialize with options
+const proofRequest = await ReclaimProofRequest.init(APP_ID, APP_SECRET, PROVIDER_ID, {
+  metadata: { theme: 'dark', verify_another_way_link: 'https://exampe.org/alternative-verification?id=1234' },
+});
+```
+
+## Set preferred locale for verification client
+
+An identifier used to select a user's language and formatting preferences.
+
+This represents a Unicode Language Identifier (i.e. without Locale extensions), except variants are not supported.
+Locales are expected to be canonicalized according to the "preferred value" entries in the [IANA Language Subtag Registry](https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry). 
+For example, `he`, and `iw` are equal and both have the languageCode `he`, because `iw` is a deprecated language subtag that was replaced by the subtag `he`.
+
+Defaults to the browser's locale if available, otherwise English (en).
+
+```js
+// Initialize with options
+const proofRequest = await ReclaimProofRequest.init(APP_ID, APP_SECRET, PROVIDER_ID, {
+  preferredLocale: 'en-US',
+});
 ```
 
 ## Showing Progress
