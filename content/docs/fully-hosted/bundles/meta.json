@@ -1,0 +1,9 @@
+{
+    "title": "Bundle specific options",
+    "pages": [
+        "default",
+        "education",
+        "employment",
+        "age"
+    ]
+}

@@ -1,0 +1,24 @@
+---
+title: Fully Hosted Solution
+description: Easiest way to integrate Reclaim Protocol
+---
+
+The hosted solution is the easiest way to integrate Reclaim Protocol on a website.
+We will manage all the plumbing for you, along with several custom UI. 
+
+# Are you in the right place?
+Though for most websites, this is the easiest way to get started, this might not be the right fit if : 
+- If you are looking to integrate in an app, please jump to Android Kotlin, iOS Swift, React Native or Flutter sections.
+- If you don't want us to manage the UI, you can jump to js-sdk
+- If you are looking to do verifications without any user interactions, jump to zk-fetch
+
+# Optimized UIs
+The hosted solution has dedicated implementations for
+- **Education verification** : Where the user must select their university before proceeding to verification. User will then be asked to login into their university portal in order to verify if they are a student there. We manage all the mapping for all university and respective university portals.
+- **Employment verification** : Where the user must select their employer before proceeding to verification. Depending on the country the user is in, and the employer they select, they will be redirected to the appropriate website from which they can login. This includes HRIS portals, Tax Portals or Communication Apps like Slack and Teams.
+- **Age verification** : Where user must select their country of residence. Depending on the country of residence, we will manage the right way for the user to verify their age. 
+- **All other verifications** : For all other verifications, you can pass a providerID, to tell us what to verify, and we will display the right UI to the user and manage the verification.
+
+The UI is minimalistic and designed to get out of the way of the user, but still building trust that this is safe to verify using this process.
+![Base ui](/hosted-bundles/ui.png)
+![Safety prompt](/hosted-bundles/safe.png)
