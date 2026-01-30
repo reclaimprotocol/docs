@@ -1,0 +1,126 @@
+---
+title: Troubleshooting & Monitoring
+description: Learn how to handle errors, monitor verification status, and debug issues in Reclaim Protocol.
+---
+
+When integrating Reclaim Protocol, you have multiple tools at your disposal to monitor the status of detailed verifications and troubleshoot issues. This guide covers:
+
+1.  **[Error Callbacks](#setup-error-callback):** Receive immediate feedback in your application when a verification fails.
+2.  **[Handle 'Verify Another Way'](#handle-verify-another-way):** Receive immediate feedback when the user chooses to verify in another way.
+3.  **[Server-Side Analytics](#server-side-analytics-events):** Fetch detailed session logs from the Reclaim server for analysis.
+4.  **[Client-Side Logs](#client-side-debugging):** Listen to real-time logs emitted by the SDKs on the user's device.
+5.  **[Troubleshooting Mode](#troubleshooting-mode):** Manually enable verbose logging in the verify UI for support tickets.
+
+---
+
+## Setup Error Callback
+
+The easiest way to handle failures is to set up an error callback. This allows your application to react immediately when a user's verification session fails.
+
+### JS SDK Example
+
+```js
+reclaimProofRequest.setErrorCallbackUrl("https://example.com/error-callback");
+```
+
+The Reclaim backend will send a POST request to this URL if the verification session terminates with an error. The body will contain:
+
+```json
+{
+  "type": "string",
+  "message": "string",
+  [key: any]: any
+}
+```
+
+Currently, **only these two error types** will trigger the error callback:
+
+| Exception Name | Description |
+|----------------|-------------|
+| `ReclaimVerificationAbortedException` | User cancelled the verification (e.g., closed the modal). |
+| `ReclaimVerificationProviderScriptException` | The provider script encountered an error (e.g., login failed, invalid account used). |
+
+Other errors (such as network timeouts or internal exceptions) will **not** trigger this callback but can be found by [fetching analytics events](./troubleshooting/analytics-event) for the session.
+
+> [!TIP]
+> For a comprehensive list of all possible backend exceptions, refer to the [Analytics Events](./troubleshooting/analytics-event#description-of-reclaim_exception-in-metadata).
+
+### Handle 'Verify Another Way'
+
+When the 'Verify Another Way' option is enabled for your app in the user-facing UI, you can decide what URL opens when the user presses this button. You can also trigger a callback to your backend. This is useful for scenarious where your user wishes to use alternative verification method during verification journey
+
+Pass the `verify_another_way_link` and `verify_another_way_callback` parameters in the metadata during initialization:
+
+```js
+// Initialize with options
+const proofRequest = await ReclaimProofRequest.init(APP_ID, APP_SECRET, PROVIDER_ID, {
+  metadata: {
+    verify_another_way_link: 'https://example.org/alternative-verification?id=1234',
+    verify_another_way_callback: 'https://api.example.org/alternative-verification-requested-callback?id=1234'
+  },
+});
+```
+
+> [!NOTE]
+> This is only enabled on request. To request, contact [support@reclaimprotocol.org](mailto:support@reclaimprotocol.org).
+
+---
+
+## Server-Side Analytics Events
+
+Reclaim solutions (Web SDK, InApp SDK, etc.) emit analytics events to our servers. These are useful for:
+- Monitoring conversion rates.
+- Debugging issues that happened in the past.
+- Understanding why a specific session failed.
+
+You can fetch these events using the Session ID.
+
+[**Read the full Analytics Events Guide →**](./troubleshooting/analytics-event)
+
+---
+
+## Client-Side Debugging
+
+For real-time debugging, especially when using Mobile SDKs (React Native, Flutter, etc.), you can listen to logs directly on the device. This is not available on WebSDK or Reclaim extension.
+
+### InApp SDK Logs
+
+InApp SDKs emit detailed events like `PAGE_LOADING_STARTED`, `REQUEST_MATCHED`, or `PROOF_GENERATED`. Use these to understand exactly what is happening on the user's device.
+
+[**View Client-Side Log Event Types →**](../inapp-sdks/advanced/log-event-types)
+
+### Enable Debug Logs (JS SDK)
+
+When using the JS SDK, you can enable verbose console logging during initialization:
+
+```js
+const proofRequest = await ReclaimProofRequest.init(APP_ID, APP_SECRET, PROVIDER_ID, {
+  log: true, // Enable troubleshooting mode
+});
+```
+
+---
+
+## Troubleshooting Mode
+
+If a user is facing issues in the wild, you can ask them to specificually enable "Troubleshooting Mode" in the Verifier UI. This displays a debug overlay and captures additional diagnostics.
+
+[**How to Enable Troubleshooting Mode →**](./troubleshooting/enable-troubleshooting-mode)
+
+This option isn't available when using WebSDK (aka portal.reclaimprotocol.org). In that case, you can use [JS SDK](#enable-debug-logs-js-sdk) to collect verbose logs.
+
+---
+
+## Common Failure Reasons
+
+If you are seeing generic failures, check our guide on common environmental issues like network stability, memory constraints, or outdated OS versions.
+
+[**View Potential Failure Reasons →**](./troubleshooting/potential-failure-reasons)
+
+---
+
+## Best Practices
+
+### Assume a Timeout
+
+If your application backend does not receive a proof or an error callback within **10 minutes** of the session start, you should assume the verification has timed out or was abandoned by the user.
