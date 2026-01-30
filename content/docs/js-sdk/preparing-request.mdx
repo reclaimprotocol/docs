@@ -56,6 +56,7 @@ export async function GET(request) {
 
 
 # Advance Options
+
 ## Forcing Remote Browser use
 <Callout type="warning">
   Remote Browser use is available only for users on a premium enterprise plan. Please [contact support](https://t.me/protocolreclaim) for more details.
@@ -91,9 +92,53 @@ reclaimProofRequest.setParams({
 
 
 ## Set Callback 
+
+### Set Custom Success Callback URL
+
 ```
 reclaimProofRequest.setAppCallbackUrl(url, useJson)
 ```
 Set a backend callback URL where Reclaim Protocol will POST proofs directly after verification. This enables secure backend proof processing without relying on frontend to upload the proof.
 
 If `useJson` is set to `true`, it will send the proof as a raw JSON. Else, the POST body will contain the Proof JSON urlencoded. 
+
+### Custom Error Callback URL
+
+Set a custom error callback URL for your app which allows you to receive final errors on your error callback URL:
+
+```javascript
+reclaimProofRequest.setErrorCallbackUrl("https://example.com/error-callback");
+```
+
+## Add additional metadata for verification client
+
+Additional metadata to pass to the verification client. This can be used to customize the client experience, such as customizing themes or UI by passing context-specific information. 
+The keys and values must be strings. For most clients, this is not required and goes unused.
+
+```js
+// Initialize with options
+const proofRequest = await ReclaimProofRequest.init(APP_ID, APP_SECRET, PROVIDER_ID, {
+  metadata: { theme: 'dark', verify_another_way_link: 'https://exampe.org/alternative-verification?id=1234', verify_another_way_callback: 'https://api.exampe.org/alternative-verification/callback?id=1234' },
+});
+```
+
+If your app has "Verify Another Way" enabled, refer documentation from [here](/troubleshooting#handle-verify-another-way).
+
+## Set preferred locale for verification client
+
+You can change the language for the UI seen by User during verification by setting the `preferredLocale` parameter in the initialization options.
+
+This is used to select a user's language and formatting preferences in the verification journey.
+
+The value of this field must be a Unicode Language Identifier (i.e. without Locale extensions), except variants are not supported.
+Locale values are expected to be canonicalized according to the "preferred value" entries in the [IANA Language Subtag Registry](https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry). 
+For example, `he`, and `iw` are equal and both have the languageCode `he`, because `iw` is a deprecated language subtag that was replaced by the subtag `he`.
+
+Defaults to the browser's locale if available, otherwise English (en).
+
+```js
+// Initialize with options
+const proofRequest = await ReclaimProofRequest.init(APP_ID, APP_SECRET, PROVIDER_ID, {
+  preferredLocale: 'en-US',
+});
+```
