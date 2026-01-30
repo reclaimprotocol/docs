@@ -37,6 +37,17 @@ export async function GET(request) {
 
   // add logic to choose provider id here based on request
 
+  proofRequestOptions = {
+    ..., //other options, if any
+    useAppClip: false,
+    customSharePageUrl: 'https://portal.reclaimprotocol.org'
+  }
+  const proofRequest = await ReclaimProofRequest.init(      
+      process.env.RECLAIM_APP_ID,
+      process.env.RECLAIM_APP_SECRET,
+      providerId,
+      proofRequestOptions);
+
   // Initialize SDK with server-side environment variables (secure)
   const reclaimProofRequest = await ReclaimProofRequest.init(
       process.env.RECLAIM_APP_ID,
@@ -56,44 +67,21 @@ export async function GET(request) {
 
 
 # Advance Options
-
-## Forcing Remote Browser use
-<Callout type="warning">
-  Remote Browser use is available only for users on a premium enterprise plan. Please [contact support](https://t.me/protocolreclaim) for more details.
-</Callout>
-```
-proofRequestOptions = {
-    ..., //other options, if any
-    useAppClip: false,
-    customSharePageUrl: 'CONTACT_SUPPORT_FOR_URL'
-}
-const proofRequest = await ReclaimProofRequest.init(appId, appSecret, providerId, proofRequestOptions);
-```
-[See reference implementation](https://github.com/reclaimprotocol/websdk-demo)
+We recommend most, if not all of the following to be set for most production usecases :
 
 ## Set Context
-You can set context to the proof request that helps identify the request when you receive it back in the callback.
+You can set context to the proof request that helps identify the request when you receive it back in the callback once the proof is generated.
 ```
 reclaimProofRequest.setContext('address', 'message')
 ```
-- `address` : this is usually a unique identifier for the user. This could be an email address, a wallet address, or just a session id
+- `address` : this is usually a unique identifier for the user. This could be an email address, a wallet address, or just a session id generated on your system
 - `message` : this is an open field where you can add any other information that you want passed around from the build request to the callback endpoint. You can stringify jsons here for convenience. 
 
-## Set Parameters
-If you already know what the value of the extracted parameter is supposed to be, you can set that using `setParams`.
-For example, if you know that the user's name before hand - and you want them to prove something from a website and you need the name to match exactly, you should use set the name in the params.
-
-If the extracted parameter doesn't match the set parameter, the proof generation will fail.
-```
-reclaimProofRequest.setParams({ 
-    name : "John Doe"
-})
-```
 
 
 ## Set Callback 
 
-### Set Custom Success Callback URL
+### Success Callback URL
 
 ```
 reclaimProofRequest.setAppCallbackUrl(url, useJson)
@@ -101,14 +89,47 @@ reclaimProofRequest.setAppCallbackUrl(url, useJson)
 Set a backend callback URL where Reclaim Protocol will POST proofs directly after verification. This enables secure backend proof processing without relying on frontend to upload the proof.
 
 If `useJson` is set to `true`, it will send the proof as a raw JSON. Else, the POST body will contain the Proof JSON urlencoded. 
+You can see the data structure of the proofs you will recieve [here](/troubleshooting/anatomy#proof).
 
-### Custom Error Callback URL
+### Error Callback URL
 
-Set a custom error callback URL for your app which allows you to receive final errors on your error callback URL:
+If something fails in the process of verifying, this callback url will be called with the [error codes as mentioned here](/troubleshooting/analytics-event#description-of-reclaim_exception-in-metadata)
+```javascript
+reclaimProofRequest.setErrorCallbackUrl("https://yourwebsite.tld/error-callback"); // POST request endpoint 
+```
+
+You can see the [data format here](/troubleshooting/anatomy#errors).
+
+### Redirect Url
+You can redirect the user to a webpage after the proof has been submitted
+```javascript
+reclaimProofRequest.setRedirectUrl("https://yourwebsite.com/reclaim-redirect"); // GET request webpage 
+```
+
+## Cancel Callback
+If the user cancels the session midway, you will get a cancel callback with a datastructure mentioned [here](/troubleshooting/anatomy#cancelation).
 
 ```javascript
-reclaimProofRequest.setErrorCallbackUrl("https://example.com/error-callback");
+reclaimProofRequest.setCancelCallbackUrl("https://yourwebsite.com/reclaim-cancelcallback"); // POST request webpage 
 ```
+
+## Cancel Redirect Url
+If the user cancels the session midway or cancels after proof generation, you can redirect them to a separate webpage 
+```javascript
+reclaimProofRequest.setCancelRedirectUrl("https://yourwebsite.com/reclaim-cancelredirect); // GET webpage
+```
+
+## Set Parameters
+If you already know what the value of the extracted parameter is supposed to be, you can set that using `setParams`.
+For example, if you know that the user's name before hand - and you want them to prove something from a website and you need the name to match exactly, you should use set the name in the params. Be sure to use the same key as the parameter name on the Provider you are using.
+
+If the extracted parameter doesn't match the set parameter, the proof generation will fail.
+```javascript
+reclaimProofRequest.setParams({ 
+    name : "John Doe"
+})
+```
+
 
 ## Add additional metadata for verification client
 
@@ -142,3 +163,20 @@ const proofRequest = await ReclaimProofRequest.init(APP_ID, APP_SECRET, PROVIDER
   preferredLocale: 'en-US',
 });
 ```
+
+## Using the in-browser SDK
+<Callout type="warning">
+  In-Browser SDK use is available only for users on a premium enterprise plan. Please [contact support](https://t.me/protocolreclaim) for more details.
+</Callout>
+
+If you don't want to use the in-browser SDK, the users will be asked to install the Reclaim Protocol App/Appclip. You can disable by removing this configuration from the above snipped :
+```js
+//REMOVE :
+proofRequestOptions = {
+    ..., //other options, if any
+    useAppClip: false,
+    customSharePageUrl: 'https://portal.reclaimprotocol.org'
+}
+const proofRequest = await ReclaimProofRequest.init(appId, appSecret, providerId, proofRequestOptions);
+```
+[See reference implementation](https://github.com/reclaimprotocol/websdk-demo)

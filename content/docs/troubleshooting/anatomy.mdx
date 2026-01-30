@@ -1,0 +1,103 @@
+---
+title: Anatomy of messages
+description: Datastructures of messages transmitted during the verification process
+---
+
+# Proof Request
+```js
+{
+    "applicationId":"0x... YOUR APPLICATION ID",
+    "providerId":"bb96d0b0-... YOUR PROVIDER ID",
+    "sessionId":"e1fca89978", // sessionId created by Reclaim Protocol
+    "context":{"contextAddress":"Address you set","contextMessage":"message you set"},
+    "appCallbackUrl":"https://yourwebsite.com/reclaim-callback ... you set",
+    "claimCreationType":"createClaim",
+    "parameters":{ ... any parameters you set },
+    "signature":"signature using your app secret to know it came from your application",
+    "redirectUrl":"https://yourwebsite.com/redirecturl set by you",
+    "timestamp":"1769799659479",
+    "timeStamp":"1769799659479",
+    "options":{"useAppClip":false,"customSharePageUrl":"https://portal.reclaimprotocol.org/kernel","useBrowserExtension":true},
+    "sdkVersion":"js-4.7.1",
+    "jsonProofResponse":true,
+    "resolvedProviderVersion":"1.3.0"
+}
+```
+
+# Proof
+```js
+[ // note this is an array
+  {
+    "identifier": "0x7059eb0d834e4e0b544f683ef083081fa7dc7f51b847b5ccb67c5b63a7e8b605",
+    "claimData": {
+      "provider": "http",
+      "parameters": "",
+      "owner": "0x1234567890123456789012345678901234567890", //Legacy. Ignore.
+      "timestampS": 1769800037,
+      "context": "{\"contextAddress\":\"Your set address\",\"contextMessage\":\"Your context message\",\"extractedParameters\":{\"KEY\":\"Value\"}}",
+      "identifier": "0x7059eb0d834e4e0b544f683ef083081fa7dc7f51b847b5ccb67c5b63a7e8b605",
+      "epoch": 1
+    },
+    "signatures": [
+      "0xc014ac88a17b1fb95ca8cb51b1bbefc02efb79d741f1b83fe011eac8dadc703722d409674a76c5bc0d51d835cf2b52db8bef22e1df69a4feecb0da9d1ab160e71b"
+    ],
+    "witnesses": [
+      {
+        "id": "0x1be31a94361a391bbafb2a4ccd704f57dc04d4bb",
+        "url": "reclaimprotocol"
+      }
+    ],
+
+    // THIS IS WHAT YOU CARE ABOUT :
+    "extractedParameterValues": {
+      "KEY": "VALUE"
+    },
+    "publicData": {
+      "KEY":"VALUE"
+    }
+  }
+]
+``` 
+
+# Errors
+```json
+{
+  "type": "string",
+  "message": "string",
+  [key: any]: any
+}
+```
+| Exception Name | Description |
+|----------------|-------------|
+| `ReclaimVerificationCancelledException` | Verification cancelled (likely another verification started or invalid request). |
+| `ReclaimVerificationDismissedException` | Verification dismissed by user. |
+| `ReclaimAttestorException` | Exception related to attestor. |
+| `ReclaimVerificationSkippedException` | Verification skipped (proofs reused or manual review). |
+| `InvalidRequestReclaimException` | Request to start verification is invalid. |
+| `ReclaimVerificationPlatformNotSupportedException` | Platform not supported. |
+| `ReclaimVerificationOutdatedSDKException` | InApp SDK version is outdated. |
+| `ReclaimVerificationManualReviewException` | Verification submitted for manual review. |
+| `ReclaimVerificationProviderNotFoundException` | Provider not found. |
+| `ReclaimVerificationAbortedException` | Verification aborted by user (e.g. clicking cancel). |
+| `ReclaimVerificationProviderScriptException` | Provider script reported an error. |
+| `ReclaimVerificationNoActivityDetectedException` | No activity detected. |
+| `ReclaimVerificationRequirementException` | Claim creation requirements not met. |
+| `ReclaimVerificationProviderLoadException` | Provider load failed. |
+| `ReclaimExpiredSessionException` | Session expired. |
+| `ReclaimInitSessionException` | Error initializing session. |
+
+### Description of `RECLAIM_EXCEPTION` in metadata
+
+When the `logType` is `RECLAIM_EXCEPTION`, the `metadata` string parses to an object containing an `exception` field. The `exception.type` will be one of the following:
+
+
+
+> [!NOTE]
+> In case of `ReclaimVerificationProviderScriptException`, the metadata may contain an additional `providerError` field with more detailed error information from the provider script.
+
+You can see some common [reasons of failures here](./potential-failure-reasons)
+
+# Cancelation 
+```
+TODO
+```
