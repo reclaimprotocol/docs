@@ -1,0 +1,210 @@
+---
+title: Analytics Event
+description: Understanding analytics events of a session
+---
+
+Reclaim Protocol emits two types of logs:
+1.  **Server-Side Analytics Events:** Stored on Reclaim servers, accessible via API. Useful for historical analysis, conversion tracking, and post-mortem debugging.
+2.  **Client-Side Log Events:** Emitted locally by the SDK. Useful for real-time debugging during development. [View Client-Side Logs Documentation](../inapp-sdks/advanced/log-event-types).
+
+This document details the **Server-Side Analytics Events**.
+
+## Fetching analytics events from Reclaim
+
+You can make an HTTP GET request to `https://logs.reclaimprotocol.org/api/analytics-logs/session/:session_id` to fetch all the analytics events of a session.
+
+### Understanding response from analytics event API
+
+Response format
+
+```json
+{
+  message: string;
+  data: AnalyticsLogEntry[];
+}
+```
+
+Following is the typescript type definition of the response:
+
+```typescript
+// ------------------------------------------------------------------
+// 1. Enums & Unions
+// ------------------------------------------------------------------
+
+export type LogType =
+  | 'FETCHED_PROVIDERS'
+  | 'RECLAIM_EXCEPTION'
+  | 'LOGIN_DETECTED'
+  | 'LOGIN_REQUIRED_DETECTED'
+  | 'USER_STARTED_VERIFICATION'
+  | 'USER_INIT_VERIFICATION'
+  | 'PROOF_GENERATION_STARTED'
+  | 'PROOF_GENERATION_RETRY'
+  | 'PROOF_GENERATION_SUCCESS'
+  | 'PROOF_GENERATION_FAILED'
+  | 'PROOF_SUBMITTED'
+  | 'AI_PROOF_SUBMITTED'
+  | 'PROOF_SUBMISSION_FAILED'
+  // This spelling mistake is intentional to match the backend.
+  | 'PROOF_MANUAL_VERIFICATION_SUBMITED'
+  | 'ERROR_SUBMITTED'
+  | 'ERROR_SUBMISSION_FAILED';
+
+// ------------------------------------------------------------------
+// 2. Parsed Metadata Interfaces
+//    (Use these to type the result of JSON.parse(log.metadata))
+// ------------------------------------------------------------------
+
+export interface MetadataLogin {
+  url: string;
+  hasLoginRelatedTokenInUrl?: boolean;
+  hasLoginRelatedElementInPage?: boolean | null;
+}
+
+export interface MetadataFetchedProviders {
+  useTEE: boolean;
+}
+
+export interface MetadataReclaimException {
+  exception: {
+    type: string; // e.g. "ReclaimVerificationCancelledException"
+    message: string;
+    providerError?: Record<string, any>;
+  };
+}
+
+// -- Proof Generation Stats (Nested structures) --
+export interface ProofRequestStats {
+  started_at: string;
+  stopped_at: string;
+  elapsed: number;
+  memory_usage_before_start_bytes: number;
+  memory_usage_after_stop_bytes: number;
+}
+
+export interface ProofAlgorithmReport {
+  algorithmName: string;
+  report: ProofRequestStats;
+}
+
+export interface ProofReport {
+  request: ProofRequestStats;
+  number_of_proofs: number;
+  proofs: ProofAlgorithmReport[];
+}
+
+export interface ProofStatistics {
+  number_of_proof_compute_per_request_max: number;
+  number_of_proof_compute_per_request_min: number;
+  number_of_proof_compute_per_request_avg: number;
+  request_compute_time_elapsed_first: number;
+  request_compute_time_elapsed_last: number;
+  request_compute_time_elapsed_max: number;
+  request_compute_time_elapsed_min: number;
+  request_compute_time_elapsed_avg: number;
+  request_compute_memory_usage_first: number;
+  request_compute_memory_usage_last: number;
+  request_compute_memory_usage_max: number;
+  request_compute_memory_usage_min: number;
+  request_compute_memory_usage_avg: number;
+  by_algorithm: Array<{
+    algorithm_name: string;
+    proof_compute_time_elapsed_first: number;
+    proof_compute_time_elapsed_last: number;
+    proof_compute_time_elapsed_max: number;
+    proof_compute_time_elapsed_min: number;
+    proof_compute_time_elapsed_avg: number;
+    proof_compute_memory_usage_first: number;
+    proof_compute_memory_usage_last: number;
+    proof_compute_memory_usage_max: number;
+    proof_compute_memory_usage_min: number;
+    proof_compute_memory_usage_avg: number;
+  }>;
+}
+
+export interface MetadataProofGenerated {
+  reports: ProofReport[];
+  statistics: ProofStatistics;
+}
+
+// ------------------------------------------------------------------
+// 3. Main Analytics Interfaces
+// ------------------------------------------------------------------
+
+export interface AnalyticsLogEntry {
+  sessionId: string;
+  date: string; // ISO Date string
+  deviceId: string | "NA";
+  deviceType: string | "NA";
+  providerId: string;
+  applicationId: string;
+  appCreatorId: string | "NA";
+  publicIpAddress: string | "NA";
+  logType: LogType;
+  appName: string | "NA";
+  providerName: string | "NA";
+  /**
+   * Contains stringified JSON or an empty string.
+   * Parse this string and cast based on logType:
+   * - PROOF_GENERATED -> MetadataProofGenerated
+   * - LOGIN_DETECTED -> MetadataLogin
+   * - FETCHED_PROVIDERS -> MetadataFetchedProviders
+   * - RECLAIM_EXCEPTION -> MetadataReclaimException
+   */
+  metadata: string; 
+  platform: string | "NA";
+}
+
+export interface AnalyticsEventResponse {
+  message: string;
+  data: AnalyticsLogEntry[];
+}
+```
+
+### Description of `LogType`s
+
+| Event Type | Level | Description |
+|------------|-------|-------------|
+| `FETCHED_PROVIDERS` | INFO | The list of providers has been fetched. |
+| `RECLAIM_EXCEPTION` | ERROR | An exception related to Reclaim protocol has occurred. |
+| `LOGIN_DETECTED` | INFO | Login to the provider was detected. |
+| `LOGIN_REQUIRED_DETECTED` | INFO | Detected that login is required. |
+| `USER_STARTED_VERIFICATION` | INFO | User has started the verification process. |
+| `USER_INIT_VERIFICATION` | INFO | User initialized the verification. |
+| `PROOF_GENERATION_STARTED` | INFO | Proof generation has started. |
+| `PROOF_GENERATION_RETRY` | INFO | Retrying proof generation. |
+| `PROOF_GENERATION_SUCCESS` | INFO | Proof generated successfully. |
+| `PROOF_GENERATION_FAILED` | ERROR | Proof generation failed. |
+| `PROOF_SUBMITTED` | INFO | The proof has been successfully submitted. |
+| `AI_PROOF_SUBMITTED` | INFO | AI proof has been submitted. |
+| `PROOF_SUBMISSION_FAILED` | ERROR | Proof submission failed. |
+| `PROOF_MANUAL_VERIFICATION_SUBMITED` | INFO | Manual verification proof submitted. |
+| `ERROR_SUBMITTED` | INFO | Error details have been submitted. |
+| `ERROR_SUBMISSION_FAILED` | ERROR | Failed to submit error details. |
+
+### Description of `RECLAIM_EXCEPTION` in metadata
+
+When the `logType` is `RECLAIM_EXCEPTION`, the `metadata` string parses to an object containing an `exception` field. The `exception.type` will be one of the following:
+
+| Exception Name | Description |
+|----------------|-------------|
+| `ReclaimVerificationCancelledException` | Verification cancelled (likely another verification started or invalid request). |
+| `ReclaimVerificationDismissedException` | Verification dismissed by user. |
+| `ReclaimAttestorException` | Exception related to attestor. |
+| `ReclaimVerificationSkippedException` | Verification skipped (proofs reused or manual review). |
+| `InvalidRequestReclaimException` | Request to start verification is invalid. |
+| `ReclaimVerificationPlatformNotSupportedException` | Platform not supported. |
+| `ReclaimVerificationOutdatedSDKException` | InApp SDK version is outdated. |
+| `ReclaimVerificationManualReviewException` | Verification submitted for manual review. |
+| `ReclaimVerificationProviderNotFoundException` | Provider not found. |
+| `ReclaimVerificationAbortedException` | Verification aborted by user (e.g. clicking cancel). |
+| `ReclaimVerificationProviderScriptException` | Provider script reported an error. |
+| `ReclaimVerificationNoActivityDetectedException` | No activity detected. |
+| `ReclaimVerificationRequirementException` | Claim creation requirements not met. |
+| `ReclaimVerificationProviderLoadException` | Provider load failed. |
+| `ReclaimExpiredSessionException` | Session expired. |
+| `ReclaimInitSessionException` | Error initializing session. |
+
+> [!NOTE]
+> In case of `ReclaimVerificationProviderScriptException`, the metadata may contain an additional `providerError` field with more detailed error information from the provider script.
+

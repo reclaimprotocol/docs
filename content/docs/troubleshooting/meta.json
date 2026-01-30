@@ -1,0 +1,9 @@
+{
+  "root": false,
+  "pages": [
+    "index",
+    "analytics-event",
+    "enable-troubleshooting-mode",
+    "potential-failure-reasons"
+  ]
+}
