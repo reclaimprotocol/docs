@@ -1,0 +1,100 @@
+---
+title: SDK Methods Reference
+description: Detailed technical reference for the Reclaim Protocol JS-SDK methods, including parameters and return types.
+---
+
+# ReclaimProofRequest
+
+[cite_start]The `ReclaimProofRequest` class is the core component used to initialize, configure, and trigger the proof generation process[cite: 39, 40]. 
+
+## Methods Overview
+
+| Method | Description |
+| :--- | :--- |
+| `init()` | [cite_start]Creates a new SDK instance[cite: 2]. |
+| `setContext()` | [cite_start]Adds user-specific identifiers to the request[cite: 12]. |
+| `setParams()` | [cite_start]Sets expected values for data extraction[cite: 15]. |
+| `triggerReclaimFlow()` | [cite_start]Opens the verification UI for the user[cite: 41]. |
+
+## init()
+
+The `init` method is a static asynchronous function used to initialize the Reclaim SDK. It creates a `ReclaimProofRequest` instance that holds your configuration.
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `appId` | `string` | Yes | [cite_start]Your unique Application ID generated from the Reclaim DevTool. |
+| `appSecret` | `string` | Yes | Your Application Secret. [cite_start]**Security Note:** This should only be used on the backend. |
+| `providerId` | `string` | Yes | [cite_start]The unique identifier for the data provider you want the user to verify. |
+| `options` | `object` | No | [cite_start]Advanced configuration object (e.g., `metadata`, `preferredLocale`)[cite: 11, 72, 78]. |
+
+### Return Value
+**Type:** `Promise<ReclaimProofRequest>`  
+[cite_start]Returns a "Promise" that resolves to a new instance of the `ReclaimProofRequest` class once initialization is complete[cite: 2, 39].
+
+### Example
+```javascript
+const reclaimProofRequest = await ReclaimProofRequest.init(
+    process.env.RECLAIM_APP_ID, 
+    process.env.RECLAIM_APP_SECRET, 
+    'your-provider-id'
+);
+
+## setContext()
+
+Adds context to the proof request. This helps you identify and verify the request when the proof is sent back to your callback endpoint.
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `contextAddress` | `string` | Yes | [cite_start]A unique identifier for the user (e.g., a wallet address or email).  |
+| `contextMessage` | `string` | Yes | [cite_start]A message or stringified JSON containing additional session data.  |
+
+### Example
+```javascript
+reclaimProofRequest.setContext('user-wallet-address', 'session-id-12345');
+
+### 3. The Writing: `setParams()`
+This is a "Validation" method. It tells the SDK exactly what data to look for.
+
+**Add this to your file:**
+
+```markdown
+## setParams()
+
+Defines the expected values for the parameters being extracted. If the extracted data from the provider does not match these parameters, the proof generation will fail. 
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `params` | `Record<string, string>` | Yes | A key-value object where keys match the template's parameter names.  |
+
+### Example
+```javascript
+reclaimProofRequest.setParams({ 
+    userName: "John Doe",
+    membershipType: "Premium"
+});
+
+### setAppCallbackUrl()
+
+Specifies a backend URL where the Reclaim Protocol will send the proof results once the user completes the verification.
+
+| Parameter | Type | Required | Description | Default |
+| :--- | :--- | :--- | :--- | :--- |
+| `url` | `string` | **Yes** | Your backend endpoint URL (e.g., `https://api.your-app.com/callback`). | - |
+| `useJson` | `boolean` | No | If `true`, the proof is sent as raw JSON. If `false`, it is urlencoded. | `false` |
+
+```javascript
+reclaimProofRequest.setAppCallbackUrl('https://my-backend.com/reclaim-webhook', true);
+
+
+// Server-side initialization
+const reclaimProofRequest = await ReclaimProofRequest.init(
+    process.env.RECLAIM_APP_ID, 
+    process.env.RECLAIM_APP_SECRET, 
+    'your-provider-id'
+);
