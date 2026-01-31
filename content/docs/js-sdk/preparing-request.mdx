@@ -98,7 +98,7 @@ If the user cancels the session midway or after error, Reclaim will send a POST 
 
 ```json
 {
-  "type": "string", // Name of the exception from the table below
+  "type": "string", // Name of the exception are in the table below
   "message": "string",
   [key: any]: any
 }
@@ -108,12 +108,12 @@ If the user cancels the session midway or after error, Reclaim will send a POST 
 
 Following are some exceptions that happen when user presses a button to cancel in UI or provider custom injection script causes a cancellation by calling `Reclaim.reportProviderError` in browser.
 
-| Exception Name | Description |
+| Exception Name (`type` field) | Description |
 |----------------|-------------|
 | `ReclaimVerificationAbortedException` | User cancelled the verification (e.g., tapped on cancel or verify another way button). |
 | `ReclaimVerificationProviderScriptException` | The provider script encountered an error (e.g., login failed, invalid account used). |
 
-Other errors (such as network timeouts or internal exceptions) may also trigger this callback if **auto submit is enabled**. In any case, you can always find the complete list of errors by [fetching analytics events](./troubleshooting/analytics-event) for the session.
+Other errors (such as network timeouts or internal exceptions) may also trigger this callback if **auto submit is enabled**. In any case, you can always find the complete list of errors by [fetching analytics events](../troubleshooting/analytics-event) for the session.
 
 ## Redirect after proof generation or cancellation
 

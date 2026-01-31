@@ -39,11 +39,59 @@ The data that was extracted from the webpage that the user logged in into, depen
 const { extractedParameters } = JSON.parse(proofs[i].context);
 ```
 
-## Sanity Check
-`TODO`
+## Sample implementation
 
-## Sample implementation in Next.js
-`TODO`
+### Example in Next.js
+```
+import { NextResponse } from 'next/server';
+import { verifyProof } from '@reclaimprotocol/js-sdk';
+ 
+export async function POST(request) {
+  let providerId = 'example';
+
+  try {
+    // assuming that you set callback url with json set to true
+    const proofs = JSON.parse(await request.text());
+    const isValid = await verifyProof(proofs);
+    if (!isValid) {
+      return NextResponse.json({
+        success: false,
+        message: 'Proof verification failed'
+      });
+    }
+
+    // As best practice, you MUST validate proofs as per expectations and business requirements.
+    // This should happen on your backend.
+    //
+    // This must be done to make sure that
+    // this is the proof you expected.
+    //
+    // As an example, validation can be done by checking request url, headers,
+    // method, and all proven fields (aka extracted params), etc.
+    const isProofValid = await YourBackendUsingReclaim.validateProof(proofs);
+
+    if (!isProofValid) {
+      // Do not use proof that failed your validation.
+      return NextResponse.json({
+        success: false,
+        message: 'Proof validation failed'
+      });
+    }
+
+    // save or use proof from your backend
+
+    return NextResponse.json({
+      success: true,
+      message: 'Proof verification successful'
+    });
+  } catch (e) {
+    return NextResponse.json({
+      success: false,
+      message: 'Proof verification failed'
+    });
+  }
+}
+```
 
 # Structure of proofs
 ```json
