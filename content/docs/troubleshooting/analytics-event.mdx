@@ -207,3 +207,4 @@ When the `logType` is `RECLAIM_EXCEPTION`, the `metadata` string parses to an ob
 
 > [!NOTE]
 > In case of `ReclaimVerificationProviderScriptException`, the metadata may contain an additional `providerError` field with more detailed error information from the provider script.
+> In case of `ReclaimVerificationAbortedException`, the metadata may contain an additional `has_error` boolean field which will be true if the user cancelled the verification after an error occurred during verification.
