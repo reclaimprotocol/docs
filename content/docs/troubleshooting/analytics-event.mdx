@@ -27,6 +27,12 @@ Response format
 Following is the typescript type definition of the response:
 
 ```typescript
+
+export interface AnalyticsEventResponse {
+  message: string;
+  data: AnalyticsLogEntry[];
+}
+
 // ------------------------------------------------------------------
 // 1. Enums & Unions
 // ------------------------------------------------------------------
@@ -154,24 +160,19 @@ export interface AnalyticsLogEntry {
   metadata: string; 
   platform: string | "NA";
 }
-
-export interface AnalyticsEventResponse {
-  message: string;
-  data: AnalyticsLogEntry[];
-}
 ```
 
 ### Description of `LogType`s
 
 | Event Type | Level | Description |
 |------------|-------|-------------|
-| `FETCHED_PROVIDERS` | INFO | The list of providers has been fetched. |
-| `RECLAIM_EXCEPTION` | ERROR | An exception related to Reclaim protocol has occurred. |
-| `LOGIN_DETECTED` | INFO | Login to the provider was detected. |
-| `LOGIN_REQUIRED_DETECTED` | INFO | Detected that login is required. |
+| `FETCHED_PROVIDERS` | INFO | The provider details have been fetched. |
+| `RECLAIM_EXCEPTION` | ERROR | An error has occurred in the verification journey. |
+| `LOGIN_DETECTED` | INFO | Login to the provider was detected (this can be inaccurate). |
+| `LOGIN_REQUIRED_DETECTED` | INFO | Detected that login is required (this can be inaccurate). |
 | `USER_STARTED_VERIFICATION` | INFO | User has started the verification process. |
 | `USER_INIT_VERIFICATION` | INFO | User initialized the verification. |
-| `PROOF_GENERATION_STARTED` | INFO | Proof generation has started. |
+| `PROOF_GENERATION_STARTED` | INFO | First proof generation has started. |
 | `PROOF_GENERATION_RETRY` | INFO | Retrying proof generation. |
 | `PROOF_GENERATION_SUCCESS` | INFO | Proof generated successfully. |
 | `PROOF_GENERATION_FAILED` | ERROR | Proof generation failed. |
@@ -179,7 +180,7 @@ export interface AnalyticsEventResponse {
 | `AI_PROOF_SUBMITTED` | INFO | AI proof has been submitted. |
 | `PROOF_SUBMISSION_FAILED` | ERROR | Proof submission failed. |
 | `PROOF_MANUAL_VERIFICATION_SUBMITED` | INFO | Manual verification proof submitted. |
-| `ERROR_SUBMITTED` | INFO | Error details have been submitted. |
+| `ERROR_SUBMITTED` | INFO | Error details (Right now happens on cancellation) have been submitted. |
 | `ERROR_SUBMISSION_FAILED` | ERROR | Failed to submit error details. |
 
 ### Description of `RECLAIM_EXCEPTION` in metadata
