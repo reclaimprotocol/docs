@@ -4,23 +4,74 @@ description: Datastructures of messages transmitted during the verification proc
 ---
 
 # Proof Request
+
 ```js
 {
-    "applicationId":"0x... YOUR APPLICATION ID",
-    "providerId":"bb96d0b0-... YOUR PROVIDER ID",
-    "sessionId":"e1fca89978", // sessionId created by Reclaim Protocol
-    "context":{"contextAddress":"Address you set","contextMessage":"message you set"},
-    "appCallbackUrl":"https://yourwebsite.com/reclaim-callback ... you set",
-    "claimCreationType":"createClaim",
-    "parameters":{ ... any parameters you set },
-    "signature":"signature using your app secret to know it came from your application",
-    "redirectUrl":"https://yourwebsite.com/redirecturl set by you",
-    "timestamp":"1769799659479",
-    "timeStamp":"1769799659479",
-    "options":{"useAppClip":false,"customSharePageUrl":"https://portal.reclaimprotocol.org/kernel","useBrowserExtension":true},
-    "sdkVersion":"js-4.7.1",
-    "jsonProofResponse":true,
-    "resolvedProviderVersion":"1.3.0"
+    // This can be your application id
+    "applicationId": "0xsampleapplicationid",
+    // The ID of Provider you are using for verifications
+    "providerId": "example",
+    // A unique short sessionId created by Reclaim Protocol to identify this session
+    "sessionId": "123",
+    // Any JSON serializable data you want to be part of the proof generation process
+    "context": {
+      "user": "john@example.com",
+      "contextAddress":"Address you set",
+      "contextMessage":"message you set"
+    },
+    // URL where proof(s) are submitted after all proofs are successfully generated
+    "appCallbackUrl": "https://api.example.com/success?session=def",
+    // The type of claim creation
+    "claimCreationType": "createClaim",
+    // The parameters used by the provider script and the requests involved in proof generation process
+    // This is a map of strings to strings. 
+    "parameters": {
+        "user": "john@example.com"
+    },
+    // Signature of the proof request using your application secret
+    // This signature is generated using your application secret to know it came from your application
+    "signature": "0xbbf1aad7bd65c6d0c37a5b6012c4dff217e190372d5e364bf8f2bf4ea9df3a080ec8b325b84b29e130d9b15401087b36bc4852367c8f93427c39ffb7b44b498d1c",
+    // URL to redirect to after successful proof generation
+    "redirectUrl": "https://example.com/success?session=def",
+    // URL which is called when verification is cancelled by the user or after errors (only auto submit enabled; auto submit is enabled by default).
+    "cancelCallbackUrl": "https://api.example.com/cancel?session=def",
+    // URL to redirect to after cancelled proof generation
+    "cancelRedirectUrl": "https://example.com/cancelled?session=def",
+    // Timestamp of the proof request
+    "timestamp": "1769867597546",
+    // legacy: same as above
+    "timeStamp": "1769867597546",
+    "options": {
+        // enables diagnostic logging for debugging purposes
+        "log": true,
+        // enables use of AI in verification journey
+        "acceptAiProviders": false,
+        // users may use Reclaim Verifier app clip or instant app for verification
+        "useAppClip": false,
+        // URL of the custom share page (optional)
+        "customSharePageUrl": "https://portal.reclaimprotocol.org",
+        "launchOptions": {
+            // enables deferred deep links flow 
+            "canUseDeferredDeepLinksFlow": true
+        },
+        // Enables auto submitting proofs on success or errors
+        "canAutoSubmit": false,
+        // Preferred locale for the UI in verification journey
+        "preferredLocale": "zh-Hant-HK",
+        // Metadata that can be used by the UI in verification journey
+        "metadata": {
+            // This is an example of metadata, actual values may depend on custom themes
+            "theme": "dark"
+        },
+        // Enables use of browser extension for verification
+        "useBrowserExtension": true
+    },
+    // The version of SDK that generated this JSON string request
+    "sdkVersion": "js-4.10.0",
+    // Whether to submit proof as JSON or URL encoded using HTTP POST to the success callback. Cancellation callback not affected. 
+    "jsonProofResponse": false,
+    // The version of provider that should be used for verifications
+    "resolvedProviderVersion": "1.0.0"
 }
 ```
 
@@ -49,6 +100,7 @@ description: Datastructures of messages transmitted during the verification proc
         "url": "reclaimprotocol"
       }
     ],
+    // Optional: Extra data attached to any proof. This can be null, JSON string, array or map. In most cases, this is a JSON map or null.
     "publicData": {
       "KEY":"VALUE"
     }
@@ -56,7 +108,7 @@ description: Datastructures of messages transmitted during the verification proc
 ]
 ```
 
-# Errors
+# Structure of data POSTed to cancel callback
 
 ```json
 {
@@ -91,5 +143,6 @@ When the `logType` is `RECLAIM_EXCEPTION`, the `metadata` string parses to an ob
 
 > [!NOTE]
 > In case of `ReclaimVerificationProviderScriptException`, the metadata may contain an additional `providerError` field with more detailed error information from the provider script.
+> In case of `ReclaimVerificationAbortedException`, the metadata may contain an additional `has_error` boolean field which will be true if the user cancelled the verification after an error occurred during verification.
 
 You can see some common [reasons of failures here](./potential-failure-reasons)
