@@ -121,30 +121,6 @@ else {
 }
 ```
 
-## Redirect after proof generation
-If you want to redirect the user after generating the proof to a specific webpage or app, you can do so using `setRedirectUrl`. 
-
-When you should use this:
-
-- User is on a desktop, scans QR code to generate the proof. After the proof generation is complete you want to show a custom success message on their mobile device instead of the Reclaim Protocol's default success message. You can redirect them to a webpage.
-- User is on a mobile, taps a button to generate the proof. After the proof generation is complete, you typically want to redirect the user to the page that must be shown after the proof generation is complete. If you are using `onSuccess`, the user will have to close the proof generation success banner and go back to the browser to continue. We recommend using a redirect url to take the user to the next step in the business logic. On this step, render a page depending on whether the proof was correctly verified.
-
-```javascript
-// Redirect to success page after verification
-reclaimProofRequest.setRedirectUrl("https://yourapp.com/verification/success");
- 
-// Or deep link back to a mobile app
-reclaimProofRequest.setRedirectUrl("yourapp://verification-complete");
-```
-
-## Custom Error Redirect URL
-
-Set a custom URL to redirect users on an error which aborts the verification process:
-
-```javascript
-reclaimProofRequest.setErrorRedirectUrl("https://example.com/error-redirect");
-```
-
 ## Showing Progress
 
 You can poll the progress of the proof generation process and update the UI accordingly, especially if you are not using the `startSession` method. 

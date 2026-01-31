@@ -34,6 +34,8 @@ description: Datastructures of messages transmitted during the verification proc
       "parameters": "",
       "owner": "0x1234567890123456789012345678901234567890", //Legacy. Ignore.
       "timestampS": 1769800037,
+      // THIS IS WHAT YOU CARE ABOUT
+      // "extractedParameters" will contain the data. Can be extracted from this field using `JSON.parse(proof[index].claimData.context).extractedParameters`. 
       "context": "{\"contextAddress\":\"Your set address\",\"contextMessage\":\"Your context message\",\"extractedParameters\":{\"KEY\":\"Value\"}}",
       "identifier": "0x7059eb0d834e4e0b544f683ef083081fa7dc7f51b847b5ccb67c5b63a7e8b605",
       "epoch": 1
@@ -47,25 +49,22 @@ description: Datastructures of messages transmitted during the verification proc
         "url": "reclaimprotocol"
       }
     ],
-
-    // THIS IS WHAT YOU CARE ABOUT :
-    "extractedParameterValues": {
-      "KEY": "VALUE"
-    },
     "publicData": {
       "KEY":"VALUE"
     }
   }
 ]
-``` 
+```
 
 # Errors
+
 ```json
 {
   "type": "string",
   "message": "string",
   [key: any]: any
 }
+
 ```
 | Exception Name | Description |
 |----------------|-------------|
@@ -90,14 +89,7 @@ description: Datastructures of messages transmitted during the verification proc
 
 When the `logType` is `RECLAIM_EXCEPTION`, the `metadata` string parses to an object containing an `exception` field. The `exception.type` will be one of the following:
 
-
-
 > [!NOTE]
 > In case of `ReclaimVerificationProviderScriptException`, the metadata may contain an additional `providerError` field with more detailed error information from the provider script.
 
 You can see some common [reasons of failures here](./potential-failure-reasons)
-
-# Cancelation 
-```
-TODO
-```

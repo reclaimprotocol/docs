@@ -42,18 +42,14 @@ export async function GET(request) {
     useAppClip: false,
     customSharePageUrl: 'https://portal.reclaimprotocol.org'
   }
-  const proofRequest = await ReclaimProofRequest.init(      
+
+  // Initialize SDK with server-side environment variables (secure)
+  // and request options
+  const reclaimProofRequest = await ReclaimProofRequest.init(      
       process.env.RECLAIM_APP_ID,
       process.env.RECLAIM_APP_SECRET,
       providerId,
       proofRequestOptions);
-
-  // Initialize SDK with server-side environment variables (secure)
-  const reclaimProofRequest = await ReclaimProofRequest.init(
-      process.env.RECLAIM_APP_ID,
-      process.env.RECLAIM_APP_SECRET,
-      providerId,
-  );
 
   // Convert to JSON string (safe for frontend)
   const proofRequestObject = reclaimProofRequest.toJsonString();
@@ -77,46 +73,71 @@ reclaimProofRequest.setContext('address', 'message')
 - `address` : this is usually a unique identifier for the user. This could be an email address, a wallet address, or just a session id generated on your system
 - `message` : this is an open field where you can add any other information that you want passed around from the build request to the callback endpoint. You can stringify jsons here for convenience. 
 
+## Set Callback URLs
 
+### Success Callback
 
-## Set Callback 
-
-### Success Callback URL
-
-```
+```js
 reclaimProofRequest.setAppCallbackUrl(url, useJson)
 ```
+
 Set a backend callback URL where Reclaim Protocol will POST proofs directly after verification. This enables secure backend proof processing without relying on frontend to upload the proof.
 
 If `useJson` is set to `true`, it will send the proof as a raw JSON. Else, the POST body will contain the Proof JSON urlencoded. 
-You can see the data structure of the proofs you will recieve [here](/troubleshooting/anatomy#proof).
+You can see the data structure of the proofs you will receive [here](/troubleshooting/anatomy#proof).
 
-### Error Callback URL
+### Cancel Callback
 
-If something fails in the process of verifying, this callback url will be called with the [error codes as mentioned here](/troubleshooting/analytics-event#description-of-reclaim_exception-in-metadata)
-```javascript
-reclaimProofRequest.setErrorCallbackUrl("https://yourwebsite.tld/error-callback"); // POST request endpoint 
-```
+The easiest way to handle cancellations by user is to set up a cancel callback. This allows your application to react immediately when a user's verification session terminates.
 
-You can see the [data format here](/troubleshooting/anatomy#errors).
-
-### Redirect Url
-You can redirect the user to a webpage after the proof has been submitted
-```javascript
-reclaimProofRequest.setRedirectUrl("https://yourwebsite.com/reclaim-redirect"); // GET request webpage 
-```
-
-## Cancel Callback
-If the user cancels the session midway, you will get a cancel callback with a datastructure mentioned [here](/troubleshooting/anatomy#cancelation).
-
-```javascript
+```js
 reclaimProofRequest.setCancelCallbackUrl("https://yourwebsite.com/reclaim-cancelcallback"); // POST request webpage 
 ```
 
-## Cancel Redirect Url
-If the user cancels the session midway or cancels after proof generation, you can redirect them to a separate webpage 
+If the user cancels the session midway or after error, Reclaim will send a POST request to you on the cancel callback URL with details. The body will contain:
+
+```json
+{
+  "type": "string",
+  "message": "string",
+  [key: any]: any
+}
+```
+
+Currently, **only these two types** will trigger the cancel callback:
+
+| Exception Name | Description |
+|----------------|-------------|
+| `ReclaimVerificationAbortedException` | User cancelled the verification (e.g., tapped on cancel or verify another way button). |
+| `ReclaimVerificationProviderScriptException` | The provider script encountered an error (e.g., login failed, invalid account used). |
+
+Other errors (such as network timeouts or internal exceptions) will **not** trigger this callback but can be found by [fetching analytics events](./troubleshooting/analytics-event) for the session.
+
+## Redirect after proof generation or cancellation
+
+### Success Redirect URL
+
+If you want to redirect the user after generating the proof to a specific webpage or app, you can do so using `setRedirectUrl`. 
+
+When you should use this:
+
+- User is on a desktop, scans QR code to generate the proof. After the proof generation is complete you want to show a custom success message on their mobile device instead of the Reclaim Protocol's default success message. You can redirect them to a webpage.
+- User is on a mobile, taps a button to generate the proof. After the proof generation is complete, you typically want to redirect the user to the page that must be shown after the proof generation is complete. If you are using `onSuccess`, the user will have to close the proof generation success banner and go back to the browser to continue. We recommend using a redirect url to take the user to the next step in the business logic. On this step, render a page depending on whether the proof was correctly verified.
+
 ```javascript
-reclaimProofRequest.setCancelRedirectUrl("https://yourwebsite.com/reclaim-cancelredirect); // GET webpage
+// Redirect to success page after verification
+reclaimProofRequest.setRedirectUrl("https://yourapp.com/verification/success");
+ 
+// Or deep link back to a mobile app
+reclaimProofRequest.setRedirectUrl("yourapp://verification-complete");
+```
+
+### Cancel Redirect Url
+
+Set a custom URL to redirect users when their verification process is cancelled:
+
+```javascript
+reclaimProofRequest.setCancelRedirectUrl("https://example.com/cancel-redirect");
 ```
 
 ## Set Parameters
@@ -139,11 +160,9 @@ The keys and values must be strings. For most clients, this is not required and 
 ```js
 // Initialize with options
 const proofRequest = await ReclaimProofRequest.init(APP_ID, APP_SECRET, PROVIDER_ID, {
-  metadata: { theme: 'dark', verify_another_way_link: 'https://exampe.org/alternative-verification?id=1234', verify_another_way_callback: 'https://api.exampe.org/alternative-verification/callback?id=1234' },
+  metadata: { theme: 'dark' },
 });
 ```
-
-If your app has "Verify Another Way" enabled, refer documentation from [here](/troubleshooting#handle-verify-another-way).
 
 ## Set preferred locale for verification client
 
