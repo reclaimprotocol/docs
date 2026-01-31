@@ -5,7 +5,7 @@ description: Understanding analytics events of a session
 
 Reclaim Protocol emits two types of logs:
 1.  **Server-Side Analytics Events:** Stored on Reclaim servers, accessible via API. Useful for historical analysis, conversion tracking, and post-mortem debugging.
-2.  **Client-Side Log Events:** Emitted locally by the SDK. Useful for real-time debugging during development. [View Client-Side Logs Documentation](../inapp-sdks/advanced/log-event-types).
+2.  **Client-Side Log Events:** Emitted locally by the InApp SDK. Useful for diagnosing issues with an InApp SDK session. [View Client-Side Logs Documentation](../inapp-sdks/advanced/log-event-types).
 
 This document details the **Server-Side Analytics Events**.
 
@@ -207,4 +207,3 @@ When the `logType` is `RECLAIM_EXCEPTION`, the `metadata` string parses to an ob
 
 > [!NOTE]
 > In case of `ReclaimVerificationProviderScriptException`, the metadata may contain an additional `providerError` field with more detailed error information from the provider script.
-

@@ -3,6 +3,7 @@
   "pages": [
     "index",
     "analytics-event",
+    "anatomy",
     "enable-troubleshooting-mode",
     "potential-failure-reasons"
   ]

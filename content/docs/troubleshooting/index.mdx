@@ -5,7 +5,7 @@ description: Learn how to handle errors, monitor verification status, and debug 
 
 When integrating Reclaim Protocol, you have multiple tools at your disposal to monitor the status of detailed verifications and troubleshoot issues. This guide covers:
 
-1.  **[Error Callbacks](#setup-error-callback):** Receive immediate feedback in your application when a verification fails.
+1.  **[Handling Cancellation & Errors](#handling-cancellation--errors):** Receive immediate feedback in your application when a verification is cancelled.
 2.  **[Handle 'Verify Another Way'](#handle-verify-another-way):** Receive immediate feedback when the user chooses to verify in another way.
 3.  **[Server-Side Analytics](#server-side-analytics-events):** Fetch detailed session logs from the Reclaim server for analysis.
 4.  **[Client-Side Logs](#client-side-debugging):** Listen to real-time logs emitted by the SDKs on the user's device.
@@ -13,56 +13,13 @@ When integrating Reclaim Protocol, you have multiple tools at your disposal to m
 
 ---
 
-## Setup Error Callback
+## Handling Cancellation & Errors
 
-The easiest way to handle failures is to set up an error callback. This allows your application to react immediately when a user's verification session fails.
+The easiest way to handle cancellation is to set up an cancel callback. This allows your application to react immediately when a user's verification session cancellations.
 
-### JS SDK Example
-
-```js
-reclaimProofRequest.setErrorCallbackUrl("https://example.com/error-callback");
-```
-
-The Reclaim backend will send a POST request to this URL if the verification session terminates with an error. The body will contain:
-
-```json
-{
-  "type": "string",
-  "message": "string",
-  [key: any]: any
-}
-```
-
-Currently, **only these two error types** will trigger the error callback:
-
-| Exception Name | Description |
-|----------------|-------------|
-| `ReclaimVerificationAbortedException` | User cancelled the verification (e.g., closed the modal). |
-| `ReclaimVerificationProviderScriptException` | The provider script encountered an error (e.g., login failed, invalid account used). |
+Read more about setting a cancellation callback [here](./js-sdk/preparing-request#cancel-callback).
 
 Other errors (such as network timeouts or internal exceptions) will **not** trigger this callback but can be found by [fetching analytics events](./troubleshooting/analytics-event) for the session.
-
-> [!TIP]
-> For a comprehensive list of all possible backend exceptions, refer to the [Analytics Events](./troubleshooting/analytics-event#description-of-reclaim_exception-in-metadata).
-
-### Handle 'Verify Another Way'
-
-When the 'Verify Another Way' option is enabled for your app in the user-facing UI, you can decide what URL opens when the user presses this button. You can also trigger a callback to your backend. This is useful for scenarious where your user wishes to use alternative verification method during verification journey
-
-Pass the `verify_another_way_link` and `verify_another_way_callback` parameters in the metadata during initialization:
-
-```js
-// Initialize with options
-const proofRequest = await ReclaimProofRequest.init(APP_ID, APP_SECRET, PROVIDER_ID, {
-  metadata: {
-    verify_another_way_link: 'https://example.org/alternative-verification?id=1234',
-    verify_another_way_callback: 'https://api.example.org/alternative-verification-requested-callback?id=1234'
-  },
-});
-```
-
-> [!NOTE]
-> This is only enabled on request. To request, contact [support@reclaimprotocol.org](mailto:support@reclaimprotocol.org).
 
 ---
 
@@ -123,4 +80,4 @@ If you are seeing generic failures, check our guide on common environmental issu
 
 ### Assume a Timeout
 
-If your application backend does not receive a proof or an error callback within **10 minutes** of the session start, you should assume the verification has timed out or was abandoned by the user.
+If your application backend does not receive a proof or a cancel callback within **10 minutes** of the session start, you should assume the verification has timed out or was abandoned by the user.
