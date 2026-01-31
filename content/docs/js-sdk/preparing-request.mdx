@@ -66,12 +66,31 @@ export async function GET(request) {
 We recommend most, if not all of the following to be set for most production usecases :
 
 ## Set Context
+
+### Set Address & Message as context
+
 You can set context to the proof request that helps identify the request when you receive it back in the callback once the proof is generated.
-```
+
+```js
 reclaimProofRequest.setContext('address', 'message')
 ```
+
 - `address` : this is usually a unique identifier for the user. This could be an email address, a wallet address, or just a session id generated on your system
 - `message` : this is an open field where you can add any other information that you want passed around from the build request to the callback endpoint. You can stringify jsons here for convenience. 
+
+### Set JSON Context
+
+A JSON serializable object can also be set as context. For doing this, use `setJsonContext` method.
+
+```js
+reclaimProofRequest.setJsonContext({
+  address: 'hello@example.org',
+  sessionId: '123'
+})
+```
+
+> [!WARNING]
+> Both [setContext](/js-sdk/preparing-request#set-address--message-as-context) and [setJsonContext](/js-sdk/preparing-request#set-json-context) overwrite each other.
 
 ## Set Callback URLs
 
@@ -134,13 +153,17 @@ reclaimProofRequest.setRedirectUrl("https://yourapp.com/verification/success");
 reclaimProofRequest.setRedirectUrl("yourapp://verification-complete");
 ```
 
+Redirection happens after success callback is invoked by reclaim.
+
 ### Cancel Redirect Url
 
-Set a custom URL to redirect users when their verification process is cancelled:
+Set a custom URL to redirect users when their verification process is cancelled. This allows your application to react immediately when a user's verification session terminates.
 
 ```javascript
 reclaimProofRequest.setCancelRedirectUrl("https://example.com/cancel-redirect");
 ```
+
+Redirection happens after cancel callback is invoked by reclaim. See [What triggers a Cancel Callback](/js-sdk/preparing-request#what-triggers-cancel-callback) for more details.
 
 ## Set Parameters
 If you already know what the value of the extracted parameter is supposed to be, you can set that using `setParams`.
