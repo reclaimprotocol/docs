@@ -90,20 +90,24 @@ reclaimProofRequest.setJsonContext({
 ```
 
 > [!WARNING]
-> Both [setContext](/js-sdk/preparing-request#set-address--message-as-context) and [setJsonContext](/js-sdk/preparing-request#set-json-context) overwrite each other.
+> Both [setContext](/js-sdk/preparing-request#set-address--message-as-context) and [setJsonContext](/js-sdk/preparing-request#set-json-context) overwrite each other. Each call replaces the existing context.
 
 ## Set Callback URLs
 
 ### Success Callback
 
 ```js
-reclaimProofRequest.setAppCallbackUrl(url, useJson)
+reclaimProofRequest.setAppCallbackUrl(url, jsonProofResponse)
 ```
 
-Set a backend callback URL where Reclaim Protocol will POST proofs directly after verification. This enables secure backend proof processing without relying on frontend to upload the proof.
+Set a backend callback URL where Reclaim Protocol will send proofs directly after verification. In this case proofs are sent only to the custom URL *instead* of the Reclaim backend. This enables secure backend proof processing without relying on your frontend to upload the proof.
 
-If `useJson` is set to `true`, it will send the proof as a raw JSON. Else, the POST body will contain the Proof JSON urlencoded. 
+By default, proofs are sent as HTTP `POST` with `Content-Type` as `application/x-www-form-urlencoded`. Pass function argument `jsonProofResponse` as `true` to send proofs with `Content-Type` as `application/json`. 
+
 You can see the data structure of the proofs you will receive [here](/troubleshooting/anatomy#proof).
+
+> [!Note]
+> If you are using `reclaimProofRequest.startSession` after setting a custom success callback URL, then the proofs will be sent to the custom URL *instead* of the Reclaim backend. Because of this, the startSession `onSuccess` callback will be invoked with an empty array (`[]`) instead of the proof data, as the proof is not available to the SDK in this flow.
 
 ### Cancel Callback
 
