@@ -102,6 +102,8 @@ reclaimProofRequest.setAppCallbackUrl(url, jsonProofResponse)
 
 Set a backend callback URL where Reclaim Protocol will send proofs directly after verification. In this case proofs are sent only to the custom URL *instead* of the Reclaim backend. This enables secure backend proof processing without relying on your frontend to upload the proof.
 
+This verification session's id will also be present in `X-Reclaim-Session-Id` header of the request. 
+
 By default, proofs are sent as HTTP `POST` with `Content-Type` as `application/x-www-form-urlencoded`. Pass function argument `jsonProofResponse` as `true` to send proofs with `Content-Type` as `application/json`. 
 
 You can see the data structure of the proofs you will receive [here](/troubleshooting/anatomy#proof).
@@ -117,13 +119,19 @@ The easiest way to handle cancellations by user is to set up a cancel callback. 
 reclaimProofRequest.setCancelCallbackUrl("https://yourwebsite.com/reclaim-cancelcallback"); // POST request webpage 
 ```
 
-If the user cancels the session midway or after error, Reclaim will send a POST request to you on the cancel callback URL with details. The body will contain:
+If the user cancels the session midway or after error, Reclaim will send a POST request to you on the cancel callback URL with details. This verification session's id will be present in `X-Reclaim-Session-Id` header of the request.
+
+Following is the data format which is sent as an HTTP POST request to the url with `Content-Type: application/json`:
 
 ```json
 {
   "type": "string", // Name of the exception are in the table below
   "message": "string",
-  [key: any]: any
+  "sessionId": "string",
+  // context as canonicalized json string
+  "context": "string",
+  // Other fields with more details about error may be present
+  // [key: any]: any
 }
 ```
 
@@ -160,6 +168,24 @@ reclaimProofRequest.setRedirectUrl("https://yourapp.com/verification/success");
 reclaimProofRequest.setRedirectUrl("yourapp://verification-complete");
 ```
 
+Redirection with body:
+
+   - **url**: The URL where users should be redirected after successful proof generation.
+   - **method** (optional): The redirection method to use. Allowed options: `GET` (default) and `POST`. 
+     *Note: `POST` form redirection is only supported in In-Browser SDK.*
+   - **body** (optional): List of name-value pairs to be sent as the body of the form request.
+     - When `method` is `POST`, `body` is sent with `application/x-www-form-urlencoded` content type.
+     - When `method` is `GET`, if `body` is set, it is sent as query parameters.
+     *Note: Sending `body` on redirection is only supported in In-Browser SDK.*
+
+```javascript
+reclaimProofRequest.setRedirectUrl(
+  "https://example.com/redirect",
+  "POST", // In-Browser SDK only
+  [{ name: "foo", value: "bar" }]  // In-Browser SDK only
+);
+```
+
 Redirection happens after success callback is invoked by reclaim.
 
 ### Cancel Redirect Url
@@ -168,6 +194,24 @@ Set a custom URL to redirect users when their verification process is cancelled.
 
 ```javascript
 reclaimProofRequest.setCancelRedirectUrl("https://example.com/cancel-redirect");
+```
+
+Redirection with body:
+
+   - **url**: The URL where users should be redirected after an error which aborts the verification process.
+   - **method** (optional): The redirection method to use. Allowed options: `GET` (default) and `POST`.
+     *Note: `POST` form redirection is only supported in In-Browser SDK.*
+   - **body** (optional): List of name-value pairs to be sent as the body of the form request.
+     - When `method` is `POST`, `body` is sent with `application/x-www-form-urlencoded` content type.
+     - When `method` is `GET`, if `body` is set, it is sent as query parameters.
+     *Note: Sending `body` on redirection is only supported in In-Browser SDK.*
+  
+```javascript
+reclaimProofRequest.setCancelRedirectUrl(
+  "https://example.com/error-redirect",
+  "POST",  // In-Browser SDK only
+  [{ name: "error_code", value: "1001" }]  // In-Browser SDK only
+);
 ```
 
 Redirection happens after cancel callback is invoked by reclaim. See [What triggers a Cancel Callback](/js-sdk/preparing-request#what-triggers-cancel-callback) for more details.
