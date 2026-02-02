@@ -33,10 +33,48 @@ description: Datastructures of messages transmitted during the verification proc
     "signature": "0xbbf1aad7bd65c6d0c37a5b6012c4dff217e190372d5e364bf8f2bf4ea9df3a080ec8b325b84b29e130d9b15401087b36bc4852367c8f93427c39ffb7b44b498d1c",
     // URL to redirect to after successful proof generation
     "redirectUrl": "https://example.com/success?session=def",
+    // Optional. Only applicable when `redirectUrl` is provided.
+    "redirectUrlOptions": {
+        // `POST` method only supported on In-Browser SDK. 
+        // Allowed values: GET, POST. Optional. Default is GET.
+        "method": "POST",
+        // An array of objects with `name` (string) and `value` (string) fields for form submission.
+        // `body` is only supported on In-Browser SDK.
+        // Optional. Only applicable when `method` is `POST`.
+        "body": [
+            {
+                "name": "username",
+                "value": "john"
+            },
+            {
+                "name": "student",
+                "value": "true"
+            }
+        ]
+    },
     // URL which is called when verification is cancelled by the user or after errors (only auto submit enabled; auto submit is enabled by default).
     "cancelCallbackUrl": "https://api.example.com/cancel?session=def",
     // URL to redirect to after cancelled proof generation
     "cancelRedirectUrl": "https://example.com/cancelled?session=def",
+    // Optional. Only applicable when `cancelCallbackUrl` is provided.
+    "cancelRedirectUrlOptions": {
+        // `POST` method only supported on In-Browser SDK. 
+        // Allowed values: GET, POST. Optional. Default is GET.
+        "method": "POST",
+        // An array of objects with `name` (string) and `value` (string) fields for form submission.
+        // `body` is only supported on In-Browser SDK.
+        // Optional. Only applicable when `method` is `POST`.
+        "body": [
+            {
+                "name": "username",
+                "value": "john"
+            },
+            {
+                "name": "student",
+                "value": "true"
+            }
+        ]
+    },
     // Timestamp of the proof request
     "timestamp": "1769867597546",
     // legacy: same as above
@@ -67,7 +105,7 @@ description: Datastructures of messages transmitted during the verification proc
         "useBrowserExtension": true
     },
     // The version of SDK that generated this JSON string request
-    "sdkVersion": "js-4.10.0",
+    "sdkVersion": "js-4.11.0",
     // Whether to submit proof as JSON or URL encoded using HTTP POST to the success callback. Cancellation callback not affected. 
     "jsonProofResponse": false,
     // The version of provider that should be used for verifications
