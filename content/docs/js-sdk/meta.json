@@ -4,6 +4,7 @@
     "installation",
     "preparing-request",
     "generating-proof",
-    "verifying-proofs"
+    "verifying-proofs",
+    "sdk-methods"
   ]
 }
