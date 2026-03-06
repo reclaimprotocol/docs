@@ -259,6 +259,27 @@ const proofRequest = await ReclaimProofRequest.init(APP_ID, APP_SECRET, PROVIDER
 });
 ```
 
+## EU Region Support
+
+To keep data within EU infrastructure, use the EU portal URL:
+
+```js
+proofRequestOptions = {
+    ..., //other options, if any
+    useAppClip: false,
+    customSharePageUrl: 'https://eu.portal.reclaimprotocol.org'
+}
+const proofRequest = await ReclaimProofRequest.init(appId, appSecret, providerId, proofRequestOptions);
+
+// Required: set a callback URL when using regional portals
+proofRequest.setAppCallbackUrl('https://yourbackend.com/reclaim-callback');
+```
+
+Setting `customSharePageUrl` to the EU portal automatically routes API requests to `https://eu.api.reclaimprotocol.org`. No additional backend configuration needed.
+
+> [!IMPORTANT]
+> When using a regional portal (any `customSharePageUrl` other than `share.reclaimprotocol.org` or `portal.reclaimprotocol.org`), you must set a callback URL using `setAppCallbackUrl()`. The SDK throws a `CallbackUrlRequiredError` if you don't.
+
 ## Using the in-browser SDK
 <Callout type="warning">
   In-Browser SDK use is available only for users on a premium enterprise plan. Please [contact support](https://t.me/protocolreclaim) for more details.
