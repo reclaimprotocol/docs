@@ -93,6 +93,29 @@ export async function POST(request) {
 }
 ```
 
+## assertValidProof
+
+If you prefer try/catch over checking return values, use `assertValidProof`. It throws a `ProofNotVerifiedError` when the proof is invalid.
+
+```javascript
+import { assertValidProof, ProofNotVerifiedError } from '@reclaimprotocol/js-sdk';
+
+try {
+  await assertValidProof(proofs);
+  // Proof is valid - continue with your logic
+} catch (error) {
+  if (error instanceof ProofNotVerifiedError) {
+    // Handle invalid proof
+    console.error('Proof verification failed:', error.message);
+  }
+  throw error;
+}
+```
+
+Both `verifyProof` and `assertValidProof` accept the same parameters:
+- `proofs` - A single proof object or array of proofs
+- `allowAiWitness` (optional) - Set to `true` to allow AI-generated proofs
+
 # Structure of proofs
 ```json
 {
