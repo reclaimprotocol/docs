@@ -82,7 +82,7 @@ model HttpProvider {
   userAgent               UserAgentSettings?
   geoLocation             String?
   matchType               String?                             @default("greedy")
-  injectionType           InjectionType                       @default(MSWJS)
+  injectionType           InjectionType?
   disableRequestReplay    Boolean                             @default(false)
   providerHash            String?
   additionalClientOptions AdditionalClientOptions?
@@ -102,8 +102,9 @@ enum TLSVersion {
 }
 
 enum InjectionType {
-  MSWJS
+  HAWKEYE
   NONE
+  CDP
 }
 
 type BodySniff {
