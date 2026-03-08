@@ -1,0 +1,163 @@
+---
+title: Analytics Dashboard
+description: Monitor verification performance in the Developer Portal.
+---
+
+The Developer Portal includes a built-in analytics dashboard. Track verification metrics, geographic distribution, and device breakdowns for your application.
+
+## Accessing the Dashboard
+
+Head to [dev.reclaimprotocol.org](https://dev.reclaimprotocol.org) and select your application. The analytics dashboard displays automatically when you view your application details.
+
+## Time Range Filters
+
+Filter analytics data by time period using the dropdown in the top-right corner:
+
+- **Last 24 hours** - Past day's activity
+- **7 days** - Default view (past week)
+- **30 days** - Monthly overview
+- **Since custom date** - Pick a start date from the calendar picker
+
+## Aggregate Metrics
+
+Summary cards at the top show key performance indicators:
+
+- **Total Sessions** - Verification sessions initiated
+- **Completed Verifications** - Successful proof generations
+- **Conversion Rate** - Percentage of sessions that completed
+- **Average Time** - Mean time to complete verification
+
+## Device-Based Analytics
+
+Session metrics track individual verification attempts, but device metrics give you a more accurate conversion picture by counting unique devices. A user might start multiple sessions before completing verification—device metrics account for this.
+
+The dashboard shows three device metrics alongside session metrics:
+
+- **Total Devices** - Unique devices that initiated verification
+- **Devices with Proofs** - Unique devices that submitted proofs
+- **Device Conversion Rate** - Percentage of devices that completed verification
+
+## Timeline View
+
+The timeline chart shows verification activity over time:
+
+- **Verification Volume** - Daily verification attempts
+- **Success/Failure Breakdown** - Completed vs failed verifications
+- **Trends** - Usage patterns over the selected period
+
+## Geographic Distribution
+
+A world map shows where your users are verifying from. Hover over countries to see session counts by region.
+
+## Device Breakdown by OS
+
+View which operating systems your users verify from. Each OS shows session count, percentage of traffic, and subcategories (device manufacturers for mobile, browsers for desktop):
+
+- **Android** - Mobile devices by manufacturer (Samsung, Google, etc.)
+- **iOS** - iPhones by browser type
+- **MacOS** - Macs by browser
+- **Windows** - PCs by browser
+- **Linux** - Linux machines by browser
+- **Others** - Other platforms
+
+## Provider Performance
+
+The Provider Performance table tracks metrics for each provider in your app:
+
+- **Provider** – Name and logo
+- **Proofs Submitted** – Completed verifications
+- **Sessions Started** – Total verification attempts
+- **Session Conversion** – Percentage of sessions completed (sortable)
+- **Device Count** – Unique devices that attempted verification (sortable)
+- **Device Conversion** – Percentage of devices that completed verification (sortable)
+
+Click any column header to sort. Use this data to:
+
+- Find providers with the best success rates
+- Spot providers that need optimization
+- Compare session vs device conversion to understand retry behavior
+
+## Live Feed
+
+The Live Feed tab shows verification sessions in real time. Each row displays:
+
+- **Session ID** – Click to view full session details
+- **Provider** – Provider logo and name
+- **Status** – Color-coded session status:
+  - Green: Successful
+  - Red: Failed
+  - Yellow: Dropped Off
+  - Blue: In Progress
+- **Related Sessions** – If a device has multiple sessions, the count appears below the session ID with total attempts and successes
+
+## Session Details
+
+Click any session ID in the Live Feed to see details about that verification attempt.
+
+### Session Information Cards
+
+The session details page shows key information in cards:
+
+- **Status** – Current session status with color indicator and the last log type recorded
+- **Location** – User's city, country, and IP address (click the IP to look it up)
+- **Device** – Operating system, subcategory (manufacturer or browser), and raw device type
+- **Provider** – Provider name, logo, and number of parameters
+
+### Short Summary
+
+This section shows a chronological timeline of session events. Each event includes:
+
+- **Timestamp** – When it occurred (24-hour format)
+- **Event Label** – What happened
+- **Metadata** – Additional context (when available)
+
+Common events include session initialization, user verification start, login detection, user activity, frontend connection changes (tab hidden/visible, page unload), proof generation status, and proof submission.
+
+Use this to quickly understand how a session progressed without digging through raw logs.
+
+### Related Sessions
+
+When a session is linked to a device ID, you'll see other sessions from the same device. This helps you track patterns across multiple verification attempts—for example, if a user fails and retries, you can view all their attempts together.
+
+Each related session entry shows:
+- Total sessions from this device
+- Successful sessions from this device
+
+## AI Analysis (Beta)
+
+Use AI to automatically analyze session logs and identify issues.
+
+### Running an Analysis
+
+1. Open a session's detail page
+2. Click **Run Analysis** in the AI Analysis section
+3. Wait for the AI to process the logs
+
+The analysis provides:
+
+- **Session Outcome** – Whether the session was successful, failed, or dropped off
+- **Drop-off Point** – Where the user stopped (if applicable)
+- **Potential Reasons** – Possible causes for failure or drop-off
+- **Session Summary** – AI-generated summary of what happened
+
+### Ask Questions
+
+After running an analysis, click **Ask Questions** to chat with the AI about the session. You can ask follow-up questions like:
+
+- "Why did the user drop off at this step?"
+- "What could have caused this error?"
+- "How can I improve the conversion rate?"
+
+### Customize the Analysis Prompt (Admin Only)
+
+Admins can customize the AI prompt used for analysis:
+
+1. Click **Change Prompt** in the AI Analysis section
+2. Edit the prompt in the modal
+3. Click **Save & Re-run Analysis**
+
+Changes apply to all future analyses for your application.
+
+---
+
+For programmatic access to analytics data, see [Analytics Event API](/troubleshooting/analytics-event).
