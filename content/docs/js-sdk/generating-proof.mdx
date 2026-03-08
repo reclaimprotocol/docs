@@ -55,6 +55,31 @@ onSuccess is called after the user has generated the proof, but you must [verify
 > [!TIP]
 > **Best Practice:** When using `setAppCallbackUrl` and/or `setCancelCallbackUrl`, your backend receives the proof or cancellation details directly. We recommend your backend notifies the frontend (e.g. via WebSockets, SSE, or polling) to stop the verification process and handle the appropriate success/failure action. Do not rely completely on `startSession` callbacks on the frontend when using these backend callbacks.
 
+## Error Handling
+
+The `onError` callback receives an error object with a `message` property describing what went wrong. The SDK returns specific error messages based on the failure type:
+
+| Error Type | Message |
+| --- | --- |
+| **Proof Generation Failed** | Server-specific error details, or "Proof generation failed - timeout reached" |
+| **Verification Error** | Server-specific error details, or "An error occurred during the verification process" |
+| **Proof Not Verified** | "Proof verification failed - the generated proof could not be verified" |
+| **Proof Submission Failed** | Server-specific error details, or "Proof submission failed" |
+
+Use these messages to show meaningful feedback to your users:
+
+```javascript
+await reclaimProofRequest.startSession({
+  onSuccess: (proofs) => {
+    // handle successful verification
+  },
+  onError: (err) => {
+    console.error('Verification failed:', err.message);
+    // Display err.message to the user for specific error details
+  }
+});
+```
+
 ## Example using `React`
 ```javascript
 // hooks/useReclaim.js
