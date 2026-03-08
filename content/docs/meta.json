@@ -3,6 +3,7 @@
   "pages": [
     "index",
     "api-key",
+    "analytics-dashboard",
     "fully-hosted",
     "js-sdk",
     "react-native",

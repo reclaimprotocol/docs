@@ -1,3 +1,14 @@
+## 0.2.0
+
+* Added Analytics Dashboard documentation for the Developer Portal, including time range filters and OS-based device breakdown
+* Added Device-Based Analytics documentation explaining device metrics (Total Devices, Devices with Proofs, Device Conversion Rate)
+* Added Live Feed documentation with session status indicators and provider information
+* Added Session Details documentation covering status, location, device, and provider cards
+* Added Short Summary documentation showing chronological session events timeline with timestamps and human-readable labels
+* Updated Related Sessions documentation to explain device-based session grouping
+* Added AI Analysis (Beta) documentation with interactive chat and admin prompt customization
+* Fixed session status misclassification in the Live Feed where sessions with successful proof submissions would incorrectly show as "dropped off" instead of "successful"
+
 ## 0.1.0
 
 * Added `assertValidProof` documentation for JS SDK - an alternative to `verifyProof` that throws errors instead of returning a boolean
