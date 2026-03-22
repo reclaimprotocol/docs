@@ -20,12 +20,17 @@ const reclaimProofRequest = await ReclaimProofRequest.init(
 )
 ```
 - You can get the `APP_ID` and `APP_SECRET` using [this guide](/api-key)
-- The `PROVIDER_ID` is the proof you want the user to generate. You can see all the [available providers here](https://dev.reclaimprotocol.org/explore).
+- The `PROVIDER_ID` is the proof you want the user to generate. You can see all the [available providers here](https://dev.reclaimprotocol.org/explore). If you are just testing the flow, you can use the provider id `example`.
 
-## Send back the proof request object to the frontend
+## Get the URL for the user's verification UI
 ```javascript
-const proofRequestObject = reclaimProofRequest.toJsonString();
+const proofRequestUrl = await reclaimProofRequest.getRequestUrl();
 ```
+You can initiate the user's verification flow by either 
+1. Redirecting the user to `proofRequestUrl`
+2. Opening `proofRequestUrl` in an iframe
+
+
 
 ## Sample implementation in Next.js
 ```javascript
@@ -37,29 +42,24 @@ export async function GET(request) {
 
   // add logic to choose provider id here based on request
 
-  proofRequestOptions = {
-    ..., //other options, if any
-    useAppClip: false,
-    customSharePageUrl: 'https://portal.reclaimprotocol.org'
-  }
-
   // Initialize SDK with server-side environment variables (secure)
   // and request options
   const reclaimProofRequest = await ReclaimProofRequest.init(      
       process.env.RECLAIM_APP_ID,
       process.env.RECLAIM_APP_SECRET,
-      providerId,
-      proofRequestOptions);
+      providerId);
 
-  // Convert to JSON string (safe for frontend)
-  const proofRequestObject = reclaimProofRequest.toJsonString();
+  // Get the URL for the UI
+  const proofRequestUrl = await reclaimProofRequest.getRequestUrl();
 
+  // redirect to proofRequestUrl or show proofRequestUrl in an iframe
   return NextResponse.json({
       success: true,
-      proofRequest: proofRequestObject
+      proofRequestUrl,
   });
 }
 ```
+
 
 
 # Advance Options
@@ -75,22 +75,10 @@ You can set context to the proof request that helps identify the request when yo
 reclaimProofRequest.setContext('address', 'message')
 ```
 
-- `address` : this is usually a unique identifier for the user. This could be an email address, a wallet address, or just a session id generated on your system
+- `address` : this is usually a unique identifier for the user. This could be an email address, a wallet address, or just a session id generated on your system. Set the variable you'd need to identify the user in the callback endpoint, when the proof is sent to your backend.
 - `message` : this is an open field where you can add any other information that you want passed around from the build request to the callback endpoint. You can stringify jsons here for convenience. 
 
-### Set JSON Context
-
-A JSON serializable object can also be set as context. For doing this, use `setJsonContext` method.
-
-```js
-reclaimProofRequest.setJsonContext({
-  address: 'hello@example.org',
-  sessionId: '123'
-})
-```
-
-> [!WARNING]
-> Both [setContext](/js-sdk/preparing-request#set-address--message-as-context) and [setJsonContext](/js-sdk/preparing-request#set-json-context) overwrite each other. Each call replaces the existing context.
+Both context address and context message are tamper resistant. Even if the user tries to edit one byte, the proof verification will fail.
 
 ## Set Callback URLs
 
@@ -100,16 +88,16 @@ reclaimProofRequest.setJsonContext({
 reclaimProofRequest.setAppCallbackUrl(url, jsonProofResponse)
 ```
 
-Set a backend callback URL where Reclaim Protocol will send proofs directly after verification. In this case proofs are sent only to the custom URL *instead* of the Reclaim backend. This enables secure backend proof processing without relying on your frontend to upload the proof.
-
-This verification session's id will also be present in `X-Reclaim-Session-Id` header of the request. 
+Set a backend callback URL where Reclaim Protocol will send proofs directly after verification. 
 
 By default, proofs are sent as HTTP `POST` with `Content-Type` as `application/x-www-form-urlencoded`. Pass function argument `jsonProofResponse` as `true` to send proofs with `Content-Type` as `application/json`. 
 
-You can see the data structure of the proofs you will receive [here](/troubleshooting/anatomy#proof).
+The proof will be an array. You can parse all the extracted data as follows : 
+```js
+JSON.parse(proofs[i].claimData.context).extractedParameters;
+```
 
-> [!Note]
-> If you are using `reclaimProofRequest.startSession` after setting a custom success callback URL, then the proofs will be sent to the custom URL *instead* of the Reclaim backend. Because of this, the startSession `onSuccess` callback will be invoked with an empty array (`[]`) instead of the proof data, as the proof is not available to the SDK in this flow.
+You can see the data structure of the proofs you will receive [here](/troubleshooting/anatomy#proof).
 
 ### Cancel Callback
 
@@ -119,7 +107,7 @@ The easiest way to handle cancellations by user is to set up a cancel callback. 
 reclaimProofRequest.setCancelCallbackUrl("https://yourwebsite.com/reclaim-cancelcallback"); // POST request webpage 
 ```
 
-If the user cancels the session midway or after error, Reclaim will send a POST request to you on the cancel callback URL with details. This verification session's id will be present in `X-Reclaim-Session-Id` header of the request.
+If the user cancels the session midway or after error, Reclaim will send a POST request to you on the cancel callback URL with details.
 
 Following is the data format which is sent as an HTTP POST request to the url with `Content-Type: application/json`:
 
@@ -144,10 +132,7 @@ Following are some exceptions that happen when user presses a button to cancel i
 | `ReclaimVerificationAbortedException` | User cancelled the verification (e.g., tapped on cancel or verify another way button). |
 | `ReclaimVerificationProviderScriptException` | The provider script encountered an error (e.g., login failed, invalid account used). |
 
-Other errors (such as network timeouts or internal exceptions) may also trigger this callback if **auto submit is enabled**. In any case, you can always find the complete list of errors by [fetching analytics events](../troubleshooting/analytics-event) for the session.
-
-> [!TIP]
-> **Best Practice:** When using `setAppCallbackUrl` and/or `setCancelCallbackUrl`, your backend receives the proof or cancellation details directly. We recommend your backend notifies the frontend (e.g. via WebSockets, SSE, or polling) to stop the verification process and handle the appropriate success/failure action. Do not rely completely on `startSession` callbacks on the frontend when using these backend callbacks.
+Other errors (such as network timeouts or internal exceptions) may also trigger this callback, you can always find the complete list of errors by [fetching analytics events](../troubleshooting/analytics-event#description-of-reclaim_exception-in-metadata) for the session.
 
 ## Redirect after proof generation or cancellation
 
@@ -155,20 +140,12 @@ Other errors (such as network timeouts or internal exceptions) may also trigger 
 
 If you want to redirect the user after generating the proof to a specific webpage or app, you can do so using `setRedirectUrl`. 
 
-When you should use this:
-
-- User is on a desktop, scans QR code to generate the proof. After the proof generation is complete you want to show a custom success message on their mobile device instead of the Reclaim Protocol's default success message. You can redirect them to a webpage.
-- User is on a mobile, taps a button to generate the proof. After the proof generation is complete, you typically want to redirect the user to the page that must be shown after the proof generation is complete. If you are using `onSuccess`, the user will have to close the proof generation success banner and go back to the browser to continue. We recommend using a redirect url to take the user to the next step in the business logic. On this step, render a page depending on whether the proof was correctly verified.
-
 ```javascript
 // Redirect to success page after verification
 reclaimProofRequest.setRedirectUrl("https://yourapp.com/verification/success");
- 
-// Or deep link back to a mobile app
-reclaimProofRequest.setRedirectUrl("yourapp://verification-complete");
 ```
 
-Redirection with body:
+**More redirection options**
 
    - **url**: The URL where users should be redirected after successful proof generation.
    - **method** (optional): The redirection method to use. Allowed options: `GET` (default) and `POST`. 
@@ -186,7 +163,7 @@ reclaimProofRequest.setRedirectUrl(
 );
 ```
 
-Redirection happens after success callback is invoked by reclaim.
+Redirection happens after success callback is completed.
 
 ### Cancel Redirect Url
 
@@ -196,8 +173,7 @@ Set a custom URL to redirect users when their verification process is cancelled.
 reclaimProofRequest.setCancelRedirectUrl("https://example.com/cancel-redirect");
 ```
 
-Redirection with body:
-
+**More options**
    - **url**: The URL where users should be redirected after an error which aborts the verification process.
    - **method** (optional): The redirection method to use. Allowed options: `GET` (default) and `POST`.
      *Note: `POST` form redirection is only supported in In-Browser SDK.*
@@ -228,10 +204,9 @@ reclaimProofRequest.setParams({
 ```
 
 
-## Add additional metadata for verification client
+## Customize UI
 
-Additional metadata to pass to the verification client. This can be used to customize the client experience, such as customizing themes or UI by passing context-specific information. 
-The keys and values must be strings. For most clients, this is not required and goes unused.
+Customized UI is available to Enterprise users. If you want custom themes to match your branding, you can [contact us](https://t.me/protocolreclaim)/
 
 ```js
 // Initialize with options
@@ -240,7 +215,7 @@ const proofRequest = await ReclaimProofRequest.init(APP_ID, APP_SECRET, PROVIDER
 });
 ```
 
-## Set preferred locale for verification client
+### Set preferred locale for verification client
 
 You can change the language for the UI seen by User during verification by setting the `preferredLocale` parameter in the initialization options.
 
@@ -275,19 +250,14 @@ const proofRequest = await ReclaimProofRequest.init(appId, appSecret, providerId
 proofRequest.setAppCallbackUrl('https://yourbackend.com/reclaim-callback');
 ```
 
-Setting `customSharePageUrl` to the EU portal automatically routes API requests to `https://eu.api.reclaimprotocol.org`. No additional backend configuration needed.
-
-> [!IMPORTANT]
-> When using a regional portal (any `customSharePageUrl` other than `share.reclaimprotocol.org` or `portal.reclaimprotocol.org`), you must set a callback URL using `setAppCallbackUrl()`. The SDK throws a `CallbackUrlRequiredError` if you don't.
-
-## Using the in-browser SDK
-<Callout type="warning">
-  In-Browser SDK use is available only for users on a premium enterprise plan. Please [contact support](https://t.me/protocolreclaim) for more details.
+## Deprecation warning
+<Callout you are using the latest out type="warning">
+  If you are on older js-sdk versions, you will need to set the correct proofRequestOptions, as the appclip/instant app flows are [soon going to be deprecated](https://blog.reclaimprotocol.org/posts/moving-beyond-google-play-instant).
 </Callout>
 
-If you don't want to use the in-browser SDK, the users will be asked to install the Reclaim Protocol App/Appclip. You can disable by removing this configuration from the above snipped :
+If you don't set these options on older js-sdk versions, users will be asked to download the Reclaim Protocol app in order to complete the verification. 
 ```js
-//REMOVE :
+
 proofRequestOptions = {
     ..., //other options, if any
     useAppClip: false,
@@ -295,4 +265,3 @@ proofRequestOptions = {
 }
 const proofRequest = await ReclaimProofRequest.init(appId, appSecret, providerId, proofRequestOptions);
 ```
-[See reference implementation](https://github.com/reclaimprotocol/websdk-demo)

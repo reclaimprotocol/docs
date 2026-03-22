@@ -3,17 +3,13 @@
   "pages": [
     "index",
     "api-key",
-    "analytics-dashboard",
-    "fully-hosted",
     "js-sdk",
     "react-native",
     "flutter",
-    "inapp-sdks",
     "ios-swift",
     "android",
     "onchain",
     "zkfetch",
-    "browser-extension",
     "troubleshooting",
     "understanding-the-tech"
   ]

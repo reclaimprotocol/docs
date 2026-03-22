@@ -24,25 +24,21 @@ const proofs = JSON.parse(decodedBody);
 import { verifyProof } from '@reclaimprotocol/js-sdk';
 
 ...
-const isValid = await verifyProof(proofs);
+const {isVerified, data} = await verifyProof(proofs, { providerId: PROVIDER_ID, multiple: true });
 ```
 
-## Extract the data
-### Context
-If you set contextAddress and contextMessage when building the request, you can get them back :
+## Extract values from proof
+
 ```javascript
-const {contextAddress, contextMessage} = JSON.parse(proofs[i].context);
+const {contextAddress, contextMessage, extractedParameters} = data[0];
 ```
-### Extacted Parameters
-The data that was extracted from the webpage that the user logged in into, depending on what data was configured to be extracted using the provider you had set when building the request.
-```
-const { extractedParameters } = JSON.parse(proofs[i].context);
-```
+Note : if the verification used multiple requests, you might have more than 1 objects in the `data` array. Be sure to iterate over them.
+
 
 ## Sample implementation
 
 ### Example in Next.js
-```
+```javascript
 import { NextResponse } from 'next/server';
 import { verifyProof } from '@reclaimprotocol/js-sdk';
  
@@ -52,33 +48,17 @@ export async function POST(request) {
   try {
     // assuming that you set callback url with json set to true
     const proofs = JSON.parse(await request.text());
-    const isValid = await verifyProof(proofs);
-    if (!isValid) {
+    const { isVerified, data } = await verifyProof(proofs, { providerId: PROVIDER_ID, multiple: true });
+    if (!isVerified) {
       return NextResponse.json({
         success: false,
         message: 'Proof verification failed'
       });
     }
+    
+    const {contextAddress, contextMessage, extractedParameters} = data[0]; 
 
-    // As best practice, you MUST validate proofs as per expectations and business requirements.
-    // This should happen on your backend.
-    //
-    // This must be done to make sure that
-    // this is the proof you expected.
-    //
-    // As an example, validation can be done by checking request url, headers,
-    // method, and all proven fields (aka extracted params), etc.
-    const isProofValid = await YourBackendUsingReclaim.validateProof(proofs);
-
-    if (!isProofValid) {
-      // Do not use proof that failed your validation.
-      return NextResponse.json({
-        success: false,
-        message: 'Proof validation failed'
-      });
-    }
-
-    // save or use proof from your backend
+    // ...business logic 
 
     return NextResponse.json({
       success: true,
@@ -93,74 +73,18 @@ export async function POST(request) {
 }
 ```
 
-## assertValidProof
-
-If you prefer try/catch over checking return values, use `assertValidProof`. It throws a `ProofNotVerifiedError` when the proof is invalid.
-
+# Advance options
+## What to verify in `verifyProof`
+### Exact Provider Version
+If you want to verify proofs against a specific version of a provider, you can set that as : 
 ```javascript
-import { assertValidProof, ProofNotVerifiedError } from '@reclaimprotocol/js-sdk';
-
-try {
-  await assertValidProof(proofs);
-  // Proof is valid - continue with your logic
-} catch (error) {
-  if (error instanceof ProofNotVerifiedError) {
-    // Handle invalid proof
-    console.error('Proof verification failed:', error.message);
-  }
-  throw error;
-}
+TODO
 ```
+If not set, it'll use the latest available version.
 
-Both `verifyProof` and `assertValidProof` accept the same parameters:
-- `proofs` - A single proof object or array of proofs
-- `allowAiWitness` (optional) - Set to `true` to allow AI-generated proofs
-
-# Structure of proofs
-```json
-{
-
-        "identifier": "...",
-
-        "claimData": {
-
-          "provider": "...",
-
-          "parameters": "...",
-
-          "owner": "...",
-
-          "timestampS": "...",
-
-          "context": "{\n  \"contextAddress\": \"...\",\n  \"contextMessage\": \"...\",\n  \"extractedParameters\": {\n    \"pageTitle\": \"<pageTitle_value>\",\n    \"ianaLinkUrl\": \"<ianaLinkUrl_value>\"\n  },\n  \"providerHash\": \"...\"\n}",
-
-          "identifier": "...",
-
-          "epoch": "..."
-
-        },
-
-        "signatures": [
-
-          "..."
-
-        ],
-
-        "witnesses": [
-
-          {
-
-            "id": "...",
-
-            "url": "..."
-
-          }
-
-        ],
-
-        "taskId": "'...' || null",
-
-        "publicData": "{...} || null"
-
-      }
+### Exact Provider Hash
+Using providerId has the disadvantage that you are trusting Reclaim Protocol to give you the correct provider. If you don't want that trust assumption, you may hardcode the `providerHash` directly instead of using a `providerId`.
+```javascript
+TODO
 ```
+Provider Hash is not dependent on any backend. It's just a hash of the provider configuration.

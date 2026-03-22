@@ -3,7 +3,6 @@
   "pages": [
     "installation",
     "preparing-request",
-    "generating-proof",
     "verifying-proofs"
   ]
 }
