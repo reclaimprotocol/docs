@@ -56,6 +56,12 @@ const config = {
       permanent: true
     }
   ],
+  rewrites: async () => [
+    {
+      source: '/:path*.md',
+      destination: '/api/raw/:path*',
+    },
+  ],
   images: {
     remotePatterns: [
       {
