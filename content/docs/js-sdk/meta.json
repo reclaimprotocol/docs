@@ -1,8 +1,7 @@
 {
-  "title": "Javascript SDK",
+  "title": "NodeJS SDK",
   "pages": [
     "installation",
-    "preparing-request",
-    "verifying-proofs"
+    "usage"
   ]
 }
