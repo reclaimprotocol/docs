@@ -19,12 +19,12 @@ import { ReclaimProofRequest } from '@reclaimprotocol/js-sdk';
 ### Init
 ```javascript
 const reclaimProofRequest = await ReclaimProofRequest.init(
-    'APP_ID',
-    'APP_SECRET',
-    'PROVIDER_ID'
+    process.env.RECLAIMPROTOCOL_APP_ID,
+    process.env.RECLAIMPROTOCOL_APP_SECRET,
+    'example' // Replace with provider ID
 )
 ```
-- You can get the `APP_ID` and `APP_SECRET` using [this guide](/api-key)
+- You can get the `RECLAIMPROTOCOL_APP_ID` and `RECLAIMPROTOCOL_APP_SECRET` using [this guide](/api-key)
 - The `PROVIDER_ID` is the proof you want the user to generate. You can see all the [available providers here](https://dev.reclaimprotocol.org/explore). If you are just testing the flow, you can use the provider id `example`.
 
 ### Success Callback
@@ -39,7 +39,9 @@ This is the endpoint to which the proofs will be submitted after the verificatio
 You can set context to the proof request that helps identify the request when you receive it back in the callback once the proof is generated.
 
 ```js
-reclaimProofRequest.setContext('address', 'message')
+const address = "unique-user-id"; 
+const message = "some meta data for processing on callback";
+reclaimProofRequest.setContext(address, message)
 ```
 
 - `address` : this is usually a unique identifier for the user. This could be an email address, a wallet address, or just a session id generated on your system. Set the variable you'd need to identify the user in the callback endpoint, when the proof is sent to your backend.
@@ -139,6 +141,18 @@ Both context address and context message are tamper resistant. Even if the user 
     })
     ```
 
+    ### TEE validation
+    The remote browser runs in a TEE for privacy reasons. If you want validation that this session was indeed run in a TEE, you can request TEE validation.
+    You can do so by : 
+    ```javascript
+    const proofRequestOptions = { acceptTeeAttestation: true };
+    const reclaimProofRequest = await ReclaimProofRequest.init(
+        // ...
+        , proofRequestOptions
+    )
+
+    ```
+
     ### EU Region Support 
 
     To keep data within EU infrastructure, use the EU portal URL:
@@ -146,8 +160,7 @@ Both context address and context message are tamper resistant. Even if the user 
     ```js
     proofRequestOptions = {
         ..., //other options, if any
-        useAppClip: false,
-        customSharePageUrl: 'https://eu.portal.reclaimprotocol.org'
+        portalUrl: 'https://eu.portal.reclaimprotocol.org'
     }
     const proofRequest = await ReclaimProofRequest.init(appId, appSecret, providerId, proofRequestOptions);
 
@@ -230,18 +243,14 @@ Both context address and context message are tamper resistant. Even if the user 
 
 
 ## Part 2 : Process Verification endpoint
-### Parse proofs
-```javascript
-const proofs = JSON.parse(body);
-```
-Proofs are sent to your endpoint via a `POST` request with `content-type: application/json`
-
+> Be sure to expose this endpoint over the public internet. If testing locally, use [Ngrok](https://ngrok.dev)
 ### Verify Proofs
 ```javascript
 import { verifyProof } from '@reclaimprotocol/js-sdk';
 ```
 
 ```javascript
+const proofs = await request.json();
 const { isVerified, data } = await verifyProof(proofs, { providerId: PROVIDER_ID, providerVersion: PROVIDER_VERSION });
 ```
 You can get the provider version
@@ -276,8 +285,15 @@ const { context, extractedParameters } = data[0];
   - `multiple` : can the hash match multiple proofs in the `proofs` array? Defaults to `true`.
   - `required` : does atleast one proof in `proofs` need to match this provider hash? Defaults to `false`.
 
+  ### Verify the TEE validation
+  You can verify the TEE validation chain in the proof by : 
+  ```
+  verifyProof(proofs, { ... }, true);
+  //third parameter set to true 
+  ```
+
   </Accordion>
   </Accordions>
 
-  ## See source code
-  You can see the SDK [source code here](https://github.com/reclaimprotocol/reclaim-js-sdk/).
+## Source code
+- [Sample implementation](https://github.com/reclaimprotocol/sample-integrations/tree/master/sample-nodejs-integration)
