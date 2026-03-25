@@ -21,11 +21,11 @@ import { ReclaimProofRequest } from '@reclaimprotocol/js-sdk';
 const reclaimProofRequest = await ReclaimProofRequest.init(
     process.env.RECLAIMPROTOCOL_APP_ID,
     process.env.RECLAIMPROTOCOL_APP_SECRET,
-    'example' // Replace with provider ID
+    'ff4d7afe-4b78-4795-9429-d20df2deaad7' // Example. Replace with provider ID
 )
 ```
 - You can get the `RECLAIMPROTOCOL_APP_ID` and `RECLAIMPROTOCOL_APP_SECRET` using [this guide](/api-key)
-- The `PROVIDER_ID` is the proof you want the user to generate. You can see all the [available providers here](https://dev.reclaimprotocol.org/explore). If you are just testing the flow, you can use the provider id `example`.
+- The `PROVIDER_ID` is the proof you want the user to generate. You can see all the [available providers here](https://dev.reclaimprotocol.org/explore). If you are just testing the flow, you can use the provider id `ff4d7afe-4b78-4795-9429-d20df2deaad7`.
 
 ### Success Callback
 
@@ -251,7 +251,7 @@ import { verifyProof } from '@reclaimprotocol/js-sdk';
 
 ```javascript
 const proofs = await request.json();
-const { isVerified, data } = await verifyProof(proofs, { providerId: PROVIDER_ID, providerVersion: PROVIDER_VERSION });
+const { isVerified, data } = await verifyProof(proofs, { providerId: PROVIDER_ID });
 ```
 You can get the provider version
 - [ Recommended ] Storing the provider version when [initiating the verification](#store-the-provider-version).
