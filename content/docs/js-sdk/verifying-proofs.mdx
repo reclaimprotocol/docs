@@ -8,6 +8,36 @@ The [proof generation](/js-sdk/generating-proof) is a client side operation. On 
 
 Verifying proofs is a very simple light weight operation. You can think of it as verifying the digital signatures to make sure the data is tamper resistant.
 
+## How verification works
+
+When you call `verifyProof`, the SDK runs two checks to make sure the proof is authentic and matches your expected configuration.
+
+### Signature verification
+
+First, the SDK verifies that the proof was signed by a valid Reclaim attestor:
+
+1. Fetches the current list of valid attestor addresses from Reclaim's servers
+2. Recovers the Ethereum addresses that signed the proof using ECDSA signature recovery
+3. Confirms at least one signer matches a known valid attestor
+
+This ensures the proof came from a legitimate Reclaim session and wasn't fabricated.
+
+### Content validation
+
+Next, the SDK checks that the proof's content matches your provider configuration:
+
+1. Extracts the HTTP provider parameters from the proof (URL, method, body, response matches, and redactions)
+2. Computes a keccak256 hash from these parameters using canonical JSON serialization
+3. Compares this hash against the expected hashes from your provider configuration
+
+This prevents proof reuse attacks—where someone submits a valid proof from a different provider or configuration.
+
+### Under the hood
+
+The verification uses ECDSA signature recovery via ethers.js `verifyMessage()` and keccak256 hashing with canonical JSON serialization to ensure consistent results across platforms.
+
+Both checks must pass for `verifyProof` to return `true`. If either fails, it returns `false` (or throws a `ProofNotVerifiedError` if you're using `assertValidProof`).
+
 # Quickstart
 ## Setup the callback endpoint
 This should be the endpoint that will be called by your [`onSuccess` callback](generating-proof).
