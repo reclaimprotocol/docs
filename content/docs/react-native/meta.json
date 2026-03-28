@@ -1,8 +1,8 @@
 {
   "title": "React Native SDK",
   "pages": [
-    "installation",
     "install",
+    "usage",
     "troubleshooting",
     "advanced-usage"
   ]

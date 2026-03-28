@@ -1,0 +1,299 @@
+---
+title: Usage
+description: NodeJS SDK for Reclaim Protocol
+---
+import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
+
+# Quickstart
+
+We will be creating two endpoints
+1. Start Verification
+2. Process Verification
+
+## Import the library
+```javascript
+import { ReclaimProofRequest } from '@reclaimprotocol/js-sdk';
+```
+
+## Part 1 : Start Verification Endpoint
+### Init
+```javascript
+const reclaimProofRequest = await ReclaimProofRequest.init(
+    process.env.RECLAIMPROTOCOL_APP_ID,
+    process.env.RECLAIMPROTOCOL_APP_SECRET,
+    'ff4d7afe-4b78-4795-9429-d20df2deaad7' // Example. Replace with provider ID
+)
+```
+- You can get the `RECLAIMPROTOCOL_APP_ID` and `RECLAIMPROTOCOL_APP_SECRET` using [this guide](/api-key)
+- The `PROVIDER_ID` is the proof you want the user to generate. You can see all the [available providers here](https://dev.reclaimprotocol.org/explore). If you are just testing the flow, you can use the provider id `ff4d7afe-4b78-4795-9429-d20df2deaad7`.
+
+### Success Callback
+
+```js
+reclaimProofRequest.setAppCallbackUrl(url, true);
+// true : sets contentType to JSON
+```
+This is the endpoint to which the proofs will be submitted after the verification - this is where you will process the verification. We will define this endpoint in the [next section](#process-verification-endpoint).
+
+### Set Context
+You can set context to the proof request that helps identify the request when you receive it back in the callback once the proof is generated.
+
+```js
+const address = "unique-user-id"; 
+const message = "some meta data for processing on callback";
+reclaimProofRequest.setContext(address, message)
+```
+
+- `address` : this is usually a unique identifier for the user. This could be an email address, a wallet address, or just a session id generated on your system. Set the variable you'd need to identify the user in the callback endpoint, when the proof is sent to your backend.
+- `message` : this is an open field where you can add any other information that you want passed around from the build request to the callback endpoint. You can stringify jsons here for convenience. 
+
+Both context address and context message are tamper resistant. Even if the user tries to edit one byte, the proof verification will fail.
+
+
+### Open verification
+``` javascript
+  const proofRequestUrl = await reclaimProofRequest.getRequestUrl();
+
+  // Redirect user to this URL or, open URL in an iFrame
+```
+
+### Store the Provider Version
+```javascript
+  const { providerId, providerVersion } = reclaimProofRequest.getProviderVersion();
+```
+- Store `(providerId, providerVersion)` corresponding to this user's uuid that you stored in `address`. You will need this providerVersion
+
+
+### More options
+  <Accordions>
+  <Accordion title="Customize UX">
+    ### Redirect user after successful verification
+
+    If you want to redirect the user after generating the proof to a specific webpage or app, you can do so using `setRedirectUrl`. 
+
+    ```javascript
+    // Redirect to success page after verification
+    reclaimProofRequest.setRedirectUrl("https://yourapp.com/verification/success");
+    ```
+
+    **More redirection options**
+
+    - **url**: The URL where users should be redirected after successful proof generation.
+    - **method** (optional): The redirection method to use. Allowed options: `GET` (default) and `POST`. 
+        *Note: `POST` form redirection is only supported in In-Browser SDK.*
+    - **body** (optional): List of name-value pairs to be sent as the body of the form request.
+        - When `method` is `POST`, `body` is sent with `application/x-www-form-urlencoded` content type.
+        - When `method` is `GET`, if `body` is set, it is sent as query parameters.
+
+    ```javascript
+    reclaimProofRequest.setRedirectUrl(
+    "https://example.com/redirect",
+    "POST", // In-Browser SDK only
+    [{ name: "foo", value: "bar" }]  // In-Browser SDK only
+    );
+    ```
+
+    Redirection happens after [success callback](#success-callback) is completed.
+
+    ### Branding Colors
+
+    Branding Colors is available to Enterprise customers. If you want custom themes to match your branding, you can [contact us](https://t.me/protocolreclaim)/
+
+    ```js
+    // Initialize with options
+    const proofRequest = await ReclaimProofRequest.init(APP_ID, APP_SECRET, PROVIDER_ID, {
+    metadata: { theme: 'dark' },
+    });
+    ```
+    - You can have your own CSS theme set here
+
+    ### Set preferred locale for verification client
+
+    You can change the language for the UI seen by User during verification by setting the `preferredLocale` parameter in the initialization options.
+
+    This is used to select a user's language and formatting preferences in the verification journey.
+
+    The value of this field must be a Unicode Language Identifier (i.e. without Locale extensions), except variants are not supported.
+    Locale values are expected to be canonicalized according to the "preferred value" entries in the [IANA Language Subtag Registry](https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry). 
+    For example, `he`, and `iw` are equal and both have the languageCode `he`, because `iw` is a deprecated language subtag that was replaced by the subtag `he`.
+
+    Defaults to the browser's locale if available, otherwise English (en).
+
+    ```js
+    // Initialize with options
+    const proofRequest = await ReclaimProofRequest.init(APP_ID, APP_SECRET, PROVIDER_ID, {
+    preferredLocale: 'en-US',
+    });
+    ```
+
+
+
+  </Accordion>
+  <Accordion title="Increased Security">
+    ### Set Expected Parameters
+    If you already know what the value of the extracted parameter is supposed to be, you can set that using `setParams`.
+    For example, if you know that the user's name before hand - and you want them to prove something from a website and you need the name to match exactly, you should use set the name in the params. Be sure to use the same key as the parameter name on the Provider you are using.
+
+    If the extracted parameter doesn't match the set parameter, the proof generation will fail.
+    ```javascript
+    reclaimProofRequest.setParams({ 
+        name : "John Doe"
+    })
+    ```
+
+    ### TEE validation
+    The remote browser runs in a TEE for privacy reasons. If you want validation that this session was indeed run in a TEE, you can request TEE validation.
+    You can do so by : 
+    ```javascript
+    const proofRequestOptions = { acceptTeeAttestation: true };
+    const reclaimProofRequest = await ReclaimProofRequest.init(
+        // ...
+        , proofRequestOptions
+    )
+
+    ```
+
+    ### EU Region Support 
+
+    To keep data within EU infrastructure, use the EU portal URL:
+
+    ```js
+    proofRequestOptions = {
+        ..., //other options, if any
+        portalUrl: 'https://eu.portal.reclaimprotocol.org'
+    }
+    const proofRequest = await ReclaimProofRequest.init(appId, appSecret, providerId, proofRequestOptions);
+
+    // Required: set a callback URL when using regional portals
+    proofRequest.setAppCallbackUrl('https://yourbackend.com/reclaim-callback');
+    ```
+    ### Decentralized Proof Generation (Coming Soon)
+    ```javascript
+    proofRequest.setClaimCreationType(ClaimCreationType.ON_ME_CHAIN);
+    ```
+    - In partnership with [zkMe](https://zk.me)
+
+  </Accordion>
+  <Accordion title="Error Handling">
+    ### Cancel Callback
+
+    The easiest way to handle cancellations by user is to set up a cancel callback. This allows your application to react immediately when a user's verification session terminates.
+
+    ```js
+    reclaimProofRequest.setCancelCallbackUrl("https://yourwebsite.com/reclaim-cancelcallback"); // POST request webpage 
+    ```
+
+    If the user cancels the session midway or after error, Reclaim will send a POST request to you on the cancel callback URL with details.
+
+    Following is the data format which is sent as an HTTP POST request to the url with `Content-Type: application/json`:
+
+    ```json
+    {
+    "type": "string", // Name of the exception are in the table below
+    "message": "string",
+    "sessionId": "string",
+    // context as canonicalized json string
+    "context": "string",
+    // Other fields with more details about error may be present
+    // [key: any]: any
+    }
+    ```
+
+    #### What triggers cancel callback?
+
+    Following are some exceptions that happen when user presses a button to cancel in UI or provider custom injection script causes a cancellation by calling `Reclaim.reportProviderError` in browser.
+
+    | Exception Name (`type` field) | Description |
+    |----------------|-------------|
+    | `ReclaimVerificationAbortedException` | User cancelled the verification (e.g., tapped on cancel or verify another way button). |
+    | `ReclaimVerificationProviderScriptException` | The provider script encountered an error (e.g., login failed, invalid account used). |
+
+    Other errors (such as network timeouts or internal exceptions) may also trigger this callback, you can always find the complete list of errors by [fetching analytics events](../troubleshooting/analytics-event#description-of-reclaim_exception-in-metadata) for the session.
+
+    ### Cancel Redirect Url
+
+    Set a custom URL to redirect users when their verification process is cancelled. This allows your application to react immediately when a user's verification session terminates.
+
+    ```javascript
+    reclaimProofRequest.setCancelRedirectUrl("https://example.com/cancel-redirect");
+    ```
+
+    **More options**
+    - **url**: The URL where users should be redirected after an error which aborts the verification process.
+    - **method** (optional): The redirection method to use. Allowed options: `GET` (default) and `POST`.
+        *Note: `POST` form redirection is only supported in In-Browser SDK.*
+    - **body** (optional): List of name-value pairs to be sent as the body of the form request.
+        - When `method` is `POST`, `body` is sent with `application/x-www-form-urlencoded` content type.
+        - When `method` is `GET`, if `body` is set, it is sent as query parameters.
+        *Note: Sending `body` on redirection is only supported in In-Browser SDK.*
+    
+    ```javascript
+    reclaimProofRequest.setCancelRedirectUrl(
+    "https://example.com/error-redirect",
+    "POST",  // In-Browser SDK only
+    [{ name: "error_code", value: "1001" }]  // In-Browser SDK only
+    );
+    ```
+
+    Redirection happens after cancel callback is invoked by reclaim. See [What triggers a Cancel Callback](/js-sdk/preparing-request#what-triggers-cancel-callback) for more details.
+  </Accordion>
+
+  </Accordions>
+
+
+
+## Part 2 : Process Verification endpoint
+> Be sure to expose this endpoint over the public internet. If testing locally, use [Ngrok](https://ngrok.dev)
+### Verify Proofs
+```javascript
+import { verifyProof } from '@reclaimprotocol/js-sdk';
+```
+
+```javascript
+const proofs = await request.json();
+const { isVerified, data } = await verifyProof(proofs, { providerId: PROVIDER_ID });
+```
+You can get the provider version
+- [ Recommended ] Storing the provider version when [initiating the verification](#store-the-provider-version).
+- You can also hardcode the expected provider version by picking the latest version from the [developer tool](https://dev.reclaimprotocol.org).
+
+### Continue Business Logic
+```javascript
+const { context, extractedParameters } = data[0];
+// Note if there are multiple proofs, you will have to iterate over data[]
+```
+
+- **`context.address`** & **`context.message`**: Same as `address` and `message` set in [Set Context](#set-context). Use this to map user to verification.
+- **`extractedParameters`** : JSON object of all the data that has been extracted and verified. You can see the structure of each provider's response in the [Provider Explorer](https://dev.reclaimprotocol.org/explore).
+
+### More options
+  <Accordions>
+  <Accordion title="Increased Security">
+  ### Fix provider hashes
+  Verifiying proofs by Provider IDs require hitting Reclaim Protocol's backend to fetch the provider hash. You could also hardcode the provider hash to avoid a roundtrip.
+  ```javascript
+  const result = await verifyProof(proofs, ["0xabc..."])
+  ```
+  - If proofs is an array, this will make sure that each proof corresponds to atleast one of the given provider hashes.
+
+
+  ### Restrict Reusability of Provider hashes
+  You could also pass an array of objects for allowed provider hashes
+  ```javascript
+    const result = await verifyProof(proofs, [{ value: '0xF22..', multiple: false, required: true }]);
+  ```
+  - `multiple` : can the hash match multiple proofs in the `proofs` array? Defaults to `true`.
+  - `required` : does atleast one proof in `proofs` need to match this provider hash? Defaults to `false`.
+
+  ### Verify the TEE validation
+  You can verify the TEE validation chain in the proof by : 
+  ```
+  verifyProof(proofs, { ... }, true);
+  //third parameter set to true 
+  ```
+
+  </Accordion>
+  </Accordions>
+
+## Source code
+- [Sample implementation](https://github.com/reclaimprotocol/sample-integrations/tree/master/sample-nodejs-integration)

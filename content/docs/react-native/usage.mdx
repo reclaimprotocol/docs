@@ -1,5 +1,5 @@
 ---
-title: Getting Started
+title: Usage
 description: Integrate Reclaim InApp SDK for React Native into your app.
 ---
 
@@ -15,30 +15,8 @@ import { Step, Steps } from 'fumadocs-ui/components/steps';
 1. Setup your project using the [Get API Key guide](/api-key).
 2. A provider id that you've added to your app from [Reclaim Devtools](https://dev.reclaimprotocol.org/explore).
 
-### Setup your app for using Reclaim InApp SDK
-
-Choose the appropriate installation guide based on your project setup:
-
-<Cards>
-  <Card href="/react-native/install/no-framework" title="React Native (No Framework)">
-    Installation Guide for React Native projects without Expo
-  </Card>
-  <Card href="/react-native/install/expo" title="Expo">
-    Installation Guide for Expo projects
-  </Card>
-</Cards>
-
-## Examples
-
-If you prefer to see a complete example of how to use the SDK in a React Native application, you can check out the following:
-
-- [React Native without Framework](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/samples/example_new_arch/README.md)
-- [React Native Expo](https://github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk/blob/main/samples/example_expo/README.md)
-
 ## Basic Usage
 
-<Steps>
-<Step>
 ### Initialize the SDK
 
 Import the package and create an instance of `ReclaimVerification`.
@@ -48,9 +26,6 @@ import { ReclaimVerification } from '@reclaimprotocol/inapp-rn-sdk';
 
 const reclaimVerification = new ReclaimVerification();
 ```
-</Step>
-
-<Step>
 ### Start Verification
 
 Choose your preferred method to start the verification flow.
@@ -89,9 +64,6 @@ const verificationResult = await reclaimVerification.startVerification({
 
 </Tab>
 </Tabs>
-</Step>
-
-<Step>
 ### Verify the Result
 
 After the verification is completed, you can submit and verify the proofs on your backend server using our [JS SDK](/js-sdk/verifying-proofs#verify-the-proof).
@@ -102,8 +74,6 @@ import { verifyProof } from "@reclaimprotocol/js-sdk";
 // Important: This should happen on your backend server
 verifyProof(verificationResult.proofs);
 ```
-</Step>
-</Steps>
 
 ### Exception Handling
 
