@@ -3,6 +3,7 @@
   "pages": [
     "index",
     "api-key",
+    "devtool",
     "js-sdk",
     "react-native",
     "flutter",

@@ -1,0 +1,112 @@
+---
+title: Automation Testing
+description: Set up automated provider testing to monitor your provider's reliability and get notified when issues occur
+---
+
+Automation testing verifies that your providers work correctly over time. Run one-time tests or schedule recurring tests to catch issues before your users do.
+
+## Overview
+
+Automation testing runs your provider through the same verification flow your end users experience. Use it to:
+
+- Verify provider configuration is correct
+- Catch breaking changes from website updates
+- Monitor provider reliability over time
+- Get notified when verification fails
+
+## Running a Test
+
+To run a one-time test:
+
+1. Go to [My Providers](https://dev.reclaimprotocol.org/my-providers) in the DevTool
+2. Click on the provider you want to test
+3. Navigate to the **Analytics** tab
+4. Click **Run Test**
+5. Enter your test credentials for the provider's target website
+6. Click **Start Test**
+
+The test runs through the full verification flow and reports the result. You can watch the progress in real-time as each step completes.
+
+<Callout type="info">
+  Test credentials are used only for the verification test and are not stored after the test completes.
+</Callout>
+
+### Understanding Test Results
+
+| Status | Description |
+|--------|-------------|
+| **Success** | Verification completed and proof was generated successfully |
+| **Failed** | Verification could not complete - check error details for the cause |
+| **Running** | Test is currently in progress |
+
+When a test fails, the result includes an error message. Common causes:
+
+- **Incorrect credentials**: The test credentials don't match a valid account
+- **Website changes**: The target website's structure changed and the provider needs updating
+- **Response mismatch**: The expected data pattern wasn't found in the response
+- **Network issues**: Connection problems prevented completing the verification
+
+## Scheduling Recurring Tests
+
+Set up automated tests on a schedule to catch issues early:
+
+1. From your provider's **Analytics** tab, click **Set Up Automation Testing**
+2. Choose a schedule type:
+   - **Daily**: Runs every day at the specified time
+   - **Weekly**: Runs on a specific day of the week
+3. Enter your test credentials
+4. Select the time (in UTC) when the test should run
+5. Click **Save Schedule**
+
+### Managing Scheduled Tests
+
+View all your scheduled tests from the **Analytics** tab. For each scheduled test you can see:
+
+- **Provider name**: Which provider the test runs against
+- **Schedule**: When the test runs (time and frequency)
+- **Last run**: When the test last executed
+- **Status**: Whether the most recent test passed or failed
+
+To remove a scheduled test, click the delete icon next to the schedule.
+
+<Callout type="warning">
+  Scheduled tests require valid credentials that remain active. If your test credentials expire or change, update them in the schedule settings or the test will fail.
+</Callout>
+
+## Viewing Test Reports
+
+The Analytics tab shows a history of all tests run against your provider:
+
+- **Test history**: List of past tests with timestamps and results
+- **Success rate**: Percentage of tests that passed
+- **Failure patterns**: Common failure reasons to help identify issues
+
+Use the search and filter options to find specific tests:
+
+- Filter by status (success, failed)
+- Filter by date range
+- Search by test ID or session ID
+
+## Best Practices
+
+### Choose Appropriate Test Frequency
+
+- **High-traffic providers**: Schedule daily tests
+- **Stable providers**: Weekly tests may be sufficient
+- **New providers**: Run frequent tests until you're confident in stability
+
+### Use Dedicated Test Accounts
+
+Create test accounts specifically for automation testing when possible. This:
+
+- Avoids interfering with real user accounts
+- Makes test failures easier to diagnose
+- Prevents account lockouts from affecting your users
+
+### Monitor Failure Trends
+
+A single test failure may be a transient issue, but repeated failures indicate a real problem. Check the Analytics tab regularly to spot patterns:
+
+- Multiple failures at similar times may indicate scheduled website maintenance
+- Failures that start after a specific date may indicate a website change
+- Failures on specific steps help identify which part of the provider config needs updating
