@@ -1,0 +1,60 @@
+---
+title: Response Redaction
+description: Configure how sensitive data is handled when creating providers in the DevTool
+---
+
+When creating or editing a provider in the DevTool, you can configure response redaction to hide sensitive parts of a server's response before sharing it with the attestor. This keeps private data hidden while still letting you verify your claim.
+
+## Redaction Modes
+
+The DevTool offers three modes for handling redacted content:
+
+### Null
+
+Replaces redacted content with empty or null values. Use this when you want to completely hide data and don't need cryptographic proof of the original value.
+
+**When to use:**
+- Hiding API keys, tokens, or credentials in responses
+- Removing personally identifiable information (PII)
+- Redacting data that doesn't need to be verifiable
+
+### OPRF
+
+Uses Oblivious Pseudo-Random Function (OPRF) to create a cryptographic commitment to the redacted value. The attestor can verify that specific data exists without seeing the actual content.
+
+**When to use:**
+- Proving a value exists without revealing it
+- Future verification of the redacted content may be required
+- Privacy-preserving verification of sensitive data
+
+### OPRF-RAW
+
+A variant of OPRF that operates directly on raw data. This mode offers similar cryptographic guarantees to OPRF but processes data in its original format.
+
+**When to use:**
+- Working with binary or non-text data
+- OPRF functionality with raw data handling
+- Advanced use cases requiring direct data representation
+
+## Configuring Redaction in the DevTool
+
+1. Open your provider in the [DevTool](https://dev.reclaimprotocol.org)
+2. Navigate to the response redaction settings
+3. Add a redaction rule using xPath, jsonPath, or regex
+4. Select the appropriate redaction mode from the dropdown
+
+## Example
+
+For a response containing user details:
+
+```json
+{
+  "email": "user@example.com",
+  "balance": 1000,
+  "api_key": "sk-abc123..."
+}
+```
+
+You might configure:
+- Redact `$.api_key` with **Null** mode to completely hide the API key
+- Redact `$.balance` with **OPRF** mode to prove the balance exists without revealing the amount

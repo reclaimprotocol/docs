@@ -1,6 +1,7 @@
 {
   "pages": [
     "index",
+    "response-redaction",
     "automation-testing"
   ]
 }

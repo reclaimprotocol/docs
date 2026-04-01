@@ -1,3 +1,8 @@
+## 0.3.0
+
+* Added Response Redaction documentation for the DevTool, explaining the three redaction modes: Null, OPRF, and OPRF-RAW
+* Added OPRF-RAW as a new response redaction mode option in the DevTool provider settings
+
 ## 0.2.0
 
 * Added Analytics Dashboard documentation for the Developer Portal, including time range filters and OS-based device breakdown
