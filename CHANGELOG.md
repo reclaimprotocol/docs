@@ -1,3 +1,11 @@
+## 0.3.0
+
+* Added `allowedInjectedRequestData` field documentation to Provider Schema for injected request specifications
+* Added `InjectedRequestSpec` type with `templateParams`, `required`, and `multiple` fields for dynamic request construction
+* Updated `ResponseMatch` type with `isOptional` field for optional matching rules
+* Updated `ResponseRedaction` type with `hash` enum (oprf, oprf_mpc, oprf_raw) for redaction hashing options
+* Expanded `RequestMethodType` enum to include PUT, PATCH, and DELETE methods
+
 ## 0.2.0
 
 * Added Analytics Dashboard documentation for the Developer Portal, including time range filters and OS-based device breakdown

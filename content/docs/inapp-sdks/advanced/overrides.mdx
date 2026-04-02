@@ -66,30 +66,32 @@ The Schema of Reclaim HTTP Provider used by Reclaim Protocol's InApp SDKs
 <Accordion title="Schema">
 ```prisma
 model HttpProvider {
-  id                      String                              @id
-  httpProviderId          String                              @unique
-  name                    String
-  logoUrl                 String
+  id                        String                              @id
+  httpProviderId            String                              @unique
+  name                      String
+  logoUrl                   String
   # The url that the user will be redirected to when verification starts.
-  url                     String
-  urlType                 urlType?
-  method                  RequestMethodType                   @default(GET)
-  body                    String?
+  url                       String
+  urlType                   urlType?
+  method                    RequestMethodType                   @default(GET)
+  body                      String?
   # The url that is likely the login url address of the website used by the provider.
-  loginUrl                String
-  customInjection         String?
-  bodySniff               BodySniff?
-  userAgent               UserAgentSettings?
-  geoLocation             String?
-  matchType               String?                             @default("greedy")
-  injectionType           InjectionType?
-  disableRequestReplay    Boolean                             @default(false)
-  providerHash            String?
-  additionalClientOptions AdditionalClientOptions?
-  verificationType        VerificationType?                   @default(WITNESS)
-  expectedPageUrl         String?
-  pageTitle               String?
-  requestData             RequestData[]
+  loginUrl                  String
+  customInjection           String?
+  bodySniff                 BodySniff?
+  userAgent                 UserAgentSettings?
+  geoLocation               String?
+  matchType                 String?                             @default("greedy")
+  injectionType             InjectionType?
+  disableRequestReplay      Boolean                             @default(false)
+  providerHash              String?
+  additionalClientOptions   AdditionalClientOptions?
+  verificationType          VerificationType?                   @default(WITNESS)
+  expectedPageUrl           String?
+  pageTitle                 String?
+  requestData               RequestData[]
+  # Specifications for injected requests that the SDK can make on behalf of the user.
+  allowedInjectedRequestData InjectedRequestSpec[]
 }
 
 type AdditionalClientOptions {
@@ -136,34 +138,95 @@ type RequestData {
   requestHash        String
 }
 
+# Specifications for injected requests that can be made by the SDK.
+# Unlike intercepted requests (RequestData), injected requests are initiated
+# by the SDK rather than intercepted from user browser activity.
+type InjectedRequestSpec {
+  # The URL for the HTTP request. Supports template variables using {{variable}} syntax.
+  # If parameter name is suffixed with _GRD, greedy matching is used; otherwise lazy.
+  url                String
+  # Type of URL: CONSTANT for exact match, TEMPLATE for pattern matching.
+  urlType            urlType
+  # HTTP method (GET, POST, PUT, PATCH, DELETE).
+  method             RequestMethodType
+  # Response validation rules. At least one match must be provided.
+  responseMatches    ResponseMatch[]
+  # Redaction rules for sensitive response data.
+  responseRedactions ResponseRedaction[]
+  # Body capturing configuration.
+  bodySniff          BodySniff?
+  # Template parameter variables for dynamic request construction.
+  templateParams     String[]
+  # Whether this request is required in the list of proofs. Defaults to true.
+  required           Boolean             @default(true)
+  # Whether this request can appear multiple times in proofs. Defaults to true.
+  multiple           Boolean             @default(true)
+}
+
 enum RequestMethodType {
   GET
   POST
+  PUT
+  PATCH
+  DELETE
 }
 
 type ResponseMatch {
+  # The pattern or value to match. Supports template variables using {{variable}} syntax
+  # when type is 'contains'. For 'regex' type, can extract variables using named groups.
   value       String
-  type        String
-  invert      Boolean @default(false)
+  # Matching mechanism: 'regex' for regular expressions, 'contains' for substring match.
+  type        ResponseMatchType
+  # If true, the match condition is reversed. Defaults to false.
+  invert      Boolean             @default(false)
+  # If true, this match is optional and won't fail if absent. Defaults to false.
+  isOptional  Boolean             @default(false)
   description String?
 }
 
+enum ResponseMatchType {
+  regex
+  contains
+}
+
 type ResponseRedaction {
-  xPath    String?
+  # JSON path for locating the value to redact.
   jsonPath String?
+  # Regular expression for parsing and extracting/redacting values.
+  # Can extract fields using named regex groups.
   regex    String?
-  hash     String?
+  # XPath for XML/HTML matching configuration.
+  xPath    String?
+  # Hashing method applied to redacted content.
+  hash     RedactionHashType?
+}
+
+enum RedactionHashType {
+  # OPRF (Oblivious Pseudorandom Function) - works only for named regex groups.
+  oprf
+  # OPRF with multi-party computation.
+  oprf_mpc
+  # Raw OPRF output.
+  oprf_raw
 }
 ```
 
 </Accordion>
 </Accordions>
 
-Examples of provider schema can be found as provider configurations in the `https://api.reclaimprotocol.org/api/providers/${provider_id}` http api. For example, [Devtool's Http Api for Github Username Provider](https://api.reclaimprotocol.org/api/providers/6d3f6753-7ee6-49ee-a545-62f1b1822ae5). 
+**Request Types**
+
+The provider schema supports two request types:
+
+- **`requestData`** (Intercepted Requests): Captured from the user's browser activity. The SDK monitors network traffic and captures requests matching specified patterns. Use this to verify data the user naturally accesses during their session.
+
+- **`allowedInjectedRequestData`** (Injected Requests): Initiated by the SDK on behalf of the user. The SDK makes these HTTP requests directly instead of waiting for browser activity. Injected requests support additional options like `templateParams` for dynamic URL construction, and `required`/`multiple` flags to control proof requirements.
+
+Examples of provider schema can be found as provider configurations in the `https://api.reclaimprotocol.org/api/providers/${provider_id}` http api. For example, [Devtool's Http Api for Github Username Provider](https://api.reclaimprotocol.org/api/providers/6d3f6753-7ee6-49ee-a545-62f1b1822ae5).
 
 Note:
 - These examples have a different structure where the provider configuration is nested under a 'providers' key, rather than being the root object. Therefore, the `https://api.reclaimprotocol.org/api/providers/${provider_id}` http apis cannot be used as direct parameters for provider overrides by url in this SDK.
-- For use with `jsonString`, provider the value of the 'providers' key in the `jsonString` parameter.
+- For use with `jsonString`, provide the value of the 'providers' key in the `jsonString` parameter.
 
 ### Logging Configuration
 
