@@ -223,6 +223,15 @@ featureOptions: {
   isResponseRedactionRegexEscapingEnabled: false,
   // Whether AI Flow can be enabled by the SDK. (Default from reclaimprotocol.org: `false`)
   isAIFlowEnabled: false,
+
+  // Custom privacy policy URL displayed in the verification flow
+  privacyPolicyUrl: 'https://your-domain.com/privacy-policy',
+
+  // Custom terms of service URL displayed in the verification flow
+  termsOfServiceUrl: 'https://your-domain.com/terms-of-service',
+
+  // Custom URL for potential failure reasons page shown when verification fails
+  potentialFailureReasonsUrl: 'https://your-domain.com/failure-reasons',
 }
 ```
 
@@ -282,7 +291,10 @@ reclaimVerification.setOverrides({
     sessionTimeoutForManualVerificationTrigger: 180,
     attestorBrowserRpcUrl: 'https://attestor.reclaimprotocol.org/browser-rpc',
     isResponseRedactionRegexEscapingEnabled: false,
-    isAIFlowEnabled: false
+    isAIFlowEnabled: false,
+    privacyPolicyUrl: 'https://your-domain.com/privacy-policy',
+    termsOfServiceUrl: 'https://your-domain.com/terms-of-service',
+    potentialFailureReasonsUrl: 'https://your-domain.com/failure-reasons'
   },
   sessionManagement: {
     onLog: (event) => {

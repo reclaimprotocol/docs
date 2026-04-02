@@ -1,3 +1,8 @@
+## 0.3.0
+
+* Updated Android SDK version to 0.34.0 in installation documentation
+* Added three new feature options to the overrides documentation: `privacyPolicyUrl`, `termsOfServiceUrl`, and `potentialFailureReasonsUrl` for customizing legal pages and failure reason links in the verification flow
+
 ## 0.2.0
 
 * Added Analytics Dashboard documentation for the Developer Portal, including time range filters and OS-based device breakdown
