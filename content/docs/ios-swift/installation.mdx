@@ -59,11 +59,11 @@ platform :ios, '13.0'
 <Tabs items={['From Cocoapods (recommended)', 'From a specific tag', 'From git HEAD', 'From a specific commit', 'From a specific branch']}>
 
 ```ruby tabs="From Cocoapods (recommended)"
-pod 'ReclaimInAppSdk' '~> 0.3.0'
+pod 'ReclaimInAppSdk', '~> 0.34.0'
 ```
 
 ```ruby tabs="From a specific tag"
-pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :tag => '0.3.0'
+pod 'ReclaimInAppSdk', :git => 'https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git', :tag => '0.34.0'
 ```
 
 ```ruby tabs="From git HEAD"
@@ -90,7 +90,7 @@ target 'GitPodSwiftUIExample' do
   use_frameworks!
 
   # Pods for GitPodSwiftUIExample
-  pod 'ReclaimInAppSdk', '~> 0.3.0'
+  pod 'ReclaimInAppSdk', '~> 0.34.0'
 
   target 'GitPodSwiftUIExampleTests' do
     inherit! :search_paths
@@ -117,7 +117,7 @@ For more info, check the [Reclaim Example - SwiftUI with CocoaPods](https://gith
 <Tabs items={['version', 'branch']}>
 
 ```swift tabs="version"
-.package(url: "https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git", from: "0.3.0")
+.package(url: "https://github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git", from: "0.34.0")
 ```
 
 ```swift tabs="branch"

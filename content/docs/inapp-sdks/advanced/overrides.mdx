@@ -206,23 +206,32 @@ Configure SDK behavior and features:
 featureOptions: {
   // Cookie persistence configuration
   cookiePersist: null,
-  
+
   // Enable/disable single reclaim request mode
   singleReclaimRequest: false,
-  
+
   // Idle time threshold (in seconds) for manual verification trigger  (Default from reclaimprotocol.org: `2`)
   idleTimeThresholdForManualVerificationTrigger: 2,
-  
+
   // Session timeout (in seconds) for manual verification trigger (Default from reclaimprotocol.org: `180`)
   sessionTimeoutForManualVerificationTrigger: 180,
-  
+
   // Custom attestor browser RPC URL (Default from reclaimprotocol.org: `https://attestor.reclaimprotocol.org/browser-rpc`)
   attestorBrowserRpcUrl: 'https://attestor.reclaimprotocol.org/browser-rpc',
-  
+
   // Enable/disable response redaction regex escaping by the app (Default from reclaimprotocol.org: `false`)
   isResponseRedactionRegexEscapingEnabled: false,
   // Whether AI Flow can be enabled by the SDK. (Default from reclaimprotocol.org: `false`)
   isAIFlowEnabled: false,
+
+  // Custom privacy policy URL displayed in the verification flow
+  privacyPolicyUrl: 'https://your-app.com/privacy',
+
+  // Custom terms of service URL displayed in the verification flow
+  termsOfServiceUrl: 'https://your-app.com/terms',
+
+  // Custom URL for potential failure reasons documentation
+  potentialFailureReasonsUrl: 'https://your-app.com/help/verification-issues',
 }
 ```
 
@@ -282,7 +291,10 @@ reclaimVerification.setOverrides({
     sessionTimeoutForManualVerificationTrigger: 180,
     attestorBrowserRpcUrl: 'https://attestor.reclaimprotocol.org/browser-rpc',
     isResponseRedactionRegexEscapingEnabled: false,
-    isAIFlowEnabled: false
+    isAIFlowEnabled: false,
+    privacyPolicyUrl: 'https://your-app.com/privacy',
+    termsOfServiceUrl: 'https://your-app.com/terms',
+    potentialFailureReasonsUrl: 'https://your-app.com/help/verification-issues'
   },
   sessionManagement: {
     onLog: (event) => {
