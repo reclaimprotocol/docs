@@ -3,6 +3,7 @@
   "pages": [
     "index",
     "api-key",
+    "pricing",
     "js-sdk",
     "react-native",
     "flutter",
