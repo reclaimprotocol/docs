@@ -29,12 +29,12 @@ Uses Oblivious Pseudo-Random Function (OPRF) to create a cryptographic commitmen
 
 ### OPRF-RAW
 
-A variant of OPRF that operates directly on raw data. This mode offers similar cryptographic guarantees to OPRF but processes data in its original format.
+Runs OPRF computation on the attestor instead of the client. Unlike standard OPRF, the attestor sees the plaintext value but still generates a cryptographic nullifier for verification.
 
 **When to use:**
-- Working with binary or non-text data
-- OPRF functionality with raw data handling
-- Advanced use cases requiring direct data representation
+- Server-side OPRF computation is needed
+- Sharing data with the attestor is acceptable
+- You want cryptographic binding without client-side OPRF overhead
 
 ## Configuring Redaction in the DevTool
 

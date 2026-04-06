@@ -3,7 +3,7 @@
 * Added DevTool documentation section with overview of provider management features
 * Added Automation Testing documentation for the DevTool, covering one-time tests, scheduled tests (daily and weekly), test results, and test reports
 * Added Response Redaction documentation for the DevTool, explaining the three redaction modes: Null, OPRF, and OPRF-RAW
-* Added OPRF-RAW as a new response redaction mode option in the DevTool provider settings
+* Added OPRF-RAW documentation clarifying that this mode runs server-side OPRF computation on the attestor with plaintext reveal
 
 ## 0.2.0
 
