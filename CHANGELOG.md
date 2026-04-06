@@ -1,3 +1,7 @@
+## 0.3.0
+
+* Added documentation for custom URL overrides in InApp SDK `featureOptions`: `privacyPolicyUrl`, `termsOfServiceUrl`, and `potentialFailureReasonsUrl` allow customizing the URLs displayed in the verification flow
+
 ## 0.2.0
 
 * Added Analytics Dashboard documentation for the Developer Portal, including time range filters and OS-based device breakdown
