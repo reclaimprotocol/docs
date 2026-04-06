@@ -104,6 +104,7 @@ const request = await reclaimExtensionSDK.init(appId, appSecret, providerId, {
 - `providerId` (string): ID of the provider to verify (e.g., `"google-login"`)
 - `options` (object): Configuration options
   - `extensionID` (string): Required - Browser extension ID
+  - `logConfig` (object): Optional - Logging configuration (see [Logging Configuration](#logging-configuration))
 
 **Returns**: Promise that resolves to a `ReclaimRequest` object
 
@@ -810,23 +811,120 @@ function MultiProviderVerification() {
 
 ### Debug Logging
 
-Enable debug mode for development:
+The SDK includes built-in logging that can be configured for debugging. Use the `setLogConfig()` method or pass `logConfig` in initialization options:
 
 ```javascript
-const DEBUG = import.meta.env.MODE === "development";
+// Option 1: Configure during initialization
+const request = await reclaimExtensionSDK.init(APP_ID, APP_SECRET, providerId, {
+  extensionID: EXTENSION_ID,
+  logConfig: {
+    logLevel: "DEBUG",
+    consoleEnabled: true,
+  },
+});
 
-if (DEBUG) {
-  console.log("🔧 Debug mode enabled");
-}
+// Option 2: Configure at runtime
+const configApplied = await reclaimExtensionSDK.setLogConfig(
+  {
+    logLevel: "DEBUG",
+    consoleEnabled: true,
+  },
+  EXTENSION_ID
+);
 
-const request = await reclaimExtensionSDK.init(...);
-
-if (DEBUG) {
-  request.on("started", (data) => console.log("[DEBUG] Started:", data));
-  request.on("completed", (data) => console.log("[DEBUG] Completed:", data));
-  request.on("error", (data) => console.log("[DEBUG] Error:", data));
+if (!configApplied) {
+  console.warn("Log config could not be applied");
 }
 ```
+
+You can also listen to SDK events for additional debugging:
+
+```javascript
+request.on("started", (data) => console.log("[DEBUG] Started:", data));
+request.on("completed", (data) => console.log("[DEBUG] Completed:", data));
+request.on("error", (data) => console.log("[DEBUG] Error:", data));
+```
+
+See [Logging Configuration](#logging-configuration) for more details.
+
+## Logging Configuration
+
+The SDK provides methods to configure logging for debugging and diagnostics.
+
+### `reclaimExtensionSDK.setLogConfig()`
+
+Configure the SDK's logging behavior. This method is asynchronous and returns a promise indicating whether the configuration was applied.
+
+```javascript
+const configApplied = await reclaimExtensionSDK.setLogConfig(config, extensionID, timeout);
+```
+
+**Parameters**:
+
+- `config` (object): Logging configuration
+  - `logLevel` (string): Log level - `"INFO"` (default) or `"DEBUG"` for verbose output
+  - `consoleEnabled` (boolean): Whether to output logs to the browser console
+- `extensionID` (string): Required in web mode - the browser extension ID
+- `timeout` (number): Optional timeout in milliseconds (default: 2000)
+
+**Returns**: `Promise<boolean>` - Resolves to `true` if configuration was applied, `false` on timeout
+
+**Example**:
+
+```javascript
+// Enable debug logging with console output
+const success = await reclaimExtensionSDK.setLogConfig(
+  {
+    logLevel: "DEBUG",
+    consoleEnabled: true,
+  },
+  EXTENSION_ID
+);
+
+if (success) {
+  console.log("Debug logging enabled");
+} else {
+  console.warn("Could not enable logging - extension may not be ready");
+}
+```
+
+---
+
+### `reclaimExtensionSDK.getLogConfig()`
+
+Retrieve the current logging configuration.
+
+```javascript
+const config = await reclaimExtensionSDK.getLogConfig();
+```
+
+**Parameters**: None
+
+**Returns**: `Promise<Object>` - Resolves to the current log configuration:
+
+```javascript
+{
+  logLevel: "INFO" | "DEBUG",
+  consoleEnabled: boolean
+}
+```
+
+**Example**:
+
+```javascript
+const currentConfig = await reclaimExtensionSDK.getLogConfig();
+console.log("Current log level:", currentConfig.logLevel);
+console.log("Console logging:", currentConfig.consoleEnabled ? "enabled" : "disabled");
+```
+
+---
+
+### Log Levels
+
+| Level   | Description                                        |
+| ------- | -------------------------------------------------- |
+| `INFO`  | Default level - logs important events and errors   |
+| `DEBUG` | Verbose logging - includes detailed diagnostic info |
 
 ## Next Steps
 

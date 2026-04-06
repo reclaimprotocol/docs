@@ -807,6 +807,26 @@ See [Backend SDK Documentation](/web/backend/usage) for complete backend setup g
 
 ### Debugging Tips
 
+**Enable SDK Debug Logging**:
+
+The SDK includes built-in logging that can be configured for debugging:
+
+```javascript
+// Enable debug logging
+const configApplied = await reclaimExtensionSDK.setLogConfig({
+  logLevel: "DEBUG",
+  consoleEnabled: true,
+});
+
+if (configApplied) {
+  console.log("Debug logging enabled");
+}
+
+// Check current config
+const config = await reclaimExtensionSDK.getLogConfig();
+console.log("Log level:", config.logLevel);
+```
+
 **Check Network Requests**:
 
 ```javascript
@@ -828,6 +848,72 @@ const request = await reclaimExtensionSDK.init(appId, appSecret, providerId);
   });
 });
 ```
+
+## Logging Configuration
+
+The SDK provides methods to configure logging for debugging and diagnostics.
+
+### `reclaimExtensionSDK.setLogConfig()`
+
+Configure the SDK's logging behavior. This method is asynchronous and returns a promise indicating whether the configuration was applied.
+
+```javascript
+const configApplied = await reclaimExtensionSDK.setLogConfig(config, extensionID, timeout);
+```
+
+**Parameters**:
+
+- `config` (object): Logging configuration
+  - `logLevel` (string): Log level - `"INFO"` (default) or `"DEBUG"` for verbose output
+  - `consoleEnabled` (boolean): Whether to output logs to the browser console
+- `extensionID` (string): Optional in extension context, required for web integration
+- `timeout` (number): Optional timeout in milliseconds (default: 2000)
+
+**Returns**: `Promise<boolean>` - Resolves to `true` if configuration was applied, `false` on timeout
+
+**Example**:
+
+```javascript
+// Enable debug logging in extension popup
+const success = await reclaimExtensionSDK.setLogConfig({
+  logLevel: "DEBUG",
+  consoleEnabled: true,
+});
+
+if (success) {
+  console.log("Debug logging enabled");
+}
+```
+
+---
+
+### `reclaimExtensionSDK.getLogConfig()`
+
+Retrieve the current logging configuration.
+
+```javascript
+const config = await reclaimExtensionSDK.getLogConfig();
+```
+
+**Parameters**: None
+
+**Returns**: `Promise<Object>` - Resolves to the current log configuration:
+
+```javascript
+{
+  logLevel: "INFO" | "DEBUG",
+  consoleEnabled: boolean
+}
+```
+
+---
+
+### Log Levels
+
+| Level   | Description                                        |
+| ------- | -------------------------------------------------- |
+| `INFO`  | Default level - logs important events and errors   |
+| `DEBUG` | Verbose logging - includes detailed diagnostic info |
 
 ## Common Issues
 

@@ -507,9 +507,43 @@ ls -la .env.local
 
 ## Debugging Tools
 
-### Enable Debug Mode
+### Enable SDK Debug Logging
 
-Create a debug utility:
+The SDK includes built-in logging that can help diagnose issues. Enable debug logging to see detailed diagnostic information:
+
+```javascript
+// Enable debug logging
+const configApplied = await reclaimExtensionSDK.setLogConfig({
+  logLevel: "DEBUG",
+  consoleEnabled: true,
+});
+
+if (configApplied) {
+  console.log("SDK debug logging enabled");
+} else {
+  console.warn("Could not enable debug logging - extension may not be ready");
+}
+```
+
+You can also pass the log configuration during initialization:
+
+```javascript
+const request = await reclaimExtensionSDK.init(APP_ID, APP_SECRET, providerId, {
+  extensionID: EXTENSION_ID, // Required for web integration
+  logConfig: {
+    logLevel: "DEBUG",
+    consoleEnabled: true,
+  },
+});
+```
+
+**Log Levels**:
+- `INFO` (default): Logs important events and errors
+- `DEBUG`: Verbose logging with detailed diagnostic information
+
+### Custom Debug Utility
+
+For additional debugging beyond SDK logs:
 
 ```javascript
 const DEBUG = import.meta.env.MODE === 'development';

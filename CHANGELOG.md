@@ -1,5 +1,6 @@
 ## 0.2.0
 
+* **Browser Extension SDK**: Documented logging configuration API - `setLogConfig()` and `getLogConfig()` methods are now async and return Promises. `setLogConfig()` returns `Promise<boolean>` indicating success, and `getLogConfig()` returns `Promise<Object>` with the current configuration. The `logConfig` option can also be passed directly in `init()` options. Log levels are `INFO` (default) and `DEBUG`.
 * Added Analytics Dashboard documentation for the Developer Portal, including time range filters and OS-based device breakdown
 * Added Device-Based Analytics documentation explaining device metrics (Total Devices, Devices with Proofs, Device Conversion Rate)
 * Added Live Feed documentation with session status indicators and provider information
