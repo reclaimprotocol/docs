@@ -1,3 +1,7 @@
+## 0.3.0
+
+* Added documentation for `hash` property in `responseRedactions` with support for `oprf` (default) and `oprf-mpc` hash types
+
 ## 0.2.0
 
 * Added Analytics Dashboard documentation for the Developer Portal, including time range filters and OS-based device breakdown

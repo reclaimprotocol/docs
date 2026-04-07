@@ -430,7 +430,8 @@ Executes a verified fetch request with zero-knowledge proof generation.
   responseRedactions?: [{
     jsonPath?: string,
     xPath?: string,
-    regex?: string
+    regex?: string,
+    hash?: 'oprf' | 'oprf-mpc' // Hash type, defaults to 'oprf'
   }]
 }
 

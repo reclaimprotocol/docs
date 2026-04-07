@@ -112,13 +112,25 @@ You can also use responseMatches and responseRedactions to match and redact the 
     ],
     responseRedactions: [
       {
-        jsonPath: '$.data', // JSON path to redact 
-        xPath: '/data', // Xpath to redact  
+        jsonPath: '$.data', // JSON path to redact
+        xPath: '/data', // Xpath to redact
         regex: '<REGEX>', // Regex to redact
+        hash: 'oprf', // Hash type for redacted data (optional)
       }
     ]
   }
 ```
+
+### Hash Types for Redactions
+
+When using `responseRedactions`, you can specify a `hash` type to control how redacted data is processed. Available options:
+
+| Hash Type | Description |
+|-----------|-------------|
+| `oprf` | Oblivious Pseudo-Random Function. Default hash type. |
+| `oprf-mpc` | Multi-Party Computation variant of OPRF. Distributes the hashing across multiple parties for enhanced privacy. |
+
+Defaults to `oprf` if not specified.
 
 ## Verify the proofs and transform proof for onchain 
 
