@@ -173,6 +173,33 @@ Both context address and context message are tamper resistant. Even if the user 
     ```
     - In partnership with [zkMe](https://zk.me)
 
+    ### Custom Verification in Session
+
+    Pass an optional `verificationConfig` parameter to `startSession` to customize proof verification. This lets you specify validation requirements instead of using the default provider version.
+
+    ```javascript
+    await reclaimProofRequest.startSession({
+      onSuccess: (proofs) => {
+        console.log('Verification successful:', proofs);
+      },
+      onError: (error) => {
+        console.error('Verification failed:', error);
+      },
+      verificationConfig: {
+        providerId: PROVIDER_ID,
+        providerVersion: '1.0.0'
+      }
+    });
+    ```
+
+    The `verificationConfig` accepts the same options as the second parameter of `verifyProof()`:
+
+    - **Provider information**: Specify `providerId` and optionally `providerVersion` to validate against a specific provider version.
+    - **Hash validation**: Pass an array of hashes to validate proofs against specific hashes.
+    - **TEE verification**: Set `verifyTEE: true` to verify Trusted Execution Environment attestations.
+
+    Without a `verificationConfig`, the SDK uses the provider version from request initialization.
+
   </Accordion>
   <Accordion title="Error Handling">
     ### Cancel Callback
