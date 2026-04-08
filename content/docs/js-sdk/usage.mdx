@@ -251,8 +251,14 @@ import { verifyProof } from '@reclaimprotocol/js-sdk';
 
 ```javascript
 const proofs = await request.json();
-const { isVerified, data } = await verifyProof(proofs, { providerId: PROVIDER_ID });
+const { isVerified, data, publicData } = await verifyProof(proofs, { providerId: PROVIDER_ID });
 ```
+
+The verification result includes:
+- **`isVerified`**: Boolean indicating whether the proof(s) passed verification.
+- **`data`**: Array of trusted data objects containing context and extracted parameters.
+- **`publicData`**: Array of additional data returned by the provider, attached to the proof but not verified.
+
 You can get the provider version
 - [ Recommended ] Storing the provider version when [initiating the verification](#store-the-provider-version).
 - You can also hardcode the expected provider version by picking the latest version from the [developer tool](https://dev.reclaimprotocol.org).

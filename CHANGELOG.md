@@ -1,3 +1,7 @@
+## 0.3.0
+
+* JS SDK: `verifyProof` now returns `publicData` in successful verification results, containing deduplicated additional data from providers
+
 ## 0.2.0
 
 * Added Analytics Dashboard documentation for the Developer Portal, including time range filters and OS-based device breakdown
