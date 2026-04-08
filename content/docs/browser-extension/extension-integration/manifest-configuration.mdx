@@ -25,7 +25,9 @@ Here's a complete example of the required manifest configuration:
   "permissions": [
     "offscreen",
     "cookies",
-    "scripting"
+    "scripting",
+    "storage",
+    "declarativeNetRequest"
   ],
 
   "host_permissions": [
@@ -41,10 +43,13 @@ Here's a complete example of the required manifest configuration:
       "resources": [
         "reclaim-browser-extension-sdk/offscreen/offscreen.html",
         "reclaim-browser-extension-sdk/offscreen/offscreen.bundle.js",
+        "reclaim-browser-extension-sdk/offscreen/load-s2circuits.js",
         "reclaim-browser-extension-sdk/interceptor/network-interceptor.bundle.js",
         "reclaim-browser-extension-sdk/interceptor/injection-scripts.bundle.js",
         "reclaim-browser-extension-sdk/content/components/reclaim-provider-verification-popup.css",
-        "reclaim-browser-extension-sdk/content/components/reclaim-provider-verification-popup.html"
+        "reclaim-browser-extension-sdk/content/components/reclaim-provider-verification-popup.html",
+        "browser-rpc/resources/stwo/*",
+        "browser-rpc/resources/snarkjs/*"
       ],
       "matches": ["<all_urls>"]
     }
@@ -100,7 +105,9 @@ Here's a complete example of the required manifest configuration:
 "permissions": [
   "offscreen",
   "cookies",
-  "scripting"
+  "scripting",
+  "storage",
+  "declarativeNetRequest"
 ]
 ```
 
@@ -129,8 +136,20 @@ Here's a complete example of the required manifest configuration:
   - **Dynamic script registration**: Register content scripts programmatically
 - **Security**: Scripts are only injected during active verification flows on provider domains
 
+**`storage`**
+- **What**: Access to Chrome's extension storage API
+- **Why**: Required for persisting SDK configuration and session state
+- **Usage**: SDK stores configuration settings and maintains verification session data
+- **Security**: Data is stored locally within the extension's isolated storage area
+
+**`declarativeNetRequest`**
+- **What**: Allows modification of network request headers using declarative rules
+- **Why**: Required for temporarily modifying Content Security Policy (CSP) headers on provider sites with strict policies
+- **Usage**: SDK uses this to enable custom script injection on sites that would otherwise block it due to CSP restrictions
+- **Security**: Rules are applied only during active verification flows and are removed immediately after
+
 <Callout type="info">
-**Why Scripting Permission?** The SDK needs to inject code into provider pages to replay network requests (using XHR) and run custom extraction logic. This enables the SDK to capture authentication data and verification proofs even on pages with strict CSP policies.
+**Why These Permissions?** The SDK needs to inject code into provider pages, manage session state, and temporarily modify CSP headers on strict sites. This enables the SDK to capture authentication data and generate verification proofs across all provider domains.
 </Callout>
 
 ### 3. Host Permissions
@@ -200,10 +219,13 @@ However, this limits flexibility and requires manifest updates for new providers
     "resources": [
       "reclaim-browser-extension-sdk/offscreen/offscreen.html",
       "reclaim-browser-extension-sdk/offscreen/offscreen.bundle.js",
+      "reclaim-browser-extension-sdk/offscreen/load-s2circuits.js",
       "reclaim-browser-extension-sdk/interceptor/network-interceptor.bundle.js",
       "reclaim-browser-extension-sdk/interceptor/injection-scripts.bundle.js",
       "reclaim-browser-extension-sdk/content/components/reclaim-provider-verification-popup.css",
-      "reclaim-browser-extension-sdk/content/components/reclaim-provider-verification-popup.html"
+      "reclaim-browser-extension-sdk/content/components/reclaim-provider-verification-popup.html",
+      "browser-rpc/resources/stwo/*",
+      "browser-rpc/resources/snarkjs/*"
     ],
     "matches": ["<all_urls>"]
   }
@@ -214,10 +236,11 @@ However, this limits flexibility and requires manifest updates for new providers
 
 #### Resource Breakdown
 
-**Offscreen Document** (`offscreen.html`, `offscreen.bundle.js`)
+**Offscreen Document** (`offscreen.html`, `offscreen.bundle.js`, `load-s2circuits.js`)
 - Runs WebAssembly for proof generation
 - Accessed by the background service worker
 - Isolated execution environment
+- `load-s2circuits.js` handles loading of STWO cryptographic circuits
 
 **Network Interceptor** (`network-interceptor.bundle.js`, `injection-scripts.bundle.js`)
 - Injected into provider tabs during verification
@@ -228,6 +251,11 @@ However, this limits flexibility and requires manifest updates for new providers
 - Popup interface shown during verification
 - Displays provider authentication progress
 - Handles user interactions
+
+**Cryptographic Resources** (`browser-rpc/resources/stwo/*`, `browser-rpc/resources/snarkjs/*`)
+- STWO and snarkjs circuit files for zero-knowledge proof generation
+- Required for the cryptographic operations performed during verification
+- Loaded dynamically by the offscreen document when generating proofs
 
 **Why `"matches": ["<all_urls>"]`?**
 - Resources need to be accessible from any provider domain
@@ -293,9 +321,9 @@ See the [Setup guide](/browser-extension/extension-integration/setup#dynamic-reg
 After configuring your manifest, verify:
 
 - ✅ CSP includes `'wasm-unsafe-eval'` for WebAssembly
-- ✅ `offscreen` and `cookies` permissions are present
+- ✅ All required permissions are present: `offscreen`, `cookies`, `scripting`, `storage`, `declarativeNetRequest`
 - ✅ Host permissions include required provider domains
-- ✅ All SDK resources are listed in `web_accessible_resources`
+- ✅ All SDK resources are listed in `web_accessible_resources` (including STWO and snarkjs resources)
 - ✅ Content script runs at `document_start`
 - ✅ Background service worker is defined
 - ✅ Manifest version is 3
