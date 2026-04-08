@@ -156,6 +156,16 @@ type ResponseRedaction {
 }
 ```
 
+**Response Redaction Hash Options**
+
+The `hash` field in `ResponseRedaction` controls how redacted data is cryptographically processed.
+
+| Value | Description |
+|-------|-------------|
+| `null` | No hash is applied. Redacted data is hidden from the proof without a hash commitment. |
+| `oprf` | Uses an Oblivious Pseudorandom Function to create a privacy-preserving hash. This lets you verify that specific data was present without revealing the actual content. |
+| `oprf-raw` | Returns the raw OPRF output without additional processing. Use this for browser extension integrations that need direct access to the OPRF result. |
+
 </Accordion>
 </Accordions>
 
