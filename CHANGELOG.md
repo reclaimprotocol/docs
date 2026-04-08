@@ -1,5 +1,6 @@
 ## 0.2.0
 
+* Added documentation for response redaction hash options (`null`, `oprf`, `oprf-raw`) in the Provider Schema - the `oprf-raw` option is now available for browser extension integrations
 * Added Analytics Dashboard documentation for the Developer Portal, including time range filters and OS-based device breakdown
 * Added Device-Based Analytics documentation explaining device metrics (Total Devices, Devices with Proofs, Device Conversion Rate)
 * Added Live Feed documentation with session status indicators and provider information
