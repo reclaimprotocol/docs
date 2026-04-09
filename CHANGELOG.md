@@ -1,5 +1,7 @@
 ## 0.2.0
 
+* Verification portal now validates session creation requests with HMAC signature verification and timestamp checking to prevent unauthorized session creation
+* Verification portal fetches provider configuration (loginUrl, requestData, responseMatches) server-side instead of accepting frontend-supplied values, improving security by preventing manipulation of provider settings
 * Added Analytics Dashboard documentation for the Developer Portal, including time range filters and OS-based device breakdown
 * Added Device-Based Analytics documentation explaining device metrics (Total Devices, Devices with Proofs, Device Conversion Rate)
 * Added Live Feed documentation with session status indicators and provider information
