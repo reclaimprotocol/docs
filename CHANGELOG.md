@@ -1,5 +1,6 @@
 ## 0.2.0
 
+* **[Breaking]** `@reclaimprotocol/attestor-core`: Provider parameter hash computation now applies default values to missing optional fields (empty strings for `url`/`body`, `'GET'` for `method`, empty arrays for `responseMatches`/`responseRedactions`). This ensures consistent hash computation but may affect verification of proofs generated with earlier versions.
 * Added Analytics Dashboard documentation for the Developer Portal, including time range filters and OS-based device breakdown
 * Added Device-Based Analytics documentation explaining device metrics (Total Devices, Devices with Proofs, Device Conversion Rate)
 * Added Live Feed documentation with session status indicators and provider information
