@@ -4,6 +4,7 @@
 * Added Automation Testing documentation for the DevTool, covering one-time tests, scheduled tests (daily and weekly), test results, and test reports
 * Added Response Redaction documentation for the DevTool, explaining the three redaction modes: Null, OPRF, and OPRF-RAW
 * Added OPRF-RAW documentation clarifying that this mode runs server-side OPRF computation on the attestor with plaintext reveal
+* Added rate limits documentation for Automation Testing (10 tests/hour, 20 tests/day for run test; 20 operations/day for schedule operations)
 
 ## 0.2.0
 

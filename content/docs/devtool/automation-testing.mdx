@@ -46,6 +46,20 @@ When a test fails, the result includes an error message. Common causes:
 - **Response mismatch**: The expected data pattern wasn't found in the response
 - **Network issues**: Connection problems prevented completing the verification
 
+## Rate Limits
+
+Automation testing enforces rate limits to ensure fair usage:
+
+| Operation | Limit | Time Window |
+|-----------|-------|-------------|
+| Run Test | 10 tests | 1 hour |
+| Run Test | 20 tests | 24 hours |
+| Schedule Test | 20 operations | 24 hours |
+
+When you hit a rate limit, the DevTool displays an error message showing how long to wait before running another test. The hourly limit resets every hour, while the daily limit resets at midnight UTC.
+
+To run more tests, wait for the limit to reset or spread your testing across multiple sessions.
+
 ## Scheduling Recurring Tests
 
 Set up automated tests on a schedule to catch issues early:
