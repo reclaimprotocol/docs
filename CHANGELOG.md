@@ -1,5 +1,6 @@
 ## 0.2.0
 
+* Verification Portal: When `canAutoSubmit` is set to `false`, clicking the close button after successful proof submission now also closes the browser window or popup
 * Added Analytics Dashboard documentation for the Developer Portal, including time range filters and OS-based device breakdown
 * Added Device-Based Analytics documentation explaining device metrics (Total Devices, Devices with Proofs, Device Conversion Rate)
 * Added Live Feed documentation with session status indicators and provider information
