@@ -1,5 +1,6 @@
 ## 0.2.0
 
+* Verification Portal: Migrated TEE proof flow to GCP-hosted gateway with improved geolocation-based region selection, reducing end-to-end latency for proof generation
 * Added Analytics Dashboard documentation for the Developer Portal, including time range filters and OS-based device breakdown
 * Added Device-Based Analytics documentation explaining device metrics (Total Devices, Devices with Proofs, Device Conversion Rate)
 * Added Live Feed documentation with session status indicators and provider information
