@@ -1,5 +1,6 @@
 ## 0.2.0
 
+* Verification Portal: TEE (Trusted Execution Environment) proof generation is now the default path when the remote browser is available, improving security and attestation. Providers using `oprf-raw` hash type continue to use frontend proof generation. The `usePortalTEE` flag can override this per app/provider.
 * Added Analytics Dashboard documentation for the Developer Portal, including time range filters and OS-based device breakdown
 * Added Device-Based Analytics documentation explaining device metrics (Total Devices, Devices with Proofs, Device Conversion Rate)
 * Added Live Feed documentation with session status indicators and provider information
