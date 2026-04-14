@@ -122,19 +122,20 @@ You can also use responseMatches and responseRedactions to match and redact the 
 
 ## Verify the proofs and transform proof for onchain 
 
-### Verify the proofs
-
 Install @reclaimprotocol/js-sdk
 
 ```bash copy
 npm install @reclaimprotocol/js-sdk
 ```
 
-Import `verifyProof` from the js-sdk
+Import verifyProof and transformForOnchain from the js-sdk
+
 
 ```js copy
-const { verifyProof } = require('@reclaimprotocol/js-sdk');
+const { verifyProof, transformForOnchain } = require('@reclaimprotocol/js-sdk');
 ```
+
+#### Verify the proofs
 
 You must send the proofObject and not the verifiedResponse to the verifier for them to be able to verify.
 
@@ -145,11 +146,9 @@ const { isVerified } = await verifyProof(proof, { dangerouslyDisableContentValid
 #### Transform proof for onchain
 
 Transforms proof data into a format suitable for on-chain transactions, you need to use it before sending the proof to the blockchain.
-
 Use `transformForOnchain(proof)` from the js-sdk to transform the proof for onchain.
 
 ```js
-const { transformForOnchain } = require('@reclaimprotocol/js-sdk');
 const { claimInfo, signedClaim } = transformForOnchain(proof);
 // Use claimInfo and signedClaim with smart contract verification
 ```
