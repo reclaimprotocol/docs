@@ -130,28 +130,28 @@ Install @reclaimprotocol/js-sdk
 npm install @reclaimprotocol/js-sdk
 ```
 
-Import the Reclaim class from the js-sdk
+Import `verifyProof` from the js-sdk
 
 ```js copy
-const { Reclaim } = require('@reclaimprotocol/js-sdk');
+const { verifyProof } = require('@reclaimprotocol/js-sdk');
 ```
-
-Use Reclaim.verifySignedProof(proof)
 
 You must send the proofObject and not the verifiedResponse to the verifier for them to be able to verify.
 
 ```js
-const isProofVerified = await Reclaim.verifySignedProof(proof);
+const { isVerified } = await verifyProof(proof, { dangerouslyDisableContentValidation: true });
 ```
 
 #### Transform proof for onchain
 
 Transforms proof data into a format suitable for on-chain transactions, you need to use it before sending the proof to the blockchain.
 
-Use Reclaim.transformForOnchain(proof) from the js-sdk to transform the proof for onchain.
+Use `transformForOnchain(proof)` from the js-sdk to transform the proof for onchain.
 
 ```js
-const onchainProof = Reclaim.transformForOnchain(proof);
+const { transformForOnchain } = require('@reclaimprotocol/js-sdk');
+const { claimInfo, signedClaim } = transformForOnchain(proof);
+// Use claimInfo and signedClaim with smart contract verification
 ```
 
 ## Use TEE mode (Beta)
