@@ -5,6 +5,8 @@
 * Added Response Redaction documentation for the DevTool, explaining the three redaction modes: Null, OPRF, and OPRF-RAW
 * Added OPRF-RAW documentation clarifying that this mode runs server-side OPRF computation on the attestor with plaintext reveal
 * Added rate limits documentation for Automation Testing (10 tests/hour, 20 tests/day for run test; 20 operations/day for schedule operations)
+* Added OPRF-MPC redaction mode documentation for multi-party computation based privacy-preserving hashing
+* Added Injected Requests documentation for the DevTool, explaining how to configure SDK-initiated HTTP requests for advanced provider verification workflows
 
 ## 0.2.0
 

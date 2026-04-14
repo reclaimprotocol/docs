@@ -1,0 +1,78 @@
+---
+title: Injected Requests
+description: Configure SDK-initiated requests for advanced provider verification workflows
+---
+
+Injected requests let the SDK make HTTP requests on behalf of the user during verification. Unlike intercepted requests that capture traffic from the user's browser, injected requests are initiated directly by the SDK to fetch additional data needed for proof generation.
+
+## When to Use Injected Requests
+
+Use injected requests when your verification needs data that the user wouldn't naturally access during their session:
+
+- Fetching user profile data from an API endpoint
+- Retrieving account details not shown on the login page
+- Requesting data from multiple endpoints to build a complete proof
+
+## Configuring Injected Requests
+
+To add injected requests to a provider:
+
+1. Open your provider in the [DevTool](https://dev.reclaimprotocol.org)
+2. Navigate to the provider configuration
+3. Find the **Allowed Injected Request Data** section
+4. Click **Add** to create a new injected request specification
+
+### Request Settings
+
+Each injected request specification includes:
+
+| Field | Description |
+|-------|-------------|
+| **URL** | The endpoint URL. Supports template variables using `{{variable}}` syntax. |
+| **URL Type** | `CONSTANT` for exact URLs, `TEMPLATE` for pattern matching with variables. |
+| **Method** | HTTP method: GET, POST, PUT, PATCH, or DELETE. |
+| **Response Matches** | Rules to validate the response contains expected data. |
+| **Response Redactions** | Rules to hide sensitive parts of the response. |
+
+### Template Variables
+
+Use template variables in URLs to construct dynamic requests:
+
+```
+https://api.example.com/users/{{userId}}/profile
+```
+
+Variables are replaced with actual values at verification time. Add a `_GRD` suffix to variable names for greedy matching instead of lazy matching.
+
+### Response Matching
+
+At least one response match rule is required. Each rule validates that the response contains expected data:
+
+- **Contains**: Check if the response includes a specific string
+- **Regex**: Match against a regular expression pattern
+
+Set a match as optional if the data might not always be present.
+
+### Response Redaction
+
+Configure redaction rules to hide sensitive data before sharing with the attestor. See [Response Redaction](/devtool/response-redaction) for available redaction modes.
+
+## Validation Warnings
+
+The DevTool shows warnings when your injected request configuration may be incomplete:
+
+- Missing response match rules
+- Empty URL or invalid URL pattern
+- Incomplete template variable configuration
+
+Resolve these warnings before saving to ensure your provider works correctly.
+
+## Injected vs Intercepted Requests
+
+| Feature | Intercepted Requests | Injected Requests |
+|---------|---------------------|-------------------|
+| Source | Captured from browser activity | Initiated by SDK |
+| Timing | When user navigates naturally | On-demand during verification |
+| Use case | Verify pages the user visits | Fetch additional data programmatically |
+
+Most providers use intercepted requests. Add injected requests when you need data the user wouldn't access through normal browsing.

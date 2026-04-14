@@ -27,6 +27,15 @@ Uses Oblivious Pseudo-Random Function (OPRF) to create a cryptographic commitmen
 - Future verification of the redacted content may be required
 - Privacy-preserving verification of sensitive data
 
+### OPRF-MPC
+
+Uses multi-party computation (MPC) to distribute the OPRF operation across multiple attestors. No single party sees the full plaintext or can compute the hash alone, providing stronger privacy than standard OPRF.
+
+**When to use:**
+- Maximum privacy for sensitive data
+- Cryptographic verification without any single party seeing the value
+- Compliance requirements mandate distributed trust
+
 ### OPRF-RAW
 
 Runs OPRF computation on the attestor instead of the client. Unlike standard OPRF, the attestor sees the plaintext value but still generates a cryptographic nullifier for verification.

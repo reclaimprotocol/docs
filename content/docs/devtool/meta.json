@@ -2,6 +2,7 @@
   "pages": [
     "index",
     "response-redaction",
+    "injected-requests",
     "automation-testing"
   ]
 }
