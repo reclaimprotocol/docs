@@ -1,5 +1,11 @@
 ## 0.3.0
 
+* Updated Provider Schema: removed `requestHash` field from `RequestData` type (now computed by SDK)
+* Added `allowedInjectedRequestData` field to `HttpProvider` model for SDK-initiated request specifications
+* Added `InjectedRequestSpec` type for configuring injected requests with URL, method, response matching, and redaction
+* Updated `RequestMethodType` enum to include PUT, PATCH, and DELETE methods
+* Added `isOptional` field to `ResponseMatch` type for optional response validation rules
+* Added `RedactionHashType` enum documenting available hash options (oprf, oprf_mpc, oprf_raw)
 * Added DevTool documentation section with overview of provider management features
 * Added Automation Testing documentation for the DevTool, covering one-time tests, scheduled tests (daily and weekly), test results, and test reports
 * Added Response Redaction documentation for the DevTool, explaining the three redaction modes: Null, OPRF, and OPRF-RAW
