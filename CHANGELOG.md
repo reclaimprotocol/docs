@@ -1,5 +1,6 @@
 ## 0.2.0
 
+* **Verification Portal**: Added optional client authentication support for session creation, enabling trusted callers to specify which billing credentials should be charged for sessions. This allows multi-tenant credential management with automatic fallback to default credentials when authentication is unavailable or invalid.
 * Added Analytics Dashboard documentation for the Developer Portal, including time range filters and OS-based device breakdown
 * Added Device-Based Analytics documentation explaining device metrics (Total Devices, Devices with Proofs, Device Conversion Rate)
 * Added Live Feed documentation with session status indicators and provider information
