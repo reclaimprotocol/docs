@@ -122,43 +122,42 @@ You can also use responseMatches and responseRedactions to match and redact the 
 
 ## Verify the proofs and transform proof for onchain 
 
-### Verify the proofs
-
 Install @reclaimprotocol/js-sdk
 
 ```bash copy
 npm install @reclaimprotocol/js-sdk
 ```
 
-Import the Reclaim class from the js-sdk
+Import verifyProof and transformForOnchain from the js-sdk
+
 
 ```js copy
-const { Reclaim } = require('@reclaimprotocol/js-sdk');
+const { verifyProof, transformForOnchain } = require('@reclaimprotocol/js-sdk');
 ```
 
-Use Reclaim.verifySignedProof(proof)
+#### Verify the proofs
 
 You must send the proofObject and not the verifiedResponse to the verifier for them to be able to verify.
 
 ```js
-const isProofVerified = await Reclaim.verifySignedProof(proof);
+const { isVerified } = await verifyProof(proof, { dangerouslyDisableContentValidation: true });
 ```
 
 #### Transform proof for onchain
 
 Transforms proof data into a format suitable for on-chain transactions, you need to use it before sending the proof to the blockchain.
-
-Use Reclaim.transformForOnchain(proof) from the js-sdk to transform the proof for onchain.
+Use `transformForOnchain(proof)` from the js-sdk to transform the proof for onchain.
 
 ```js
-const onchainProof = Reclaim.transformForOnchain(proof);
+const { claimInfo, signedClaim } = transformForOnchain(proof);
+// Use claimInfo and signedClaim with smart contract verification
 ```
 
 ## Use TEE mode (Beta)
 You can use our new architecture for better security and performance. You can learn more about this on this [podcast](https://www.youtube.com/watch?v=hV7AospM3LE) or on this [whitepaper](https://drive.google.com/file/d/1Tok4J6mv7PwRCbwxVNhv4alS82sQJI4E/view)
 
 Add the `useTee` flag to your `publicOptions`
-```
+
 ```js copy
  const publicOptions = {
     method: 'GET', // or POST
