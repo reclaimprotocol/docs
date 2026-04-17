@@ -89,9 +89,12 @@ app.post('/request-proof', async (req, res) => {
 });
 
 app.post('/receive-proofs', async (req, res) => {
-  const { claimData } = req.body;
-  const isValid = await ReclaimProofRequest.verifyProof(claimData);
-  // Process verified data
+  const proofs = req.body;
+  const { isVerified, data, error } = await verifyProof(proofs, { providerId: PROVIDER_ID });
+  if (isVerified) {
+    const { context, extractedParameters } = data[0];
+    // Process verified data
+  }
 });
 ```
 
@@ -245,9 +248,8 @@ const proof = await client.zkFetch(url, publicOpts, {
   }]
 });
 
-// Verify and transform for blockchain
-const isValid = await Reclaim.verifySignedProof(proof);
-const onchainProof = Reclaim.transformForOnchain(proof);
+// Verify proof
+const { isVerified } = await verifyProof(proof, { dangerouslyDisableContentValidation: true });
 ```
 
 ## 🎨 OAuth Integration
