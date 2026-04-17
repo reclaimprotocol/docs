@@ -1,5 +1,6 @@
 ## 0.2.0
 
+* **AI Agent**: Added Slack webhook notifications for error alerts. Set the `slack_webhook_url` environment variable to receive real-time notifications when errors occur during verification sessions. Covers unhandled exceptions, agent errors, and SSE serialization failures. Best-effort delivery with 5-second timeout.
 * Added Analytics Dashboard documentation for the Developer Portal, including time range filters and OS-based device breakdown
 * Added Device-Based Analytics documentation explaining device metrics (Total Devices, Devices with Proofs, Device Conversion Rate)
 * Added Live Feed documentation with session status indicators and provider information
