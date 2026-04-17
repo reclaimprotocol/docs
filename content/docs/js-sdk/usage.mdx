@@ -268,35 +268,24 @@ The easiest way is to use `getProviderVersion()` which returns the provider ID a
 
 ```javascript
 const proofs = await request.json();
-<<<<<<< HEAD
-const { isVerified, data, publicData } = await verifyProof(proofs, { providerId: PROVIDER_ID });
-||||||| 0b8078a
-const { isVerified, data } = await verifyProof(proofs, { providerId: PROVIDER_ID });
-=======
 const providerVersion = reclaimProofRequest.getProviderVersion();
-const { isVerified, data, error } = await verifyProof(proofs, providerVersion);
+const { isVerified, data, publicData, error } = await verifyProof(proofs, providerVersion);
 if (isVerified) {
   console.log("Proof is valid");
 } else {
   console.log("Proof is invalid, reason:", error);
 }
->>>>>>> main
 ```
-<<<<<<< HEAD
 
 The verification result includes:
 - **`isVerified`**: Boolean indicating whether the proof(s) passed verification.
 - **`data`**: Array of trusted data objects containing context and extracted parameters.
 - **`publicData`**: Array of additional data returned by the provider, attached to the proof but not verified.
-
-You can get the provider version
-||||||| 0b8078a
-You can get the provider version
-=======
+- **`error`**: Error message if verification failed, undefined otherwise.
 
 Or, by manually providing the provider details:
 ```javascript
-const { isVerified, data } = await verifyProof(proofs, {
+const { isVerified, data, publicData } = await verifyProof(proofs, {
   providerId: PROVIDER_ID,
   providerVersion: "1.0.0", // The exact provider version used in the session
   allowedTags: ["ai"] // Optionally allow patches from ai
@@ -305,11 +294,10 @@ const { isVerified, data } = await verifyProof(proofs, {
 
 Or, with a known hash:
 ```javascript
-const { isVerified, data, error } = await verifyProof(proofs, { hashes: ['0xAbC...'] });
+const { isVerified, data, publicData, error } = await verifyProof(proofs, { hashes: ['0xAbC...'] });
 ```
 
 You can get the provider version:
->>>>>>> main
 - [ Recommended ] Storing the provider version when [initiating the verification](#store-the-provider-version).
 - You can also hardcode the expected provider version by picking the latest version from the [developer tool](https://dev.reclaimprotocol.org).
 
