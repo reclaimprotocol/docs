@@ -51,11 +51,26 @@ Both context address and context message are tamper resistant. Even if the user 
 
 
 ### Open verification
+
+
 ``` javascript
   const proofRequestUrl = await reclaimProofRequest.getRequestUrl();
 
   // Redirect user to this URL or, open URL in an iFrame
 ```
+
+<Callout type="info">
+**Verification Modes**
+
+`getRequestUrl()` supports a `verificationMode` option:
+
+- **`'portal'` (default)** — Opens the portal for remote browser verification.
+- **`'app'`** — Verifier app flow.
+
+```javascript
+const appUrl = await reclaimProofRequest.getRequestUrl({ verificationMode: 'app' });
+```
+</Callout>
 
 ### Store the Provider Version
 ```javascript
@@ -141,8 +156,8 @@ Both context address and context message are tamper resistant. Even if the user 
     })
     ```
 
-    ### TEE validation
-    The remote browser runs in a TEE for privacy reasons. If you want validation that this session was indeed run in a TEE, you can request TEE validation.
+    ### TEE attestation
+    The remote browser runs in a TEE for privacy reasons. If you want attestation that this session was indeed run in a TEE, you can request TEE attestation.
     You can do so by : 
     ```javascript
     const proofRequestOptions = { acceptTeeAttestation: true };
@@ -249,11 +264,34 @@ Both context address and context message are tamper resistant. Even if the user 
 import { verifyProof } from '@reclaimprotocol/js-sdk';
 ```
 
+The easiest way is to use `getProviderVersion()` which returns the provider ID and exact version used in the session — pass it directly as the config:
+
 ```javascript
 const proofs = await request.json();
-const { isVerified, data } = await verifyProof(proofs, { providerId: PROVIDER_ID });
+const providerVersion = reclaimProofRequest.getProviderVersion();
+const { isVerified, data, error } = await verifyProof(proofs, providerVersion);
+if (isVerified) {
+  console.log("Proof is valid");
+} else {
+  console.log("Proof is invalid, reason:", error);
+}
 ```
-You can get the provider version
+
+Or, by manually providing the provider details:
+```javascript
+const { isVerified, data } = await verifyProof(proofs, {
+  providerId: PROVIDER_ID,
+  providerVersion: "1.0.0", // The exact provider version used in the session
+  allowedTags: ["ai"] // Optionally allow patches from ai
+});
+```
+
+Or, with a known hash:
+```javascript
+const { isVerified, data, error } = await verifyProof(proofs, { hashes: ['0xAbC...'] });
+```
+
+You can get the provider version:
 - [ Recommended ] Storing the provider version when [initiating the verification](#store-the-provider-version).
 - You can also hardcode the expected provider version by picking the latest version from the [developer tool](https://dev.reclaimprotocol.org).
 
@@ -270,26 +308,85 @@ const { context, extractedParameters } = data[0];
   <Accordions>
   <Accordion title="Increased Security">
   ### Fix provider hashes
-  Verifiying proofs by Provider IDs require hitting Reclaim Protocol's backend to fetch the provider hash. You could also hardcode the provider hash to avoid a roundtrip.
+  Verifying proofs by Provider IDs requires hitting Reclaim Protocol's backend to fetch the provider hash. You could also hardcode the provider hash to avoid a roundtrip.
   ```javascript
-  const result = await verifyProof(proofs, ["0xabc..."])
+  const result = await verifyProof(proofs, { hashes: ['0xabc...'] });
   ```
-  - If proofs is an array, this will make sure that each proof corresponds to atleast one of the given provider hashes.
+  - If proofs is an array, this will make sure that each proof corresponds to at least one of the given provider hashes.
 
 
   ### Restrict Reusability of Provider hashes
-  You could also pass an array of objects for allowed provider hashes
+  You could also pass an array of objects for allowed provider hashes:
   ```javascript
-    const result = await verifyProof(proofs, [{ value: '0xF22..', multiple: false, required: true }]);
+  const result = await verifyProof(proofs, {
+    hashes: [{ value: '0xF22..', multiple: false, required: true }]
+  });
   ```
   - `multiple` : can the hash match multiple proofs in the `proofs` array? Defaults to `true`.
-  - `required` : does atleast one proof in `proofs` need to match this provider hash? Defaults to `false`.
+  - `required` : does at least one proof in `proofs` need to match this provider hash? Defaults to `true`.
 
-  ### Verify the TEE validation
-  You can verify the TEE validation chain in the proof by : 
+  ### Multiple Proofs and Optional Matches
+  When building advanced use-cases, you might process multiple distinct proofs at once or deal with providers that yield a few valid hash possibilities (e.g., due to optional data fields).
+
+  ```javascript
+  const result = await verifyProof([proof1, proof2, sameAsProof2], {
+    hashes: [
+      // A string hash is equivalent to { value: '...', required: true, multiple: true }
+      '0xStrictHash123...',
+      {
+         // An array 'value' means that 1 proof can have any 1 matching hash from this list
+         value: ['0xOptHash1...', '0xOptHashA...'],
+         multiple: true
+      },
+      {
+         value: '0xE33...',
+         // 'required: false' means there can be 0 proofs matching this hash
+         required: false
+      }
+    ]
+  });
   ```
-  verifyProof(proofs, { ... }, true);
-  //third parameter set to true 
+
+  ### Verify TEE Attestation
+  You can verify the TEE attestation chain in the proof by providing a `teeAttestation` config. The application ID is derived automatically from `appSecret`. If TEE data is missing or invalid, verification will fail.
+
+  ```javascript
+  import { verifyProof, TeeVerificationError } from "@reclaimprotocol/js-sdk";
+
+  const { isVerified, isTeeAttestationVerified, data, error } = await verifyProof(proofs, {
+    hashes: ['0xAbC...'],
+    teeAttestation: {
+      appSecret: APP_SECRET,
+    },
+  });
+
+  if (isVerified) {
+    console.log("Proof verified with hardware attestation");
+    console.log("TEE verified:", isTeeAttestationVerified);
+  } else if (error instanceof TeeVerificationError) {
+    console.log("TEE verification failed:", error.message);
+  } else {
+    console.log("Proof verification failed:", error);
+  }
+  ```
+
+  You can also verify TEE attestation standalone without running full proof verification.
+  
+  > **Note:** TEE attestation verification is only supported in server-side environments (Node.js). It will throw an error in browser environments due to cross-origin restrictions when fetching Google's OIDC metadata.
+
+  ```javascript
+  import { verifyTeeAttestation } from "@reclaimprotocol/js-sdk";
+
+  const { isVerified, error } = await verifyTeeAttestation(proof, APP_SECRET);
+  // error is a string message if verification failed, undefined otherwise
+  ```
+
+  ### Disabled Content Validation (Not Recommended)
+  If you only want to verify the attestor signature but wish to bypass the parameter/content match:
+  ```javascript
+  const { isVerified } = await verifyProof(proof, {
+    dangerouslyDisableContentValidation: true
+  });
   ```
 
   </Accordion>
