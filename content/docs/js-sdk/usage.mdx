@@ -259,6 +259,37 @@ const appUrl = await reclaimProofRequest.getRequestUrl({ verificationMode: 'app'
 
 ## Part 2 : Process Verification endpoint
 > Be sure to expose this endpoint over the public internet. If testing locally, use [Ngrok](https://ngrok.dev)
+
+### How verification works
+
+When you call `verifyProof`, the SDK runs two checks to make sure the proof is authentic and matches your expected configuration.
+
+#### Signature verification
+
+First, the SDK verifies that the proof was signed by a valid Reclaim attestor:
+
+1. Fetches the current list of valid attestor addresses from Reclaim's servers
+2. Recovers the Ethereum addresses that signed the proof using ECDSA signature recovery
+3. Confirms at least one signer matches a known valid attestor
+
+This ensures the proof came from a legitimate Reclaim session and wasn't fabricated.
+
+#### Content validation
+
+Next, the SDK checks that the proof's content matches your provider configuration:
+
+1. Extracts the HTTP provider parameters from the proof (URL, method, body, response matches, and redactions)
+2. Computes a keccak256 hash from these parameters using canonical JSON serialization
+3. Compares this hash against the expected hashes from your provider configuration
+
+This prevents proof reuse attacks—where someone submits a valid proof from a different provider or configuration.
+
+#### Under the hood
+
+The verification uses ECDSA signature recovery via ethers.js `verifyMessage()` and keccak256 hashing with canonical JSON serialization to ensure consistent results across platforms.
+
+Both checks must pass for `verifyProof` to return `true`. If either fails, it returns `false` (or throws a `TeeVerificationError` if using TEE attestation verification).
+
 ### Verify Proofs
 ```javascript
 import { verifyProof } from '@reclaimprotocol/js-sdk';
