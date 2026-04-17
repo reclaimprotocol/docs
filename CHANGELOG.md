@@ -1,5 +1,6 @@
 ## 0.2.0
 
+* Added `USER_LOGGED_IN` session status to analytics event documentation - this status indicates when the user has authenticated with the external provider during verification, occurring after `USER_STARTED_VERIFICATION` and before `PROOF_GENERATION_STARTED`
 * Added Analytics Dashboard documentation for the Developer Portal, including time range filters and OS-based device breakdown
 * Added Device-Based Analytics documentation explaining device metrics (Total Devices, Devices with Proofs, Device Conversion Rate)
 * Added Live Feed documentation with session status indicators and provider information

@@ -44,6 +44,7 @@ export type LogType =
   | 'LOGIN_REQUIRED_DETECTED'
   | 'USER_STARTED_VERIFICATION'
   | 'USER_INIT_VERIFICATION'
+  | 'USER_LOGGED_IN'
   | 'PROOF_GENERATION_STARTED'
   | 'PROOF_GENERATION_RETRY'
   | 'PROOF_GENERATION_SUCCESS'
@@ -172,6 +173,7 @@ export interface AnalyticsLogEntry {
 | `LOGIN_REQUIRED_DETECTED` | INFO | Detected that login is required (this can be inaccurate). |
 | `USER_STARTED_VERIFICATION` | INFO | User has started the verification process. |
 | `USER_INIT_VERIFICATION` | INFO | User initialized the verification. |
+| `USER_LOGGED_IN` | INFO | User has logged into the external provider during verification. |
 | `PROOF_GENERATION_STARTED` | INFO | First proof generation has started. |
 | `PROOF_GENERATION_RETRY` | INFO | Retrying proof generation. |
 | `PROOF_GENERATION_SUCCESS` | INFO | Proof generated successfully. |
