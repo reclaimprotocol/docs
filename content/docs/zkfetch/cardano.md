@@ -345,8 +345,9 @@ class CardanoIntegrator {
 
 class ProofVerifier {
   static async verifyProof(proof) {
-    const { Reclaim } = require('@reclaimprotocol/js-sdk');
-    return await Reclaim.verifySignedProof(proof);
+    const { verifyProof } = require('@reclaimprotocol/js-sdk');
+    const { isVerified } = await verifyProof(proof, { dangerouslyDisableContentValidation: true });
+    return isVerified;
   }
 
   static async verifyOnChain(txHash, expectedProofId) {
