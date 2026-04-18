@@ -104,6 +104,28 @@ A **data provider** in Reclaim's context is a structured set of instructions tha
 
 _tldr; Reclaim Protocol prioritises user privacy and data security. By employing cryptographic proofs, secure communication channels, and trusted intermediaries, Reclaim Protocol empowers users to reclaim their data with confidence. This FAQ aims to address shared security concerns. If you have any further questions, please don't hesitate to contact Reclaim Protocol._
 
+## Trusted Execution Environment (TEE)
+
+Reclaim Protocol provides privacy and integrity guarantees at the hardware level using [AMD's Trusted Execution Environment](https://docs.amd.com/v/u/en-US/memory-encryption-white-paper) via [Google Cloud Confidential Computing](https://docs.cloud.google.com/confidential-computing/confidential-vm/docs/confidential-vm-overview). Critical verification components run inside TEEs — isolated hardware enclaves that protect code and data even from the underlying operating system and cloud provider.
+
+### TEE Components
+
+Reclaim Protocol uses three TEE components:
+
+1. **TEE_K and TEE_A** — These ensure integrity and privacy during verification. They guarantee that verification data can't be tampered with and that sensitive information stays protected throughout the flow.
+
+2. **TEE_REMOTE_BROWSER** — This ensures that the remote browser used for verification doesn't collect or leak any user data. It's only used in the [JS SDK](/js-sdk/usage) for remote browser verification. The [InApp SDKs](/inapp-sdks/introduction) use the device's local in-app browser, so this component doesn't apply to mobile integrations.
+
+### Hardware Attestation
+
+Each verification session can include a hardware attestation that independently proves the verification code ran inside a genuine TEE. This attestation:
+
+- Confirms the code executed matches what's published in Reclaim Protocol's [open source repositories](https://github.com/reclaimprotocol)
+- Can be verified using the [TEE attestation verification](/js-sdk/usage#verify-tee-attestation) in the JS SDK
+- Provides cryptographic proof that neither Reclaim Protocol nor any infrastructure provider could have tampered with the verification
+
+To request TEE attestation in your verification flow, see the [TEE attestation section](/js-sdk/usage#tee-attestation) in the JS SDK documentation.
+
 ### Security Framework
 
 Our security infrastructure ensures:
