@@ -182,6 +182,23 @@ const appUrl = await reclaimProofRequest.getRequestUrl({ verificationMode: 'app'
     // Required: set a callback URL when using regional portals
     proofRequest.setAppCallbackUrl('https://yourbackend.com/reclaim-callback');
     ```
+
+    ### AI-Assisted Verification
+
+    Enable AI provider support if your application generates proofs through AI-assisted browser automation rather than direct user interaction.
+
+    ```javascript
+    const proofRequestOptions = { acceptAiProviders: true };
+    const reclaimProofRequest = await ReclaimProofRequest.init(
+        APP_ID,
+        APP_SECRET,
+        PROVIDER_ID,
+        proofRequestOptions
+    );
+    ```
+
+    When `acceptAiProviders` is `true`, the proof request accepts proofs from AI-assisted verification flows. This option is disabled by default.
+
     ### Decentralized Proof Generation (Coming Soon)
     ```javascript
     proofRequest.setClaimCreationType(ClaimCreationType.ON_ME_CHAIN);
