@@ -69,15 +69,46 @@ Building with MCP servers or AI agents? You can create application credentials p
 
 ## How It Works
 
+There are two ways to get started:
+
+### Option A: Generate Locally (Zero-Friction)
+
+1. **Generate credentials locally** - Create an Ethereum wallet; the address is your `appId`, the private key is your `appSecret`
+2. **Start using the SDK** - Your sandbox app is auto-provisioned on first API call
+3. **Link to your account** - When you're ready for production, link the sandbox app to your Reclaim account
+
+### Option B: Use the API
+
 1. **Create sandbox credentials** - Call the API to generate a new `appId` and `appSecret`
 2. **Start building** - Use your credentials right away with a 100-session limit
-3. **Link to your account** - When you're ready for production, link the sandbox app to your Reclaim account to remove limits
+3. **Link to your account** - When you're ready for production, link the sandbox app to your Reclaim account
 
 <Callout type="info">
     Sandbox apps are perfect for development, testing, and AI-assisted integrations. Link them to your account when you're ready for production.
 </Callout>
 
-## Create Credentials
+## Generate Credentials Locally
+
+The fastest way to get started—generate an Ethereum keypair and use it directly with the SDK:
+
+```javascript
+import { ethers } from 'ethers';
+
+// Generate a new wallet
+const wallet = ethers.Wallet.createRandom();
+
+// Your credentials
+const appId = wallet.address;      // e.g., "0x1234...abcd"
+const appSecret = wallet.privateKey; // e.g., "0x5678...efgh"
+```
+
+When you make your first SDK call, the backend automatically provisions a sandbox application for you. No additional setup required.
+
+<Callout type="info">
+    This zero-friction approach is ideal for MCP servers, AI agents, and rapid prototyping. You can start verifying proofs immediately after generating credentials.
+</Callout>
+
+## Create Credentials via API
 
 Generate new application credentials without authentication.
 
@@ -106,11 +137,14 @@ The returned credentials work immediately with Reclaim SDKs. Your app starts in 
 
 ## Sandbox Mode
 
-Apps created via the API start in sandbox mode:
+Apps created programmatically (either locally generated or via the API) start in sandbox mode:
 
 - **100 session limit** - Sufficient for development and testing
 - **No account required** - Start building without signing up
 - **Full SDK compatibility** - Works with all Reclaim SDKs
+- **Auto-provisioned** - Created automatically on first SDK use (for locally generated credentials)
+
+### Check Sandbox Status
 
 To check your app's sandbox status and session usage:
 
@@ -131,6 +165,20 @@ curl https://api.reclaimprotocol.org/api/applications/status/{appId}
   }
 }
 ```
+
+### Sandbox Limit Exhausted
+
+When your sandbox app reaches the 100-session limit, SDK calls return a `403` error:
+
+```json
+{
+  "message": "Sandbox session limit (100) exhausted. Link this app to a Reclaim account to continue.",
+  "isSuccess": false,
+  "updateRequired": true
+}
+```
+
+The `updateRequired: true` flag signals that your app needs to be linked to a Reclaim account. Handle this by prompting users to upgrade or by linking the app programmatically.
 
 ## Link to Your Account
 
@@ -203,6 +251,7 @@ All API endpoints return structured error responses following [RFC 9457](https:/
 |------------|-------------|-------------|
 | `APP_NOT_FOUND` | 404 | The specified appId doesn't exist |
 | `APP_ALREADY_LINKED` | 400 | The app is already linked to an account |
+| `SANDBOX_LIMIT_EXHAUSTED` | 403 | The sandbox session limit has been reached |
 | `LINK_NONCE_INVALID` | 401 | The nonce has expired or was already used |
 | `LINK_SIGNATURE_MISMATCH` | 401 | The signature doesn't match the appId |
 | `LINK_SIGNATURE_MALFORMED` | 401 | The signature is not a valid EIP-191 signature |
