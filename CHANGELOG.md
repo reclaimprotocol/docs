@@ -1,3 +1,7 @@
+## 0.3.0
+
+* Added login detection tool for the AI-Powered Provider Builder. The AI agent can now automatically generate client-side JavaScript that monitors for user login completion using URL patterns, CSS selectors, or visible text indicators. When a login is detected, the script calls `window.Reclaim.reportUserLoggedIn()` to notify the host application.
+
 ## 0.2.0
 
 * Added Analytics Dashboard documentation for the Developer Portal, including time range filters and OS-based device breakdown
