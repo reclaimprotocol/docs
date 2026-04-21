@@ -60,3 +60,149 @@ Below is a comprehensive guide on how to use the Reclaim Protocol Dev Tool
   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
   allowFullScreen
 />
+
+---
+
+# Programmatic Credentials (MCP / AI Agents)
+
+Building with MCP servers or AI agents? You can create application credentials programmatically—no need to log into the dev portal.
+
+## How It Works
+
+1. **Create sandbox credentials** - Call the API to generate a new `appId` and `appSecret`
+2. **Start building** - Use your credentials right away with a 100-session limit
+3. **Link to your account** - When you're ready for production, link the sandbox app to your Reclaim account to remove limits
+
+<Callout type="info">
+    Sandbox apps are perfect for development, testing, and AI-assisted integrations. Link them to your account when you're ready for production.
+</Callout>
+
+## Create Credentials
+
+Generate new application credentials without authentication.
+
+```bash
+curl -X POST https://api.reclaimprotocol.org/api/applications/issue-credentials \
+  -H "Content-Type: application/json"
+```
+
+**Response:**
+```json
+{
+  "isSuccess": true,
+  "data": {
+    "appId": "0x1234...abcd",
+    "appSecret": "0x5678...efgh"
+  },
+  "requestId": "uuid"
+}
+```
+
+<Callout type="warning">
+    This endpoint is rate-limited to 10 requests per hour per IP address. If you exceed the limit, you'll receive a 429 response with a `Retry-After` header.
+</Callout>
+
+The returned credentials work immediately with Reclaim SDKs. Your app starts in **sandbox mode** with a 100-session limit.
+
+## Sandbox Mode
+
+Apps created via the API start in sandbox mode:
+
+- **100 session limit** - Sufficient for development and testing
+- **No account required** - Start building without signing up
+- **Full SDK compatibility** - Works with all Reclaim SDKs
+
+To check your app's sandbox status and session usage:
+
+```bash
+curl https://api.reclaimprotocol.org/api/applications/status/{appId}
+```
+
+**Response:**
+```json
+{
+  "isSuccess": true,
+  "data": {
+    "name": "Sandbox <0x1234...>",
+    "sandboxMode": true,
+    "sandboxLimit": 100,
+    "sessionsUsed": 5,
+    "isLinked": false
+  }
+}
+```
+
+## Link to Your Account
+
+When you're ready for production, link your sandbox app to your Reclaim account. This removes the session limit and applies your subscription's quotas instead.
+
+### Step 1: Get a Nonce
+
+First, request a one-time nonce (requires authentication via your Reclaim account):
+
+```bash
+curl https://api.reclaimprotocol.org/api/applications/link/nonce \
+  -H "Authorization: Bearer YOUR_AUTH_TOKEN"
+```
+
+**Response:**
+```json
+{
+  "isSuccess": true,
+  "data": {
+    "nonce": "abc123...",
+    "expiresInSeconds": 300
+  }
+}
+```
+
+### Step 2: Sign and Link
+
+Create an EIP-191 signature to prove ownership of the `appSecret`, then submit the link request:
+
+```javascript
+import { ethers } from 'ethers';
+
+// Build the message
+const message = `Link ${appId} to account ${userId} | nonce: ${nonce}`;
+
+// Sign with your appSecret (the private key)
+const wallet = new ethers.Wallet(appSecret);
+const signature = await wallet.signMessage(message);
+
+// Submit the link request
+const response = await fetch('https://api.reclaimprotocol.org/api/applications/link', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${authToken}`
+  },
+  body: JSON.stringify({ appId, signature, nonce })
+});
+```
+
+After successful linking, your app's `sandboxMode` becomes `false` and `isLinked` becomes `true`.
+
+## Error Handling
+
+All API endpoints return structured error responses following [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457):
+
+```json
+{
+  "error_code": "APP_NOT_FOUND",
+  "title": "Application not found",
+  "detail": "No application exists with the specified appId",
+  "suggestion": "Verify the appId and try again",
+  "type": "https://docs.reclaimprotocol.org/errors/app-not-found"
+}
+```
+
+### Common Error Codes
+
+| Error Code | HTTP Status | Description |
+|------------|-------------|-------------|
+| `APP_NOT_FOUND` | 404 | The specified appId doesn't exist |
+| `APP_ALREADY_LINKED` | 400 | The app is already linked to an account |
+| `LINK_NONCE_INVALID` | 401 | The nonce has expired or was already used |
+| `LINK_SIGNATURE_MISMATCH` | 401 | The signature doesn't match the appId |
+| `LINK_SIGNATURE_MALFORMED` | 401 | The signature is not a valid EIP-191 signature |
