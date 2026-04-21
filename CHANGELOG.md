@@ -1,3 +1,7 @@
+## Unreleased
+
+* Added MCP Server documentation — integrate Reclaim Protocol using AI coding agents (Claude Code, Cursor, VS Code Copilot) with the Model Context Protocol server
+
 ## 0.2.0
 
 * Added Analytics Dashboard documentation for the Developer Portal, including time range filters and OS-based device breakdown

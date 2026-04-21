@@ -3,6 +3,7 @@
   "pages": [
     "index",
     "api-key",
+    "mcp-server",
     "js-sdk",
     "react-native",
     "flutter",

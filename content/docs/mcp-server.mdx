@@ -1,0 +1,195 @@
+---
+title: MCP Server
+description: Integrate Reclaim Protocol using AI coding agents like Claude Code, Cursor, and VS Code Copilot with the Model Context Protocol server
+---
+
+The Reclaim MCP Server lets AI coding agents integrate Reclaim Protocol without visiting a browser or dashboard. Issue credentials, search providers, scaffold code, and verify your setup—all through natural language conversations with your AI assistant.
+
+## Supported AI Tools
+
+The MCP server works with any Model Context Protocol-compatible client:
+
+- **Claude Code** — Anthropic's official CLI for Claude
+- **Claude Desktop** — Desktop application for Claude
+- **Cursor** — AI-powered code editor
+- **VS Code + GitHub Copilot** — With MCP extension support
+- **Cline, Continue, OpenCode** — And other MCP-compatible tools
+
+## Installation
+
+### Claude Code
+
+```bash
+claude mcp add reclaim -- npx -y @reclaimprotocol/mcp-server
+```
+
+Verify the server is connected:
+
+```bash
+claude mcp list
+```
+
+You should see `reclaim` with status `✓ Connected`.
+
+### Claude Desktop
+
+Add to your `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "reclaim": {
+      "command": "npx",
+      "args": ["-y", "@reclaimprotocol/mcp-server"]
+    }
+  }
+}
+```
+
+Restart Claude Desktop to apply changes.
+
+### Cursor
+
+Add to `.cursor/mcp.json` in your project or globally:
+
+```json
+{
+  "mcpServers": {
+    "reclaim": {
+      "command": "npx",
+      "args": ["-y", "@reclaimprotocol/mcp-server"]
+    }
+  }
+}
+```
+
+### VS Code + GitHub Copilot
+
+Add to `.vscode/settings.json`:
+
+```json
+{
+  "mcp": {
+    "servers": {
+      "reclaim": {
+        "command": "npx",
+        "args": ["-y", "@reclaimprotocol/mcp-server"]
+      }
+    }
+  }
+}
+```
+
+## Available Tools
+
+| Tool | Purpose |
+|---|---|
+| `issueCredentials` | Generate a fresh `appId` and `appSecret` pair and write them to `.env`. Creates credentials locally using a secp256k1 keypair—no browser visit required. |
+| `importCredentials` | Import existing credentials from the dashboard or another project. Validates the secret against the claimed appId before writing. |
+| `searchProviders` | Search Reclaim providers by keyword. Returns proof volume and success rate signals when available. |
+| `getProviderDetails` | Get full provider configuration and recent example proofs for a chosen `providerId`. |
+| `checkAppStatus` | Check your app's sandbox/production status, sessions used, and quota remaining. |
+| `verifySetup` | Health check that confirms your `.env`, SDK installation, and backend connectivity. Returns actionable suggestions for any issues. |
+| `getIntegrationGuide` | Get framework-specific code scaffolds for Node.js, Next.js, React, or Python (FastAPI). |
+
+## Workflow
+
+Here's a typical integration flow with an AI agent:
+
+```
+1. Issue or import credentials
+   ├─ Have existing credentials? → importCredentials
+   └─ Need new credentials?     → issueCredentials
+
+2. searchProviders → Find and select a provider
+
+3. getIntegrationGuide → Get code scaffolds for your framework
+
+4. (Agent writes your integration code)
+
+5. verifySetup → Confirm everything is wired up correctly
+
+6. checkAppStatus → Monitor sandbox/production state
+```
+
+### Example Conversation
+
+Ask your AI assistant:
+
+> "I want to add Reclaim verification to my Next.js app to verify GitHub accounts."
+
+The agent will:
+1. Check for existing credentials or issue new ones
+2. Search for GitHub-related providers
+3. Fetch the appropriate integration guide
+4. Write the backend and frontend code
+5. Verify the setup is correct
+
+## Sandbox Mode
+
+Apps created through the MCP server start in sandbox mode:
+
+- **100 session limit** — Sufficient for development and testing
+- **No account required** — Start building without signing up
+- **Full SDK compatibility** — Works with all Reclaim SDKs
+
+When you're ready for production, link your app to your Reclaim account at [`dev.reclaimprotocol.org`](https://dev.reclaimprotocol.org).
+
+<Callout type="info">
+Credentials are generated locally using cryptographic keypairs. The app is registered on the backend lazily—only when you make your first SDK call.
+</Callout>
+
+## Configuration
+
+The server accepts these environment variables:
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `RECLAIM_API_BASE` | `https://devapi.reclaimprotocol.org` | Backend API base URL |
+| `RECLAIM_LOG_LEVEL` | `info` | Log verbosity: `debug`, `info`, `warn`, `error` |
+| `RECLAIM_TIMEOUT_MS` | `15000` | HTTP timeout for backend calls |
+
+Pass environment variables during installation:
+
+```bash
+# Claude Code
+claude mcp add reclaim -e RECLAIM_LOG_LEVEL=debug -- npx -y @reclaimprotocol/mcp-server
+```
+
+```json
+// Claude Desktop / Cursor / VS Code
+{
+  "mcpServers": {
+    "reclaim": {
+      "command": "npx",
+      "args": ["-y", "@reclaimprotocol/mcp-server"],
+      "env": {
+        "RECLAIM_LOG_LEVEL": "debug"
+      }
+    }
+  }
+}
+```
+
+## Troubleshooting
+
+| Issue | Solution |
+|---|---|
+| Agent says "the Reclaim tool list is empty" | Restart your MCP client. Claude Desktop requires a full app restart. |
+| `Could not reach the Reclaim backend` | Check your network connection. Verify `curl https://devapi.reclaimprotocol.org/api/healthcheck` works. |
+| `issueCredentials` won't create new credentials | Your `.env` already has credentials. Pass `force: true` to overwrite, or delete them manually. |
+| `SANDBOX_LIMIT_NEAR` or `QUOTA_EXHAUSTED` | Your sandbox app has used its 100-session limit. Link the app at `dev.reclaimprotocol.org` to continue. |
+
+## Security
+
+- **Secrets stay local.** Credentials are generated locally and written to `.env`. The secret never leaves your machine.
+- **Protected files.** `.env` is created with mode `0600` and automatically added to `.gitignore`.
+- **Signature-based ownership.** When linking your app to your account, you prove ownership by signing a challenge—the secret itself is never transmitted.
+- **Audited cryptography.** Local keypair generation uses `@noble/secp256k1` + `@noble/hashes`, the same primitives used by ethers and viem.
+
+## Related Resources
+
+- [Programmatic Credentials](/api-key#programmatic-credentials-mcp--ai-agents) — API-level documentation for credential generation
+- [JS SDK](/js-sdk/installation) — JavaScript SDK for web applications
+- [Python SDK](https://pypi.org/project/reclaimprotocol-python-sdk/) — Python SDK for backend integrations
+- [GitHub Repository](https://github.com/reclaimprotocol/reclaim-mcp-server) — Source code and issue tracking
