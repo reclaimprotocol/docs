@@ -47,6 +47,82 @@ The smart contract performs the following steps during proof verification:
 3. **Witness Verification**: Validates the signed witnesses against a Merkle root stored on-chain.
 4. **Duplicate Prevention**: Ensures no duplicate signatures exist among the witnesses.
 
+### In-Circuit ECDSA Signature Verification
+
+The Mina SDK supports verifying Reclaim attestor signatures directly inside the zero-knowledge circuit using ECDSA-secp256k1. The `verifySignedClaim()` method performs cryptographic signature verification within the circuit and derives the attestor's Ethereum address in-circuit to confirm the signature comes from a trusted attestor.
+
+Use `verifySignedClaim()` when you need cryptographic proof that an attestor signed a specific claim. The standard `verifyProof()` method validates proof structure and witnesses, while `verifySignedClaim()` adds in-circuit ECDSA verification.
+
+#### New Exports
+
+The SDK exports the following types for in-circuit ECDSA verification:
+
+```typescript
+import {
+  Reclaim,
+  Secp256k1,          // Foreign curve type for secp256k1
+  EcdsaSecp256k1,     // ECDSA signature type bound to secp256k1
+  AttestorDigest,     // 32-byte digest container for claim digests
+  ATTESTOR_DIGEST_BYTES  // Constant (32)
+} from 'mina-sdk';
+```
+
+#### Helper Methods
+
+**`Reclaim.parseEthereumSignature(hex)`**
+
+Parses a 65-byte Ethereum-style signature (r || s || v) into an (r, s) pair for use with `EcdsaSecp256k1`. The v recovery byte is dropped since the public key is provided directly as a witness.
+
+```typescript
+const { r, s } = Reclaim.parseEthereumSignature(reclaimSignatureHex);
+const signature = EcdsaSecp256k1.from({ r, s });
+```
+
+**`Reclaim.ethAddressToField(addressHex)`**
+
+Converts a 20-byte Ethereum address to a Mina Field for use as the expected attestor address public input.
+
+```typescript
+const expectedAddress = Reclaim.ethAddressToField(attestorEthereumAddress);
+```
+
+#### Usage Example
+
+```typescript
+import {
+  Reclaim,
+  Secp256k1,
+  EcdsaSecp256k1,
+  AttestorDigest,
+} from 'mina-sdk';
+
+// Off-circuit preparation
+// The claim string format is: provider + "\n" + parameters + "\n" + context
+const claimString = `${provider}\n${parameters}\n${context}`;
+const digest = AttestorDigest.from(keccak256(claimString));
+
+// Parse the attestor's signature
+const { r, s } = Reclaim.parseEthereumSignature(reclaimSignatureHex);
+const signature = EcdsaSecp256k1.from({ r, s });
+
+// Convert expected attestor address to Field
+const expectedAddress = Reclaim.ethAddressToField(canonicalAttestorAddress);
+
+// In-circuit verification
+await zkApp.verifySignedClaim(
+  digest,              // 32-byte keccak256 digest of the claim
+  signature,           // secp256k1 (r, s) signature pair
+  attestorPubKey,      // Attestor's secp256k1 public key (witnessed)
+  expectedAddress      // Expected Ethereum address as Field
+);
+```
+
+The method verifies:
+1. The ECDSA signature is valid for the given digest and public key
+2. The public key derives to the expected Ethereum address (via `keccak256(pubkey)[12:]`)
+
+If verification fails, the method throws with either `"attestor ECDSA signature is invalid"` or `"attestor pubkey does not derive to the expected Ethereum address"`.
+
 <Steps>
 ### Clone the zkApp Contract Repository
 
