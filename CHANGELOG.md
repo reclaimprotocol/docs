@@ -1,3 +1,7 @@
+## 0.2.1
+
+* **AI Agent**: Added LangSmith tracing support for monitoring and debugging agent sessions. Configure with `LANGSMITH_TRACING`, `LANGSMITH_API_KEY`, and `LANGSMITH_PROJECT` environment variables. Traces include provider ID and agent session ID metadata, with optional `sessionId` parameter in API requests for correlating runs with external systems.
+
 ## 0.2.0
 
 * Added Analytics Dashboard documentation for the Developer Portal, including time range filters and OS-based device breakdown
