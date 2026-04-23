@@ -104,6 +104,41 @@ A **data provider** in Reclaim's context is a structured set of instructions tha
 
 _tldr; Reclaim Protocol prioritises user privacy and data security. By employing cryptographic proofs, secure communication channels, and trusted intermediaries, Reclaim Protocol empowers users to reclaim their data with confidence. This FAQ aims to address shared security concerns. If you have any further questions, please don't hesitate to contact Reclaim Protocol._
 
+## Privacy Guarantees
+
+Reclaim Protocol enforces privacy through cryptography and hardware — not just policy. Here's what that means in practice:
+
+### Credentials Never Reach Reclaim's Servers
+
+With the [InApp SDKs](/inapp-sdks/introduction) (React Native, Flutter, iOS, Android), users sign in on their own device. Verification happens locally, and credentials never leave the phone.
+
+With the [JS SDK](/js-sdk/usage) in remote browser mode, the browser session runs inside a Trusted Execution Environment (TEE). Even Reclaim's own team can't access credentials or session data inside the TEE.
+
+Either way, the verified data and zero-knowledge proof go directly from the verification environment to your application's callback URL. Reclaim's servers never see the credentials, the verified data, or anything else on the user's account.
+
+### Verifications Cannot Be Tampered With
+
+Each verification is cryptographically bound by a zero-knowledge proof. The proof attests that:
+- The data came from the expected website (validated via TLS certificate)
+- The data matches the specified extraction rules
+- Nothing was altered between the source and the proof
+
+Change any byte of the verification data, and the proof becomes invalid. This holds even against a fully malicious user trying to forge a verification.
+
+### Code Matches What's Published
+
+For TEE-backed verifications, hardware attestation proves the code generating the verification is exactly what's published in Reclaim Protocol's [open source repositories](https://github.com/reclaimprotocol). The CPU itself confirms this through AMD SEV-SNP attestation — no trust in Reclaim Protocol required.
+
+### Trust Assumptions
+
+Reclaim Protocol minimizes trust requirements, but some assumptions remain:
+
+- **Zero-knowledge proof soundness**: The cryptographic proofs are sound even against adversarial users
+- **AMD SEV-SNP hardware**: For TEE-backed verifications, you trust AMD's silicon implementation
+- **Google Cloud Confidential VMs**: The TEE infrastructure runs on Google Cloud's confidential computing platform
+
+The cryptography has been peer-reviewed and published at [ePrint 2024/733](https://eprint.iacr.org/2024/733).
+
 ## Trusted Execution Environment (TEE)
 
 Reclaim Protocol provides privacy and integrity guarantees at the hardware level using [AMD's Trusted Execution Environment](https://docs.amd.com/v/u/en-US/memory-encryption-white-paper) via [Google Cloud Confidential Computing](https://docs.cloud.google.com/confidential-computing/confidential-vm/docs/confidential-vm-overview). Critical verification components run inside TEEs — isolated hardware enclaves that protect code and data even from the underlying operating system and cloud provider.
@@ -112,9 +147,11 @@ Reclaim Protocol provides privacy and integrity guarantees at the hardware level
 
 Reclaim Protocol uses three TEE components:
 
-1. **TEE_K and TEE_A** — These ensure integrity and privacy during verification. They guarantee that verification data can't be tampered with and that sensitive information stays protected throughout the flow.
+1. **TEE_K** (attestor enclave) — Signs the TLS handshake and ensures the connection to the target website is authentic.
 
-2. **TEE_REMOTE_BROWSER** — This ensures that the remote browser used for verification doesn't collect or leak any user data. It's only used in the [JS SDK](/js-sdk/usage) for remote browser verification. The [InApp SDKs](/inapp-sdks/introduction) use the device's local in-app browser, so this component doesn't apply to mobile integrations.
+2. **TEE_A** (analyzer enclave) — Validates the claim context and ensures the extracted data matches the provider rules.
+
+3. **TEE_REMOTE_BROWSER** — Hosts the user's browser session when verification doesn't happen on the user's own device. This component runs in its own TEE, ensuring credentials never leak to Reclaim Protocol even during remote verification. It's only used with the [JS SDK](/js-sdk/usage) portal mode; the [InApp SDKs](/inapp-sdks/introduction) use the device's local in-app browser where this component is unnecessary.
 
 ### Hardware Attestation
 
