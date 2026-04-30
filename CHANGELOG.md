@@ -8,6 +8,7 @@
 * Updated Related Sessions documentation to explain device-based session grouping
 * Added AI Analysis (Beta) documentation with interactive chat and admin prompt customization
 * Fixed session status misclassification in the Live Feed where sessions with successful proof submissions would incorrectly show as "dropped off" instead of "successful"
+* Fixed authorization check for provider updates in DevTool - non-admin users can now only update providers they created
 
 ## 0.1.0
 
