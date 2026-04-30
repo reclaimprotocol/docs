@@ -157,15 +157,26 @@ const appUrl = await reclaimProofRequest.getRequestUrl({ verificationMode: 'app'
     ```
 
     ### TEE attestation
-    The remote browser runs in a TEE for privacy reasons. If you want attestation that this session was indeed run in a TEE, you can request TEE attestation.
-    You can do so by : 
-    ```javascript
-    const proofRequestOptions = { acceptTeeAttestation: true };
-    const reclaimProofRequest = await ReclaimProofRequest.init(
-        // ...
-        , proofRequestOptions
-    )
+    The remote browser runs in a Trusted Execution Environment (TEE) for privacy. TEE attestation is enabled by default to verify that the session ran in a TEE.
 
+    ```javascript
+    const reclaimProofRequest = await ReclaimProofRequest.init(
+        process.env.RECLAIMPROTOCOL_APP_ID,
+        process.env.RECLAIMPROTOCOL_APP_SECRET,
+        'your-provider-id'
+    );
+    ```
+
+    To opt out of TEE attestation, set `acceptTeeAttestation: false` during initialization:
+
+    ```javascript
+    const proofRequestOptions = { acceptTeeAttestation: false };
+    const reclaimProofRequest = await ReclaimProofRequest.init(
+        process.env.RECLAIMPROTOCOL_APP_ID,
+        process.env.RECLAIMPROTOCOL_APP_SECRET,
+        'your-provider-id',
+        proofRequestOptions
+    );
     ```
 
     ### EU Region Support 
