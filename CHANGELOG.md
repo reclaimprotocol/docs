@@ -1,5 +1,6 @@
 ## 0.2.0
 
+* **Attestor Core**: Enhanced PII protection in attestor logging—RPC request payloads and HTTP transcript contents are no longer logged. Logs now include only request metadata (ID, type, module, channel) and transcript byte lengths
 * Added Analytics Dashboard documentation for the Developer Portal, including time range filters and OS-based device breakdown
 * Added Device-Based Analytics documentation explaining device metrics (Total Devices, Devices with Proofs, Device Conversion Rate)
 * Added Live Feed documentation with session status indicators and provider information
