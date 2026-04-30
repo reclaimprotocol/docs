@@ -1,5 +1,6 @@
 ## 0.2.0
 
+* **InApp SDK**: Enhanced PII protection in logging—URL query parameters containing personal data (email, phone, name, DOB, identity documents, financial details) are now automatically redacted at INFO log level, with full data preserved only at FINER level for development builds
 * Added Analytics Dashboard documentation for the Developer Portal, including time range filters and OS-based device breakdown
 * Added Device-Based Analytics documentation explaining device metrics (Total Devices, Devices with Proofs, Device Conversion Rate)
 * Added Live Feed documentation with session status indicators and provider information
