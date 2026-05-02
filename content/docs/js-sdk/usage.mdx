@@ -392,6 +392,51 @@ const { context, extractedParameters } = data[0];
   // error is a string message if verification failed, undefined otherwise
   ```
 
+  ### Replay Protection
+
+  The SDK cryptographically binds proofs to a specific session via `verifyProof` and `verifyTeeAttestation`, but it is stateless and cannot detect if the same valid proof has been submitted before. Your server must prevent replay attacks.
+
+  **What the SDK guarantees**
+
+  When you call `verifyProof` with `teeAttestation: { appSecret }`, the SDK:
+  - Recomputes the attestation nonce from the proof context using your `appSecret` and verifies it matches—only the holder of the app secret can mint a valid nonce
+  - Confirms the nonce appears in the TEE attestation token signed by Google's Confidential Computing OIDC issuer
+  - Verifies that `sessionId`, `applicationId`, and `timestamp` in the proof are cryptographically bound
+
+  Users cannot modify `sessionId`, `applicationId`, or `timestamp` on a proof without invalidating it. They can, however, resubmit the same valid proof.
+
+  **What you must do on your server**
+
+  1. **Use a session you initiated.** Record the `sessionId` when you create a proof request. Reject any proof whose `sessionId` you did not issue.
+  2. **Dedupe by `sessionId`.** Persist accepted `sessionId` values (e.g., a unique index in your database or a TTL cache) and reject any `sessionId` that has already been verified. This is the primary replay defense.
+  3. **Require `teeAttestation`** in `verifyProof` for any flow where replay or tampering matters—without it, the cryptographic binding to your `appSecret` is not checked.
+  4. **Enforce a freshness window.** Reject proofs whose `claimData.timestampS` is older than your business policy allows.
+
+  ```javascript
+  // Server-side verification with replay protection
+  const expectedSessionId = await loadSessionForUser(req.user);
+  const sessionId = JSON.parse(proof.claimData.context).reclaimSessionId;
+
+  if (sessionId !== expectedSessionId) {
+    throw new Error("session mismatch");
+  }
+  if (await db.consumedSessions.has(sessionId)) {
+    throw new Error("proof already used"); // replay attempt
+  }
+
+  const { isVerified, error } = await verifyProof(proof, {
+    ...providerVersion,
+    teeAttestation: { appSecret: process.env.APP_SECRET },
+  });
+  if (!isVerified) throw error;
+
+  await db.consumedSessions.add(sessionId); // mark consumed atomically
+  ```
+
+  <Callout type="warn">
+  Without server-side session tracking and deduplication, a malicious user can submit the same valid proof repeatedly. The cryptographic checks in `verifyProof` are necessary but not sufficient for replay protection.
+  </Callout>
+
   ### Disabled Content Validation (Not Recommended)
   If you only want to verify the attestor signature but wish to bypass the parameter/content match:
   ```javascript
