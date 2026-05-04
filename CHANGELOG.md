@@ -1,5 +1,8 @@
 ## 0.2.0
 
+* **AI Agent**: Added reclaim-tee witness validator integration - the `validateExtraction` tool now routes validation through the Popcorn reclaim-tee validator when configured, with automatic fallback to local validation for standalone runs
+* **AI Agent**: Made user ID extraction optional via the `ENABLE_USER_ID_EXTRACTION_PROMPT` environment variable (default: false), allowing provider configs without a required `userId` redaction
+* **AI Agent**: Added direct WebSocket CDP support - `BROWSER_URL` now accepts `ws://` or `wss://` endpoints directly, and sessions can receive a `browserWsEndpoint` parameter for remote Popcorn browser connections
 * Added Analytics Dashboard documentation for the Developer Portal, including time range filters and OS-based device breakdown
 * Added Device-Based Analytics documentation explaining device metrics (Total Devices, Devices with Proofs, Device Conversion Rate)
 * Added Live Feed documentation with session status indicators and provider information
