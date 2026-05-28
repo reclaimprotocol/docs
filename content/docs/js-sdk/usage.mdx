@@ -50,29 +50,71 @@ reclaimProofRequest.setContext(address, message)
 Both context address and context message are tamper resistant. Even if the user tries to edit one byte, the proof verification will fail.
 
 
-### Open verification
+## Open verification
 
-
-``` javascript
-  const proofRequestUrl = await reclaimProofRequest.getRequestUrl();
-
-  // Redirect user to this URL or, open URL in an iFrame
-```
-
-<Callout type="info">
-**Verification Modes**
-
-`getRequestUrl()` supports a `verificationMode` option:
-
-- **`'portal'` (default)** — Opens the portal for remote browser verification.
-- **`'app'`** — Verifier app flow.
+After configuring your verification request in `ReclaimProofRequest` object on your NodeJs backend, you can export entire config as a JSON string and send it to your frontend.
 
 ```javascript
-const appUrl = await reclaimProofRequest.getRequestUrl({ verificationMode: 'app' });
+const exportedProofRequestJsonString = reclaimProofRequest.toJsonString();
 ```
-</Callout>
 
-### Store the Provider Version
+This can be used to create a ReclaimProofRequest using same SDK on frontend where you can trigger a web-based verification or you can use this config to start an in-app verification journey using our in-app SDK.
+
+### Option A: Web Frontend Web verification journey
+
+To continue on web frontend, with [`@reclaimprotocol/js-sdk`](https://www.npmjs.com/package/@reclaimprotocol/js-sdk) in your frontend dependencies, you have to import reclaim's proof request json string to make ReclaimProofRequest on frontend
+
+```javascript
+const reclaimProofRequest = ReclaimProofRequest.fromJsonString(configJson);
+```
+
+In SDK, ReclaimProofRequest provides a triggerReclaimFlow() method that automatically handles the verification process for web-based verification across different platforms and devices. 
+This method intelligently chooses the best verification method based on the user's environment.
+
+#### How to use triggerReclaimFlow()
+
+The `triggerReclaimFlow()` method supports two verification modes via `verificationMode`:
+
+- **`'portal'` (default)**: Opens a new reclaim web page for remote browser verification. Opens reclaim web page in a new tab by default, or embeds reclaim web page in an iframe when `target` is provided.
+- **`'app'`**: Opens Reclaim's Verifier app to do verification on client mobile device.
+
+The method returns a `FlowHandle` that lets you close the flow programmatically:
+
+1. Portal flow (default) — opens in new tab
+
+```javascript
+const handle = await reclaimProofRequest.triggerReclaimFlow();
+handle.tab;    // Window reference to the opened tab
+handle.close(); // close tab and stop polling
+```
+
+2. Embedded — portal loads inside a DOM element as an iframe
+
+```javascript
+const handle = await reclaimProofRequest.triggerReclaimFlow({
+  target: document.getElementById('reclaim-container')
+});
+handle.iframe; // HTMLIFrameElement reference
+handle.iframe?.style.height = '700px'; // customize the iframe
+handle.close(); // remove iframe and stop polling
+```
+
+3. Verifier app flow
+
+```javascript
+const handle = await reclaimProofRequest.triggerReclaimFlow({ verificationMode: 'app' });
+handle.close(); // stop polling
+```
+
+### Option B: In App Verification Flow
+
+If you have an app, you can integrate one of reclaim's in-app SDK for embedding reclaim's entire verification experience in your native app. 
+
+This is available for Android, iOS, React Native, Flutter & Capacitor. To learn more, go to [InApp Integration docs](/inapp-sdks/introduction).
+
+You can follow start verification documentation for each platform to learn more about integrating with them. For example, [React Native](../../react-native/usage#start-verification).
+
+## Store the Provider Version
 ```javascript
   const { providerId, providerVersion } = reclaimProofRequest.getProviderVersion();
 ```
