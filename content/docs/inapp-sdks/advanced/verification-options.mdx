@@ -8,12 +8,56 @@ import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
 
 ## Options API
 
-The InApp SDKs provide an `setVerificationOptions` method to customize the verification flow. Below are the available options that can be set:
+The InApp SDKs provide an `setVerificationOptions` method to customize the verification flow. 
 
-| Prop                                           | Type                                   | Description                                                                   |
-| ---------------------------------------------- | -------------------------------------- | ----------------------------------------------------------------------------- |
-| **`canDeleteCookiesBeforeVerificationStarts`** | <code>boolean</code>                   | This is enabled by default. Set false to persist sessions storage for the user. (This will be replaced with `canClearWebStorage` in an upcoming update)                                                                              |
-| **`canUseAttestorAuthenticationRequest`**      | <code>boolean</code>                   | Enable the use of authentication request when starting a verification |
-| **`claimCreationType`**                        | <code>'standalone' \| 'meChain'</code> | The type of claim creation to use. Defaults to 'standalone'.                  |
-| **`canAutoSubmit`**                            | <code>boolean</code>                   | Whether to automatically submit the proof after generation. Defaults to true. When false, a prompt to submit is shown to the user. |
-| **`isCloseButtonVisible`**                     | <code>boolean</code>                   | Whether the close button is visible in the verification screen. Defaults to true.                        |
+<Tabs items={['Javascript', 'Kotlin', 'Swift', 'Dart]}>
+```bash tab="Javascript"
+// NOTE: Await the result before starting verification
+await reclaimVerification.setVerificationOptions({
+    option: value,
+});
+```
+
+```bash tab="Kotlin"
+// NOTE: Get the result before starting verification
+ReclaimVerification.setVerificationOptions(
+    context = context,
+    options = ReclaimVerification.VerificationOptions(
+        option = selectedTeeMode
+    )
+) { result ->
+    if (result.isFailure) {
+        Log.e("MainActivity", "Failed to set options: ")
+    }
+}
+```
+
+```bash tab="Swift"
+// NOTE: Await the result before starting verification
+try await ReclaimVerification.setVerificationOptions(options: .init(
+    option: value
+))
+```
+
+```bash tab="Dart"
+// NOTE: Await the result before starting verification
+await sdk.setVerificationOptions(
+    ReclaimApiVerificationOptions(
+        option: value
+    ),
+);
+```
+</Tabs>
+
+
+Below are the available options that can be set:
+
+| Prop                                           | Type                                   | Description                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| ---------------------------------------------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`useTeeOperator`**                           | <code>boolean \| null</code>           | Enables use of Reclaim's TEE+MPC protocol for HTTP <a href="#request">Request</a> claim verification and attestation. When set to `true`, the verification will use Trusted Execution Environment (TEE) with Multi-Party Computation (MPC) for enhanced security. When set to `false`, the standard Reclaim's proxy attestor verification flow is used. When `null` (default), inappsdk decides whether to use TEE based on a feature flag. |
+| **`canDeleteCookiesBeforeVerificationStarts`** | <code>boolean</code>                   | This is enabled by default. Set false to persist sessions storage for the user. (This will be replaced with `canClearWebStorage` in an upcoming update)                                                                                                                                                                                                                                                                                     |
+| **`canUseAttestorAuthenticationRequest`**      | <code>boolean</code>                   | Enable the use of authentication request when starting a verification.                                                                                                                                                                                                                                                                                                                                                                      |
+| **`claimCreationType`**                        | <code>'standalone' \| 'meChain'</code> | The type of claim creation to use. Defaults to 'standalone'.                                                                                                                                                                                                                                                                                                                                                                                |
+| **`canAutoSubmit`**                            | <code>boolean</code>                   | Whether to automatically submit the proof after generation. Defaults to true.                                                                                                                                                                                                                                                                                                                                                               |
+| **`isCloseButtonVisible`**                     | <code>boolean</code>                   | Whether the close button is visible in the verification screen. Defaults to true.                                                                                                                                                                                                                                                                                                                                                                                      |
+| **`locale`**                                   | <code>string \| null</code>            | A language code & Country code for localization that should be enforced in the verification flow.                                                                                                                                                                                                                                                                                                                                           |
