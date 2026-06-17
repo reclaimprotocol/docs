@@ -52,15 +52,18 @@ Sounds interesting? It is. Feel free to dive deeper and [ask questions](https://
 
 Whenever there is a website, Reclaim Protocol can verify information from that website. 
 
-However, there are some hero usecases that work out of the box :
+However, there are some hero usecases that work out of the box:
 1. [Education Verification](https://reclaimprotocol.org/education) - Is this user a student at the university they claim to be a student at? This can be used for marketing student discounts and for background checks. 
 2. [Status Match](https://reclaimprotocol.org/status-match) - Is the user a frequent flier and/or has a status on an airline that can be used to match the status on a different airline, hotel or brand?
 3. [Identity Verification](https://calendly.com/madhavanmalolan/call) - What is the official name, age, DOB, citizenship of the user? This can be used for age verification, proof of human, fraud detection etc. 
 4. Finance verification (Coming soon) - Creditscores, accredited investor status, tax documents etc. 
 
 # Getting started
-## If you want user to login to verify :
+
+## If you want user to login to verify:
+
 This is the standard mode of verifying information using Reclaim Protocol, as explained in "How Reclaim Protocol Works" section. Integrating is easy. You can use one of these SDKs to start integrating :
+
 1. [JS SDK](./js-sdk)
 2. [React Native SDK](./react-native)
 3. [Flutter SDK](./flutter)
@@ -68,5 +71,10 @@ This is the standard mode of verifying information using Reclaim Protocol, as ex
 5. [Android Kotlin SDK](./android)
 6. [Blockchain SDK](./onchain)
 
-## If you want to verify from a public API :
+## If you want to verify from a public API:
+
 If you want to verify the information that was returned by a public API, including if it is protected by an API key, you can use [zkFetch SDK](./zkfetch) instead. It's just like Javascript's fetch call, but will generate a zkproof of the data that was received.
+
+## Do you want to create a new verification or fix an existing one?
+
+Install our [MCP Server](./agents) in your favourate AI agent and find the right verification provider that fits your need.
