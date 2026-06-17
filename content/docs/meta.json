@@ -2,6 +2,7 @@
   "root": true,
   "pages": [
     "index",
+    "agents",
     "api-key",
     "js-sdk",
     "react-native",
