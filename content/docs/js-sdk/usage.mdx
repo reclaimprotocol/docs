@@ -240,7 +240,7 @@ You can follow start verification documentation for each platform to learn more 
     reclaimProofRequest.setCancelCallbackUrl("https://yourwebsite.com/reclaim-cancelcallback"); // POST request webpage 
     ```
 
-    If the user cancels the session midway or after error, Reclaim will send a POST request to you on the cancel callback URL with details.
+    If the user cancels the session midway or after an error, Reclaim will send a POST request to you on the cancel callback URL with details.
 
     Following is the data format which is sent as an HTTP POST request to the url with `Content-Type: application/json`:
 
@@ -292,7 +292,7 @@ You can follow start verification documentation for each platform to learn more 
     );
     ```
 
-    Redirection happens after cancel callback is invoked by reclaim. See [What triggers a Cancel Callback](/js-sdk/preparing-request#what-triggers-cancel-callback) for more details.
+    Redirection happens after the cancel callback is invoked by Reclaim. See [What triggers a Cancel Callback](#what-triggers-cancel-callback) for more details.
   </Accordion>
 
   </Accordions>
