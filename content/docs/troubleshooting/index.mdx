@@ -14,11 +14,11 @@ When integrating Reclaim Protocol, you have multiple tools at your disposal to m
 
 ## Handling Cancellation & Errors
 
-The easiest way to handle cancellation is to set up an cancel callback. This allows your application to react immediately when a user's verification session cancellations.
+The easiest way to handle cancellation is to set up a cancel callback. This allows your application to react immediately when a user's verification session is cancelled.
 
-Read more about setting a cancellation callback [here](./js-sdk/preparing-request#cancel-callback).
+Read more about setting a cancellation callback in the [JS SDK usage guide](/js-sdk/usage#cancel-callback).
 
-Other errors (such as network timeouts or internal exceptions) will **not** trigger this callback but can be found by [fetching analytics events](./troubleshooting/analytics-event) for the session.
+Other errors (such as network timeouts or internal exceptions) may also trigger this callback, and the complete session details can be found by [fetching analytics events](/troubleshooting/analytics-event).
 
 ---
 
@@ -31,7 +31,7 @@ Reclaim solutions (Web SDK, InApp SDK, etc.) emit analytics events to our server
 
 You can fetch these events using the Session ID.
 
-[**Read the full Analytics Events Guide →**](./troubleshooting/analytics-event)
+[**Read the full Analytics Events Guide →**](/troubleshooting/analytics-event)
 
 ---
 
@@ -43,7 +43,7 @@ For real-time debugging, especially when using Mobile SDKs (React Native, Flutte
 
 InApp SDKs emit detailed events like `PAGE_LOADING_STARTED`, `REQUEST_MATCHED`, or `PROOF_GENERATED`. Use these to understand exactly what is happening on the user's device.
 
-[**View Client-Side Log Event Types →**](../inapp-sdks/advanced/log-event-types)
+[**View Client-Side Log Event Types →**](/inapp-sdks/advanced/log-event-types)
 
 ### Enable Debug Logs (JS SDK)
 
@@ -59,9 +59,9 @@ const proofRequest = await ReclaimProofRequest.init(APP_ID, APP_SECRET, PROVIDER
 
 ## Troubleshooting Mode
 
-If a user is facing issues in the wild, you can ask them to specificually enable "Troubleshooting Mode" in the Verifier UI. This displays a debug overlay and captures additional diagnostics.
+If a user is facing issues in the wild, you can ask them to specifically enable "Troubleshooting Mode" in the Verifier UI. This displays a debug overlay and captures additional diagnostics.
 
-[**How to Enable Troubleshooting Mode →**](./troubleshooting/enable-troubleshooting-mode)
+[**How to Enable Troubleshooting Mode →**](/troubleshooting/enable-troubleshooting-mode)
 
 This option isn't available when using WebSDK (aka portal.reclaimprotocol.org). In that case, you can use [JS SDK](#enable-debug-logs-js-sdk) to collect verbose logs.
 
@@ -71,7 +71,7 @@ This option isn't available when using WebSDK (aka portal.reclaimprotocol.org). 
 
 If you are seeing generic failures, check our guide on common environmental issues like network stability, memory constraints, or outdated OS versions.
 
-[**View Potential Failure Reasons →**](./troubleshooting/potential-failure-reasons)
+[**View Potential Failure Reasons →**](/troubleshooting/potential-failure-reasons)
 
 ---
 
