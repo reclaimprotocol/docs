@@ -1,3 +1,7 @@
+## 0.2.1
+
+* Added "How verification works" section to JS SDK proof verification documentation explaining signature verification and content validation
+
 ## 0.2.0
 
 * Added Analytics Dashboard documentation for the Developer Portal, including time range filters and OS-based device breakdown
