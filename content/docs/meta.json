@@ -1,7 +1,6 @@
 {
   "root": true, 
   "pages": [
-    "index",
     "agents",
     "fullstack",
     "manual",
