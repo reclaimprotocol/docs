@@ -1,0 +1,28 @@
+---
+title: WTF are providers
+description: Providers are the basic building block of Reclaim Protocol
+---
+
+# Introduction
+A provider is a configuration file. This tells Reclaim Protocol on how to verify certain information from a particular website.
+
+The main parts of this configuration include
+- The webpage URL : the url on which the required information is present
+- The login URL : the url on which the user must login before the above url is accessible
+- The JSON Path/XPath : the location of the required data on the webpage url
+- The Regex : Further granularity on where to look for data after the XPath/JSONPath match
+- A bunch of other configurations.
+
+Each website needs a unique provider. Sometimes, the same website might need different providers, if the data being verified on the website differs.
+
+# Building Providers from scratch
+
+You can follow how to build a provider using the [DevTool](https://dev.reclaimprotocol.org). However, we recommend you use the [AI Agent](/agents) to build a provider. The DevTool is soon going to be deprecated.
+
+<iframe
+  className="w-full aspect-video rounded-lg"
+  src="https://www.youtube.com/embed/wvcZPSiqn5Y?si=aN6928voFOEUosfs"
+  title="Building providers with the Reclaim DevTool"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+  allowFullScreen
+/>

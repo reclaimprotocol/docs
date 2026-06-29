@@ -22,11 +22,10 @@ export default function Layout({ children }: { children: ReactNode }) {
       <body className="flex flex-col min-h-screen">
         <Banner variant="rainbow">
           <div className="text-xs sm:text-base">
-            ✨Works out of the box guarantee. If you face any issue at all, hit us up{' '}
-            <a href="https://t.me/protocolreclaim" target='_blank' className="underline">
-              on Telegram
-            </a>{' '}
-            and we will write the integration for you.
+            Integrate Reclaim Protocol end to end using{' '}
+            <a href="/agents" className="underline">
+              our agent
+            </a>
           </div>
         </Banner>
         <RootProvider>

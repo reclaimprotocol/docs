@@ -1,0 +1,10 @@
+{
+  "pages": [
+    "api-key",
+    "js-sdk",
+    "react-native",
+    "flutter",
+    "ios-swift",
+    "android"
+  ]
+}

@@ -1,0 +1,76 @@
+---
+title: Installation
+description: Install the MCP for AI Coding Agents
+---
+
+import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
+Reclaim provides an **MCP server** that helps your coding agent integrate Reclaim Protocol.
+
+Set up your coding agent to use this MCP :
+
+<Accordions>
+  <Accordion title="Claude Code">
+
+    ```bash
+    claude mcp add reclaim -s user -- npx -y --package=@reclaimprotocol/agent reclaim-mcp-server
+    ```
+
+  </Accordion>
+  <Accordion title="Cursor">
+
+    Add to `~/.cursor/mcp.json` (global) or `.cursor/mcp.json` (project):
+
+    ```json
+    {
+      "mcpServers": {
+        "reclaim": {
+          "command": "npx",
+          "args": ["-y", "--package=@reclaimprotocol/agent", "reclaim-mcp-server"]
+        }
+      }
+    }
+    ```
+
+  </Accordion>
+  <Accordion title="Opencode">
+
+    Add to `~/.config/opencode/opencode.json` (global) or `opencode.json` (project):
+
+    ```json
+    {
+      "$schema": "https://opencode.ai/config.json",
+      "mcp": {
+        "reclaim": {
+          "type": "local",
+          "command": ["npx", "-y", "--package=@reclaimprotocol/agent", "reclaim-mcp-server"],
+          "enabled": true
+        }
+      }
+    }
+    ```
+
+  </Accordion>
+  <Accordion title="Codex">
+
+    ```bash
+    codex mcp add reclaim -- npx -y --package=@reclaimprotocol/agent reclaim-mcp-server
+    ```
+
+  </Accordion>
+  <Accordion title="Windsurf, VS Code, Cline, Antigravity, and other MCP apps">
+
+    They all use the same standard format. Open your app's MCP settings (or its config file) and add:
+
+    ```json
+    {
+      "mcpServers": {
+        "reclaim": {
+          "command": "npx",
+          "args": ["-y", "--package=@reclaimprotocol/agent", "reclaim-mcp-server"]
+        }
+      }
+    }
+    ```
+
+  </Accordion>
+</Accordions>

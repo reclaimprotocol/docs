@@ -1,6 +1,6 @@
 {
-  "title": "Reclaim for Agents",
   "pages": [
-    "index"
+    "installation", 
+    "usage" 
   ]
 }

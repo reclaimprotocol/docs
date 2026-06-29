@@ -1,80 +1,122 @@
 ---
 title: Reclaim Protocol Docs
-description: Use Reclaim Protocol to verify information about your users. 
+description: Integrate Reclaim Protocol into your project in a few minutes. 
 ---
 
-<div className="not-prose bg-gray-100 dark:bg-neutral-900 rounded-xl p-5 -mt-6 mb-3 border border-gray-200 dark:border-neutral-700">
-  <div className="flex items-center gap-3 mb-2">
-    <img src="/assets/claude-logo.svg" alt="Claude" className="w-7 h-7 shrink-0" />
-    <span className="text-base font-semibold text-neutral-900 dark:text-neutral-100">Integrate Reclaim Protocol with Claude Code</span>
-  </div>
-  <p className="text-sm text-gray-500 dark:text-gray-400 mb-2 leading-normal" style={{ margin: '0 0 0.6rem 0' }}>
-    Drop a skill file into your project and tell Claude to integrate Reclaim. Auto-detects your framework, installs the SDK, scaffolds API routes and verification components.
-  </p>
-  <div className="flex items-stretch gap-2">
-    <a data-card="" href="https://github.com/reclaimprotocol/reclaim-claude-skill" target="_blank" className="flex items-center gap-1.5 bg-[#D97757] text-white px-3.5 py-1.5 rounded-md text-sm font-semibold no-underline leading-none whitespace-nowrap">
-      <img src="/assets/github-logo.svg" alt="" className="w-3.5 h-3.5 shrink-0" /><span>Get the Claude Skill</span>
-    </a>
-    <a data-card="" href="https://dev.reclaimprotocol.org" target="_blank" className="flex items-center px-3.5 py-1.5 rounded-md text-sm font-medium no-underline leading-none whitespace-nowrap text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-neutral-600 bg-transparent">
-      <span>Get API Keys</span>
-    </a>
-  </div>
-</div>
+import { VerificationSlideshow } from '@/app/components/verification-slideshow';
 
 # Introduction
-If you have been verifying documents as part of your verification stack, you will need to upgrade your pipeline - because increasingly it is getting [easier and easier](https://reclaimprotocol.org) for attackers to create fake documents.
+[Reclaim Protocol](https://reclaimprotocol.org) lets you verify information about a user from any website. If a website has information behind a login that you want to verify, Reclaim Protocol can verify that. 
 
-If verification of information is important for the service you provide, we recommend using Reclaim Protocol to make sure the information you are using to take the business decision is actually tamper resistant. 
+Some examples
+- Verify a user's salary at their current job using their employer's HR portal
+- Verify a student's graduation details using their university's student portal
+- ... as long as a user can login, we can verify the information behind that login
 
-And further, because there are no documents being uploaded, you don't need to collect data from users that you don't need. All the verification happens on client side in a privacy preserving manner using [zero knowledge proofs](https://blog.reclaimprotocol.org/posts/zk-for-the-uninitiated). The technology we've built has since come to be known as [zkTLS](https://blog.reclaimprotocol.org/posts/zk-in-zktls).
+# Flow of control 
+1. User taps a button to initiate verification on your app/website
+2. User asked to login into the portal from which the required information can be verifed
+3. After successfully logging in, the user is asked to wait for a few seconds until verification is completed. This step can take between 2 to 30 seconds.
+4. The verification is sent back to your app/website's backend
 
-# How Reclaim Protocol Works
-Let's take an example. Let's say one of our users claims they work for the company [Acme Corp](https://en.wikipedia.org/wiki/Acme_Corporation). But we want to verify that before we give her a discount.
+<VerificationSlideshow />
 
-1. The logs in into a website where the information they want to verify exists. That is, Acme Corp's payroll system.
-2. Reclaim Protocol detects that they have logged in and identifies the HTTPS request that contains the required information, i.e. employer name = "Acme Corp". This request is usually pre-configured in the ["provider"](https://dev.reclaimprotocol.org/explore) of that website. This is usually configured by reverse engineering the website. If the website isn't already supported, there's a [tool](https://dev.reclaimprotocol.org/my-providers) to automate most of the reverse engineering using AI. 
-3. If all the requirements defined in the provider are satisfied, a regular expression and a JSON path is used to identify the exact data we want to verify. Note, most pages have more information than what we want to verify. On the payslip page, there might be information like her phone number, her salary etc which we don't need to verify that she's an employee at Acme Corp. 
-4. Then the verification happens, by generating a zero knowledge proof. This process looks at the encrypted HTTPS response that came from acmecorp.com; This is done by validating that the encrypted response was indeed encrypted using acmecorp.com's SSL certificate. And then finally, decrypt the response on the client side and generate a cryptographic proof that the said encrypted message when decrypted - contains the information with the required json path and regex. 
-5. If all of these cryptographic checks are done, which takes 1-2s, the proof is then uploaded to the backend directly without storing on Reclaim Protocol's backend. Directly from the client to the callback url. 
-6. Finally, on the backend, one can verify the proof having met all the criteria - correct website was used (via SSL certificate), data was indeed part of the response (zkproof), data was indeed present at the expected location (zkproof).
+# Choose how you want to verify
 
-## More resources
-Sounds interesting? It is. Feel free to dive deeper and [ask questions](https://t.me/protocolreclaim)!
-- [Cryptography researcher explains | YouTube](https://www.youtube.com/watch?v=hV7AospM3LE)
-- [Whitepaper | PDF](https://drive.google.com/file/d/1Tok4J6mv7PwRCbwxVNhv4alS82sQJI4E/view)
-- [Formal Security Analysis | ePrint](https://eprint.iacr.org/2024/733)
+<div className="not-prose grid gap-4 md:grid-cols-2">
+  <section className="flex h-full flex-col rounded-lg border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-950">
+    <h3 className="text-base font-semibold text-neutral-950 dark:text-neutral-50">
+      Verify information from a particular website
+    </h3>
+    <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-6 text-neutral-600 dark:text-neutral-300">
+      <li>
+        Use our <a href="/agents" className="font-medium text-blue-600 underline underline-offset-2 dark:text-blue-400">AI Agent</a> for the simplest integration
+      </li>
+      <li>Works with Claude Code/Codex/Cursor or any coding agent</li>
+      <li>
+        Use the agent to build a <em>provider</em> for the website from which you want to verify
+      </li>
+      <li>Easiest to use, most flexible</li>
+    </ul>
+    <div className="mt-auto pt-4">
+      <a href="/agents" className="inline-flex items-center justify-center rounded-md bg-neutral-950 px-4 py-2 text-sm font-semibold text-white no-underline transition-colors hover:bg-neutral-800 dark:bg-neutral-50 dark:text-neutral-950 dark:hover:bg-neutral-200">
+        Integrate using Agent
+      </a>
+    </div>
+  </section>
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/hV7AospM3LE?si=y-6FoiQ57ohZCTmf" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+  <section className="flex h-full flex-col rounded-lg border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-950">
+    <h3 className="text-base font-semibold text-neutral-950 dark:text-neutral-50">
+      Verify Education, Employment or Identity
+    </h3>
+    <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-6 text-neutral-600 dark:text-neutral-300">
+      <li>
+        Use our full stack solution, including UI. See the <a href="https://verify.reclaimprotocol.org/integrate" className="font-medium text-blue-600 underline underline-offset-2 dark:text-blue-400">integration steps here</a>.
+      </li>
+      <li>
+        Preconfigured for all major universities, employers and government portals, so that you don't have to configure each <em>provider</em> individually.
+      </li>
+      <li>Fewest lines of code to integrate</li>
+    </ul>
+    <div className="mt-auto pt-4">
+      <a href="/fullstack" className="inline-flex items-center justify-center rounded-md bg-neutral-950 px-4 py-2 text-sm font-semibold text-white no-underline transition-colors hover:bg-neutral-800 dark:bg-neutral-50 dark:text-neutral-950 dark:hover:bg-neutral-200">
+        Integrate full stack
+      </a>
+    </div>
+  </section>
 
+  <section className="flex h-full flex-col rounded-lg border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-950">
+    <h3 className="text-base font-semibold text-neutral-950 dark:text-neutral-50">
+      Manual integration
+    </h3>
+    <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-6 text-neutral-600 dark:text-neutral-300">
+      <li>
+        Don't trust an AI Agent? Use our open sourced SDKs to integrate verifications manually: NodeJS webapp, Flutter app, React Native app, Kotlin app, or Swift app.
+      </li>
+      <li>
+        Build your <em>provider</em> for the website you want to verify from manually using our <a href="https://dev.reclaimprotocol.org/my-providers" className="font-medium text-blue-600 underline underline-offset-2 dark:text-blue-400">devtool</a>.
+      </li>
+      <li>Full control</li>
+    </ul>
+    <div className="mt-auto pt-4">
+      <a href="/manual" className="inline-flex items-center justify-center rounded-md bg-neutral-950 px-4 py-2 text-sm font-semibold text-white no-underline transition-colors hover:bg-neutral-800 dark:bg-neutral-50 dark:text-neutral-950 dark:hover:bg-neutral-200">
+        Integrate Manually
+      </a>
+    </div>
+  </section>
 
+  <section className="flex h-full flex-col rounded-lg border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-950">
+    <h3 className="text-base font-semibold text-neutral-950 dark:text-neutral-50">
+      Integrate verifiable API calls
+    </h3>
+    <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-6 text-neutral-600 dark:text-neutral-300">
+      <li>
+        Call an authenticated API, without user login, and generate an auditable proof of API call.
+      </li>
+      <li>
+        Best used when auth token is available, but shouldn't be revealed in the auditable artifact.
+      </li>
+      <li>No need to configure providers.</li>
+    </ul>
+    <div className="mt-auto pt-4">
+      <a href="/zkfetch" className="inline-flex items-center justify-center rounded-md bg-neutral-950 px-4 py-2 text-sm font-semibold text-white no-underline transition-colors hover:bg-neutral-800 dark:bg-neutral-50 dark:text-neutral-950 dark:hover:bg-neutral-200">
+        Integrate zkFetch
+      </a>
+    </div>
+  </section>
+</div>
 
-# Use Cases
-
-Whenever there is a website, Reclaim Protocol can verify information from that website. 
-
-However, there are some hero usecases that work out of the box:
-1. [Education Verification](https://reclaimprotocol.org/education) - Is this user a student at the university they claim to be a student at? This can be used for marketing student discounts and for background checks. 
-2. [Status Match](https://reclaimprotocol.org/status-match) - Is the user a frequent flier and/or has a status on an airline that can be used to match the status on a different airline, hotel or brand?
-3. [Identity Verification](https://calendly.com/madhavanmalolan/call) - What is the official name, age, DOB, citizenship of the user? This can be used for age verification, proof of human, fraud detection etc. 
-4. Finance verification (Coming soon) - Creditscores, accredited investor status, tax documents etc. 
-
-# Getting started
-
-## If you want user to login to verify:
-
-This is the standard mode of verifying information using Reclaim Protocol, as explained in "How Reclaim Protocol Works" section. Integrating is easy. You can use one of these SDKs to start integrating :
-
-1. [JS SDK](./js-sdk)
-2. [React Native SDK](./react-native)
-3. [Flutter SDK](./flutter)
-4. [iOS Swift SDK](./ios-swift)
-5. [Android Kotlin SDK](./android)
-6. [Blockchain SDK](./onchain)
-
-## If you want to verify from a public API:
-
-If you want to verify the information that was returned by a public API, including if it is protected by an API key, you can use [zkFetch SDK](./zkfetch) instead. It's just like Javascript's fetch call, but will generate a zkproof of the data that was received.
-
-## Do you want to create a new verification or fix an existing one?
-
-Install our [MCP Server](./agents) in your favourate AI agent and find the right verification provider that fits your need.
+# More resources
+- Read the [Reclaim Protocol Whitepaper](https://drive.google.com/file/d/1Tok4J6mv7PwRCbwxVNhv4alS82sQJI4E/view), cited by multiple peer reviewed papers in reputable conferences 
+  - [Proxying is Enough, AFT 2025](https://eprint.iacr.org/2024/733.pdf)
+  - [Zombie: Middleboxes that Don’t Snoop, USENIX 2024](https://www.usenix.org/system/files/nsdi24-zhang-collin.pdf)
+  - [TLS2VC: A Decentralized WebProof Framework Enabling Web Data Credentialization, ACM, 2026](https://dl.acm.org/doi/pdf/10.1145/3748522.3779799)
+  - [SoK: What don’t we know? Understanding Security Vulnerabilities in SNARKs, arXiv 2024](https://arxiv.org/html/2402.15293v1)
+  - [A Comprehensive Review of TLSNotary Protocol, arXiv 2024](https://arxiv.org/html/2409.17670v1)
+  - [Do You Need a Zero Knowledge Proof?, ePrint 2024](https://www.projectglitch.xyz/p/do-you-need-a-zero-knowledge-proof)
+  - [Securing Data Integrity in Modern Overlay Systems, Purdue dissertation 2026](https://hammer.purdue.edu/ndownloader/files/63915219)
+  - [DracoBFT: Enabling Validators as Trustless Service Providers, preprint](https://www.hotstuff.trade/DracoBFT.pdf)
+  - [Entros Protocol: A Framework for Temporally-Consistent, Decentralized Proof-of-Personhood, Technical Whitepaper 2026](https://entros.io/entros-protocol-2026.pdf)
+  - [RECreate: A Blockchain-Based Marketplace for Renewable Energy Credits with Intelligent Peer-to-Peer Trading Using Model-Based Multi-Agent Reinforcement Learning, IJRESM 2026](https://journal.ijresm.com/index.php/ijresm/article/download/3446/3555/5043)
+- Learn about how the protocol itself works in [this video](https://youtu.be/hV7AospM3LE?si=gKBqkv5eavn8-sOS)
+    

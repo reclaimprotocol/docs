@@ -1,18 +1,13 @@
 {
-  "root": true,
+  "root": true, 
   "pages": [
     "index",
     "agents",
-    "api-key",
-    "js-sdk",
-    "react-native",
-    "flutter",
-    "ios-swift",
-    "android",
-    "onchain",
-    "inapp-sdks",
+    "fullstack",
+    "manual",
     "zkfetch",
-    "troubleshooting",
-    "understanding-the-tech"
+    "onchain",
+    "wtf-are-providers",
+    "troubleshooting"
   ]
 }
