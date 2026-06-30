@@ -16,7 +16,7 @@ When integrating Reclaim Protocol, you have multiple tools at your disposal to m
 
 The easiest way to handle cancellation is to set up an cancel callback. This allows your application to react immediately when a user's verification session cancellations.
 
-Read more about setting a cancellation callback [here](./js-sdk/preparing-request#cancel-callback).
+Read more about setting a cancellation callback [here](/manual/js-sdk/usage#what-triggers-cancel-callback).
 
 Other errors (such as network timeouts or internal exceptions) will **not** trigger this callback but can be found by [fetching analytics events](./troubleshooting/analytics-event) for the session.
 
@@ -43,7 +43,7 @@ For real-time debugging, especially when using Mobile SDKs (React Native, Flutte
 
 InApp SDKs emit detailed events like `PAGE_LOADING_STARTED`, `REQUEST_MATCHED`, or `PROOF_GENERATED`. Use these to understand exactly what is happening on the user's device.
 
-[**View Client-Side Log Event Types →**](../inapp-sdks/advanced/log-event-types)
+[**View Client-Side Log Event Types →**](/manual/inapp-sdks/advanced/log-event-types)
 
 ### Enable Debug Logs (JS SDK)
 

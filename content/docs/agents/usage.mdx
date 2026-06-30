@@ -1,0 +1,36 @@
+---
+title: Usage
+description: Using Reclaim Protocol MCP using AI Coding Agents
+---
+
+## Pick a provider
+Ask your agent plainly:
+
+> "Use Reclaim to create a provider that proves my GitHub follower count."
+
+or you can even ask it like:
+
+> "I want to verify Github follow count"
+
+### Find a pre-built provider
+Reclaim Protocol community has built thousands of providers already. You could probably find a stable one instead of creating anew. Or reuse one you have created before, so that you have fewer providers to maintain. 
+
+> "Find a provider for Github that verifies the follower count"
+
+### Let the agent cook!
+The agent orchestrates the tools for you:
+
+1. **`reclaim_authenticate`** — a Chrome window opens the Reclaim dashboard; you sign in. The token is captured automatically and the tab closes. (Or it reuses a still-valid cached identity.)
+2. **`attach_chrome` + `navigate`** — opens the target site (e.g. `github.com`); **`wait_for_page`** waits while you log in there.
+3. **`start_capture` → `find_requests_containing` → `get_request`** — records network traffic and locates the request carrying your value.
+4. **`propose_provider`** — drafts the provider (a `contains` match + `jsonPath`/`xPath`/`regex` redaction), keeping any secret headers server-side.
+5. **`replay_request` → `run_proof`** — pre-flights the draft, then produces a verified zkTLS proof via the attestor.
+6. **`create_provider_version_from_capture`** — publishes it. **`get_me_providers`** lists what you own; pass a returned `providerId` back to publish a new version of an existing provider.
+
+## Troubleshooting
+If the verification process stops working, you can simply ask the agent to fix it.
+> "My Github follower count provider has stopped working. Can you fix it?"
+
+In some cases, you will be asked to login again as the agent tries to fix it or create a new provider if the website you are targetting has changed significantly.
+
+If that doesn't work, you can check out building providers manually. Or [contact us over email](mailto:support@reclaimprotocol.org).
