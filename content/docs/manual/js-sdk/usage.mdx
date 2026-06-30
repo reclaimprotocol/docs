@@ -110,9 +110,9 @@ handle.close(); // stop polling
 
 If you have an app, you can integrate one of reclaim's in-app SDK for embedding reclaim's entire verification experience in your native app. 
 
-This is available for Android, iOS, React Native, Flutter & Capacitor. To learn more, go to [InApp Integration docs](/inapp-sdks/introduction).
+This is available for Android, iOS, React Native, Flutter & Capacitor. To learn more, go to [InApp Integration docs](/manual/inapp-sdks/introduction).
 
-You can follow start verification documentation for each platform to learn more about integrating with them. For example, [React Native](../../react-native/usage#start-verification).
+You can follow start verification documentation for each platform to learn more about integrating with them. For example, [React Native](/manual/react-native/usage#start-verification).
 
 ## Store the Provider Version
 ```javascript
@@ -265,7 +265,7 @@ You can follow start verification documentation for each platform to learn more 
     | `ReclaimVerificationAbortedException` | User cancelled the verification (e.g., tapped on cancel or verify another way button). |
     | `ReclaimVerificationProviderScriptException` | The provider script encountered an error (e.g., login failed, invalid account used). |
 
-    Other errors (such as network timeouts or internal exceptions) may also trigger this callback, you can always find the complete list of errors by [fetching analytics events](../troubleshooting/analytics-event#description-of-reclaim_exception-in-metadata) for the session.
+    Other errors (such as network timeouts or internal exceptions) may also trigger this callback, you can always find the complete list of errors by [fetching analytics events](/troubleshooting/analytics-event#description-of-reclaim_exception-in-metadata) for the session.
 
     ### Cancel Redirect Url
 
@@ -292,7 +292,7 @@ You can follow start verification documentation for each platform to learn more 
     );
     ```
 
-    Redirection happens after cancel callback is invoked by reclaim. See [What triggers a Cancel Callback](/js-sdk/preparing-request#what-triggers-cancel-callback) for more details.
+    Redirection happens after cancel callback is invoked by reclaim. See [What triggers a Cancel Callback](/manual/js-sdk/usage#what-triggers-cancel-callback) for more details.
   </Accordion>
 
   </Accordions>
