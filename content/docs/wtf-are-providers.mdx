@@ -7,10 +7,10 @@ description: Providers are the basic building block of Reclaim Protocol
 A provider is a configuration file. This tells Reclaim Protocol on how to verify certain information from a particular website.
 
 The main parts of this configuration include
-- The webpage URL : the url on which the required information is present
-- The login URL : the url on which the user must login before the above url is accessible
-- The JSON Path/XPath : the location of the required data on the webpage url
-- The Regex : Further granularity on where to look for data after the XPath/JSONPath match
+- The webpage URL: the url on which the required information is present
+- The login URL: the url on which the user must login before the above url is accessible
+- The JSON Path/XPath: the location of the required data on the webpage url
+- The Regex: Further granularity on where to look for data after the XPath/JSONPath match
 - A bunch of other configurations.
 
 Each website needs a unique provider. Sometimes, the same website might need different providers, if the data being verified on the website differs.

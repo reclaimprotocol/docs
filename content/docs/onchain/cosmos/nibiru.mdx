@@ -70,11 +70,11 @@ function App() {
   const [ready, setReady] = useState(false);
   const [proof, setProof] = useState({});
 
-  const reclaimClient = new Reclaim.ProofRequest('') //TODO: replace with your applicationId
+  const reclaimClient = new Reclaim.ProofRequest('') // TODO: replace with your applicationId
  
   async function generateVerificationRequest() {
-    const providerId = '' //TODO: replace with your provider ids you had selected while creating the application
-    const APP_SECRET = "" //TODO : replace with your APP_SECRET
+    const providerId = '' // TODO: replace with your provider ids you had selected while creating the application
+    const APP_SECRET = "" // TODO: replace with your APP_SECRET
  
     await reclaimClient.addContext(
       (`user's address`),

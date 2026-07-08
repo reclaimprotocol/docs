@@ -10,12 +10,23 @@ We will be creating two endpoints
 1. Start Verification
 2. Process Verification
 
+## Recommended flow
+
+The two endpoints are one journey. Here's the shape end-to-end:
+
+1. **Backend — create the request.** `ReclaimProofRequest.init(...)` → configure (callback, context) → export the whole config with `toJsonString()` and send it to your frontend.
+2. **Frontend — launch verification.** Import request with `ReclaimProofRequest.fromJsonString(...)`, then `triggerReclaimFlow()` (auto-picks extension/portal/app) if you want verifications from your website. If your frontend is a native mobile app, using an [in-app SDK](/manual/inapp-sdks/introduction), feed the *same* JSON config to its `startVerificationFromJson` instead.
+3. **Receive results — pick one:**
+   - **On the client** via `startSession({ onSuccess, onError })` — simplest, good for demos.
+   - **On your backend** via `setAppCallbackUrl(...)` — **recommended for production**, since proofs must be verified server-side anyway. This must be done before sending request to frontend. 
+4. **Backend — verify.** `verifyProof(proofs, ...)` → run your business logic.
+
 ## Import the library
 ```javascript
 import { ReclaimProofRequest } from '@reclaimprotocol/js-sdk';
 ```
 
-## Part 1 : Start Verification Endpoint
+## Part 1: Start Verification Endpoint
 ### Init
 ```javascript
 const reclaimProofRequest = await ReclaimProofRequest.init(
@@ -31,9 +42,12 @@ const reclaimProofRequest = await ReclaimProofRequest.init(
 
 ```js
 reclaimProofRequest.setAppCallbackUrl(url, true);
-// true : sets contentType to JSON
+// true - sets contentType to JSON
 ```
 This is the endpoint to which the proofs will be submitted after the verification - this is where you will process the verification. We will define this endpoint in the [next section](#process-verification-endpoint).
+
+> [!TIP]
+> **Recommended for production.** Once `setAppCallbackUrl` is set, proofs are delivered directly to your backend, so you can verify them server-side without trusting the client. When a callback URL is set, the frontend `onSuccess` fires with an **empty array `[]`** (the proofs went to your backend, not the browser). Notify the frontend of completion over WebSocket/SSE/polling once your backend has received and verified the proofs. You can also set `setCancelCallbackUrl(...)` to be told when the user cancels.
 
 ### Set Context
 You can set context to the proof request that helps identify the request when you receive it back in the callback once the proof is generated.
@@ -44,8 +58,8 @@ const message = "some meta data for processing on callback";
 reclaimProofRequest.setContext(address, message)
 ```
 
-- `address` : this is usually a unique identifier for the user. This could be an email address, a wallet address, or just a session id generated on your system. Set the variable you'd need to identify the user in the callback endpoint, when the proof is sent to your backend.
-- `message` : this is an open field where you can add any other information that you want passed around from the build request to the callback endpoint. You can stringify jsons here for convenience. 
+- `address`: this is usually a unique identifier for the user. This could be an email address, a wallet address, or just a session id generated on your system. Set the variable you'd need to identify the user in the callback endpoint, when the proof is sent to your backend.
+- `message`: this is an open field where you can add any other information that you want passed around from the build request to the callback endpoint. You can stringify jsons here for convenience. 
 
 Both context address and context message are tamper resistant. Even if the user tries to edit one byte, the proof verification will fail.
 
@@ -102,15 +116,60 @@ handle.close(); // remove iframe and stop polling
 3. Verifier app flow
 
 ```javascript
-const handle = await reclaimProofRequest.triggerReclaimFlow({ verificationMode: 'app' });
+const handle = await reclaimProofRequest.triggerReclaimFlow({
+  verificationMode: 'app',
+  canUseDeferredDeepLinksFlow: true
+});
 handle.close(); // stop polling
 ```
+
+> [!TIP]
+> **Strongly recommended:** If you are *NOT* using portals or in app sdk, enable `canUseDeferredDeepLinksFlow` when starting verification on the web frontend. Using this prefers the use of deferred deep links. This will be enabled by default in future updates.
+
+#### Receiving proofs on the client
+
+For simple cases you can receive the generated proofs directly in the browser by calling `startSession()`. It launches the flow and polls until proofs are generated (or an error occurs):
+
+```javascript
+await reclaimProofRequest.startSession({
+  onSuccess: (proofs) => {
+    // `proofs` is a single Proof when one proof is generated, or Proof[] otherwise.
+    // NOTE: it is an empty array `[]` when a callback URL is set — proofs went to your backend.
+    console.log('Verification success', proofs);
+  },
+  onError: (error) => {
+    // `error` is a typed Error
+    console.error('Verification failed', error.message);
+  },
+});
+
+// You can read the session id at any time (e.g. to correlate with your backend):
+const sessionId = reclaimProofRequest.getSessionId();
+```
+
+You can also pass richer options when creating the request on init, for example:
+
+```javascript
+const reclaimProofRequest = await ReclaimProofRequest.init(APP_ID, APP_SECRET, PROVIDER_ID, {
+  log: true,               // diagnostic logging
+  useAppClip: true,        // allow the Verifier App Clip / Instant App
+  launchOptions: {
+    verificationMode: 'app', // 'portal' (default) or 'app'
+    canUseDeferredDeepLinksFlow: true,
+  },
+});
+```
+
+> [!TIP]
+> Receiving proofs on the client is convenient, but **for production you should route proofs to your backend** with `setAppCallbackUrl(...)` and verify them there. See [Success Callback](#success-callback).
 
 ### Option B: In App Verification Flow
 
 If you have an app, you can integrate one of reclaim's in-app SDK for embedding reclaim's entire verification experience in your native app. 
 
 This is available for Android, iOS, React Native, Flutter & Capacitor. To learn more, go to [InApp Integration docs](/manual/inapp-sdks/introduction).
+
+You can reuse the **same** `toJsonString()` config produced on your backend: pass it to the in-app SDK's `startVerificationFromJson` to launch the native verification experience — no need to re-build the request on the client.
 
 You can follow start verification documentation for each platform to learn more about integrating with them. For example, [React Native](/manual/react-native/usage#start-verification).
 
@@ -194,13 +253,13 @@ You can follow start verification documentation for each platform to learn more 
     If the extracted parameter doesn't match the set parameter, the proof generation will fail.
     ```javascript
     reclaimProofRequest.setParams({ 
-        name : "John Doe"
+        name: "John Doe"
     })
     ```
 
     ### TEE attestation
     The remote browser runs in a TEE for privacy reasons. If you want attestation that this session was indeed run in a TEE, you can request TEE attestation.
-    You can do so by : 
+    You can do so by: 
     ```javascript
     const proofRequestOptions = { acceptTeeAttestation: true };
     const reclaimProofRequest = await ReclaimProofRequest.init(
@@ -299,8 +358,17 @@ You can follow start verification documentation for each platform to learn more 
 
 
 
-## Part 2 : Process Verification endpoint
+## Part 2: Process Verification endpoint
 > Be sure to expose this endpoint over the public internet. If testing locally, use [Ngrok](https://ngrok.dev)
+
+### Replay protection
+
+`verifyProof` is **stateless** — it confirms a proof is cryptographically valid, but it cannot know whether you've seen that proof before or whether it belongs to a session you actually started. For any flow where replay or tampering matters, the caller is responsible for:
+
+1. **Match the session** — verify the proof's `sessionId` (from the parsed `context`, see [Continue Business Logic](#continue-business-logic)) matches a session your backend initiated for this user.
+2. **Reject duplicates** — persist accepted `sessionId`s and refuse a proof whose `sessionId` you've already accepted.
+3. **Require hardware attestation** — pass `teeAttestation: { appSecret }` to `verifyProof` (see [Verify TEE Attestation](#more-options)) so tampered or replayed proofs fail verification.
+
 ### Verify Proofs
 ```javascript
 import { verifyProof } from '@reclaimprotocol/js-sdk';
@@ -344,7 +412,9 @@ const { context, extractedParameters } = data[0];
 ```
 
 - **`context.address`** & **`context.message`**: Same as `address` and `message` set in [Set Context](#set-context). Use this to map user to verification.
-- **`extractedParameters`** : JSON object of all the data that has been extracted and verified. You can see the structure of each provider's response in the [Provider Explorer](https://dev.reclaimprotocol.org/explore).
+- **`extractedParameters`**: JSON object of all the data that has been extracted and verified. You can see the structure of each provider's response in the [Provider Explorer](https://dev.reclaimprotocol.org/explore).
+
+For a full, field-by-field reference of the `verifyProof` result and the raw proof object (including `claimData`, the parsed `context`, signatures, witnesses and TEE attestation), see the [Anatomy of messages](/troubleshooting/anatomy) data dictionary.
 
 ### More options
   <Accordions>
@@ -364,8 +434,8 @@ const { context, extractedParameters } = data[0];
     hashes: [{ value: '0xF22..', multiple: false, required: true }]
   });
   ```
-  - `multiple` : can the hash match multiple proofs in the `proofs` array? Defaults to `true`.
-  - `required` : does at least one proof in `proofs` need to match this provider hash? Defaults to `true`.
+  - `multiple`: can the hash match multiple proofs in the `proofs` array? Defaults to `true`.
+  - `required`: does at least one proof in `proofs` need to match this provider hash? Defaults to `true`.
 
   ### Multiple Proofs and Optional Matches
   When building advanced use-cases, you might process multiple distinct proofs at once or deal with providers that yield a few valid hash possibilities (e.g., due to optional data fields).

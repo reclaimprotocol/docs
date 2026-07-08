@@ -72,11 +72,11 @@ yarn setup
 
 The setup script performs the following actions:
 
-- **Generates a new program keypair** : Creates a new Solana keypair for the program and saves it to `program-keypairs/reclaim-program-keypair.json`.
+- **Generates a new program keypair**: Creates a new Solana keypair for the program and saves it to `program-keypairs/reclaim-program-keypair.json`.
 
-- **Updates configuration files** : Replaces the program ID in `Anchor.toml`, `.solitarc.js`, `lib.rs`, and other utility files with the new program ID.
+- **Updates configuration files**: Replaces the program ID in `Anchor.toml`, `.solitarc.js`, `lib.rs`, and other utility files with the new program ID.
 
-- **Prepares the project for deployment** : Ensures that all references to the program ID are consistent across the project.
+- **Prepares the project for deployment**: Ensures that all references to the program ID are consistent across the project.
 
 ### Building the SDK
 
@@ -112,10 +112,10 @@ Deploy the contract using the generated program keypair:
 anchor deploy --program-name reclaim --program-keypair program-keypairs/reclaim-program-keypair.json
 ```
 
-- **`--program-name reclaim`** : Specifies the name of the program as defined in `Anchor.toml`.
+- **`--program-name reclaim`**: Specifies the name of the program as defined in `Anchor.toml`.
 
-- **`--program-keypair`** : Points to the keypair file generated during the setup.
-  **Note** : The default network for deployment is `devnet`. After deployment, take note of the **Program ID** displayed in the output:
+- **`--program-keypair`**: Points to the keypair file generated during the setup.
+  **Note**: The default network for deployment is `devnet`. After deployment, take note of the **Program ID** displayed in the output:
 
 ```yaml
 Program Id: YourProgramIDHere
@@ -197,7 +197,7 @@ To deploy the contract on networks other than devnet, you need to adjust the `An
 
 **Step 1**: Update `Anchor.toml`, replace the `[programs.devnet]` section with the network you want to deploy to:
 
-For **testnet** :
+For **testnet**:
 
 ```toml
 [programs.testnet]
@@ -207,7 +207,7 @@ reclaim = "YourProgramIDHere"
 cluster = "testnet"
 ```
 
-For **mainnet-beta** :
+For **mainnet-beta**:
 
 ```toml
 [programs.mainnet]
@@ -225,7 +225,7 @@ anchor deploy --provider.cluster testnet --program-name reclaim --program-keypai
 
 Replace `testnet` with `mainnet` for mainnet-beta.
 
-**Note** : Ensure that you have sufficient funds in your wallet on the target network to cover deployment costs.
+**Note**: Ensure that you have sufficient funds in your wallet on the target network to cover deployment costs.
 
 </Steps>
 
