@@ -66,9 +66,9 @@ This React app publishes Reclaim proofs to OP Mainnet, replace address and chain
         onClick={async () => {
           const hash = await writeContract(config, {
             abi: abi,
-            address: "0xe79A453bD088F4A58656b315a7C1f8Ea3473CCf1", //TODO : replace with your contract's address
+            address: "0xe79A453bD088F4A58656b315a7C1f8Ea3473CCf1", // TODO: replace with your contract's address
             functionName: "verifyProof",
-            chainId: 10, //TODO : replace with your chain id
+            chainId: 10, // TODO: replace with your chain id
             args: [proof],
           });
           if (hash) {

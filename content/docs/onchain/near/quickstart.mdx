@@ -104,10 +104,10 @@ export const CreateNewProof = ({ setNewProof, setReadyToVerify }) => {
   const [url, setUrl] = useState("");
   const { Canvas } = useQRCode();
 
-  const reclaimClient = new Reclaim.ProofRequest(""); //TODO: replace with your applicationId
+  const reclaimClient = new Reclaim.ProofRequest(""); // TODO: replace with your applicationId
 
   async function generateVerificationRequest() {
-    const providerId = ""; //TODO: replace with your provider ids you had selected while creating the application
+    const providerId = ""; // TODO: replace with your provider ids you had selected while creating the application
 
     reclaimClient.addContext(
       `user's address`,
@@ -118,7 +118,7 @@ export const CreateNewProof = ({ setNewProof, setReadyToVerify }) => {
 
     reclaimClient.setSignature(
       await reclaimClient.generateSignature(
-        "" //TODO : replace with your APP_SECRET
+        "" // TODO: replace with your APP_SECRET
       )
     );
 

@@ -158,12 +158,12 @@ function App() {
   const [loading, setLoading] = useState(false);
   const { account } = useAccount();
 
-  const APP_ID = "0x408edDD2dF298C2F5df1E2eDE2eBF1278A96Ee45"; //TODO: replace with your applicationId
+  const APP_ID = "0x408edDD2dF298C2F5df1E2eDE2eBF1278A96Ee45"; // TODO: replace with your applicationId
   const reclaimClient = new Reclaim.ProofRequest(APP_ID);
 
   async function generateVerificationRequest() {
     setLoading(true);
-    const providerId = "1bba104c-f7e3-4b58-8b42-f8c0346cdeab"; //TODO: replace with your provider ids you had selected while creating the application
+    const providerId = "1bba104c-f7e3-4b58-8b42-f8c0346cdeab"; // TODO: replace with your provider ids you had selected while creating the application
 
     reclaimClient.addContext(
       `user's address`,
@@ -174,7 +174,7 @@ function App() {
 
     reclaimClient.setSignature(
       await reclaimClient.generateSignature(
-        "0x5bdaf747ad9333898a0d9cb613f499d0b00164d7b8230628cf7ffa30fd323372" //TODO : replace with your APP_SECRET
+        "0x5bdaf747ad9333898a0d9cb613f499d0b00164d7b8230628cf7ffa30fd323372" // TODO: replace with your APP_SECRET
       )
     );
 
@@ -253,7 +253,7 @@ export default function VerifyProof(props: any) {
         nodeUrl: "https://starknet-sepolia.public.blastapi.io",
       });
       const reclaimAddress =
-        "0x0765f3f940f7c59288b522a44ac0eeba82f8bf71dd03e265d2c9ba3521466b4e"; //TODO: Replace with your contract address
+        "0x0765f3f940f7c59288b522a44ac0eeba82f8bf71dd03e265d2c9ba3521466b4e"; // TODO: Replace with your contract address
 
       const { abi: reclaimAbi } = await provider.getClassAt(reclaimAddress);
       if (reclaimAbi === undefined) {

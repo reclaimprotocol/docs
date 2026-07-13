@@ -88,7 +88,7 @@ A **data provider** in Reclaim's context is a structured set of instructions tha
    - **Public Parameters**: Schema defining user-supplied data, such as email addresses, used in requests.
    - **Secret Parameters**: Schema for sensitive authentication details, like access tokens, hidden from the attestor.
 
-2. **Provider Functionality** :
+2. **Provider Functionality**:
    - **Request Construction**:
      Providers define how to create API requests securely.
      **Example**: For a "google-login" provider, the request might include the email address (public parameter) and access token (secret parameter) to validate ownership of a Google account.

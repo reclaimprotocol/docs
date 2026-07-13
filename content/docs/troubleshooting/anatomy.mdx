@@ -146,6 +146,82 @@ description: Datastructures of messages transmitted during the verification proc
 ]
 ```
 
+## Data dictionary
+
+The following tables define every field returned by the SDK. Note that several fields are **JSON strings** that must be `JSON.parse`d before use — these are flagged in the "Parse?" column.
+
+### `Proof`
+
+Each element of the proof array (the object above).
+
+| Field | Type | Parse? | Description |
+|-------|------|--------|-------------|
+| `identifier` | `string` | – | Unique identifier of the claim (same value as `claimData.identifier`). |
+| `claimData` | `ProviderClaimData` | – | The signed claim. See table below. |
+| `signatures` | `string[]` | – | Attestor signature(s) over the claim. |
+| `witnesses` | `WitnessData[]` | – | Attestor(s) that witnessed and signed the claim (`{ id, url, claimAttestation? }`). |
+| `extractedParameterValues` | `object` | – | Convenience map of the extracted values. |
+| `publicData` | `any` (optional) | – | Extra, **unverified** data attached by the provider. Usually a JSON map or `null`. |
+| `taskId` | `number` (optional) | – | Internal task identifier. |
+| `teeAttestation` | `TeeAttestation` (optional) | – | Hardware attestation of the TEE that ran the session. See table below. |
+
+### `claimData` (`ProviderClaimData`)
+
+| Field | Type | Parse? | Description |
+|-------|------|--------|-------------|
+| `provider` | `string` | – | Provider type, e.g. `"http"`. |
+| `parameters` | `string` | ✅ JSON string | Parameters used by the provider script/requests. |
+| `owner` | `string` | – | **Legacy — ignore.** |
+| `timestampS` | `number` | – | Unix timestamp (seconds) when the claim was created. |
+| `context` | `string` | ✅ JSON string | Parses to the `Context` object below (holds `extractedParameters`). |
+| `identifier` | `string` | – | Unique identifier of the claim. |
+| `epoch` | `number` | – | Attestor epoch the claim was signed in. |
+
+### `Context` (parsed from `claimData.context`)
+
+```js
+const context = JSON.parse(proof.claimData.context);
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `contextAddress` | `string` | The `address` you set via `setContext` (usually your user id). |
+| `contextMessage` | `string` | The `message` you set via `setContext`. |
+| `reclaimSessionId` | `string` | The Reclaim session id — use for [replay protection](/manual/js-sdk/usage#replay-protection). |
+| `extractedParameters` | `Record<string, string>` (optional) | **The verified data you care about**, e.g. `{ email: "..." }`. |
+| `providerHash` | `string` (optional) | Hash of the provider used. |
+| `attestationNonce` | `string` (optional) | Nonce binding the proof to your app + session (used by TEE attestation). |
+| `attestationNonceData` | `object` (optional) | `{ applicationId, sessionId, timestamp, attestationVersion? }` used to derive the nonce. |
+
+### `verifyProof` result (`VerifyProofResult`)
+
+A discriminated union on `isVerified`. On success, `data`/`publicData` are populated and `error` is `undefined`; on failure, `data`/`publicData` are empty and `error` is an `Error`.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `isVerified` | `boolean` | `true` when the proof (and content) is valid. |
+| `data` | `TrustedData[]` | One entry per proof: `{ context, extractedParameters }` — the **trusted, verified** values. Empty `[]` on failure. |
+| `publicData` | `any[]` | The `publicData` from each proof (unverified). Empty `[]` on failure. |
+| `isTeeAttestationVerified` | `boolean` (optional) | Present when a `teeAttestation` config was passed; `true` if the TEE attestation chain verified. |
+| `isAttestorTeeAttestationVerified` | `boolean` (optional) | Whether the attestor's TEE attestation verified. |
+| `error` | `Error \| undefined` | The failure reason; `undefined` on success. |
+
+### `TeeAttestation`
+
+Present on a `Proof` when TEE attestation was requested at init.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `proof_version` | `'v2' \| 'v3'` | TEE attestation version. |
+| `tee_provider` | `string` | The TEE provider. |
+| `tee_technology` | `string` | The TEE technology used. |
+| `nonce` | `string` | Attestation nonce. |
+| `timestamp` | `string` | When the attestation was produced. |
+| `workload` | `{ container_name, image_digest }` | Identity of the workload container. |
+| `verifier` | `{ container_name, image_digest }` | Identity of the verifier container. |
+| `attestation` | `{ token }` | The attestation token. |
+| `error` | `{ code, message }` (optional) | Present if attestation generation failed. |
+
 # Structure of data POSTed to cancel callback
 
 ```json

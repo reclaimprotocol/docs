@@ -4,16 +4,34 @@ description: Install the MCP for AI Coding Agents
 ---
 import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
 
-Reclaim provides an **MCP server** that helps your coding agent integrate Reclaim Protocol.
+Reclaim provides an **MCP server** that helps your coding agent integrate Reclaim Protocol. It is published to npm as [`@reclaimprotocol/agent`](https://www.npmjs.com/package/@reclaimprotocol/agent) (bin: `reclaim-mcp-server`) and runs as a **stdio MCP server**.
 
-Set up your coding agent to use this MCP :
+Set up your coding agent to use this MCP:
 
 <Accordions>
-  <Accordion title="Claude Code">
+  <Accordion title="Claude">
 
-    ```bash
-    claude mcp add reclaim -s user -- npx -y --package=@reclaimprotocol/agent reclaim-mcp-server
+    **Recommended — install the plugin from the marketplace**:
+
     ```
+    claude plugin marketplace add reclaimprotocol/developer-tools
+    claude plugin install reclaim@reclaim
+    ```
+
+    Alternatively, add this configuration to `.mcp.json`:
+
+    ```json
+    {
+      "mcpServers": {
+        "reclaim": {
+          "command": "npx",
+          "args": ["-y", "--package=@reclaimprotocol/agent", "reclaim-mcp-server"]
+        }
+      }
+    }
+    ```
+
+    Then **fully quit and reopen** Claude CLI/Desktop (a window close is not enough for the Desktop app) so it re-reads the config and starts the server.
 
   </Accordion>
   <Accordion title="Cursor">
@@ -53,7 +71,16 @@ Set up your coding agent to use this MCP :
   <Accordion title="Codex">
 
     ```bash
+    # writes ~/.codex/config.toml
     codex mcp add reclaim -- npx -y --package=@reclaimprotocol/agent reclaim-mcp-server
+    ```
+
+    …or add it to `~/.codex/config.toml` yourself (Codex uses TOML, not JSON):
+
+    ```toml
+    [mcp_servers.reclaim]
+    command = "npx"
+    args = ["-y", "--package=@reclaimprotocol/agent", "reclaim-mcp-server"]
     ```
 
   </Accordion>
@@ -74,3 +101,10 @@ Set up your coding agent to use this MCP :
 
   </Accordion>
 </Accordions>
+
+Basically, just point any MCP-capable agent at this command:
+
+```bash
+npx -y --package=@reclaimprotocol/agent reclaim-mcp-server
+```
+
