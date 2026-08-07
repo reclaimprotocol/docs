@@ -50,6 +50,8 @@ export type LogType =
   | 'PROOF_GENERATION_FAILED'
   | 'PROOF_SUBMITTED'
   | 'AI_PROOF_SUBMITTED'
+  | 'USER_INTERACTED'
+  | 'USER_TYPED'
   | 'PROOF_SUBMISSION_FAILED'
   // This spelling mistake is intentional to match the backend.
   | 'PROOF_MANUAL_VERIFICATION_SUBMITED'
@@ -178,6 +180,8 @@ export interface AnalyticsLogEntry {
 | `PROOF_GENERATION_FAILED` | ERROR | Proof generation failed. |
 | `PROOF_SUBMITTED` | INFO | The proof has been successfully submitted. |
 | `AI_PROOF_SUBMITTED` | INFO | AI proof has been submitted. |
+| `USER_INTERACTED` | INFO | User interacted with the page after web page opens |
+| `USER_TYPED` | INFO | User typed on the web page |
 | `PROOF_SUBMISSION_FAILED` | ERROR | Proof submission failed. |
 | `PROOF_MANUAL_VERIFICATION_SUBMITED` | INFO | Manual verification proof submitted. |
 | `ERROR_SUBMITTED` | INFO | Error details (Right now happens on cancellation) have been submitted. |
