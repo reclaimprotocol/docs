@@ -20,10 +20,10 @@
     "fumadocs-mdx": "11.7.1",
     "fumadocs-ui": "14.6.1",
     "lucide-react": "^0.469.0",
-    "next": "15.4.8",
+    "next": "15.5.25",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "sharp": "^0.34.5"
+    "sharp": "^0.35.4"
   },
   "devDependencies": {
     "@types/mdx": "^2.0.13",
