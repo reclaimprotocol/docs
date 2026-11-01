@@ -6,6 +6,7 @@
     "build": "next build",
     "dev": "next dev",
     "start": "next start",
+    "test:reclaim": "node --experimental-strip-types lib/reclaim/server.test.ts && node --experimental-strip-types lib/reclaim/github-navigation.test.ts",
     "postinstall": "fumadocs-mdx"
   },
   "author": {
@@ -13,6 +14,7 @@
     "email": "aadithya794@gmail.com"
   },
   "dependencies": {
+    "@reclaimprotocol/client": "0.1.41",
     "@theguild/remark-mermaid": "^0.3.0",
     "@vercel/analytics": "^1.4.1",
     "fumadocs-core": "14.6.1",

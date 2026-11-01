@@ -13,13 +13,13 @@ export default function Layout({ children }: { children: ReactNode }) {
         banner: (
           <div className="changelog-section">
             <a
-              href="https://reclaimprotocol.substack.com/"
+              href="https://x.com/reclaimprotocol"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-colors w-full"
             >
               <ExternalLink className="w-4 h-4" />
-              Changelogs
+              Updates
             </a>
           </div>
         ),
