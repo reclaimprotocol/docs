@@ -1,0 +1,49 @@
+---
+title: How to write a good prompt
+description: If you can write a good prompt, Reclaim Protocol can verify!
+---
+
+
+For Reclaim Protocol to be able to verify, it needs just 2 things :
+1. A website behind a login
+2. A description of what data needs to be extracted and verified from the user's profile after they login
+
+E.g. - _I want users to prove "The event name and date of the last event they attended **from** ticketmaster.com"_
+
+`<What data needs to be extracted and verified> from <website>`
+
+# Identify the website
+To write a good prompt, first identify the website where you need to verify information from. Preferably a website that you, as the developer, have a login credential to test using. If you want to verify information from a website that you do not have login credentials for [contact us](mailto:support@reclaimprotocol.org).
+
+## Good
+- ticketmaster.com
+- ripping.com
+- irs.gov
+
+Notice these are concrete website urls, and these are websites that a user must login into to access their profile from which we can extract and verify information.
+
+## Bad
+- user's employer HRMS portal
+  - This is bad, because Reclaim Protocol doesn't know which website to use in order to extract and verify information from - is it Rippling? Workday? ADP? What is it?
+- undefined
+  - Many times we see people put in the prompt saying "verify user's income". If you don't tell _from_ where, Reclaim Protocol cannot operate.
+
+# Describe exactly what you want to extract and verify
+The more specific your description the higher the odds of being able to create an efficient verification process for your users. Try to give exact data fields that you want to be returned in the JSON response Reclaim Protocol should return after the verification is complete.
+
+## Good
+- Name and Phone Number
+- User's email, name & date of the event they last attended
+- Name of the first pet and the second pet if available
+
+Notice each of these fields are self explanatory. You can explicitly call out fields that if not available are ok to be left blank during the verification process.
+
+## Bad
+- User details
+  - This is bad because we don't know what user details you care about in your flow.
+- All the details
+  - Again, very hard for us to know what you mean by "all".
+- 12 months pay stubs
+  - What if the user doesn't have 12 months of employment yet? Also, what data from the paystub exactly?
+
+> Specificity is the key!

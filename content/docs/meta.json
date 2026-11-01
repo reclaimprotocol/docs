@@ -1,12 +1,10 @@
 {
   "root": true, 
   "pages": [
-    "agents",
-    "fullstack",
-    "manual",
-    "zkfetch",
-    "onchain",
-    "wtf-are-providers",
-    "troubleshooting"
+	  "index",
+	  "good-prompt",
+	  "how-works",
+	  "help",
+	  "legacy"
   ]
 }

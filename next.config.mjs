@@ -8,6 +8,7 @@ const withMDX = createMDX({
 
 /** @type {import('next').NextConfig} */
 const config = {
+  serverExternalPackages: ['@reclaimprotocol/client'],
   reactStrictMode: true,
   redirects: async () => [
     {

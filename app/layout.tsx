@@ -22,9 +22,9 @@ export default function Layout({ children }: { children: ReactNode }) {
       <body className="flex flex-col min-h-screen">
         <Banner variant="rainbow">
           <div className="text-xs sm:text-base">
-            Integrate Reclaim Protocol end to end using{' '}
-            <a href="/agents" className="underline">
-              our agent
+            Add Reclaim Protocol into your project with a single prompt{' '}
+            <a href="https://build.reclaimprotocol.org" className="underline">
+              using the builder
             </a>
           </div>
         </Banner>
