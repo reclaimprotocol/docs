@@ -1,4 +1,7 @@
 allowBuilds:
+  cbor-extract: true
   esbuild: true
+  koffi: true
+  re2: true
   sharp: true
   unrs-resolver: true
