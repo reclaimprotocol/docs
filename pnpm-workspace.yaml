@@ -5,3 +5,8 @@ allowBuilds:
   re2: true
   sharp: true
   unrs-resolver: true
+
+overrides:
+  brace-expansion@1: 1.1.21
+  postcss: ^8.5.32
+  underscore: 1.13.8
